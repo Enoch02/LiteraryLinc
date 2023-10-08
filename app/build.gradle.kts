@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
+    id ("dagger.hilt.android.plugin")
 }
 
 android {
@@ -12,7 +14,7 @@ android {
         minSdk = 24
         targetSdk = 33
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -50,6 +52,8 @@ android {
 }
 
 dependencies {
+    val daggerVersion: String by rootProject.extra
+
     implementation(project(":features:booklist"))
     implementation(project(":features:addbook"))
 
@@ -64,4 +68,6 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-extended:1.4.3")
     implementation("androidx.navigation:navigation-compose:2.5.3")
+    implementation("com.google.dagger:hilt-android:$daggerVersion")
+    ksp("com.google.dagger:hilt-android-compiler:$daggerVersion")
 }

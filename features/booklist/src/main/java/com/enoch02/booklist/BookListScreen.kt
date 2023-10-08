@@ -14,6 +14,7 @@ import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.BookType
@@ -33,7 +35,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun BookListScreen(modifier: Modifier, scope: CoroutineScope) {
+fun BookListScreen(
+    modifier: Modifier,
+    scope: CoroutineScope,
+    viewModel: BookListViewModel = hiltViewModel()
+) {
     val pagerState = rememberPagerState()
     val mediaType = listOf("All", "Books", "Manga/LN", "Comics")
 
@@ -62,15 +68,18 @@ fun BookListScreen(modifier: Modifier, scope: CoroutineScope) {
             count = mediaType.size,
             state = pagerState,
             content = {
-                BookListView(filter = it)
+                //TODO: move filter to viewModel
+                BookListView(
+                    filter = it,
+                    books = viewModel.books.collectAsState(initial = emptyList()).value
+                )
             }
         )
     }
 }
 
 @Composable
-private fun BookListView(filter: Int, viewModel: BookListViewModel = viewModel()) {
-    val books = emptyList<Book>()
+private fun BookListView(filter: Int, books: List<Book>) {
 
     if (books.isNotEmpty()) {
         LazyColumn(
@@ -82,7 +91,7 @@ private fun BookListView(filter: Int, viewModel: BookListViewModel = viewModel()
 
                         Item(
                             title = dummyItem.title,
-                            authors = dummyItem.authors,
+                            authors = emptyList() /*TODO:*/ /*dummyItem.authors*/,
                             type = dummyItem.type,
                             onClick = {})
                         /*if (index != dummyItems.size - 1) {
