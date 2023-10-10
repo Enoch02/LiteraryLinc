@@ -7,5 +7,5 @@ import com.enoch02.database.model.Book
 
 @Database(entities = [Book::class], version = 1, exportSchema = false)
 abstract class LiteraryLincDatabase : RoomDatabase() {
-    abstract fun bookDao(): BookDao
+    abstract fun getBookDao(): BookDao
 }

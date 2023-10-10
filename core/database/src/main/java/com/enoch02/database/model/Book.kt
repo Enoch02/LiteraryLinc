@@ -8,8 +8,8 @@ import androidx.room.PrimaryKey
 data class Book(
     @PrimaryKey(autoGenerate = true)
     val id: Int? = null,
-    val type: BookType,
     val title: String,
+    val type: BookType,
     /*val authors: List<String> = emptyList(),
     val genres: List<String> = emptyList(),*/
     val coverImage: String? = null  //TODO: use something more appropriate
