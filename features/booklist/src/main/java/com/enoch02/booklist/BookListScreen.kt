@@ -24,7 +24,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.BookType
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -41,19 +40,19 @@ fun BookListScreen(
     viewModel: BookListViewModel = hiltViewModel()
 ) {
     val pagerState = rememberPagerState()
-    val mediaType = listOf("All", "Books", "Manga/LN", "Comics")
+    val bookType = listOf("All", "Books", "Manga/LN", "Comics")
 
     Column(modifier = modifier.fillMaxSize()) {
         ScrollableTabRow(
             selectedTabIndex = pagerState.currentPage,
             tabs = {
-                mediaType.forEachIndexed { index, medium ->
+                bookType.forEachIndexed { index, type ->
                     Tab(
                         selected = index == pagerState.currentPage,
                         onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
                         content = {
                             Text(
-                                text = medium,
+                                text = type,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.padding(8.dp)
@@ -65,13 +64,11 @@ fun BookListScreen(
         )
 
         HorizontalPager(
-            count = mediaType.size,
+            count = bookType.size,
             state = pagerState,
-            content = {
-                //TODO: move filter to viewModel
+            content = { tabIndex ->
                 BookListView(
-                    filter = it,
-                    books = viewModel.books.collectAsState(initial = emptyList()).value
+                    books = viewModel.getBooks(tabIndex).collectAsState(initial = emptyList()).value
                 )
             }
         )
@@ -79,7 +76,7 @@ fun BookListScreen(
 }
 
 @Composable
-private fun BookListView(filter: Int, books: List<Book>) {
+private fun BookListView(books: List<Book>) {
 
     if (books.isNotEmpty()) {
         LazyColumn(
@@ -129,6 +126,7 @@ private fun Item(title: String, authors: List<String>, onClick: () -> Unit, type
             )
         },
         leadingContent = {
+            //TODO: Load actual image
             Image(
                 painter = painterResource(R.drawable.placeholder_image),
                 contentDescription = "Dummy",
