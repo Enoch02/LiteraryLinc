@@ -22,6 +22,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,6 +42,7 @@ import com.enoch02.composables.FormSpinner
 import com.enoch02.composables.FormTextField
 import com.enoch02.composables.ImagePicker
 import com.enoch02.database.model.Book
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,6 +75,8 @@ fun AddBookScreen(
             )
         },
         content = { paddingValues ->
+            //TODO: remove
+            var errorLog by remember { mutableStateOf("") }
 
             LazyColumn(
                 modifier = Modifier
@@ -106,6 +111,8 @@ fun AddBookScreen(
                                         singleLine = true,
                                         modifier = Modifier.width(80.dp)
                                     )
+
+                                    Text(text = coverImageUri.toString())
                                 }
                             }
                         )
@@ -136,23 +143,31 @@ fun AddBookScreen(
                     }
 
                     item {
+                        Text(text = errorLog)
+                    }
+
+                    item {
+                        val scope = rememberCoroutineScope()
                         Button(
                             onClick = {
-                                try {
-                                    val newBook = Book.createBook(
+                                scope.launch {
+                                    viewModel.addNewBook(
                                         title = bookTitle,
-                                        /*type = selectedType*/
-                                        type = BookType.BOOK
+                                        type = BookType.BOOK,
+                                        coverImageUri = coverImageUri
                                     )
-                                    viewModel.addNewBook(newBook)
-                                    navController.popBackStack()
-                                } catch (e: Exception) {
-                                    Toast.makeText(
-                                        context,
-                                        "${e.message}",
-                                        Toast.LENGTH_SHORT
-                                    )
-                                        .show()
+                                        .onSuccess {
+                                            navController.popBackStack()
+                                        }
+                                        .onFailure { e ->
+                                            errorLog = e.message.toString()
+                                            Toast.makeText(
+                                                context,
+                                                "${e.message}",
+                                                Toast.LENGTH_SHORT
+                                            )
+                                                .show()
+                                        }
                                 }
                             },
                             content = {

@@ -42,6 +42,7 @@ android {
 dependencies {
 
     implementation(project(":core:database"))
+    implementation(project(":core:coverfile"))
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
@@ -63,4 +64,6 @@ dependencies {
     implementation ("androidx.hilt:hilt-navigation-compose:1.0.0")
     ksp ("androidx.hilt:hilt-compiler:1.0.0")
     ksp("com.google.dagger:hilt-android-compiler:2.47")
+
+    implementation("io.coil-kt:coil-compose:2.4.0")
 }

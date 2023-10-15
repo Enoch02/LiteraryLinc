@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -18,12 +19,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.BookType
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -68,7 +71,9 @@ fun BookListScreen(
             state = pagerState,
             content = { tabIndex ->
                 BookListView(
-                    books = viewModel.getBooks(tabIndex).collectAsState(initial = emptyList()).value
+                    books = viewModel.getBooks(tabIndex)
+                        .collectAsState(initial = emptyList()).value,
+                    covers = viewModel.getCovers().collectAsState(initial = emptyMap()).value
                 )
             }
         )
@@ -76,7 +81,7 @@ fun BookListScreen(
 }
 
 @Composable
-private fun BookListView(books: List<Book>) {
+private fun BookListView(books: List<Book>, covers: Map<String, String?>) {
 
     if (books.isNotEmpty()) {
         LazyColumn(
@@ -84,12 +89,13 @@ private fun BookListView(books: List<Book>) {
                 items(
                     count = books.size,
                     itemContent = { index ->
-                        val dummyItem = books[index]
+                        val book = books[index]
 
                         Item(
-                            title = dummyItem.title,
+                            title = book.title,
                             authors = emptyList() /*TODO:*/ /*dummyItem.authors*/,
-                            type = dummyItem.type,
+                            type = book.type,
+                            coverPath = covers[book.coverImageName].toString(),
                             onClick = {})
                         /*if (index != dummyItems.size - 1) {
                             Divider()
@@ -112,7 +118,13 @@ private fun BookListView(books: List<Book>) {
 }
 
 @Composable
-private fun Item(title: String, authors: List<String>, onClick: () -> Unit, type: BookType) {
+private fun Item(
+    title: String,
+    authors: List<String>,
+    coverPath: String,
+    onClick: () -> Unit,
+    type: BookType
+) {
     ListItem(
         overlineContent = {
             Text(text = type.name.replace("_", " or "))
@@ -126,11 +138,11 @@ private fun Item(title: String, authors: List<String>, onClick: () -> Unit, type
             )
         },
         leadingContent = {
-            //TODO: Load actual image
-            Image(
-                painter = painterResource(R.drawable.placeholder_image),
-                contentDescription = "Dummy",
-                modifier = Modifier.height(60.dp)
+            AsyncImage(
+                model = coverPath,
+                contentDescription = null,
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.size(60.dp),
             )
         },
         supportingContent = {
