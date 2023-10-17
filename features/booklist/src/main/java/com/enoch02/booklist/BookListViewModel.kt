@@ -22,7 +22,7 @@ class BookListViewModel @Inject constructor(
             return books
         }
 
-        return books.map { books -> books.filter { book -> book.type.ordinal == filter } }
+        return books.map { books -> books.filter { book -> book.type == Book.types[filter] } }
     }
 
     fun getCovers() = covers

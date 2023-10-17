@@ -9,11 +9,10 @@ import java.io.IOException
 
 fun getFileFromUri(context: Context, uri: Uri): Result<File> {
     val contentResolver = context.contentResolver
-    var fileName = ""
-    contentResolver.query(uri, null, null, null, null).use { cursor ->
+    val fileName = contentResolver.query(uri, null, null, null, null).use { cursor ->
         val name = cursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME)
         cursor?.moveToFirst()
-        fileName = name?.let { cursor.getString(it) } ?: ""
+        name?.let { cursor.getString(it) } ?: ""
     }
 
     try {

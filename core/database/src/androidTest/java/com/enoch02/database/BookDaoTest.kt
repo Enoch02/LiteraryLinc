@@ -6,7 +6,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.model.Book
-import com.enoch02.database.model.BookType
 import org.junit.After
 
 import org.junit.runner.RunWith

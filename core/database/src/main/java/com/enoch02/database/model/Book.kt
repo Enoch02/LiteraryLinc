@@ -9,14 +9,16 @@ data class Book(
     @PrimaryKey(autoGenerate = true)
     val id: Int? = null,
     val title: String,
-    val type: BookType,
+    val type: String,
     /*TODO: create type converters for the lists*/
     /*val authors: List<String> = emptyList(),
     val genres: List<String> = emptyList(),*/
-    val coverImageName: String? = null  //TODO: Save path insted?
+    val coverImageName: String? = null
 ) {
     companion object {
-        fun createBook(title: String, type: BookType, coverImageName: String? = null): Book {
+        val types = mapOf(0 to "Any", 1 to "Comic", 2 to "Light Novel", 3 to "Manga", 4 to "Novel")
+
+        fun createBook(title: String, type: String, coverImageName: String? = null): Book {
             if (title.isEmpty())
                 throw Exception("Please enter a Title")
 

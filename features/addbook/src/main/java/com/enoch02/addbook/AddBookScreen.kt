@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.enoch02.database.model.BookType
 import com.enoch02.composables.BackArrowButton
 import com.enoch02.composables.FormSpinner
 import com.enoch02.composables.FormTextField
@@ -57,11 +56,7 @@ fun AddBookScreen(
     var author by rememberSaveable { mutableStateOf("") }
     var coverImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     var pageNumber by rememberSaveable { mutableStateOf("0") }
-    val options = BookType.values().map {
-        it.name.lowercase().replaceFirstChar { fc -> fc.uppercaseChar() }
-            .replace("_", " or ")
-    }
-    var selectedType by rememberSaveable { mutableStateOf(options[1]) }
+    var selectedType by rememberSaveable { mutableStateOf(Book.types.values.first()) }
 
     Scaffold(
         topBar = {
@@ -111,8 +106,6 @@ fun AddBookScreen(
                                         singleLine = true,
                                         modifier = Modifier.width(80.dp)
                                     )
-
-                                    Text(text = coverImageUri.toString())
                                 }
                             }
                         )
@@ -122,7 +115,8 @@ fun AddBookScreen(
                         FormTextField(
                             label = "Book Title",
                             value = bookTitle,
-                            onValueChange = { bookTitle = it }
+                            onValueChange = { bookTitle = it },
+                            modifier = Modifier.padding(vertical = 8.dp)
                         )
                     }
 
@@ -130,20 +124,19 @@ fun AddBookScreen(
                         FormTextField(
                             label = "Author Name",
                             value = author,
-                            onValueChange = { author = it })
+                            onValueChange = { author = it },
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
                     }
 
                     item {
-                        //TODO: selectedType should be a BookType object
                         FormSpinner(
                             label = "Category",
-                            options = options,
+                            options = Book.types.values.toList(),
                             selectedOption = selectedType,
-                            onSelectionChange = { selectedType = it })
-                    }
-
-                    item {
-                        Text(text = errorLog)
+                            onSelectionChange = { selectedType = it },
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
                     }
 
                     item {
@@ -153,7 +146,7 @@ fun AddBookScreen(
                                 scope.launch {
                                     viewModel.addNewBook(
                                         title = bookTitle,
-                                        type = BookType.BOOK,
+                                        type = selectedType,
                                         coverImageUri = coverImageUri
                                     )
                                         .onSuccess {

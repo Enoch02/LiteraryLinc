@@ -9,8 +9,9 @@ enum class TopLevelDestination {
 
 sealed class Screen(val route: String) {
 
-    object MainScaffold : Screen("main_scaffold")
-    object AddBookScreen : Screen("add_book_screen")
+    object LiteraryLincApp : Screen("literarylinc_app")
+    object AddBook : Screen("add_book_screen")
+    object BookDetail : Screen("book_detail_screen")
 
     fun withArgs(vararg args: String): String {
         return buildString {

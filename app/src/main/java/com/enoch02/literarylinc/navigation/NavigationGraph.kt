@@ -10,22 +10,27 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.enoch02.literarylinc.ui.LiteraryLincApp
 import com.enoch02.addbook.AddBookScreen
+import com.enoch02.bookdetail.BookDetailScreen
 
 @Composable
 fun NavigationGraph(navController: NavHostController = rememberNavController()) {
     NavHost(
         navController = navController,
-        startDestination = Screen.MainScaffold.route,
+        startDestination = Screen.LiteraryLincApp.route,
         builder = {
-            composable(Screen.MainScaffold.route) {
+            composable(Screen.LiteraryLincApp.route) {
                 LiteraryLincApp(navController = navController)
             }
 
-            composable(Screen.AddBookScreen.route) {
+            composable(Screen.AddBook.route) {
                 AddBookScreen(
                     navController = navController,
                     modifier = Modifier.padding(8.dp)
                 )
+            }
+
+            composable(Screen.BookDetail.route) {
+                BookDetailScreen()
             }
         }
     )

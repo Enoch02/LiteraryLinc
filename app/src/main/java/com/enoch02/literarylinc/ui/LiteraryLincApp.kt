@@ -5,12 +5,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Analytics
+import androidx.compose.material.icons.rounded.CameraAlt
 import androidx.compose.material.icons.rounded.ListAlt
 import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -39,7 +41,21 @@ fun LiteraryLincApp(navController: NavController) {
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) })
+            TopAppBar(
+                title = { Text(text = /*stringResource(id = R.string.app_name)*/ stringResource(R.string.your_library_label)) },
+                actions = {
+                    IconButton(
+                        onClick = { /*TODO*/ },
+                        content = {
+                            //TODO: proper barcode scanner icon
+                            Icon(
+                                imageVector = Icons.Rounded.CameraAlt,
+                                contentDescription = stringResource(R.string.barcode_scanner_desc)
+                            )
+                        }
+                    )
+                }
+            )
         },
         bottomBar = {
             val screens = TopLevelDestination.values()
@@ -78,7 +94,7 @@ fun LiteraryLincApp(navController: NavController) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(Screen.AddBookScreen.route) },
+                onClick = { navController.navigate(Screen.AddBook.route) },
                 content = {
                     Icon(
                         imageVector = Icons.Rounded.Add,
@@ -95,7 +111,8 @@ fun LiteraryLincApp(navController: NavController) {
                         TopLevelDestination.BOOK_LIST -> {
                             BookListScreen(
                                 modifier = Modifier.padding(paddingValues),
-                                scope = scope
+                                scope = scope,
+                                onItemClick = { navController.navigate(Screen.BookDetail.route) }
                             )
                         }
 

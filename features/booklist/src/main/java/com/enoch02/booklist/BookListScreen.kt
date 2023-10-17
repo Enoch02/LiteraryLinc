@@ -1,11 +1,9 @@
 package com.enoch02.booklist
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,7 +18,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.enoch02.database.model.Book
-import com.enoch02.database.model.BookType
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -40,16 +36,17 @@ import kotlinx.coroutines.launch
 fun BookListScreen(
     modifier: Modifier,
     scope: CoroutineScope,
+    onItemClick: () -> Unit,
     viewModel: BookListViewModel = hiltViewModel()
 ) {
     val pagerState = rememberPagerState()
-    val bookType = listOf("All", "Books", "Manga/LN", "Comics")
+    val tabLabels = Book.types.values
 
     Column(modifier = modifier.fillMaxSize()) {
         ScrollableTabRow(
             selectedTabIndex = pagerState.currentPage,
             tabs = {
-                bookType.forEachIndexed { index, type ->
+                tabLabels.forEachIndexed { index, type ->
                     Tab(
                         selected = index == pagerState.currentPage,
                         onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
@@ -67,13 +64,14 @@ fun BookListScreen(
         )
 
         HorizontalPager(
-            count = bookType.size,
+            count = tabLabels.size,
             state = pagerState,
             content = { tabIndex ->
                 BookListView(
                     books = viewModel.getBooks(tabIndex)
                         .collectAsState(initial = emptyList()).value,
-                    covers = viewModel.getCovers().collectAsState(initial = emptyMap()).value
+                    covers = viewModel.getCovers().collectAsState(initial = emptyMap()).value,
+                    onItemClick = onItemClick
                 )
             }
         )
@@ -81,7 +79,11 @@ fun BookListScreen(
 }
 
 @Composable
-private fun BookListView(books: List<Book>, covers: Map<String, String?>) {
+private fun BookListView(
+    books: List<Book>,
+    covers: Map<String, String?>,
+    onItemClick: () -> Unit
+) {
 
     if (books.isNotEmpty()) {
         LazyColumn(
@@ -95,11 +97,9 @@ private fun BookListView(books: List<Book>, covers: Map<String, String?>) {
                             title = book.title,
                             authors = emptyList() /*TODO:*/ /*dummyItem.authors*/,
                             type = book.type,
-                            coverPath = covers[book.coverImageName].toString(),
-                            onClick = {})
-                        /*if (index != dummyItems.size - 1) {
-                            Divider()
-                        }*/
+                            coverPath = covers[book.coverImageName],
+                            onClick = onItemClick
+                        )
                     }
                 )
             },
@@ -121,13 +121,13 @@ private fun BookListView(books: List<Book>, covers: Map<String, String?>) {
 private fun Item(
     title: String,
     authors: List<String>,
-    coverPath: String,
+    coverPath: String?,
     onClick: () -> Unit,
-    type: BookType
+    type: String
 ) {
     ListItem(
         overlineContent = {
-            Text(text = type.name.replace("_", " or "))
+            Text(text = type)
         },
         headlineContent = {
             Text(
@@ -139,10 +139,11 @@ private fun Item(
         },
         leadingContent = {
             AsyncImage(
-                model = coverPath,
+                //TODO: replace with proper default image for book covers
+                model = coverPath ?: R.drawable.placeholder_image,
                 contentDescription = null,
                 contentScale = ContentScale.FillBounds,
-                modifier = Modifier.size(60.dp),
+                modifier = Modifier.size(width = 80.dp, height = 120.dp),
             )
         },
         supportingContent = {
@@ -161,5 +162,5 @@ private fun Item(
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 private fun Preview() {
-    BookListScreen(modifier = Modifier, rememberCoroutineScope())
+    BookListScreen(modifier = Modifier, scope = rememberCoroutineScope(), onItemClick = {})
 }

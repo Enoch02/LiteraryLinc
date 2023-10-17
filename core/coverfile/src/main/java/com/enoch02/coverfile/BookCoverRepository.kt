@@ -38,9 +38,16 @@ class BookCoverRepository(private val context: Context) {
                 if (!coverFolder.exists()) {
                     coverFolder.mkdir()
                 }
-                Compressor.compress(context = context, imageFile = file) {
-                    default()
-                    destination(File(coverFolder.path, file.name))
+
+                val fileNames = coverFolder.listFiles()?.map { it.name } ?: emptyList()
+
+                if (file.name !in fileNames) {
+                    Log.e(TAG, "copyCover: ${file.name} NOT IN FOLDER!!", )
+                    Log.e(TAG, "copyCover: $fileNames", )
+                    Compressor.compress(context = context, imageFile = file) {
+                        default()
+                        destination(File(coverFolder.path, file.name))
+                    }
                 }
             }
             .onFailure {

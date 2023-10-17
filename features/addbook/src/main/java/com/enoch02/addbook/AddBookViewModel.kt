@@ -1,17 +1,12 @@
 package com.enoch02.addbook
 
-import android.content.Context
 import android.net.Uri
-import android.util.Log
-import androidx.core.net.toFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.model.Book
-import com.enoch02.database.model.BookType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,8 +15,7 @@ class AddBookViewModel @Inject constructor(
     private val bookDao: BookDao,
     private val bookCoverRepository: BookCoverRepository
 ) : ViewModel() {
-
-    suspend fun addNewBook(title: String, type: BookType, coverImageUri: Uri?): Result<Unit> {
+    suspend fun addNewBook(title: String, type: String, coverImageUri: Uri?): Result<Unit> {
         try {
             val fileName = coverImageUri?.let { bookCoverRepository.copyCover(it) }
             val newBook = Book.createBook(
