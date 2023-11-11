@@ -1,11 +1,11 @@
 package com.enoch02.literarylinc.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Analytics
-import androidx.compose.material.icons.rounded.CameraAlt
 import androidx.compose.material.icons.rounded.ListAlt
 import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.icons.rounded.Search
@@ -25,6 +25,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
@@ -42,18 +43,39 @@ fun LiteraryLincApp(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = /*stringResource(id = R.string.app_name)*/ stringResource(R.string.your_library_label)) },
-                actions = {
-                    IconButton(
-                        onClick = { /*TODO*/ },
-                        content = {
-                            //TODO: proper barcode scanner icon
-                            Icon(
-                                imageVector = Icons.Rounded.CameraAlt,
-                                contentDescription = stringResource(R.string.barcode_scanner_desc)
-                            )
+                title = {
+                    Text(
+                        text = when (currentScreen) {
+                            TopLevelDestination.BOOK_LIST -> {
+                                stringResource(id = R.string.your_library_label)
+                            }
+
+                            TopLevelDestination.SEARCH -> {
+                                stringResource(id = R.string.search_label)
+                            }
+
+                            TopLevelDestination.STATS -> {
+                                stringResource(id = R.string.statistics_label)
+                            }
+
+                            else -> {
+                                ""
+                            }
                         }
                     )
+                },
+                actions = {
+                    if (currentScreen == TopLevelDestination.BOOK_LIST) {
+                        IconButton(
+                            onClick = { navController.navigate(Screen.BarcodeScanner.route) },
+                            content = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.barcode_scanner_24px),
+                                    contentDescription = stringResource(R.string.barcode_scanner_desc)
+                                )
+                            }
+                        )
+                    }
                 }
             )
         },
@@ -93,15 +115,17 @@ fun LiteraryLincApp(navController: NavController) {
             }
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate(Screen.AddBook.route) },
-                content = {
-                    Icon(
-                        imageVector = Icons.Rounded.Add,
-                        contentDescription = stringResource(R.string.add_new_book_desc)
-                    )
-                },
-            )
+            if (currentScreen == TopLevelDestination.BOOK_LIST) {
+                FloatingActionButton(
+                    onClick = { navController.navigate(Screen.AddBook.route) },
+                    content = {
+                        Icon(
+                            imageVector = Icons.Rounded.Add,
+                            contentDescription = stringResource(R.string.add_new_book_desc)
+                        )
+                    },
+                )
+            }
         },
         content = { paddingValues ->
             Crossfade(
@@ -109,10 +133,14 @@ fun LiteraryLincApp(navController: NavController) {
                 content = {
                     when (it) {
                         TopLevelDestination.BOOK_LIST -> {
+                            val onItemClickedCallback: (Int) -> Unit = { id ->
+                                navController.navigate(Screen.BookDetail.withArgs(id.toString()))
+                            }
+
                             BookListScreen(
                                 modifier = Modifier.padding(paddingValues),
                                 scope = scope,
-                                onItemClick = { navController.navigate(Screen.BookDetail.route) }
+                                onItemClick = onItemClickedCallback
                             )
                         }
 

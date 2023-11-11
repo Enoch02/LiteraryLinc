@@ -17,8 +17,10 @@
             <option value="$PROJECT_DIR$/core/database" />
             <option value="$PROJECT_DIR$/features" />
             <option value="$PROJECT_DIR$/features/addbook" />
+            <option value="$PROJECT_DIR$/features/barcodescanner" />
             <option value="$PROJECT_DIR$/features/bookdetail" />
             <option value="$PROJECT_DIR$/features/booklist" />
+            <option value="$PROJECT_DIR$/features/editbook" />
           </set>
         </option>
       </GradleProjectSettings>

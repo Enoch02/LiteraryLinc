@@ -35,7 +35,7 @@ internal fun ImagePicker(
         MediaStore.Images.Media.EXTERNAL_CONTENT_URI
     )
         .apply {
-            type = "image/jpeg"
+            type = "image/*"
             addCategory(Intent.CATEGORY_OPENABLE)
         }
 

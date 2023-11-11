@@ -2,8 +2,10 @@ package com.enoch02.booklist
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,13 +16,11 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
 fun BookListScreen(
     modifier: Modifier,
     scope: CoroutineScope,
-    onItemClick: () -> Unit,
+    onItemClick: (Int) -> Unit,
     viewModel: BookListViewModel = hiltViewModel()
 ) {
     val pagerState = rememberPagerState()
@@ -82,7 +82,7 @@ fun BookListScreen(
 private fun BookListView(
     books: List<Book>,
     covers: Map<String, String?>,
-    onItemClick: () -> Unit
+    onItemClick: (Int) -> Unit
 ) {
 
     if (books.isNotEmpty()) {
@@ -95,10 +95,8 @@ private fun BookListView(
 
                         Item(
                             title = book.title,
-                            authors = emptyList() /*TODO:*/ /*dummyItem.authors*/,
-                            type = book.type,
                             coverPath = covers[book.coverImageName],
-                            onClick = onItemClick
+                            onClick = { book.id?.let { onItemClick(it) } }
                         )
                     }
                 )
@@ -120,47 +118,32 @@ private fun BookListView(
 @Composable
 private fun Item(
     title: String,
-    authors: List<String>,
     coverPath: String?,
     onClick: () -> Unit,
-    type: String
 ) {
     ListItem(
-        overlineContent = {
-            Text(text = type)
-        },
         headlineContent = {
             Text(
                 text = title,
                 fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
                 fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                fontWeight = MaterialTheme.typography.titleMedium.fontWeight
+                fontWeight = MaterialTheme.typography.titleMedium.fontWeight,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         },
         leadingContent = {
             AsyncImage(
-                //TODO: replace with proper default image for book covers
+                //TODO: replace placeholder with proper default image for book covers
                 model = coverPath ?: R.drawable.placeholder_image,
                 contentDescription = null,
                 contentScale = ContentScale.FillBounds,
-                modifier = Modifier.size(width = 80.dp, height = 120.dp),
+                modifier = Modifier.size(width = 50.dp, height = 80.dp),
             )
         },
         supportingContent = {
-            Text(
-                text = if (authors.size > 5) {
-                    authors.slice(0..5).joinToString(", ")
-                } else {
-                    authors.joinToString(", ")
-                }
-            )
+            Box(modifier = Modifier.height(45.dp))
         },
         modifier = Modifier.clickable { onClick() }
     )
-}
-
-@Preview(showSystemUi = true, showBackground = true)
-@Composable
-private fun Preview() {
-    BookListScreen(modifier = Modifier, scope = rememberCoroutineScope(), onItemClick = {})
 }

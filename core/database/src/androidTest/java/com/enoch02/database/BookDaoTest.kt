@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.model.Book
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 
 import org.junit.runner.RunWith
@@ -31,21 +32,24 @@ class BookDaoTest {
     @Test
     @Throws(Exception::class)
     fun addBookAndReadBook() {
-        val book = Book(id = 13, title = "Test", type = BookType.BOOK)
-        bookDao.insertBook(book)
-        val bookFromDb = bookDao.getBookById(13)
-
-        assertEquals(book.id, bookFromDb.id)
+        runBlocking {
+            val book = Book(id = 13, title = "Test", type = Book.types[4].toString())
+            bookDao.insertBook(book)
+            val bookFromDb = bookDao.getBookById(13)
+            assertEquals(book.id, bookFromDb.id)
+        }
     }
 
     @Test
     @Throws(Exception::class)
     fun updateBook() {
-        val newBook = Book(id = 13, title = "Test(Updated)", type = BookType.BOOK)
-        bookDao.updateBook(newBook)
-        val bookFromDb = bookDao.getBookById(13)
+        runBlocking {
+            val newBook = Book(id = 13, title = "Test(Updated)", type = Book.types[4].toString())
+            bookDao.updateBook(newBook)
+            val bookFromDb = bookDao.getBookById(13)
 
-        assertEquals("Test(Updated)", bookFromDb.title)
+            assertEquals("Test(Updated)", bookFromDb.title)
+        }
     }
 
     @After

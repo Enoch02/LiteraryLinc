@@ -2,4 +2,7 @@
 <resources>
     <string name="add_a_new_book_text">Add a New Book</string>
     <string name="navigate_back_desc">Navigate Back</string>
+    <string name="save_book_desc">Save book details</string>
+    <string name="increment_desc">Increment</string>
+    <string name="times_reread_label">Times Reread</string>
 </resources>

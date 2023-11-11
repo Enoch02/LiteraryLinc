@@ -42,8 +42,6 @@ class BookCoverRepository(private val context: Context) {
                 val fileNames = coverFolder.listFiles()?.map { it.name } ?: emptyList()
 
                 if (file.name !in fileNames) {
-                    Log.e(TAG, "copyCover: ${file.name} NOT IN FOLDER!!", )
-                    Log.e(TAG, "copyCover: $fileNames", )
                     Compressor.compress(context = context, imageFile = file) {
                         default()
                         destination(File(coverFolder.path, file.name))
@@ -57,28 +55,24 @@ class BookCoverRepository(private val context: Context) {
         return coverFile.getOrThrow().name
     }
 
-    fun deleteAllCovers(scope: CoroutineScope) {
-        scope.launch {
-            val files = coverFolder.listFiles()?.toList()
+    fun deleteAllCovers() {
+        val files = coverFolder.listFiles()?.toList()
 
-            files?.forEach { file ->
-                file.delete()
-                Log.d(TAG, "${file.name} deleted!")
-            }
+        files?.forEach { file ->
+            file.delete()
+            Log.d(TAG, "${file.name} deleted!")
         }
     }
 
-    fun deleteOneCover(scope: CoroutineScope, coverName: String) {
-        scope.launch {
-            try {
-                if (coverName.isNotEmpty()) {
-                    val file = File(coverFolder, coverName)
-                    file.delete()
-                    Log.d(TAG, "$coverName deleted!")
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "deleteOneCover() -> $e")
+    fun deleteOneCover(coverName: String) {
+        try {
+            if (coverName.isNotEmpty()) {
+                val file = File(coverFolder, coverName)
+                file.delete()
+                Log.d(TAG, "$coverName deleted!")
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "deleteOneCover() -> $e")
         }
     }
 }

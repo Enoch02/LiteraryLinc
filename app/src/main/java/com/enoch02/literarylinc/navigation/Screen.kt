@@ -12,6 +12,7 @@ sealed class Screen(val route: String) {
     object LiteraryLincApp : Screen("literarylinc_app")
     object AddBook : Screen("add_book_screen")
     object BookDetail : Screen("book_detail_screen")
+    object BarcodeScanner: Screen("barcode_scanner_screen")
 
     fun withArgs(vararg args: String): String {
         return buildString {
