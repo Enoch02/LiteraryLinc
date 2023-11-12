@@ -11,7 +11,6 @@ data class Book(
     val id: Int? = null,
     val title: String = "",
     val author: String = "",
-    val category: String = "",
     val pagesRead: Int = 0,
     val pageCount: Int = 0,
     /*val dateStarted:*/
@@ -29,9 +28,9 @@ data class Book(
         val status = listOf("Reading", "Completed", "On Hold", "Planning")
 
         fun createBook(
+            id: Int? = null,
             title: String,
             author: String,
-            category: String,
             pagesRead: String,
             pageCount: String,
             /* dateStarted:*/
@@ -39,7 +38,7 @@ data class Book(
             personalRating: String,
             isbn: String,
             genre: String,
-            type: String,
+            type: String, //TODO: remove?
             coverImageName: String?,
             description: String,
             status: String
@@ -52,9 +51,9 @@ data class Book(
                 throw Exception("Please enter the Page Count")
 
             return Book(
+                id = id,
                 title = title,
                 author = author,
-                category = category,
                 pagesRead = pagesRead.toInt(),
                 pageCount = pageCount.toInt(),
                 timesReread = timesReread.toInt(),

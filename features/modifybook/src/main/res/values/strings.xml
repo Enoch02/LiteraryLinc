@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_a_new_book_text">Add a New Book</string>
+    <string name="navigate_back_desc">Navigate Back</string>
+    <string name="save_book_desc">Save book details</string>
+    <string name="increment_desc">Increment</string>
+    <string name="times_reread_label">Times Reread</string>
+    <string name="rating_label">Rating</string>
+    <string name="isbn_label">ISBN</string>
+    <string name="genre_label">Genre</string>
+    <string name="description_label">Description</string>
+    <string name="page_count_label">Page Count</string>
+    <string name="pages_read_label">Pages Read</string>
+    <string name="status_label">Status</string>
+    <string name="book_type_label">Book Type</string>
+    <string name="editing_text">Editing %1$s</string>
+    <string name="add_image_desc">Add Cover Image</string>
+</resources>

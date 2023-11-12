@@ -39,6 +39,7 @@ import com.enoch02.database.model.Book
 fun BookDetailScreen(
     navController: NavController,
     id: Int,
+    editScreenRoute: () -> String,
     viewModel: BookDetailViewModel = hiltViewModel()
 ) {
     /*val bookSaver = Saver<Book, Map<Int, Any?>>(
@@ -93,7 +94,10 @@ fun BookDetailScreen(
                                         showBookDetails = true
                                     }
 
-                                    1 -> {}
+                                    1 -> {
+                                        navController.navigate(editScreenRoute())
+                                    }
+
                                     2 -> {
                                         viewModel.deleteBook(id)
                                         navController.popBackStack()
@@ -148,7 +152,6 @@ fun BookDetailScreen(
                             content = {
                                 item { BookInfoText(header = "Title", value = book.title) }
                                 item { BookInfoText(header = "Author", value = book.author) }
-                                item { BookInfoText(header = "Category", value = book.category) }
                                 item {
                                     BookInfoText(
                                         header = "Page count",

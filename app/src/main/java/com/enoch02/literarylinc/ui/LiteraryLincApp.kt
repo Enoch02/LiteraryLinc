@@ -133,14 +133,12 @@ fun LiteraryLincApp(navController: NavController) {
                 content = {
                     when (it) {
                         TopLevelDestination.BOOK_LIST -> {
-                            val onItemClickedCallback: (Int) -> Unit = { id ->
-                                navController.navigate(Screen.BookDetail.withArgs(id.toString()))
-                            }
-
                             BookListScreen(
                                 modifier = Modifier.padding(paddingValues),
                                 scope = scope,
-                                onItemClick = onItemClickedCallback
+                                onItemClick = { id ->
+                                    navController.navigate(Screen.BookDetail.withArgs(id.toString()))
+                                }
                             )
                         }
 

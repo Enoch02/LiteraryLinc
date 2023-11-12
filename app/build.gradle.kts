@@ -55,7 +55,7 @@ dependencies {
     val daggerVersion: String by rootProject.extra
 
     implementation(project(":features:booklist"))
-    implementation(project(":features:addbook"))
+    implementation(project(":features:modifybook"))
     implementation(project(":features:bookdetail"))
     implementation(project(":features:barcodescanner"))
 

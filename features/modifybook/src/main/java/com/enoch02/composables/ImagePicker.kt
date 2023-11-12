@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -58,6 +59,57 @@ internal fun ImagePicker(
                 } else {
                     AsyncImage(
                         model = coverImageUri,
+                        contentDescription = null,
+                        contentScale = ContentScale.FillBounds,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            },
+            modifier = Modifier.size(120.dp, 180.dp)
+        )
+    }
+}
+
+/***
+ * Modified version of [ImagePicker] that uses
+ * uri and a path to determine what image to display
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun ImagePicker(
+    label: String,
+    launcher: ManagedActivityResultLauncher<Intent, ActivityResult>,
+    coverImageUri: Uri?,
+    coverImagePath: String?
+) {
+    val intent = Intent(
+        Intent.ACTION_OPEN_DOCUMENT,
+        MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    )
+        .apply {
+            type = "image/*"
+            addCategory(Intent.CATEGORY_OPENABLE)
+        }
+
+    Column {
+        Text(text = label, fontWeight = FontWeight.Bold)
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Card(
+            onClick = {
+                launcher.launch(intent)
+            },
+            content = {
+                if (coverImageUri == null && coverImagePath.isNullOrEmpty()) {
+                    Icon(
+                        painter = painterResource(R.drawable.round_image_24),
+                        contentDescription = stringResource(R.string.add_image_desc),
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    AsyncImage(
+                        model = coverImageUri ?: coverImagePath,
                         contentDescription = null,
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier.fillMaxSize()

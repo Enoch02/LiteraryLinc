@@ -11,9 +11,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.enoch02.literarylinc.ui.LiteraryLincApp
-import com.enoch02.addbook.AddBookScreen
+import com.enoch02.AddBookScreen
 import com.enoch02.barcodescanner.BarcodeScannerScreen
 import com.enoch02.bookdetail.BookDetailScreen
+import com.enoch02.EditBookScreen
 
 @Composable
 fun NavigationGraph(navController: NavHostController = rememberNavController()) {
@@ -33,11 +34,26 @@ fun NavigationGraph(navController: NavHostController = rememberNavController()) 
             }
 
             composable(
+                route = Screen.EditBook.route + "/{id}",
+                arguments = listOf(navArgument(name = "id") { type = NavType.IntType })
+            ) { entry ->
+                entry.arguments?.getInt("id")?.let { id ->
+                    EditBookScreen(navController = navController, id = id)
+                }
+            }
+
+            composable(
                 route = Screen.BookDetail.route + "/{id}",
                 arguments = listOf(navArgument(name = "id") { type = NavType.IntType })
             ) { entry ->
                 entry.arguments?.getInt("id")?.let { id ->
-                    BookDetailScreen(navController = navController, id = id)
+                    BookDetailScreen(
+                        navController = navController,
+                        id = id,
+                        editScreenRoute = {
+                            Screen.EditBook.withArgs(id.toString())
+                        }
+                    )
                 }
             }
 
