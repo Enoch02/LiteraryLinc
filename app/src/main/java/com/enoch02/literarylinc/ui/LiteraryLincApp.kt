@@ -1,6 +1,5 @@
 package com.enoch02.literarylinc.ui
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -30,10 +29,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
 import com.enoch02.booklist.BookListScreen
+import com.enoch02.more.MoreScreen
 import com.enoch02.literarylinc.R
 import com.enoch02.literarylinc.navigation.Screen
 import com.enoch02.literarylinc.navigation.TopLevelDestination
+import com.enoch02.more.navigation.MoreNavigationGraph
 
+/**
+ * TODO: replace all [androidx.compose.ui.graphics.vector.ImageVector] icons
+ * with [painterResource]?
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LiteraryLincApp(navController: NavController) {
@@ -58,8 +63,8 @@ fun LiteraryLincApp(navController: NavController) {
                                 stringResource(id = R.string.statistics_label)
                             }
 
-                            else -> {
-                                ""
+                            TopLevelDestination.MORE -> {
+                                stringResource(R.string.more_label)
                             }
                         }
                     )
@@ -151,8 +156,8 @@ fun LiteraryLincApp(navController: NavController) {
                         }
 
                         TopLevelDestination.MORE -> {
-                            //TODO: IMPORT!!
                             /*MoreScreen(modifier = Modifier.padding(paddingValues))*/
+                            MoreNavigationGraph()
                         }
                     }
                 },

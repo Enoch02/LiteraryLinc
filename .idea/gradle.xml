@@ -19,8 +19,8 @@
             <option value="$PROJECT_DIR$/features/barcodescanner" />
             <option value="$PROJECT_DIR$/features/bookdetail" />
             <option value="$PROJECT_DIR$/features/booklist" />
-            <option value="$PROJECT_DIR$/features/editbook" />
             <option value="$PROJECT_DIR$/features/modifybook" />
+            <option value="$PROJECT_DIR$/features/more" />
           </set>
         </option>
       </GradleProjectSettings>

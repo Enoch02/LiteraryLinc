@@ -1,4 +1,4 @@
-package com.enoch02.editbook
+package com.enoch02.more
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

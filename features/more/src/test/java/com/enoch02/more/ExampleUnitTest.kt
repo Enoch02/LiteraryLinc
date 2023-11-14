@@ -1,4 +1,4 @@
-package com.enoch02.editbook
+package com.enoch02.more
 
 import org.junit.Test
 

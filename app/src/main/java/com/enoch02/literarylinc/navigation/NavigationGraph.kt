@@ -11,10 +11,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.enoch02.literarylinc.ui.LiteraryLincApp
-import com.enoch02.AddBookScreen
+import com.enoch02.modifybook.AddBookScreen
 import com.enoch02.barcodescanner.BarcodeScannerScreen
 import com.enoch02.bookdetail.BookDetailScreen
-import com.enoch02.EditBookScreen
+import com.enoch02.modifybook.EditBookScreen
 
 @Composable
 fun NavigationGraph(navController: NavHostController = rememberNavController()) {
