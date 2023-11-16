@@ -29,11 +29,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
 import com.enoch02.booklist.BookListScreen
-import com.enoch02.more.MoreScreen
 import com.enoch02.literarylinc.R
 import com.enoch02.literarylinc.navigation.Screen
 import com.enoch02.literarylinc.navigation.TopLevelDestination
-import com.enoch02.more.navigation.MoreNavigationGraph
+import com.enoch02.more.MoreScreen
 
 /**
  * TODO: replace all [androidx.compose.ui.graphics.vector.ImageVector] icons
@@ -156,8 +155,7 @@ fun LiteraryLincApp(navController: NavController) {
                         }
 
                         TopLevelDestination.MORE -> {
-                            /*MoreScreen(modifier = Modifier.padding(paddingValues))*/
-                            MoreNavigationGraph()
+                            MoreScreen(navController = navController,modifier = Modifier.padding(paddingValues))
                         }
                     }
                 },

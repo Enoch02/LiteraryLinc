@@ -1,8 +1,6 @@
 package com.enoch02.more
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Info
@@ -15,11 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.enoch02.more.navigation.MoreScreenDestination
 
 
 @Composable
-fun MoreScreen(modifier: Modifier) {
+fun MoreScreen(navController: NavController, modifier: Modifier) {
     LazyColumn(
         content = {
             item {
@@ -78,9 +77,7 @@ fun MoreScreen(modifier: Modifier) {
                         )
                     },
                     headlineContent = { Text(stringResource(R.string.settings_text)) },
-                    modifier = Modifier.clickable {
-                        //TODO
-                    }
+                    modifier = Modifier.clickable { navController.navigate(MoreScreenDestination.Settings.route) }
                 )
             }
 
@@ -124,7 +121,7 @@ fun MoreScreen(modifier: Modifier) {
                     },
                     headlineContent = { Text(stringResource(R.string.about_text)) },
                     modifier = Modifier.clickable {
-                        //TODO
+                        navController.navigate(MoreScreenDestination.About.route)
                     }
                 )
             }

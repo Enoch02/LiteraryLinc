@@ -10,11 +10,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.enoch02.literarylinc.ui.LiteraryLincApp
-import com.enoch02.modifybook.AddBookScreen
+import androidx.navigation.navigation
 import com.enoch02.barcodescanner.BarcodeScannerScreen
 import com.enoch02.bookdetail.BookDetailScreen
+import com.enoch02.literarylinc.ui.LiteraryLincApp
+import com.enoch02.modifybook.AddBookScreen
 import com.enoch02.modifybook.EditBookScreen
+import com.enoch02.more.MoreScreen
+import com.enoch02.more.about.AboutScreen
+import com.enoch02.more.navigation.MoreScreenDestination
+import com.enoch02.more.settings.SettingsScreen
 
 @Composable
 fun NavigationGraph(navController: NavHostController = rememberNavController()) {
@@ -59,6 +64,41 @@ fun NavigationGraph(navController: NavHostController = rememberNavController()) 
 
             composable(Screen.BarcodeScanner.route) {
                 BarcodeScannerScreen(navController = navController)
+            }
+
+            // nested destinations from MoreScreen
+            navigation(startDestination = MoreScreenDestination.More.route, route = "more_stuff") {
+                composable(route = MoreScreenDestination.More.route) {
+                    MoreScreen(navController = navController, modifier = Modifier)
+                }
+
+                composable(route = MoreScreenDestination.PomoTimer.route) {
+
+                }
+
+                composable(route = MoreScreenDestination.CustomTags.route) {
+
+                }
+
+                composable(route = MoreScreenDestination.Wishlist.route) {
+
+                }
+
+                composable(route = MoreScreenDestination.Settings.route) {
+                    SettingsScreen(navController = navController)
+                }
+
+                composable(route = MoreScreenDestination.BackupRestore.route) {
+
+                }
+
+                composable(route = MoreScreenDestination.Update.route) {
+
+                }
+
+                composable(route = MoreScreenDestination.About.route) {
+                    AboutScreen()
+                }
             }
         }
     )
