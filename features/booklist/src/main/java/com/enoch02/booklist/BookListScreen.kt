@@ -1,23 +1,34 @@
 package com.enoch02.booklist
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -94,7 +105,7 @@ private fun BookListView(
                         val book = books[index]
 
                         Item(
-                            title = book.title,
+                            book = book,
                             coverPath = covers[book.coverImageName],
                             onClick = { book.id?.let { onItemClick(it) } }
                         )
@@ -117,19 +128,54 @@ private fun BookListView(
 
 @Composable
 private fun Item(
-    title: String,
+    book: Book,
     coverPath: String?,
     onClick: () -> Unit,
 ) {
+    var currentProgress by rememberSaveable { mutableFloatStateOf(0f) }
+    val currentPercentage by animateFloatAsState(
+        targetValue = currentProgress,
+        animationSpec = tween(durationMillis = 1000, easing = LinearEasing),
+        label = "progress"
+    )
+    var progressAlpha by rememberSaveable { mutableFloatStateOf(1f) }
+
+    LaunchedEffect(
+        key1 = Unit,
+        block = {
+            if (book.pagesRead != 0 && book.pageCount != 0) {
+                currentProgress = (book.pagesRead.toFloat() / book.pageCount.toFloat()) * 100
+            } else {
+                progressAlpha = 0f
+            }
+        }
+    )
+
     ListItem(
         headlineContent = {
             Text(
-                text = title,
+                text = book.title,
                 fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
                 fontSize = MaterialTheme.typography.titleMedium.fontSize,
                 fontWeight = MaterialTheme.typography.titleMedium.fontWeight,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
+            )
+            if (book.author.isNotEmpty()) {
+                Text(
+                    text = "by ${book.author}",
+                    fontSize = MaterialTheme.typography.labelSmall.fontSize
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "${book.pagesRead}/${book.pageCount}",
+                modifier = Modifier.alpha(progressAlpha)
+            )
+            LinearProgressIndicator(
+                progress = currentPercentage / 100f,
+                modifier = Modifier.alpha(progressAlpha)
             )
         },
         leadingContent = {
