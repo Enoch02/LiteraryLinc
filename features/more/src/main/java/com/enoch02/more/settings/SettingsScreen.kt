@@ -15,8 +15,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -28,11 +26,8 @@ import com.enoch02.setting.SettingViewModel
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = hiltViewModel()) {
     val alwaysDark by viewModel.getDarkModeValue().collectAsState(initial = false)
-    val dynamicColors by viewModel.getDynamicColorValue().collectAsState(initial = true)
-    //TODO: create datastore entry for variable
-    val disableAnim by remember {
-        mutableStateOf(false)
-    }
+    val dynamicColors by viewModel.getDynamicColorValue().collectAsState(initial = false)
+    val disableAnim by viewModel.getAnimationsValue().collectAsState(initial = false)
 
     Scaffold(
         topBar = {
@@ -84,9 +79,18 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                 SwitchSettingItem(
                                     label = "Disable Animations",
                                     checked = disableAnim,
-                                    onCheckChanged = {}
+                                    onCheckChanged = { viewModel.switchAnimationsValue(newValue = it) }
                                 )
                             },
+                        )
+                    }
+
+                    item {
+                        ListItem(
+                            overlineContent = { Text(text = "Book list")},
+                            headlineContent = {
+
+                            }
                         )
                     }
                 },

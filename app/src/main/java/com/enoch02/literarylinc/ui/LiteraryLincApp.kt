@@ -1,6 +1,8 @@
 package com.enoch02.literarylinc.ui
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -8,14 +10,18 @@ import androidx.compose.material.icons.rounded.Analytics
 import androidx.compose.material.icons.rounded.ListAlt
 import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
 import com.enoch02.booklist.BookListScreen
+import com.enoch02.database.model.Sorting
 import com.enoch02.literarylinc.R
 import com.enoch02.literarylinc.navigation.Screen
 import com.enoch02.literarylinc.navigation.TopLevelDestination
@@ -37,12 +44,16 @@ import com.enoch02.more.MoreScreen
 /**
  * TODO: replace all [androidx.compose.ui.graphics.vector.ImageVector] icons
  * with [painterResource]?
+ * TODO: find an efficient or recommended method of preloading the app settings.
+ * TODO: Can i animate the changing of themes?
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LiteraryLincApp(navController: NavController) {
     val scope = rememberCoroutineScope()
     var currentScreen by rememberSaveable { mutableStateOf(TopLevelDestination.BOOK_LIST) }
+    var sorting by rememberSaveable { mutableStateOf(Sorting.ALPHABETICAL) }
+    var showSortOptions by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -79,6 +90,59 @@ fun LiteraryLincApp(navController: NavController) {
                                 )
                             }
                         )
+
+                        IconButton(
+                            onClick = { showSortOptions = true },
+                            content = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.round_sort_24),
+                                    contentDescription = stringResource(R.string.sort_desc)
+                                )
+                            }
+                        )
+
+                        if (showSortOptions) {
+                            AlertDialog(
+                                title = { Text(text = stringResource(R.string.sorting_options_text))},
+                                onDismissRequest = { showSortOptions = false },
+                                confirmButton = {},
+                                dismissButton = {
+                                    TextButton(
+                                        onClick = { showSortOptions = false },
+                                        content = {
+                                            Text(text = "Cancel")
+                                        }
+                                    )
+                                },
+                                text = {
+                                    val options = Sorting.values()
+
+                                    Column {
+                                        options.forEach {
+                                            val onClick = {
+                                                showSortOptions = false
+                                                sorting = it
+                                            }
+
+                                            ListItem(
+                                                leadingContent = {
+                                                    RadioButton(
+                                                        selected = it == sorting,
+                                                        onClick = { onClick() }
+                                                    )
+                                                },
+                                                headlineContent = {
+                                                    Text(text = it.name.lowercase()
+                                                        .replaceFirstChar { c -> c.uppercase() }
+                                                        .replace("_", " "))
+                                                },
+                                                modifier = Modifier.clickable { onClick() }
+                                            )
+                                        }
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             )
@@ -140,6 +204,7 @@ fun LiteraryLincApp(navController: NavController) {
                             BookListScreen(
                                 modifier = Modifier.padding(paddingValues),
                                 scope = scope,
+                                sorting = sorting,
                                 onItemClick = { id ->
                                     navController.navigate(Screen.BookDetail.withArgs(id.toString()))
                                 }
@@ -155,7 +220,10 @@ fun LiteraryLincApp(navController: NavController) {
                         }
 
                         TopLevelDestination.MORE -> {
-                            MoreScreen(navController = navController,modifier = Modifier.padding(paddingValues))
+                            MoreScreen(
+                                navController = navController,
+                                modifier = Modifier.padding(paddingValues)
+                            )
                         }
                     }
                 },

@@ -21,6 +21,8 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "se
 class SettingViewModel @Inject constructor(private val application: Application) : ViewModel() {
     private val darkModeKey = booleanPreferencesKey("dark_mode")
     private val dynamicColorKey = booleanPreferencesKey("dynamic_color")
+    //TODO: connect value to relevant functions
+    private val animationKey = booleanPreferencesKey("animations")
 
     fun switchDarkModeValue(newValue: Boolean) {
         viewModelScope.launch {
@@ -50,6 +52,22 @@ class SettingViewModel @Inject constructor(private val application: Application)
         val dynamicColorFlow: Flow<Boolean> =
             application.applicationContext.dataStore.data.map { preferences ->
                 preferences[dynamicColorKey] ?: true
+            }
+        return dynamicColorFlow
+    }
+
+    fun switchAnimationsValue(newValue: Boolean) {
+        viewModelScope.launch {
+            application.applicationContext.dataStore.edit { settings ->
+                settings[animationKey] = newValue
+            }
+        }
+    }
+
+    fun getAnimationsValue(): Flow<Boolean> {
+        val dynamicColorFlow: Flow<Boolean> =
+            application.applicationContext.dataStore.data.map { preferences ->
+                preferences[animationKey] ?: true
             }
         return dynamicColorFlow
     }

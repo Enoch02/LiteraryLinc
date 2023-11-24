@@ -59,6 +59,7 @@ dependencies {
     implementation(project(":features:bookdetail"))
     implementation(project(":features:barcodescanner"))
     implementation(project(":features:more"))
+    implementation(project(":core:database"))
     implementation(project(":core:settings"))
 
     implementation("androidx.core:core-ktx:1.9.0")

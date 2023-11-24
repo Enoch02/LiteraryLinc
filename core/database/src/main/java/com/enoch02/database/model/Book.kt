@@ -18,7 +18,7 @@ data class Book(
     val personalRating: Int = 0,
     val isbn: String = "",
     val genre: String = "",
-    val type: String = Book.types.values.first(),
+    val type: String = types.values.first(),
     val coverImageName: String? = null,
     val description: String = "",
     val status: String = Book.status.first()
