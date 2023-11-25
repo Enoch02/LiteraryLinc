@@ -24,6 +24,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.enoch02.database.model.Book
+import com.enoch02.database.model.Sorting
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -47,6 +50,7 @@ import kotlinx.coroutines.launch
 fun BookListScreen(
     modifier: Modifier,
     scope: CoroutineScope,
+    sorting: Sorting,
     onItemClick: (Int) -> Unit,
     viewModel: BookListViewModel = hiltViewModel()
 ) {
@@ -79,7 +83,7 @@ fun BookListScreen(
             state = pagerState,
             content = { tabIndex ->
                 BookListView(
-                    books = viewModel.getBooks(tabIndex)
+                    books = viewModel.getBooks(tabIndex, sorting)
                         .collectAsState(initial = emptyList()).value,
                     covers = viewModel.getCovers().collectAsState(initial = emptyMap()).value,
                     onItemClick = onItemClick
@@ -132,13 +136,13 @@ private fun Item(
     coverPath: String?,
     onClick: () -> Unit,
 ) {
-    var currentProgress by rememberSaveable { mutableFloatStateOf(0f) }
+    var currentProgress by remember { mutableFloatStateOf(0f) }
     val currentPercentage by animateFloatAsState(
         targetValue = currentProgress,
         animationSpec = tween(durationMillis = 1000, easing = LinearEasing),
         label = "progress"
     )
-    var progressAlpha by rememberSaveable { mutableFloatStateOf(1f) }
+    var showEmptyProgress by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(
         key1 = Unit,
@@ -146,7 +150,7 @@ private fun Item(
             if (book.pagesRead != 0 && book.pageCount != 0) {
                 currentProgress = (book.pagesRead.toFloat() / book.pageCount.toFloat()) * 100
             } else {
-                progressAlpha = 0f
+                showEmptyProgress = true
             }
         }
     )
@@ -167,16 +171,24 @@ private fun Item(
                     fontSize = MaterialTheme.typography.labelSmall.fontSize
                 )
             }
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            Text(
-                text = "${book.pagesRead}/${book.pageCount}",
-                modifier = Modifier.alpha(progressAlpha)
-            )
-            LinearProgressIndicator(
-                progress = currentPercentage / 100f,
-                modifier = Modifier.alpha(progressAlpha)
-            )
+            if (showEmptyProgress) {
+                LinearProgressIndicator(progress = 0.5f, modifier = Modifier.height(10.dp))
+            } else {
+                LinearProgressIndicator(
+                    progress = currentPercentage / 100f,
+                    modifier = Modifier
+                        .height(10.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(2.dp))
+
+            if (showEmptyProgress) {
+                Text(text = "Progress: ??")
+            } else {
+                Text(text = "Progress: ${currentPercentage.toInt()}%")
+            }
         },
         leadingContent = {
             AsyncImage(
