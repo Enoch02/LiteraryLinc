@@ -1,6 +1,7 @@
 package com.enoch02.booklist
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.model.Book
@@ -8,6 +9,7 @@ import com.enoch02.database.model.Sorting
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,10 +37,19 @@ class BookListViewModel @Inject constructor(
                 temp.map { books -> books.sortedByDescending { it.title } }
             }
 
-            Sorting.DATE_ADDED -> TODO()
-            Sorting.DATE_ADDED_REVERSE -> TODO()
+            Sorting.DATE_STARTED -> {
+                temp.map { books -> books.sortedBy { it.dateStarted } }
+            }
+
+            Sorting.DATE_STARTED_REVERSE -> {
+                temp.map { books -> books.sortedByDescending { it.dateStarted } }
+            }
         }
     }
 
     fun getCovers() = covers
+
+    fun deleteBook(id: Int) {
+        viewModelScope.launch { bookDao.deleteBook(id) }
+    }
 }

@@ -46,6 +46,7 @@ import com.enoch02.more.MoreScreen
  * with [painterResource]?
  * TODO: find an efficient or recommended method of preloading the app settings.
  * TODO: Can i animate the changing of themes?
+ * TODO: remove the extended material icons dependency (eventually...)
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

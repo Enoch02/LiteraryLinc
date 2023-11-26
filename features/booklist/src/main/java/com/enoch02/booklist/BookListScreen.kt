@@ -14,8 +14,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.PlusOne
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -29,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -84,7 +90,10 @@ fun BookListScreen(
                     books = viewModel.getBooks(tabIndex, sorting)
                         .collectAsState(initial = emptyList()).value,
                     covers = viewModel.getCovers().collectAsState(initial = emptyMap()).value,
-                    onItemClick = onItemClick
+                    onItemClick = onItemClick,
+                    onItemDelete = { id ->
+                        viewModel.deleteBook(id)
+                    }
                 )
             }
         )
@@ -95,7 +104,8 @@ fun BookListScreen(
 private fun BookListView(
     books: List<Book>,
     covers: Map<String, String?>,
-    onItemClick: (Int) -> Unit
+    onItemClick: (Int) -> Unit,
+    onItemDelete: (Int) -> Unit
 ) {
 
     if (books.isNotEmpty()) {
@@ -109,7 +119,8 @@ private fun BookListView(
                         Item(
                             book = book,
                             coverPath = covers[book.coverImageName],
-                            onClick = { book.id?.let { onItemClick(it) } }
+                            onClick = { book.id?.let { onItemClick(it) } },
+                            onDelete = { book.id?.let { it1 -> onItemDelete(it1) } }
                         )
                     }
                 )
@@ -133,6 +144,7 @@ private fun Item(
     book: Book,
     coverPath: String?,
     onClick: () -> Unit,
+    onDelete: () -> Unit
 ) {
     var currentProgress by remember { mutableFloatStateOf(0f) }
     val currentPercentage by animateFloatAsState(
@@ -178,7 +190,7 @@ private fun Item(
                         .height(10.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             if (showEmptyProgress) {
                 Text(text = "Progress: ??")
@@ -197,6 +209,26 @@ private fun Item(
         },
         supportingContent = {
             Box(modifier = Modifier.height(45.dp))
+        },
+        trailingContent = {
+            //TODO: Replace with painterResource
+            Column {
+                OutlinedIconButton(
+                    onClick = { onDelete() },
+                    shape = RectangleShape,
+                    content = {
+                        Icon(imageVector = Icons.Rounded.Delete, contentDescription = null)
+                    }
+                )
+
+                OutlinedIconButton(
+                    onClick = { /*TODO*/ },
+                    shape = RectangleShape,
+                    content = {
+                        Icon(imageVector = Icons.Rounded.PlusOne, contentDescription = null)
+                    }
+                )
+            }
         },
         modifier = Modifier.clickable { onClick() }
     )
