@@ -13,7 +13,8 @@ data class Book(
     val author: String = "",
     val pagesRead: Int = 0,
     val pageCount: Int = 0,
-    /*val dateStarted:*/
+    val dateStarted: Long? = null,
+    val dateCompleted: Long? = null,
     val timesReread: Int = 0,
     val personalRating: Int = 0,
     val isbn: String = "",
@@ -33,7 +34,8 @@ data class Book(
             author: String,
             pagesRead: String,
             pageCount: String,
-            /* dateStarted:*/
+            dateStarted: Long?,
+            dateCompleted: Long?,
             timesReread: String,
             personalRating: String,
             isbn: String,
@@ -43,12 +45,26 @@ data class Book(
             description: String,
             status: String
         ): Book {
-            if (title.isEmpty())
-                throw Exception("Please enter a Title")
-            if (pagesRead.isEmpty())
-                throw Exception("Please enter the Pages Read")
-            if (pageCount.isEmpty())
-                throw Exception("Please enter the Page Count")
+            //TODO: create custom exception class
+            when {
+                title.isEmpty() -> {
+                    throw Exception("Please enter a Title")
+                }
+
+                pagesRead.isEmpty() -> {
+                    throw Exception("Please enter the Pages Read")
+                }
+
+                pageCount.isEmpty() -> {
+                    throw Exception("Please enter the Page Count")
+                }
+
+                (dateStarted != null && dateCompleted != null) -> {
+                    if (dateCompleted < dateStarted) {
+                        throw Exception("Completion date can not come before start date")
+                    }
+                }
+            }
 
             return Book(
                 id = id,
@@ -56,6 +72,8 @@ data class Book(
                 author = author,
                 pagesRead = pagesRead.toInt(),
                 pageCount = pageCount.toInt(),
+                dateStarted = dateStarted,
+                dateCompleted = dateCompleted,
                 timesReread = timesReread.toInt(),
                 personalRating = personalRating.toInt(),
                 isbn = isbn,

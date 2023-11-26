@@ -140,6 +140,7 @@ fun BookDetailScreen(
                 }
             }
 
+            //TODO: add date started and date completed
             if (showBookDetails) {
                 ModalBottomSheet(
                     onDismissRequest = { showBookDetails = false },

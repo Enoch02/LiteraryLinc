@@ -1,5 +1,6 @@
 package com.enoch02.modifybook
 
+import android.icu.util.Calendar
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -23,6 +24,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +47,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.enoch02.addbook.R
 import com.enoch02.composables.BackArrowButton
+import com.enoch02.composables.FormDatePicker
 import com.enoch02.composables.FormIntField
 import com.enoch02.composables.FormSlider
 import com.enoch02.composables.FormSpinner
@@ -62,11 +65,14 @@ fun AddBookScreen(
     viewModel: ModifyBookViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val calendar = Calendar.getInstance()
 
     var bookTitle by rememberSaveable { mutableStateOf("") }
     var author by rememberSaveable { mutableStateOf("") }
     var pagesRead by rememberSaveable { mutableStateOf("0") }
     var pageCount by rememberSaveable { mutableStateOf("0") }
+    val dateStarted = rememberDatePickerState(initialSelectedDateMillis = calendar.timeInMillis)
+    val dateCompleted = rememberDatePickerState(initialSelectedDateMillis = null)
     var timesReread by rememberSaveable { mutableStateOf("0") }
     var personalRating by rememberSaveable { mutableStateOf("0") }
     var isbn by rememberSaveable { mutableStateOf("") }
@@ -98,7 +104,9 @@ fun AddBookScreen(
                             author = author,
                             pagesRead = pagesRead,
                             pageCount = pageCount,
-                            timesReread = timesReread.toString(),
+                            dateStarted = dateStarted.selectedDateMillis,
+                            dateCompleted = dateCompleted.selectedDateMillis,
+                            timesReread = timesReread,
                             personalRating = personalRating,
                             isbn = isbn,
                             genre = genre,
@@ -153,44 +161,6 @@ fun AddBookScreen(
                                 Spacer(modifier = Modifier.width(12.dp))
 
                                 /* TODO: add something else here. Like a button to to initiate online image search */
-                                /*Row(modifier = Modifier.fillMaxWidth()) {
-                                    OutlinedTextField(
-                                        value = timesReread,
-                                        onValueChange = { timesReread = it },
-                                        keyboardOptions = KeyboardOptions(
-                                            keyboardType = KeyboardType.Number,
-                                            imeAction = ImeAction.Next,
-                                        ),
-                                        modifier = Modifier.weight(0.5f)
-                                    )
-
-                                    Row(modifier = Modifier.weight(0.5f)) {
-                                        FilledIconButton(
-                                            onClick = {
-                                                val temp = timesReread.toInt()
-                                                timesReread = if (temp > 0) (temp - 1).toString() else "0"
-                                            },
-                                            content = {
-                                                Icon(
-                                                    painter = painterResource(id = R.drawable.round_minus_24),
-                                                    contentDescription = stringResource(R.string.increment_desc)
-                                                )
-                                            }
-                                        )
-
-                                        FilledIconButton(
-                                            onClick = {
-                                                timesReread = (timesReread.toInt() + 1).toString()
-                                            },
-                                            content = {
-                                                Icon(
-                                                    painter = painterResource(id = R.drawable.round_add_24),
-                                                    contentDescription = stringResource(R.string.increment_desc)
-                                                )
-                                            }
-                                        )
-                                    }
-                                }*/
                             }
                         )
                     }
@@ -228,6 +198,27 @@ fun AddBookScreen(
                             options = Book.status,
                             selectedOption = status,
                             onSelectionChange = { status = it }
+                        )
+                    }
+
+                    //TODO: Extract string resources
+                    item {
+                        FormDatePicker(
+                            label = "Start Date",
+                            datePickerState = dateStarted,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                        )
+                    }
+
+                    item {
+                        FormDatePicker(
+                            label = "Completion Date",
+                            datePickerState = dateCompleted,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
                         )
                     }
 

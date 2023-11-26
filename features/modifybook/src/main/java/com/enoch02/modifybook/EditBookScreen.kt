@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,6 +46,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.enoch02.addbook.R
 import com.enoch02.composables.BackArrowButton
+import com.enoch02.composables.FormDatePicker
 import com.enoch02.composables.FormIntField
 import com.enoch02.composables.FormSlider
 import com.enoch02.composables.FormSpinner
@@ -72,6 +74,8 @@ fun EditBookScreen(
     var status by rememberSaveable { mutableStateOf(Book.status.first()) }
     var pagesRead by rememberSaveable { mutableStateOf("0") }
     var pageCount by rememberSaveable { mutableStateOf("0") }
+    val dateStarted = rememberDatePickerState(initialSelectedDateMillis = null)
+    val dateCompleted = rememberDatePickerState(initialSelectedDateMillis = null)
     var timesReread by rememberSaveable { mutableStateOf("0") }
     var personalRating by rememberSaveable { mutableStateOf("0") }
     var isbn by rememberSaveable { mutableStateOf("") }
@@ -91,6 +95,8 @@ fun EditBookScreen(
         status = book.status
         pagesRead = book.pagesRead.toString()
         pageCount = book.pageCount.toString()
+        dateStarted.setSelection(book.dateStarted)
+        dateCompleted.setSelection(book.dateCompleted)
         timesReread = book.timesReread.toString()
         personalRating = book.personalRating.toString()
         isbn = book.isbn
@@ -121,6 +127,8 @@ fun EditBookScreen(
                             author = author,
                             pagesRead = pagesRead,
                             pageCount = pageCount,
+                            dateStarted = dateStarted.selectedDateMillis,
+                            dateCompleted = dateCompleted.selectedDateMillis,
                             timesReread = timesReread,
                             personalRating = personalRating,
                             isbn = isbn,
@@ -211,6 +219,27 @@ fun EditBookScreen(
                             options = Book.status,
                             selectedOption = status,
                             onSelectionChange = { status = it }
+                        )
+                    }
+
+                    //TODO: Extract string resources
+                    item {
+                        FormDatePicker(
+                            label = "Start Date",
+                            datePickerState = dateStarted,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                        )
+                    }
+
+                    item {
+                        FormDatePicker(
+                            label = "Completion Date",
+                            datePickerState = dateCompleted,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
                         )
                     }
 
