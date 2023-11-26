@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
+    id ("dagger.hilt.android.plugin")
 }
 
 android {
@@ -11,8 +13,8 @@ android {
         applicationId = "com.enoch02.literarylinc"
         minSdk = 24
         targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "0.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -50,8 +52,15 @@ android {
 }
 
 dependencies {
+    val daggerVersion: String by rootProject.extra
+
     implementation(project(":features:booklist"))
-    implementation(project(":features:addbook"))
+    implementation(project(":features:modifybook"))
+    implementation(project(":features:bookdetail"))
+    implementation(project(":features:barcodescanner"))
+    implementation(project(":features:more"))
+    implementation(project(":core:database"))
+    implementation(project(":core:settings"))
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
@@ -64,4 +73,7 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-extended:1.4.3")
     implementation("androidx.navigation:navigation-compose:2.5.3")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    implementation("com.google.dagger:hilt-android:$daggerVersion")
+    ksp("com.google.dagger:hilt-android-compiler:$daggerVersion")
 }

@@ -7,17 +7,21 @@
         <option name="testRunner" value="GRADLE" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="$USER_HOME$/.gradle/wrapper/dists/gradle-7.2-bin/2dnblmf4td7x66yl1d74lt32g/gradle-7.2" />
         <option name="gradleJvm" value="jbr-17" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/core/coverfile" />
             <option value="$PROJECT_DIR$/core/database" />
+            <option value="$PROJECT_DIR$/core/settings" />
             <option value="$PROJECT_DIR$/features" />
-            <option value="$PROJECT_DIR$/features/addbook" />
+            <option value="$PROJECT_DIR$/features/barcodescanner" />
+            <option value="$PROJECT_DIR$/features/bookdetail" />
             <option value="$PROJECT_DIR$/features/booklist" />
+            <option value="$PROJECT_DIR$/features/modifybook" />
+            <option value="$PROJECT_DIR$/features/more" />
           </set>
         </option>
       </GradleProjectSettings>
