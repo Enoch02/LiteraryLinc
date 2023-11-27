@@ -25,9 +25,14 @@ import com.enoch02.setting.SettingViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = hiltViewModel()) {
-    val alwaysDark by viewModel.getDarkModeValue().collectAsState(initial = false)
-    val dynamicColors by viewModel.getDynamicColorValue().collectAsState(initial = false)
-    val disableAnim by viewModel.getAnimationsValue().collectAsState(initial = false)
+    val alwaysDark by viewModel.getBooleanPreference(key = viewModel.darkModeKey)
+        .collectAsState(initial = false)
+    val dynamicColors by viewModel.getBooleanPreference(key = viewModel.dynamicColorKey)
+        .collectAsState(initial = false)
+    val disableAnim by viewModel.getBooleanPreference(key = viewModel.animationKey)
+        .collectAsState(initial = false)
+    val showConfirmDialog by viewModel.getBooleanPreference(key = viewModel.confirmDialogKey)
+        .collectAsState(initial = false)
 
     Scaffold(
         topBar = {
@@ -58,7 +63,10 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                     description = "Dark mode is always on",
                                     checked = alwaysDark,
                                     onCheckChanged = {
-                                        viewModel.switchDarkModeValue(newValue = it)
+                                        viewModel.switchBooleanPreference(
+                                            key = viewModel.darkModeKey,
+                                            newValue = it
+                                        )
                                     }
                                 )
 
@@ -68,7 +76,8 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                         description = "Toggle dynamic colors",
                                         checked = dynamicColors,
                                         onCheckChanged = {
-                                            viewModel.switchDynamicColorValue(
+                                            viewModel.switchBooleanPreference(
+                                                key = viewModel.dynamicColorKey,
                                                 newValue = it
                                             )
                                         }
@@ -79,7 +88,12 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                 SwitchSettingItem(
                                     label = "Disable Animations",
                                     checked = disableAnim,
-                                    onCheckChanged = { viewModel.switchAnimationsValue(newValue = it) }
+                                    onCheckChanged = {
+                                        viewModel.switchBooleanPreference(
+                                            key = viewModel.animationKey,
+                                            newValue = it
+                                        )
+                                    }
                                 )
                             },
                         )
@@ -87,9 +101,18 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
 
                     item {
                         ListItem(
-                            overlineContent = { Text(text = "Book list")},
+                            overlineContent = { Text(text = "Behaviour") },
                             headlineContent = {
-
+                                SwitchSettingItem(
+                                    label = "Show confirmation before deletion",
+                                    checked = showConfirmDialog,
+                                    onCheckChanged = {
+                                        viewModel.switchBooleanPreference(
+                                            key = viewModel.confirmDialogKey,
+                                            newValue = it
+                                        )
+                                    }
+                                )
                             }
                         )
                     }

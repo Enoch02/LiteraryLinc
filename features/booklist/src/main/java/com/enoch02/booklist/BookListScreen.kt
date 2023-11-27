@@ -3,6 +3,7 @@ package com.enoch02.booklist
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -100,6 +101,7 @@ fun BookListScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun BookListView(
     books: List<Book>,
@@ -117,6 +119,7 @@ private fun BookListView(
                         val book = books[index]
 
                         Item(
+                            modifier = Modifier.animateItemPlacement(),
                             book = book,
                             coverPath = covers[book.coverImageName],
                             onClick = { book.id?.let { onItemClick(it) } },
@@ -141,6 +144,7 @@ private fun BookListView(
 
 @Composable
 private fun Item(
+    modifier: Modifier,
     book: Book,
     coverPath: String?,
     onClick: () -> Unit,
@@ -230,6 +234,6 @@ private fun Item(
                 )
             }
         },
-        modifier = Modifier.clickable { onClick() }
+        modifier = modifier.clickable { onClick() }
     )
 }

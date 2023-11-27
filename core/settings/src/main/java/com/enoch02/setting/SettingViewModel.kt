@@ -19,56 +19,25 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "se
 
 @HiltViewModel
 class SettingViewModel @Inject constructor(private val application: Application) : ViewModel() {
-    private val darkModeKey = booleanPreferencesKey("dark_mode")
-    private val dynamicColorKey = booleanPreferencesKey("dynamic_color")
+    val darkModeKey = booleanPreferencesKey("dark_mode")
+    val dynamicColorKey = booleanPreferencesKey("dynamic_color")
     //TODO: connect value to relevant functions
-    private val animationKey = booleanPreferencesKey("animations")
+    val animationKey = booleanPreferencesKey("animations")
+    val confirmDialogKey = booleanPreferencesKey("confirm_dialogs")
 
-    fun switchDarkModeValue(newValue: Boolean) {
+    fun switchBooleanPreference(key: Preferences.Key<Boolean>, newValue: Boolean) {
         viewModelScope.launch {
             application.applicationContext.dataStore.edit { settings ->
-                settings[darkModeKey] = newValue
+                settings[key] = newValue
             }
         }
     }
 
-    fun getDarkModeValue(): Flow<Boolean> {
-        val darkModeFlow: Flow<Boolean> =
+    fun getBooleanPreference(key: Preferences.Key<Boolean>): Flow<Boolean> {
+        val flow: Flow<Boolean> =
             application.applicationContext.dataStore.data.map { preferences ->
-                preferences[darkModeKey] ?: false
+                preferences[key] ?: true
             }
-        return darkModeFlow
-    }
-
-    fun switchDynamicColorValue(newValue: Boolean) {
-        viewModelScope.launch {
-            application.applicationContext.dataStore.edit { settings ->
-                settings[dynamicColorKey] = newValue
-            }
-        }
-    }
-
-    fun getDynamicColorValue(): Flow<Boolean> {
-        val dynamicColorFlow: Flow<Boolean> =
-            application.applicationContext.dataStore.data.map { preferences ->
-                preferences[dynamicColorKey] ?: true
-            }
-        return dynamicColorFlow
-    }
-
-    fun switchAnimationsValue(newValue: Boolean) {
-        viewModelScope.launch {
-            application.applicationContext.dataStore.edit { settings ->
-                settings[animationKey] = newValue
-            }
-        }
-    }
-
-    fun getAnimationsValue(): Flow<Boolean> {
-        val dynamicColorFlow: Flow<Boolean> =
-            application.applicationContext.dataStore.data.map { preferences ->
-                preferences[animationKey] ?: true
-            }
-        return dynamicColorFlow
+        return flow
     }
 }

@@ -48,8 +48,8 @@ fun LiteraryLincTheme(
     viewModel: SettingViewModel = hiltViewModel(),
     content: @Composable () -> Unit
 ) {
-    val alwaysDark by viewModel.getDarkModeValue().collectAsState(initial = false)
-    val dynamicColor by viewModel.getDynamicColorValue().collectAsState(initial = true)
+    val alwaysDark by viewModel.getBooleanPreference(key = viewModel.darkModeKey).collectAsState(initial = false)
+    val dynamicColor by viewModel.getBooleanPreference(key = viewModel.dynamicColorKey).collectAsState(initial = true)
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
