@@ -1,5 +1,7 @@
 package com.enoch02.bookdetail
 
+import android.icu.text.SimpleDateFormat
+import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,9 +32,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.enoch02.composables.BookDetailHeader
-import com.enoch02.composables.BookInfoText
+import com.enoch02.components.BookDetailHeader
+import com.enoch02.components.BookInfoText
 import com.enoch02.database.model.Book
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -159,11 +167,16 @@ fun BookDetailScreen(
                                         value = "${book.pageCount}"
                                     )
                                 }
-                                item { BookInfoText(header = "Date Started", value = "Demo value") }
+                                item {
+                                    BookInfoText(
+                                        header = "Date Started",
+                                        value = formatEpochDate(book.dateStarted)
+                                    )
+                                }
                                 item {
                                     BookInfoText(
                                         header = "Date Completed",
-                                        value = "Demo value"
+                                        value = formatEpochDate(book.dateCompleted)
                                     )
                                 }
                                 item {
@@ -175,7 +188,7 @@ fun BookDetailScreen(
                                 item {
                                     BookInfoText(
                                         header = "Personal Rating",
-                                        value = "${book.personalRating}"
+                                        value = "${book.personalRating}/10"
                                     )
                                 }
                                 item { BookInfoText(header = "ISBN", value = book.isbn) }
@@ -187,4 +200,27 @@ fun BookDetailScreen(
             }
         }
     )
+}
+
+//TODO: move to some module or package...
+fun formatEpochDate(date: Long?): String {
+    return when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && date != null -> {
+            val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
+            val dateObj = LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(date),
+                ZoneId.systemDefault()
+            )
+            formatter.format(dateObj)
+        }
+
+        Build.VERSION.SDK_INT <= Build.VERSION_CODES.O && date != null -> {
+            val formatter = SimpleDateFormat("dd MMM yyyy", Locale.ROOT)
+            formatter.format(Date(date))
+        }
+
+        else -> {
+            ""
+        }
+    }
 }

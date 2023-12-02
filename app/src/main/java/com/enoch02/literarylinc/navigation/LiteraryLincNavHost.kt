@@ -22,7 +22,7 @@ import com.enoch02.more.navigation.MoreScreenDestination
 import com.enoch02.more.settings.SettingsScreen
 
 @Composable
-fun NavigationGraph(navController: NavHostController = rememberNavController()) {
+fun LiteraryLincNavHost(navController: NavHostController = rememberNavController()) {
     NavHost(
         navController = navController,
         startDestination = Screen.LiteraryLincApp.route,

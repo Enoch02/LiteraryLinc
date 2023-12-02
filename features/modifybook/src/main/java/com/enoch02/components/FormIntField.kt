@@ -1,4 +1,4 @@
-package com.enoch02.composables
+package com.enoch02.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -44,7 +44,7 @@ internal fun FormIntField(
                 }
 
             },
-            modifier = Modifier,
+            modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Next,

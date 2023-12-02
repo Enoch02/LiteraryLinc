@@ -1,4 +1,4 @@
-package com.enoch02.composables
+package com.enoch02.components
 
 import android.content.Intent
 import android.net.Uri

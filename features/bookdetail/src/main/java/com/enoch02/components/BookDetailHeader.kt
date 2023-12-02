@@ -1,4 +1,4 @@
-package com.enoch02.composables
+package com.enoch02.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
