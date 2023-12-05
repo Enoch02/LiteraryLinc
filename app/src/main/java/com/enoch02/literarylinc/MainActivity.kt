@@ -7,14 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.enoch02.literarylinc.navigation.NavigationGraph
+import com.enoch02.literarylinc.navigation.LiteraryLincNavHost
 import com.enoch02.literarylinc.ui.theme.LiteraryLincTheme
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.HiltAndroidApp
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -27,7 +22,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    NavigationGraph()
+                    LiteraryLincNavHost()
                 }
             }
         }

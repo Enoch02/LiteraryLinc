@@ -1,4 +1,4 @@
-package com.enoch02.composables
+package com.enoch02.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack

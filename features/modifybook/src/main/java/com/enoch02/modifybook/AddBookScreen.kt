@@ -46,14 +46,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.enoch02.addbook.R
-import com.enoch02.composables.BackArrowButton
-import com.enoch02.composables.FormDatePicker
-import com.enoch02.composables.FormIntField
-import com.enoch02.composables.FormSlider
-import com.enoch02.composables.FormSpinner
-import com.enoch02.composables.FormTextField
-import com.enoch02.composables.ImagePicker
-import com.enoch02.composables.IncrementalFormIntField
+import com.enoch02.components.BackArrowButton
+import com.enoch02.components.FormDatePicker
+import com.enoch02.components.FormIntField
+import com.enoch02.components.FormSlider
+import com.enoch02.components.FormSpinner
+import com.enoch02.components.FormTextField
+import com.enoch02.components.ImagePicker
+import com.enoch02.components.IncrementalFormIntField
 import com.enoch02.database.model.Book
 import kotlinx.coroutines.launch
 
@@ -272,7 +272,7 @@ fun AddBookScreen(
                     }
 
                     item {
-                        FormTextField(
+                        FormIntField(
                             label = stringResource(R.string.isbn_label),
                             value = isbn,
                             onValueChange = { isbn = it },
