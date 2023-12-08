@@ -40,6 +40,7 @@ import com.enoch02.literarylinc.R
 import com.enoch02.literarylinc.navigation.Screen
 import com.enoch02.literarylinc.navigation.TopLevelDestination
 import com.enoch02.more.MoreScreen
+import com.enoch02.search.SearchScreen
 
 /**
  * TODO: replace all [androidx.compose.ui.graphics.vector.ImageVector] icons
@@ -104,7 +105,7 @@ fun LiteraryLincApp(navController: NavController) {
 
                         if (showSortOptions) {
                             AlertDialog(
-                                title = { Text(text = stringResource(R.string.sorting_options_text))},
+                                title = { Text(text = stringResource(R.string.sorting_options_text)) },
                                 onDismissRequest = { showSortOptions = false },
                                 confirmButton = {},
                                 dismissButton = {
@@ -213,7 +214,7 @@ fun LiteraryLincApp(navController: NavController) {
                         }
 
                         TopLevelDestination.SEARCH -> {
-
+                            SearchScreen(modifier = Modifier.padding(paddingValues))
                         }
 
                         TopLevelDestination.STATS -> {
