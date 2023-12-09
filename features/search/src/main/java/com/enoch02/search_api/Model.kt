@@ -10,13 +10,13 @@ data class SearchResult(
 
 //TODO: One of the values might return null for some of its instances. Find and fix it
 data class Doc(
-    val key: String,
-    val title: String,
-    @SerializedName("publish_year") val publishYear: List<String>,
+    val key: String?,
+    val title: String?,
+    @SerializedName("publish_year") val publishYear: List<String>?,
     val isbn: List<String>,
-    @SerializedName("cover_i") val coverId: String,
-    val publisher: List<String>,
-    val language: List<String>,
-    @SerializedName("author_name") val author: List<String>,
-    val subject: List<String>
+    @SerializedName("cover_i") val coverId: String?,
+    val publisher: List<String>?,
+    val language: List<String>?,
+    @SerializedName("author_name") val author: List<String>?,
+    val subject: List<String>?
 )

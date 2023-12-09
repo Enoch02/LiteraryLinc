@@ -20,6 +20,7 @@ import com.enoch02.more.MoreScreen
 import com.enoch02.more.about.AboutScreen
 import com.enoch02.more.navigation.MoreScreenDestination
 import com.enoch02.more.settings.SettingsScreen
+import com.enoch02.search.SearchScreen
 
 @Composable
 fun LiteraryLincNavHost(navController: NavHostController = rememberNavController()) {
