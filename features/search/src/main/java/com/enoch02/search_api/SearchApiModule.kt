@@ -13,5 +13,5 @@ import javax.inject.Singleton
 object SearchApiModule {
     @Provides
     @Singleton
-    fun providesSearchApiService(@ApplicationContext context: Context): SearchApiService = SearchApiService.getInstance()
+    fun providesSearchApiService(): SearchApiService = SearchApiService.getInstance()
 }

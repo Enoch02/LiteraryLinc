@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,8 +35,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.enoch02.components.SearchResultItem
 
-/*TODO: Figure out how to hide the TopAppBar from here or something*/
-/*TODO: Search modifier that changes what is being searched (options: manga, book...)*/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
@@ -44,16 +43,15 @@ fun SearchScreen(
 ) {
     val context = LocalContext.current
     var searchQuery by rememberSaveable { mutableStateOf("") }
-    var active by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = modifier.fillMaxSize(),
         content = {
-            SearchBar(
+            DockedSearchBar(
                 query = searchQuery,
                 onQueryChange = { searchQuery = it },
-                active = active,
-                onActiveChange = { active = it },
+                active = false,
+                onActiveChange = { },
                 onSearch = {
                     viewModel.startSearch(searchQuery)
                         ?.onFailure {
@@ -67,14 +65,12 @@ fun SearchScreen(
                     )
                 },
                 trailingIcon = {
-                    if (active) {
+                    if (searchQuery.isNotEmpty()) {
                         IconButton(
                             onClick = {
                                 if (searchQuery.isNotEmpty()) {
                                     searchQuery = ""
                                     viewModel.clearResults()
-                                } else {
-                                    active = false
                                 }
                             },
                             content = {
@@ -87,59 +83,63 @@ fun SearchScreen(
                     }
                 },
                 shape = RectangleShape,
+                placeholder = { Text(text = "Book title") },
                 modifier = Modifier.fillMaxWidth(),
                 content = {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize(),
+
+                }
+            )
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize(),
+                content = {
+                    //TODO: might remove crossfade
+                    Crossfade(
+                        targetState = viewModel.searchState.value,
                         content = {
-                            //TODO: might remove crossfade
-                            Crossfade(
-                                targetState = viewModel.searchState.value,
-                                content = {
-                                    when (it) {
-                                        SearchScreenViewModel.SearchState.SEARCHING -> {
-                                            CircularProgressIndicator()
-                                        }
+                            when (it) {
+                                SearchScreenViewModel.SearchState.SEARCHING -> {
+                                    CircularProgressIndicator()
+                                }
 
-                                        SearchScreenViewModel.SearchState.NOT_SEARCHING -> {
-                                            Text(
-                                                text = "Enter a book title and tap the search button on your keyboard to find books",
-                                                textAlign = TextAlign.Center
-                                            )
-                                        }
+                                SearchScreenViewModel.SearchState.NOT_SEARCHING -> {
+                                    Text(
+                                        text = "Enter a book title and tap the search button on your keyboard to find books",
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
 
-                                        SearchScreenViewModel.SearchState.COMPLETE -> {
-                                            LazyColumn(
-                                                content = {
-                                                    items(
-                                                        count = viewModel.searchResults.size,
-                                                        itemContent = { index ->
-                                                            val item =
-                                                                viewModel.searchResults[index]
+                                SearchScreenViewModel.SearchState.COMPLETE -> {
+                                    LazyColumn(
+                                        content = {
+                                            items(
+                                                count = viewModel.searchResults.size,
+                                                itemContent = { index ->
+                                                    val item =
+                                                        viewModel.searchResults[index]
 
-                                                            SearchResultItem(
-                                                                title = item.title ?: "",
-                                                                author = item.author ?: emptyList(),
-                                                                coverUrl = "https://covers.openlibrary.org/b/id/${item.coverId}-M.jpg"
-                                                            )
-                                                        }
+                                                    SearchResultItem(
+                                                        title = item.title ?: "",
+                                                        author = item.author ?: emptyList(),
+                                                        /*TODO: Add settings option to set image quality [S, M, L]*/
+                                                        coverUrl = "https://covers.openlibrary.org/b/id/${item.coverId}-M.jpg"
                                                     )
                                                 }
                                             )
                                         }
+                                    )
+                                }
 
-                                        SearchScreenViewModel.SearchState.FAILURE -> {
-                                            Text(
-                                                text = "Unable to fetch results",
-                                                textAlign = TextAlign.Center
-                                            )
-                                        }
-                                    }
-                                },
-                                label = "Search results crossfade"
-                            )
-                        }
+                                SearchScreenViewModel.SearchState.FAILURE -> {
+                                    Text(
+                                        text = "Unable to fetch results",
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                        },
+                        label = "Search results crossfade"
                     )
                 }
             )

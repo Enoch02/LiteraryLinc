@@ -13,6 +13,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+const val TAG = "SearchScreenViewModel"
+
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(private val searchApiService: SearchApiService) :
     ViewModel() {
@@ -22,14 +24,21 @@ class SearchScreenViewModel @Inject constructor(private val searchApiService: Se
     fun startSearch(query: String): Result<Unit>? {
         val res = MutableLiveData<Result<Unit>>()
 
+        if (query.isEmpty()) {
+            return Result.failure(Exception("Enter a title"))
+        }
+
         searchState.value = SearchState.SEARCHING
 
         viewModelScope.launch {
             try {
                 val result = searchApiService.search(query)
+
                 searchResults.addAll(result.docs)
                 searchState.value = SearchState.COMPLETE
+
                 res.postValue(Result.success(Unit))
+                Log.d(TAG, "startSearch: Found ${result.numFound}")
             } catch (e: Exception) {
                 res.postValue(Result.failure(e))
                 searchState.value = SearchState.FAILURE

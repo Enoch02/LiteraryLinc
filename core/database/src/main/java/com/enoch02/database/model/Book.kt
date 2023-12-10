@@ -45,7 +45,6 @@ data class Book(
             description: String,
             status: String
         ): Book {
-            //TODO: create custom exception class
             when {
                 title.isEmpty() -> {
                     throw Exception("Please enter a Title")

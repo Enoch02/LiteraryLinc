@@ -8,7 +8,7 @@ data class SearchResult(
     val docs: List<Doc>
 )
 
-//TODO: One of the values might return null for some of its instances. Find and fix it
+/*TODO: Remove unused properties*/
 data class Doc(
     val key: String?,
     val title: String?,

@@ -147,6 +147,18 @@ fun LiteraryLincApp(navController: NavController) {
                             )
                         }
                     }
+
+                    if (currentScreen == TopLevelDestination.SEARCH) {
+                        IconButton(
+                            onClick = { /*TODO*/ },
+                            content = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.round_history_24),
+                                    contentDescription = stringResource(R.string.search_history_desc)
+                                )
+                            }
+                        )
+                    }
                 }
             )
         },
