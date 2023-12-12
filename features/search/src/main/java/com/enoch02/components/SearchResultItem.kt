@@ -19,7 +19,12 @@ import coil.compose.AsyncImage
 import com.enoch02.search.R
 
 @Composable
-fun SearchResultItem(title: String, author: List<String>, coverUrl: String) {
+fun SearchResultItem(
+    title: String,
+    author: List<String>,
+    coverUrl: String,
+    onAddClick: () -> Unit
+) {
     ListItem(
         headlineContent = {
             Text(
@@ -40,14 +45,14 @@ fun SearchResultItem(title: String, author: List<String>, coverUrl: String) {
         leadingContent = {
             AsyncImage(
                 model = coverUrl,
-                contentDescription = null, /*TODO: add book name here*/
+                contentDescription = null,
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier.size(width = 50.dp, height = 80.dp)
             )
         },
         trailingContent = {
             OutlinedIconButton(
-                onClick = { /*TODO*/ },
+                onClick = onAddClick,
                 shape = RectangleShape,
                 content = {
                     Icon(

@@ -42,7 +42,7 @@ fun SearchScreen(
     viewModel: SearchScreenViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var searchQuery by viewModel.searchQuery
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -123,7 +123,10 @@ fun SearchScreen(
                                                         title = item.title ?: "",
                                                         author = item.author ?: emptyList(),
                                                         /*TODO: Add settings option to set image quality [S, M, L]*/
-                                                        coverUrl = "https://covers.openlibrary.org/b/id/${item.coverId}-M.jpg"
+                                                        coverUrl = "https://covers.openlibrary.org/b/id/${item.coverId}-M.jpg",
+                                                        onAddClick = {
+
+                                                        }
                                                     )
                                                 }
                                             )

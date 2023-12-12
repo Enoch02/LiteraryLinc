@@ -1,19 +1,19 @@
 package com.enoch02.coverfile
 
+import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import com.enoch02.util.getFileFromUri
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.default
 import id.zelory.compressor.constraint.destination
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.launch
 import java.io.File
 
 private const val TAG = "COVER_REPO"
@@ -73,6 +73,27 @@ class BookCoverRepository(private val context: Context) {
             }
         } catch (e: Exception) {
             Log.e(TAG, "deleteOneCover() -> $e")
+        }
+    }
+
+    fun downloadCover(url: String) {
+        val uri = Uri.parse(url)
+        val fileName = url.substring(url.lastIndexOf('/') + 1)
+        val file = File(coverFolder, fileName)
+
+        if (file.exists()) {
+            Log.d(TAG, "downloadCover: A file with the name '$fileName' exists!")
+            return
+        } else {
+            val downloadManager =
+                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            val request = DownloadManager.Request(uri)
+                .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI)
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN)
+                .setDestinationUri(Uri.fromFile(file))
+                .setMimeType("image/jpg")
+
+            downloadManager.enqueue(request)
         }
     }
 }

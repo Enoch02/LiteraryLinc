@@ -7,6 +7,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.enoch02.coverfile.BookCoverRepository
+import com.enoch02.database.dao.BookDao
 import com.enoch02.search_api.SearchApiService
 import com.enoch02.search_api.Doc
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,8 +18,13 @@ import javax.inject.Inject
 const val TAG = "SearchScreenViewModel"
 
 @HiltViewModel
-class SearchScreenViewModel @Inject constructor(private val searchApiService: SearchApiService) :
+class SearchScreenViewModel @Inject constructor(
+    private val searchApiService: SearchApiService,
+    private val bookDao: BookDao,
+    private val bookCoverRepository: BookCoverRepository
+) :
     ViewModel() {
+    val searchQuery = mutableStateOf("")
     var searchState = mutableStateOf(SearchState.NOT_SEARCHING)
     val searchResults = mutableStateListOf<Doc>()
 
@@ -49,6 +56,10 @@ class SearchScreenViewModel @Inject constructor(private val searchApiService: Se
     }
 
     fun clearResults() = searchResults.clear()
+
+    fun addResultToDatabase(doc: Doc) {
+        bookCoverRepository.downloadCover("https://covers.openlibrary.org/b/id/${doc.coverId}-M.jpg")
+    }
 
     enum class SearchState {
         NOT_SEARCHING,
