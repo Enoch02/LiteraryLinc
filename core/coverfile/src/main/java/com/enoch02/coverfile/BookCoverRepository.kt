@@ -3,7 +3,6 @@ package com.enoch02.coverfile
 import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
-import android.os.Environment
 import android.util.Log
 import com.enoch02.util.getFileFromUri
 import id.zelory.compressor.Compressor
@@ -76,14 +75,15 @@ class BookCoverRepository(private val context: Context) {
         }
     }
 
-    fun downloadCover(url: String) {
+    //TODO: DEBUG!
+    fun downloadCover(url: String): String {
         val uri = Uri.parse(url)
         val fileName = url.substring(url.lastIndexOf('/') + 1)
         val file = File(coverFolder, fileName)
 
         if (file.exists()) {
             Log.d(TAG, "downloadCover: A file with the name '$fileName' exists!")
-            return
+            return fileName
         } else {
             val downloadManager =
                 context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
@@ -95,5 +95,7 @@ class BookCoverRepository(private val context: Context) {
 
             downloadManager.enqueue(request)
         }
+
+        return fileName
     }
 }
