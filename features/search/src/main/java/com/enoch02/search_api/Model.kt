@@ -13,7 +13,7 @@ data class Doc(
     val key: String?,
     val title: String?,
     @SerializedName("publish_year") val publishYear: List<String>?,
-    val isbn: List<String>,
+    val isbn: List<String>?,
     @SerializedName("cover_i") val coverId: String?,
     val publisher: List<String>?,
     val language: List<String>?,

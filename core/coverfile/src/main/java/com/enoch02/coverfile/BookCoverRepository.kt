@@ -1,6 +1,5 @@
 package com.enoch02.coverfile
 
-import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
 import android.util.Log
@@ -13,7 +12,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
 
 private const val TAG = "COVER_REPO"
 
@@ -75,27 +79,37 @@ class BookCoverRepository(private val context: Context) {
         }
     }
 
-    //TODO: DEBUG!
-    fun downloadCover(url: String): String {
-        val uri = Uri.parse(url)
-        val fileName = url.substring(url.lastIndexOf('/') + 1)
-        val file = File(coverFolder, fileName)
+    suspend fun downloadCover(coverUrl: String): String {
+        return withContext(Dispatchers.IO) {
+            val fileName = coverUrl.substring(coverUrl.lastIndexOf('/') + 1)
+            val destinationFile = File(coverFolder.path + "/$fileName")
+            val urlObj = URL(coverUrl)
+            val connection = urlObj.openConnection() as HttpURLConnection
 
-        if (file.exists()) {
-            Log.d(TAG, "downloadCover: A file with the name '$fileName' exists!")
-            return fileName
-        } else {
-            val downloadManager =
-                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            val request = DownloadManager.Request(uri)
-                .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI)
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN)
-                .setDestinationUri(Uri.fromFile(file))
-                .setMimeType("image/jpg")
+            Log.d(TAG, "downloadFile: FILENAME = $fileName")
+            Log.d(TAG, "downloadFile: OUTPUT_PATH = $destinationFile")
 
-            downloadManager.enqueue(request)
+            try {
+                val inputStream = connection.inputStream
+                val fileOutputStream = FileOutputStream(destinationFile)
+
+                val buffer = ByteArray(1024)
+                var bytesRead: Int
+
+                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                    fileOutputStream.write(buffer, 0, bytesRead)
+                }
+
+                inputStream.close()
+                fileOutputStream.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+                return@withContext ""
+            } finally {
+                connection.disconnect()
+            }
+
+            return@withContext fileName
         }
-
-        return fileName
     }
 }

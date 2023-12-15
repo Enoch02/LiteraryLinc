@@ -57,17 +57,22 @@ class SearchScreenViewModel @Inject constructor(
 
     fun clearResults() = searchResults.clear()
 
+    /**
+     * TODO: add toasts to inform the user of the success or failure of the operation.
+     */
     fun addResultToDatabase(doc: Doc) {
-        val coverName =
-            bookCoverRepository.downloadCover("https://covers.openlibrary.org/b/id/${doc.coverId}-M.jpg")
-        val newBook = Book(
-            title = doc.title ?: "Null",
-            author = doc.author?.first() ?: "",
-            isbn = doc.isbn.first(),
-            coverImageName = coverName
-        )
+        viewModelScope.launch {
+            val coverName =
+                bookCoverRepository.downloadCover("https://covers.openlibrary.org/b/id/${doc.coverId}-M.jpg")
+            val newBook = Book(
+                title = doc.title ?: "Null",
+                author = doc.author?.first() ?: "",
+                isbn = doc.isbn?.first() ?: "",
+                coverImageName = coverName
+            )
 
-        viewModelScope.launch { bookDao.insertBook(newBook) }
+            bookDao.insertBook(newBook)
+        }
     }
 
     enum class SearchState {
