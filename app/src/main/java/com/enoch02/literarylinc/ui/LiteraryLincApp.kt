@@ -1,6 +1,5 @@
 package com.enoch02.literarylinc.ui
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -21,12 +20,17 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -42,6 +46,7 @@ import com.enoch02.literarylinc.navigation.Screen
 import com.enoch02.literarylinc.navigation.TopLevelDestination
 import com.enoch02.more.MoreScreen
 import com.enoch02.search.SearchScreen
+import kotlinx.coroutines.withContext
 
 /**
  * TODO: replace all [androidx.compose.ui.graphics.vector.ImageVector] icons
@@ -57,6 +62,7 @@ fun LiteraryLincApp(navController: NavController) {
     var currentScreen by rememberSaveable { mutableStateOf(TopLevelDestination.BOOK_LIST) }
     var sorting by rememberSaveable { mutableStateOf(Sorting.ALPHABETICAL) }
     var showSortOptions by rememberSaveable { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
         topBar = {
@@ -210,6 +216,9 @@ fun LiteraryLincApp(navController: NavController) {
                 )
             }
         },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
         content = { paddingValues ->
             Crossfade(
                 targetState = currentScreen,
@@ -227,7 +236,28 @@ fun LiteraryLincApp(navController: NavController) {
                         }
 
                         TopLevelDestination.SEARCH -> {
-                            SearchScreen(modifier = Modifier.padding(paddingValues))
+                            SearchScreen(
+                                modifier = Modifier.padding(paddingValues),
+                                onError = { message, actionLabel ->
+                                    return@SearchScreen withContext(scope.coroutineContext) {
+                                        val result = snackbarHostState.showSnackbar(
+                                            message = message,
+                                            actionLabel = actionLabel,
+                                            duration = SnackbarDuration.Short
+                                        )
+
+                                        when (result) {
+                                            SnackbarResult.ActionPerformed -> {
+                                                return@withContext true
+                                            }
+
+                                            SnackbarResult.Dismissed -> {
+                                                return@withContext false
+                                            }
+                                        }
+                                    }
+                                }
+                            )
                         }
 
                         TopLevelDestination.STATS -> {

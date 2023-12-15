@@ -58,20 +58,46 @@ class SearchScreenViewModel @Inject constructor(
     fun clearResults() = searchResults.clear()
 
     /**
-     * TODO: add toasts to inform the user of the success or failure of the operation.
+     * [doc] - a single search result item.
+     * [onError] - function to call when an error occurs. Takes a single message and returns a boolean that indicates that the user wants to retry.
      */
-    fun addResultToDatabase(doc: Doc) {
+    fun addResultToDatabase(
+        doc: Doc,
+        onError: suspend (message: String, actionLabel: String) -> Boolean
+    ) {
+        //TODO: Might be potentially buggy. Noticed some weird entry duplication after testing
         viewModelScope.launch {
-            val coverName =
-                bookCoverRepository.downloadCover("https://covers.openlibrary.org/b/id/${doc.coverId}-M.jpg")
-            val newBook = Book(
-                title = doc.title ?: "Null",
-                author = doc.author?.first() ?: "",
-                isbn = doc.isbn?.first() ?: "",
-                coverImageName = coverName
-            )
+            if (bookDao.checkBookTitle(doc.title ?: "")) {
+                if (
+                    onError(
+                        "This book is in your booklist, do you want to add it again?",
+                        "Yes"
+                    )
+                ) {
+                    var newBook = Book(
+                        title = doc.title ?: "Null",
+                        author = doc.author?.first() ?: "",
+                        isbn = doc.isbn?.first() ?: ""
+                    )
 
-            bookDao.insertBook(newBook)
+                    // download cover / just add the book if retry is rejected
+                    bookCoverRepository.downloadCover("https://covers.openlibrary.org/b/id/${doc.coverId}-M.jpg")
+                        .onSuccess {
+                            newBook = newBook.copy(coverImageName = it)
+                            bookDao.insertBook(newBook)
+                        }
+                        .onFailure { e ->
+                            e.message?.let { message ->
+                                if (onError(message, "Retry")) {
+                                    addResultToDatabase(doc = doc, onError = onError)
+                                } else {
+                                    bookDao.insertBook(newBook)
+                                }
+                            }
+                        }
+
+                }
+            }
         }
     }
 

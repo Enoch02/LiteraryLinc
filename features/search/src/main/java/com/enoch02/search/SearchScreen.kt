@@ -18,25 +18,30 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.enoch02.components.SearchResultItem
 
-@OptIn(ExperimentalMaterial3Api::class)
+/***
+ * [onError] - Callback used to show a snackbar with desired message when an error occurs.
+ */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SearchScreen(
     modifier: Modifier,
+    onError: suspend (message: String, actionLabel: String) -> Boolean,
     viewModel: SearchScreenViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     var searchQuery by viewModel.searchQuery
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -47,6 +52,7 @@ fun SearchScreen(
                 active = false,
                 onActiveChange = { },
                 onSearch = {
+                    keyboardController?.hide()
                     viewModel.startSearch(searchQuery)
                         ?.onFailure {
                             Toast.makeText(context, "${it.message}", Toast.LENGTH_SHORT).show()
@@ -127,10 +133,15 @@ fun SearchScreen(
                                                 title = item.title ?: "",
                                                 author = item.author ?: emptyList(),
                                                 coverUrl = coverUrl,
-                                                onClick = { /** TODO: Navigate to add book screen with item properties as arguments.
-                                                Might have to add a way to view multiple isbns and authors**/ },
+                                                onClick = {
+                                                    /** TODO: Navigate to add book screen with item properties as arguments.
+                                                    Might have to add a way to view multiple isbns and authors**/
+                                                },
                                                 onAddBtnClick = {
-                                                    viewModel.addResultToDatabase(item)
+                                                    viewModel.addResultToDatabase(
+                                                        doc = item,
+                                                        onError = onError
+                                                    )
                                                 }
                                             )
                                         }

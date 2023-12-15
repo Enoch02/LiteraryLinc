@@ -24,6 +24,12 @@ private const val TAG = "COVER_REPO"
 class BookCoverRepository(private val context: Context) {
     private val coverFolder = File(context.filesDir.path, "covers/")
 
+    init {
+        if (!coverFolder.exists()) {
+            coverFolder.mkdir()
+        }
+    }
+
     val latestCoverPath: Flow<Map<String, String?>> = flow {
         while (true) {
             val latestPathMap = mutableMapOf<String, String?>()
@@ -79,15 +85,12 @@ class BookCoverRepository(private val context: Context) {
         }
     }
 
-    suspend fun downloadCover(coverUrl: String): String {
+    suspend fun downloadCover(coverUrl: String): Result<String> {
         return withContext(Dispatchers.IO) {
             val fileName = coverUrl.substring(coverUrl.lastIndexOf('/') + 1)
             val destinationFile = File(coverFolder.path + "/$fileName")
             val urlObj = URL(coverUrl)
             val connection = urlObj.openConnection() as HttpURLConnection
-
-            Log.d(TAG, "downloadFile: FILENAME = $fileName")
-            Log.d(TAG, "downloadFile: OUTPUT_PATH = $destinationFile")
 
             try {
                 val inputStream = connection.inputStream
@@ -104,12 +107,13 @@ class BookCoverRepository(private val context: Context) {
                 fileOutputStream.close()
             } catch (e: IOException) {
                 e.printStackTrace()
-                return@withContext ""
+
+                return@withContext Result.failure(e)
             } finally {
                 connection.disconnect()
             }
 
-            return@withContext fileName
+            return@withContext Result.success(fileName)
         }
     }
 }
