@@ -17,7 +17,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -27,7 +31,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.enoch02.components.DocDetail
 import com.enoch02.components.SearchResultItem
+import kotlinx.coroutines.launch
 
 /***
  * [onError] - Callback used to show a snackbar with desired message when an error occurs.
@@ -36,10 +42,12 @@ import com.enoch02.components.SearchResultItem
 @Composable
 fun SearchScreen(
     modifier: Modifier,
+    onEdit: (id: Int) -> Unit,
     onError: suspend (message: String, actionLabel: String) -> Boolean,
     viewModel: SearchScreenViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var searchQuery by viewModel.searchQuery
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -118,36 +126,79 @@ fun SearchScreen(
                         }
 
                         SearchScreenViewModel.SearchState.COMPLETE -> {
-                            LazyColumn(
-                                content = {
-                                    items(
-                                        count = viewModel.searchResults.size,
-                                        itemContent = { index ->
-                                            val item = viewModel.searchResults[index]
-                                            /*TODO: Add settings option to set image quality [S, M, L]*/
-                                            val coverUrl =
-                                                "https://covers.openlibrary.org/b/id/${item.coverId}-M.jpg"
+                            if (viewModel.searchResults.isEmpty()) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier.fillMaxSize(),
+                                    content = {
+                                        Text(
+                                            text = "No result found",
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+                                )
+                            } else {
+                                LazyColumn(
+                                    content = {
+                                        items(
+                                            count = viewModel.searchResults.size,
+                                            itemContent = { index ->
+                                                val item = viewModel.searchResults[index]
+                                                val isItemInDb =
+                                                    viewModel.isTitleInDb(item.title.toString())
+                                                        .collectAsState(initial = false)
+                                                val id =
+                                                    viewModel.getTitleIdFromDb(item.title.toString())
+                                                        .collectAsState(
+                                                            initial = 0
+                                                        )
+                                                /*TODO: Add settings option to set image quality [S, M, L]*/
+                                                val coverUrl =
+                                                    "https://covers.openlibrary.org/b/id/${item.coverId}-M.jpg"
+                                                var showDetailDialog by rememberSaveable { mutableStateOf(false) }
 
-                                            //TODO: How can i check if a search result is already in the db?
-                                            SearchResultItem(
-                                                title = item.title ?: "",
-                                                author = item.author ?: emptyList(),
-                                                coverUrl = coverUrl,
-                                                onClick = {
-                                                    /** TODO: Navigate to add book screen with item properties as arguments.
-                                                    Might have to add a way to view multiple isbns and authors**/
-                                                },
-                                                onAddBtnClick = {
-                                                    viewModel.addResultToDatabase(
+                                                SearchResultItem(
+                                                    title = item.title ?: "",
+                                                    author = item.author ?: emptyList(),
+                                                    coverUrl = coverUrl,
+                                                    itemInDatabase = isItemInDb.value,
+                                                    onClick = {
+                                                        showDetailDialog = true
+                                                    },
+                                                    onAddBtnClick = {
+                                                        viewModel.addResultToDatabase(
+                                                            doc = item,
+                                                            onError = onError
+                                                        )
+
+                                                        scope.launch {
+                                                            // No error here 🙂
+                                                            onError(
+                                                                "Adding to database, please wait",
+                                                                ""
+                                                            )
+                                                        }
+                                                    },
+                                                    onEditBtnClick = {
+                                                        onEdit(id.value)
+                                                    }
+                                                )
+
+                                                if (showDetailDialog) {
+                                                    DocDetail(
                                                         doc = item,
-                                                        onError = onError
+                                                        coverUrl = coverUrl,
+                                                        onDismiss = { showDetailDialog = false },
+                                                        onConfirm = {
+                                                            /*TODO*/
+                                                        }
                                                     )
                                                 }
-                                            )
-                                        }
-                                    )
-                                }
-                            )
+                                            }
+                                        )
+                                    }
+                                )
+                            }
                         }
 
                         SearchScreenViewModel.SearchState.FAILURE -> {

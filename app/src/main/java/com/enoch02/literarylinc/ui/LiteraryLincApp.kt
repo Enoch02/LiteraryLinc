@@ -238,6 +238,9 @@ fun LiteraryLincApp(navController: NavController) {
                         TopLevelDestination.SEARCH -> {
                             SearchScreen(
                                 modifier = Modifier.padding(paddingValues),
+                                onEdit = { id ->
+                                    navController.navigate(Screen.BookDetail.withArgs(id.toString()))
+                                },
                                 onError = { message, actionLabel ->
                                     return@SearchScreen withContext(scope.coroutineContext) {
                                         val result = snackbarHostState.showSnackbar(

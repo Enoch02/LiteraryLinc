@@ -22,8 +22,10 @@ fun SearchResultItem(
     title: String,
     author: List<String>,
     coverUrl: String,
+    itemInDatabase: Boolean,
     onClick: () -> Unit,
-    onAddBtnClick: () -> Unit
+    onAddBtnClick: () -> Unit,
+    onEditBtnClick: () -> Unit
 ) {
     ListItem(
         headlineContent = {
@@ -52,11 +54,21 @@ fun SearchResultItem(
         },
         trailingContent = {
             OutlinedIconButton(
-                onClick = onAddBtnClick,
+                onClick = {
+                    if (itemInDatabase) {
+                        onEditBtnClick()
+                    } else {
+                        onAddBtnClick()
+                    }
+                },
                 shape = RectangleShape,
                 content = {
                     Icon(
-                        painter = painterResource(id = R.drawable.round_add_24),
+                        painter = if (itemInDatabase) {
+                            painterResource(id = R.drawable.round_edit_24)
+                        } else {
+                            painterResource(id = R.drawable.round_add_24)
+                        },
                         contentDescription = null
                     )
                 }

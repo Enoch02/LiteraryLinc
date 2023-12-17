@@ -57,6 +57,10 @@ class SearchScreenViewModel @Inject constructor(
 
     fun clearResults() = searchResults.clear()
 
+    fun isTitleInDb(title: String) = bookDao.checkBookTitle(title)
+
+    fun getTitleIdFromDb(title: String) = bookDao.getIdByTitle(title)
+
     /**
      * [doc] - a single search result item.
      * [onError] - function to call when an error occurs. Takes a single message and returns a boolean that indicates that the user wants to retry.
@@ -72,55 +76,22 @@ class SearchScreenViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            if (bookDao.checkBookTitle(doc.title ?: "")) {
-                Log.e(TAG, "addResultToDatabase: This book is in the database")
-                when (
-                    onError(
-                        "${doc.title} is in your booklist, do you want to add it again?",
-                        "Yes"
-                    )
-                ) {
-                    false -> {
-                        return@launch
+            // download cover / just add the book if retry is rejected
+            viewModelScope.launch {
+                bookCoverRepository.downloadCover("https://covers.openlibrary.org/b/id/${doc.coverId}-M.jpg")
+                    .onSuccess {
+                        newBook = newBook.copy(coverImageName = it)
+                        bookDao.insertBook(newBook)
                     }
-
-                    true -> {
-                        // download cover / just add the book if retry is rejected
-                        viewModelScope.launch {
-                            bookCoverRepository.downloadCover("https://covers.openlibrary.org/b/id/${doc.coverId}-M.jpg")
-                                .onSuccess {
-                                    newBook = newBook.copy(coverImageName = it)
-                                    bookDao.insertBook(newBook)
-                                }
-                                .onFailure { e ->
-                                    e.message?.let { message ->
-                                        if (onError(message, "Retry")) {
-                                            addResultToDatabase(doc = doc, onError = onError)
-                                        } else {
-                                            bookDao.insertBook(newBook)
-                                        }
-                                    }
-                                }
-                        }
-                    }
-                }
-            } else {
-                viewModelScope.launch {
-                    bookCoverRepository.downloadCover("https://covers.openlibrary.org/b/id/${doc.coverId}-M.jpg")
-                        .onSuccess {
-                            newBook = newBook.copy(coverImageName = it)
-                            bookDao.insertBook(newBook)
-                        }
-                        .onFailure { e ->
-                            e.message?.let { message ->
-                                if (onError(message, "Retry")) {
-                                    addResultToDatabase(doc = doc, onError = onError)
-                                } else {
-                                    bookDao.insertBook(newBook)
-                                }
+                    .onFailure { e ->
+                        e.message?.let { message ->
+                            if (onError(message, "Retry")) {
+                                addResultToDatabase(doc = doc, onError = onError)
+                            } else {
+                                bookDao.insertBook(newBook)
                             }
                         }
-                }
+                    }
             }
         }
     }
