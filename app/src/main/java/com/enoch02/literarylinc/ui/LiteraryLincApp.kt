@@ -89,81 +89,83 @@ fun LiteraryLincApp(navController: NavController) {
                     )
                 },
                 actions = {
-                    if (currentScreen == TopLevelDestination.BOOK_LIST) {
-                        IconButton(
-                            onClick = { navController.navigate(Screen.BarcodeScanner.route) },
-                            content = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.barcode_scanner_24px),
-                                    contentDescription = stringResource(R.string.barcode_scanner_desc)
-                                )
-                            }
-                        )
-
-                        IconButton(
-                            onClick = { showSortOptions = true },
-                            content = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.round_sort_24),
-                                    contentDescription = stringResource(R.string.sort_desc)
-                                )
-                            }
-                        )
-
-                        if (showSortOptions) {
-                            AlertDialog(
-                                title = { Text(text = stringResource(R.string.sorting_options_text)) },
-                                onDismissRequest = { showSortOptions = false },
-                                confirmButton = {},
-                                dismissButton = {
-                                    TextButton(
-                                        onClick = { showSortOptions = false },
-                                        content = {
-                                            Text(text = "Cancel")
-                                        }
+                    when (currentScreen) {
+                        TopLevelDestination.BOOK_LIST -> {
+                            IconButton(
+                                onClick = { navController.navigate(Screen.BarcodeScanner.route) },
+                                content = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.barcode_scanner_24px),
+                                        contentDescription = stringResource(R.string.barcode_scanner_desc)
                                     )
-                                },
-                                text = {
-                                    val options = Sorting.values()
-
-                                    Column {
-                                        options.forEach {
-                                            val onClick = {
-                                                showSortOptions = false
-                                                sorting = it
-                                            }
-
-                                            ListItem(
-                                                leadingContent = {
-                                                    RadioButton(
-                                                        selected = it == sorting,
-                                                        onClick = { onClick() }
-                                                    )
-                                                },
-                                                headlineContent = {
-                                                    Text(text = it.name.lowercase()
-                                                        .replaceFirstChar { c -> c.uppercase() }
-                                                        .replace("_", " "))
-                                                },
-                                                modifier = Modifier.clickable { onClick() }
-                                            )
-                                        }
-                                    }
                                 }
                             )
-                        }
-                    }
 
-                    if (currentScreen == TopLevelDestination.SEARCH) {
-                        IconButton(
-                            onClick = { /*TODO*/ },
-                            content = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.round_history_24),
-                                    contentDescription = stringResource(R.string.search_history_desc)
+                            IconButton(
+                                onClick = { showSortOptions = true },
+                                content = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.round_sort_24),
+                                        contentDescription = stringResource(R.string.sort_desc)
+                                    )
+                                }
+                            )
+
+                            if (showSortOptions) {
+                                AlertDialog(
+                                    title = { Text(text = stringResource(R.string.sorting_options_text)) },
+                                    onDismissRequest = { showSortOptions = false },
+                                    confirmButton = {},
+                                    dismissButton = {
+                                        TextButton(
+                                            onClick = { showSortOptions = false },
+                                            content = {
+                                                Text(text = "Cancel")
+                                            }
+                                        )
+                                    },
+                                    text = {
+                                        val options = Sorting.values()
+
+                                        Column {
+                                            options.forEach {
+                                                val onClick = {
+                                                    showSortOptions = false
+                                                    sorting = it
+                                                }
+
+                                                ListItem(
+                                                    leadingContent = {
+                                                        RadioButton(
+                                                            selected = it == sorting,
+                                                            onClick = { onClick() }
+                                                        )
+                                                    },
+                                                    headlineContent = {
+                                                        Text(text = it.name.lowercase()
+                                                            .replaceFirstChar { c -> c.uppercase() }
+                                                            .replace("_", " "))
+                                                    },
+                                                    modifier = Modifier.clickable { onClick() }
+                                                )
+                                            }
+                                        }
+                                    }
                                 )
                             }
-                        )
+                        }
+
+                        TopLevelDestination.SEARCH -> {
+                            /*TODO()*/
+                        }
+
+                        TopLevelDestination.STATS -> {
+                            /*TODO()*/
+                        }
+
+                        TopLevelDestination.MORE -> {
+                            /*TODO()*/
+                        }
                     }
                 }
             )

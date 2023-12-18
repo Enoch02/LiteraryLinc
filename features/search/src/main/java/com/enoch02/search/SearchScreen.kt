@@ -2,6 +2,7 @@ package com.enoch02.search
 
 import android.widget.Toast
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,15 +12,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -29,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.enoch02.components.DocDetail
@@ -50,21 +55,34 @@ fun SearchScreen(
     val scope = rememberCoroutineScope()
     var searchQuery by viewModel.searchQuery
     val keyboardController = LocalSoftwareKeyboardController.current
+    val history by viewModel.getSearchHistory().collectAsState(initial = emptyList())
+    var active by rememberSaveable { mutableStateOf(true) }
+
+
 
     Column(
         modifier = modifier.fillMaxSize(),
         content = {
-            DockedSearchBar(
+            SearchBar(
                 query = searchQuery,
-                onQueryChange = { searchQuery = it },
-                active = false,
+                onQueryChange = {
+                    searchQuery = it
+
+                    // Is this even necessary?
+                    if (history.isNotEmpty()) {
+                        active = true
+                    }
+                },
+                active = active,
                 onActiveChange = { },
                 onSearch = {
+                    active = false
                     keyboardController?.hide()
                     viewModel.startSearch(searchQuery)
                         ?.onFailure {
                             Toast.makeText(context, "${it.message}", Toast.LENGTH_SHORT).show()
                         }
+                    viewModel.addToSearchHistory(query = searchQuery)
                 },
                 leadingIcon = {
                     Icon(
@@ -73,28 +91,49 @@ fun SearchScreen(
                     )
                 },
                 trailingIcon = {
-                    if (searchQuery.isNotEmpty()) {
-                        IconButton(
-                            onClick = {
-                                if (searchQuery.isNotEmpty()) {
-                                    searchQuery = ""
-                                    viewModel.clearResults()
-                                }
-                            },
-                            content = {
-                                Icon(
-                                    imageVector = Icons.Filled.Close,
-                                    contentDescription = null
-                                )
+                    IconButton(
+                        onClick = {
+                            if (searchQuery.isNotEmpty()) {
+                                searchQuery = ""
+                                viewModel.clearResults()
+                            } else {
+                                active = false
                             }
-                        )
-                    }
+                        },
+                        content = {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = null
+                            )
+                        }
+                    )
                 },
                 shape = RectangleShape,
                 placeholder = { Text(text = "Book title") },
                 modifier = Modifier.fillMaxWidth(),
                 content = {
 
+                    LazyColumn(
+                        content = {
+                            items(
+                                count = history.size,
+                                itemContent = { index ->
+                                    ListItem(
+                                        leadingContent = {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.round_history_24),
+                                                contentDescription = null
+                                            )
+                                        },
+                                        headlineContent = { Text(text = history[index].value) },
+                                        modifier = Modifier.clickable {
+                                            searchQuery = history[index].value
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
                 }
             )
 
@@ -155,7 +194,11 @@ fun SearchScreen(
                                                 /*TODO: Add settings option to set image quality [S, M, L]*/
                                                 val coverUrl =
                                                     "https://covers.openlibrary.org/b/id/${item.coverId}-M.jpg"
-                                                var showDetailDialog by rememberSaveable { mutableStateOf(false) }
+                                                var showDetailDialog by rememberSaveable {
+                                                    mutableStateOf(
+                                                        false
+                                                    )
+                                                }
 
                                                 SearchResultItem(
                                                     title = item.title ?: "",

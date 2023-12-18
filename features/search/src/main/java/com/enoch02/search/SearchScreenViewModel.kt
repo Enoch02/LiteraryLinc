@@ -8,7 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.BookDao
+import com.enoch02.database.dao.SearchHistoryDao
 import com.enoch02.database.model.Book
+import com.enoch02.database.model.HistoryItem
 import com.enoch02.search_api.Doc
 import com.enoch02.search_api.SearchApiService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +23,7 @@ const val TAG = "SearchScreenViewModel"
 class SearchScreenViewModel @Inject constructor(
     private val searchApiService: SearchApiService,
     private val bookDao: BookDao,
+    private val searchHistoryDao: SearchHistoryDao,
     private val bookCoverRepository: BookCoverRepository
 ) :
     ViewModel() {
@@ -55,7 +58,10 @@ class SearchScreenViewModel @Inject constructor(
         return res.value
     }
 
-    fun clearResults() = searchResults.clear()
+    fun clearResults() {
+        searchState.value = SearchState.NOT_SEARCHING
+        searchResults.clear()
+    }
 
     fun isTitleInDb(title: String) = bookDao.checkBookTitle(title)
 
@@ -93,6 +99,14 @@ class SearchScreenViewModel @Inject constructor(
                         }
                     }
             }
+        }
+    }
+
+    fun getSearchHistory() = searchHistoryDao.getHistory()
+
+    fun addToSearchHistory(query: String) {
+        viewModelScope.launch {
+            searchHistoryDao.insertQuery(HistoryItem(value = query))
         }
     }
 
