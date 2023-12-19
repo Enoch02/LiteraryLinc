@@ -20,10 +20,8 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -56,8 +54,7 @@ fun SearchScreen(
     var searchQuery by viewModel.searchQuery
     val keyboardController = LocalSoftwareKeyboardController.current
     val history by viewModel.getSearchHistory().collectAsState(initial = emptyList())
-    var active by rememberSaveable { mutableStateOf(true) }
-
+    var active by viewModel.active
 
 
     Column(
@@ -67,11 +64,7 @@ fun SearchScreen(
                 query = searchQuery,
                 onQueryChange = {
                     searchQuery = it
-
-                    // Is this even necessary?
-                    if (history.isNotEmpty()) {
-                        active = true
-                    }
+                    active = true
                 },
                 active = active,
                 onActiveChange = { },
