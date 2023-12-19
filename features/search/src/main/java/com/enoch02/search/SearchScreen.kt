@@ -56,6 +56,16 @@ fun SearchScreen(
     val history by viewModel.getSearchHistory().collectAsState(initial = emptyList())
     var active by viewModel.active
 
+    val onSearch = {
+        active = false
+        keyboardController?.hide()
+        viewModel.startSearch(searchQuery)
+            ?.onFailure {
+                Toast.makeText(context, "${it.message}", Toast.LENGTH_SHORT).show()
+            }
+        viewModel.addToSearchHistory(query = searchQuery)
+    }
+
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -68,15 +78,7 @@ fun SearchScreen(
                 },
                 active = active,
                 onActiveChange = { },
-                onSearch = {
-                    active = false
-                    keyboardController?.hide()
-                    viewModel.startSearch(searchQuery)
-                        ?.onFailure {
-                            Toast.makeText(context, "${it.message}", Toast.LENGTH_SHORT).show()
-                        }
-                    viewModel.addToSearchHistory(query = searchQuery)
-                },
+                onSearch = { onSearch() },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Search,
@@ -121,6 +123,7 @@ fun SearchScreen(
                                         headlineContent = { Text(text = history[index].value) },
                                         modifier = Modifier.clickable {
                                             searchQuery = history[index].value
+                                            onSearch()
                                         }
                                     )
                                 }
@@ -130,8 +133,6 @@ fun SearchScreen(
                 }
             )
 
-
-            //TODO: might remove crossfade
             Crossfade(
                 targetState = viewModel.searchState.value,
                 content = {

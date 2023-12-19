@@ -13,7 +13,7 @@ interface SearchHistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertQuery(value: HistoryItem)
 
-    @Query(value = "SELECT * from items")
+    @Query(value = "SELECT * from items ORDER BY id DESC")
     fun getHistory(): Flow<List<HistoryItem>>
 
     @Query(value = "DELETE FROM items")

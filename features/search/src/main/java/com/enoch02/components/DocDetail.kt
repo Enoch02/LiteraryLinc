@@ -3,12 +3,11 @@ package com.enoch02.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
@@ -29,14 +28,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.enoch02.database.model.Book
 import com.enoch02.search_api.Doc
 
 //TODO: extract string resources
+//TODO: add option to select multiple authors
 @Composable
 fun DocDetail(doc: Doc, coverUrl: String, onDismiss: () -> Unit, onConfirm: (book: Book) -> Unit) {
     var title by remember { mutableStateOf("") }
@@ -65,10 +63,10 @@ fun DocDetail(doc: Doc, coverUrl: String, onDismiss: () -> Unit, onConfirm: (boo
         confirmButton = {
             TextButton(
                 onClick = {
-                          /*TODO: I can add modified info to the dab?
-                          * I can't modify the doc objects and i don't want to
-                          * attach this composable to the viewmodel...
-                          * */
+                    /*TODO: I can add modified info to the dab?
+                    * I can't modify the doc objects and i don't want to
+                    * attach this composable to the viewmodel...
+                    * */
                     /*onConfirm()*/
                 },
                 content = {
@@ -85,84 +83,85 @@ fun DocDetail(doc: Doc, coverUrl: String, onDismiss: () -> Unit, onConfirm: (boo
             )
         },
         title = {
-            Text(text = "Book Details")
+            Text(text = "Modify Book Details")
         },
         text = {
-            //TODO: add ime action to move to next text field
             Column {
-                OutlinedTextField(
-                    value = doc.title.toString(),
-                    onValueChange = {},
-                    label = { Text(text = "Title") }
-                )
+                LazyColumn(
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    content = {
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row {
-                    AsyncImage(
-                        model = coverUrl,
-                        contentDescription = null,
-                        contentScale = ContentScale.FillBounds,
-                        modifier = Modifier.size(width = 100.dp, height = 160.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Column(verticalArrangement = Arrangement.SpaceEvenly) {
+                        item {
+                            OutlinedTextField(
+                                value = doc.title.toString(),
+                                onValueChange = {},
+                                label = { Text(text = "Title") }
+                            )
+                        }
 
                         if (!doc.author.isNullOrEmpty()) {
-                            FormSpinner(
-                                label = "Author(s)",
-                                options = doc.author,
-                                selectedOption = selectedAuthor,
-                                onSelectionChange = { selectedAuthor = it }
-                            )
+                            item {
+                                FormSpinner(
+                                    label = "Author(s)",
+                                    options = doc.author,
+                                    selectedOption = selectedAuthor,
+                                    onSelectionChange = { selectedAuthor = it }
+                                )
+                            }
                         }
 
                         if (!doc.publisher.isNullOrEmpty()) {
-                            FormSpinner(
-                                label = "Publisher(s)",
-                                options = doc.publisher,
-                                selectedOption = selectedPublisher,
-                                onSelectionChange = { selectedPublisher = it }
-                            )
+                            item {
+                                FormSpinner(
+                                    label = "Publisher(s)",
+                                    options = doc.publisher,
+                                    selectedOption = selectedPublisher,
+                                    onSelectionChange = { selectedPublisher = it }
+                                )
+                            }
                         }
 
                         if (!doc.language.isNullOrEmpty()) {
-                            FormSpinner(
-                                label = "Language(s)",
-                                options = doc.language,
-                                selectedOption = selectedLanguage,
-                                onSelectionChange = { selectedLanguage = it }
-                            )
+                            item {
+                                FormSpinner(
+                                    label = "Language(s)",
+                                    options = doc.language,
+                                    selectedOption = selectedLanguage,
+                                    onSelectionChange = { selectedLanguage = it }
+                                )
+                            }
                         }
 
                         if (!doc.publishYear.isNullOrEmpty()) {
-                            FormSpinner(
-                                label = "Publisher(s)",
-                                options = doc.publishYear,
-                                selectedOption = selectedPublishYear,
-                                onSelectionChange = { selectedPublishYear = it }
-                            )
+                            item {
+                                FormSpinner(
+                                    label = "Publisher(s)",
+                                    options = doc.publishYear,
+                                    selectedOption = selectedPublishYear,
+                                    onSelectionChange = { selectedPublishYear = it }
+                                )
+                            }
                         }
 
                         if (!doc.isbn.isNullOrEmpty()) {
-                            FormSpinner(
-                                label = "ISBN(s)",
-                                options = doc.isbn,
-                                selectedOption = selectedIsbn,
-                                onSelectionChange = { selectedIsbn = it }
-                            )
+                            item {
+                                FormSpinner(
+                                    label = "ISBN(s)",
+                                    options = doc.isbn,
+                                    selectedOption = selectedIsbn,
+                                    onSelectionChange = { selectedIsbn = it }
+                                )
+                            }
                         }
-                    }
-                }
+                    },
+                    contentPadding = PaddingValues(vertical = 12.dp)
+                )
             }
         }
     )
 }
 
 
-//TODO: create module to hold form components from modifybook module components package
 @Composable
 internal fun FormSpinner(
     label: String,
@@ -172,13 +171,12 @@ internal fun FormSpinner(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        Text(text = label, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(8.dp))
         var expanded by remember { mutableStateOf(false) }
 
         OutlinedTextField(
             readOnly = true,
             value = selectedOption,
+            label = { Text(text = label) },
             onValueChange = { },
             trailingIcon = {
                 IconButton(
@@ -225,8 +223,7 @@ internal fun FormSpinner(
                         }
                     )
                 }
-            },
-            modifier = Modifier.fillMaxWidth()
+            }
         )
     }
 }

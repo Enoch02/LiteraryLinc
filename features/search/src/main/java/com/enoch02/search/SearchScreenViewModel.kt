@@ -30,7 +30,7 @@ class SearchScreenViewModel @Inject constructor(
     val searchQuery = mutableStateOf("")
     var searchState = mutableStateOf(SearchState.NOT_SEARCHING)
     val searchResults = mutableStateListOf<Doc>()
-    var active = mutableStateOf(false)
+    var active = mutableStateOf(true)
 
     fun startSearch(query: String): Result<Unit>? {
         val res = MutableLiveData<Result<Unit>>()
