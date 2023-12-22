@@ -20,12 +20,17 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -40,6 +45,8 @@ import com.enoch02.literarylinc.R
 import com.enoch02.literarylinc.navigation.Screen
 import com.enoch02.literarylinc.navigation.TopLevelDestination
 import com.enoch02.more.MoreScreen
+import com.enoch02.search.SearchScreen
+import kotlinx.coroutines.withContext
 
 /**
  * TODO: replace all [androidx.compose.ui.graphics.vector.ImageVector] icons
@@ -55,6 +62,7 @@ fun LiteraryLincApp(navController: NavController) {
     var currentScreen by rememberSaveable { mutableStateOf(TopLevelDestination.BOOK_LIST) }
     var sorting by rememberSaveable { mutableStateOf(Sorting.ALPHABETICAL) }
     var showSortOptions by rememberSaveable { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
         topBar = {
@@ -81,68 +89,80 @@ fun LiteraryLincApp(navController: NavController) {
                     )
                 },
                 actions = {
-                    if (currentScreen == TopLevelDestination.BOOK_LIST) {
-                        IconButton(
-                            onClick = { navController.navigate(Screen.BarcodeScanner.route) },
-                            content = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.barcode_scanner_24px),
-                                    contentDescription = stringResource(R.string.barcode_scanner_desc)
-                                )
-                            }
-                        )
-
-                        IconButton(
-                            onClick = { showSortOptions = true },
-                            content = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.round_sort_24),
-                                    contentDescription = stringResource(R.string.sort_desc)
-                                )
-                            }
-                        )
-
-                        if (showSortOptions) {
-                            AlertDialog(
-                                title = { Text(text = stringResource(R.string.sorting_options_text))},
-                                onDismissRequest = { showSortOptions = false },
-                                confirmButton = {},
-                                dismissButton = {
-                                    TextButton(
-                                        onClick = { showSortOptions = false },
-                                        content = {
-                                            Text(text = "Cancel")
-                                        }
+                    when (currentScreen) {
+                        TopLevelDestination.BOOK_LIST -> {
+                            IconButton(
+                                onClick = { showSortOptions = true },
+                                content = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.round_sort_24),
+                                        contentDescription = stringResource(R.string.sort_desc)
                                     )
-                                },
-                                text = {
-                                    val options = Sorting.values()
-
-                                    Column {
-                                        options.forEach {
-                                            val onClick = {
-                                                showSortOptions = false
-                                                sorting = it
-                                            }
-
-                                            ListItem(
-                                                leadingContent = {
-                                                    RadioButton(
-                                                        selected = it == sorting,
-                                                        onClick = { onClick() }
-                                                    )
-                                                },
-                                                headlineContent = {
-                                                    Text(text = it.name.lowercase()
-                                                        .replaceFirstChar { c -> c.uppercase() }
-                                                        .replace("_", " "))
-                                                },
-                                                modifier = Modifier.clickable { onClick() }
-                                            )
-                                        }
-                                    }
                                 }
                             )
+
+                            if (showSortOptions) {
+                                AlertDialog(
+                                    title = { Text(text = stringResource(R.string.sorting_options_text)) },
+                                    onDismissRequest = { showSortOptions = false },
+                                    confirmButton = {},
+                                    dismissButton = {
+                                        TextButton(
+                                            onClick = { showSortOptions = false },
+                                            content = {
+                                                Text(text = "Cancel")
+                                            }
+                                        )
+                                    },
+                                    text = {
+                                        val options = Sorting.values()
+
+                                        Column {
+                                            options.forEach {
+                                                val onClick = {
+                                                    showSortOptions = false
+                                                    sorting = it
+                                                }
+
+                                                ListItem(
+                                                    leadingContent = {
+                                                        RadioButton(
+                                                            selected = it == sorting,
+                                                            onClick = { onClick() }
+                                                        )
+                                                    },
+                                                    headlineContent = {
+                                                        Text(text = it.name.lowercase()
+                                                            .replaceFirstChar { c -> c.uppercase() }
+                                                            .replace("_", " "))
+                                                    },
+                                                    modifier = Modifier.clickable { onClick() }
+                                                )
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                        }
+
+                        TopLevelDestination.SEARCH -> {
+                            IconButton(
+                                onClick = { navController.navigate(Screen.BarcodeScanner.route) },
+                                content = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.barcode_scanner_24px),
+                                        contentDescription = stringResource(R.string.barcode_scanner_desc)
+                                    )
+                                }
+                            )
+                        }
+
+                        TopLevelDestination.STATS -> {
+                            /*TODO()*/
+                        }
+
+                        TopLevelDestination.MORE -> {
+                            /*TODO()*/
                         }
                     }
                 }
@@ -196,6 +216,9 @@ fun LiteraryLincApp(navController: NavController) {
                 )
             }
         },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
         content = { paddingValues ->
             Crossfade(
                 targetState = currentScreen,
@@ -213,7 +236,31 @@ fun LiteraryLincApp(navController: NavController) {
                         }
 
                         TopLevelDestination.SEARCH -> {
+                            SearchScreen(
+                                modifier = Modifier.padding(paddingValues),
+                                onEdit = { id ->
+                                    navController.navigate(Screen.BookDetail.withArgs(id.toString()))
+                                },
+                                onError = { message, actionLabel ->
+                                    return@SearchScreen withContext(scope.coroutineContext) {
+                                        val result = snackbarHostState.showSnackbar(
+                                            message = message,
+                                            actionLabel = actionLabel,
+                                            duration = SnackbarDuration.Short
+                                        )
 
+                                        when (result) {
+                                            SnackbarResult.ActionPerformed -> {
+                                                return@withContext true
+                                            }
+
+                                            SnackbarResult.Dismissed -> {
+                                                return@withContext false
+                                            }
+                                        }
+                                    }
+                                }
+                            )
                         }
 
                         TopLevelDestination.STATS -> {

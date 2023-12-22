@@ -14,4 +14,5 @@
     <string name="your_library_label">Your Library</string>
     <string name="sort_desc">Sort book list</string>
     <string name="sorting_options_text">Sorting Options</string>
+    <string name="search_history_desc">View search history</string>
 </resources>

@@ -20,4 +20,13 @@ object DatabaseModule {
             LiteraryLincDatabase::class.java,
             "literary-linc-db"
         ).build()
+
+    @Provides
+    @Singleton
+    fun providesSearchHistoryDatabase(@ApplicationContext context: Context): SearchHistoryDatabase =
+        Room.databaseBuilder(
+            context,
+            SearchHistoryDatabase::class.java,
+            "search-history-db"
+        ).build()
 }

@@ -36,7 +36,7 @@ class SettingViewModel @Inject constructor(private val application: Application)
     fun getBooleanPreference(key: Preferences.Key<Boolean>): Flow<Boolean> {
         val flow: Flow<Boolean> =
             application.applicationContext.dataStore.data.map { preferences ->
-                preferences[key] ?: true
+                preferences[key] ?: false
             }
         return flow
     }

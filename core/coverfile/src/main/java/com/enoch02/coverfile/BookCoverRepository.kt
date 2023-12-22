@@ -7,19 +7,28 @@ import com.enoch02.util.getFileFromUri
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.default
 import id.zelory.compressor.constraint.destination
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
 
 private const val TAG = "COVER_REPO"
 
 class BookCoverRepository(private val context: Context) {
     private val coverFolder = File(context.filesDir.path, "covers/")
+
+    init {
+        if (!coverFolder.exists()) {
+            coverFolder.mkdir()
+        }
+    }
 
     val latestCoverPath: Flow<Map<String, String?>> = flow {
         while (true) {
@@ -73,6 +82,38 @@ class BookCoverRepository(private val context: Context) {
             }
         } catch (e: Exception) {
             Log.e(TAG, "deleteOneCover() -> $e")
+        }
+    }
+
+    suspend fun downloadCover(coverUrl: String): Result<String> {
+        return withContext(Dispatchers.IO) {
+            val fileName = coverUrl.substring(coverUrl.lastIndexOf('/') + 1)
+            val destinationFile = File(coverFolder.path + "/$fileName")
+            val urlObj = URL(coverUrl)
+            val connection = urlObj.openConnection() as HttpURLConnection
+
+            try {
+                val inputStream = connection.inputStream
+                val fileOutputStream = FileOutputStream(destinationFile)
+
+                val buffer = ByteArray(1024)
+                var bytesRead: Int
+
+                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                    fileOutputStream.write(buffer, 0, bytesRead)
+                }
+
+                inputStream.close()
+                fileOutputStream.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+
+                return@withContext Result.failure(e)
+            } finally {
+                connection.disconnect()
+            }
+
+            return@withContext Result.success(fileName)
         }
     }
 }
