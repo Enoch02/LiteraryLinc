@@ -53,10 +53,11 @@ fun SearchScreen(
     val scope = rememberCoroutineScope()
     var searchQuery by viewModel.searchQuery
     val keyboardController = LocalSoftwareKeyboardController.current
-    val history by viewModel.getSearchHistory().collectAsState(initial = emptyList())
+    val history by viewModel.history.collectAsState(initial = emptyList())
     var active by viewModel.active
 
     val onSearch = {
+        searchQuery = searchQuery.trim()
         active = false
         keyboardController?.hide()
         viewModel.startSearch(searchQuery)
@@ -77,7 +78,7 @@ fun SearchScreen(
                     active = true
                 },
                 active = active,
-                onActiveChange = { },
+                onActiveChange = { active = !active },
                 onSearch = { onSearch() },
                 leadingIcon = {
                     Icon(

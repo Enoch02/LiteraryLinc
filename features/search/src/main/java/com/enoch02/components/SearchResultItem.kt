@@ -34,7 +34,7 @@ fun SearchResultItem(
                 fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
                 fontSize = MaterialTheme.typography.titleMedium.fontSize,
                 fontWeight = MaterialTheme.typography.titleMedium.fontWeight,
-                maxLines = 1,
+                maxLines = 4,
                 overflow = TextOverflow.Ellipsis
             )
             if (author.isNotEmpty()) {

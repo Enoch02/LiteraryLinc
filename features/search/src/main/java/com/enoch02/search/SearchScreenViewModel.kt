@@ -14,6 +14,7 @@ import com.enoch02.database.model.HistoryItem
 import com.enoch02.search_api.Doc
 import com.enoch02.search_api.SearchApiService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,7 +31,9 @@ class SearchScreenViewModel @Inject constructor(
     val searchQuery = mutableStateOf("")
     var searchState = mutableStateOf(SearchState.NOT_SEARCHING)
     val searchResults = mutableStateListOf<Doc>()
-    var active = mutableStateOf(true)
+    var active = mutableStateOf(false)
+
+    val history = searchHistoryDao.getHistory()
 
     fun startSearch(query: String): Result<Unit>? {
         val res = MutableLiveData<Result<Unit>>()
@@ -103,11 +106,19 @@ class SearchScreenViewModel @Inject constructor(
         }
     }
 
-    fun getSearchHistory() = searchHistoryDao.getHistory()
-
     fun addToSearchHistory(query: String) {
         viewModelScope.launch {
-            searchHistoryDao.insertQuery(HistoryItem(value = query))
+            history.collect { history ->
+                val item = history.firstOrNull() { it.value == query }
+
+                if (item != null) {
+                    searchHistoryDao.updateQuery(item.copy(timestamp = System.currentTimeMillis()))
+                } else {
+                    searchHistoryDao.insertQuery(HistoryItem(value = query))
+                }
+
+                cancel()
+            }
         }
     }
 
