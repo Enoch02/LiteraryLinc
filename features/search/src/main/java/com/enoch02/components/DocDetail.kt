@@ -96,12 +96,17 @@ fun DocDetail(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     content = {
                         item {
-                            AsyncImage(
+                            /*TODO: add modifying cover images from dialog.*/
+                            /*AsyncImage(
                                 model = "https://covers.openlibrary.org/b/id/${doc.coverId}-M.jpg",
                                 contentDescription = null,
                                 contentScale = ContentScale.FillBounds,
-                                modifier = Modifier.size(120.dp, 180.dp)
-                            )
+                                modifier = Modifier
+                                    .size(120.dp, 180.dp)
+                                    .clickable {
+
+                                    }
+                            )*/
                         }
 
                         item {
