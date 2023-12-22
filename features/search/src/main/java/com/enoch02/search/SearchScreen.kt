@@ -57,6 +57,10 @@ fun SearchScreen(
     var active by viewModel.active
 
     val onSearch = {
+        if (viewModel.searchResults.isNotEmpty()) {
+            viewModel.clearResults()
+        }
+
         searchQuery = searchQuery.trim()
         active = false
         keyboardController?.hide()
@@ -227,8 +231,20 @@ fun SearchScreen(
                                                         doc = item,
                                                         coverUrl = coverUrl,
                                                         onDismiss = { showDetailDialog = false },
-                                                        onConfirm = {
-                                                            /*TODO*/
+                                                        onConfirm = { book, coverId ->
+                                                            viewModel.addEditedItemToDatabase(
+                                                                book = book,
+                                                                coverId,
+                                                                onError
+                                                            )
+                                                            showDetailDialog = false
+                                                            scope.launch {
+                                                                // No error here 🙂
+                                                                onError(
+                                                                    "Adding to database, please wait",
+                                                                    ""
+                                                                )
+                                                            }
                                                         }
                                                     )
                                                 }

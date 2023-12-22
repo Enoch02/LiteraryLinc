@@ -87,22 +87,49 @@ class SearchScreenViewModel @Inject constructor(
 
         viewModelScope.launch {
             // download cover / just add the book if retry is rejected
-            viewModelScope.launch {
-                bookCoverRepository.downloadCover("https://covers.openlibrary.org/b/id/${doc.coverId}-M.jpg")
-                    .onSuccess {
-                        newBook = newBook.copy(coverImageName = it)
-                        bookDao.insertBook(newBook)
-                    }
-                    .onFailure { e ->
-                        e.message?.let { message ->
-                            if (onError(message, "Retry")) {
-                                addResultToDatabase(doc = doc, onError = onError)
-                            } else {
-                                bookDao.insertBook(newBook)
-                            }
+            bookCoverRepository.downloadCover("https://covers.openlibrary.org/b/id/${doc.coverId}-M.jpg")
+                .onSuccess {
+                    newBook = newBook.copy(coverImageName = it)
+                    bookDao.insertBook(newBook)
+                }
+                .onFailure { e ->
+                    e.message?.let { message ->
+                        if (onError(message, "Retry")) {
+                            addResultToDatabase(doc = doc, onError = onError)
+                        } else {
+                            bookDao.insertBook(newBook)
                         }
                     }
-            }
+                }
+        }
+    }
+
+    fun addEditedItemToDatabase(
+        book: Book,
+        coverId: String,
+        onError: suspend (message: String, actionLabel: String) -> Boolean
+    ) {
+        var newBook = book
+
+        viewModelScope.launch {
+            bookCoverRepository.downloadCover("https://covers.openlibrary.org/b/id/${coverId}-M.jpg")
+                .onSuccess {
+                    newBook = newBook.copy(coverImageName = it)
+                    bookDao.insertBook(newBook)
+                }
+                .onFailure { e ->
+                    e.message?.let { message ->
+                        if (onError(message, "Retry")) {
+                            addEditedItemToDatabase(
+                                book = book,
+                                coverId = coverId,
+                                onError = onError
+                            )
+                        } else {
+                            bookDao.insertBook(newBook)
+                        }
+                    }
+                }
         }
     }
 

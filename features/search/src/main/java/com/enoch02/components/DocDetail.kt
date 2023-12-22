@@ -4,9 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
@@ -28,15 +27,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.enoch02.database.model.Book
 import com.enoch02.search_api.Doc
+import kotlinx.coroutines.delay
 
 //TODO: extract string resources
 //TODO: add option to select multiple authors
+//TODO: figure out the best way to implement onConfirm
 @Composable
-fun DocDetail(doc: Doc, coverUrl: String, onDismiss: () -> Unit, onConfirm: (book: Book) -> Unit) {
+fun DocDetail(
+    doc: Doc,
+    coverUrl: String,
+    onDismiss: () -> Unit,
+    onConfirm: (book: Book, coverId: String) -> Unit
+) {
     var title by remember { mutableStateOf("") }
     var selectedAuthor by remember { mutableStateOf("") }
     var selectedPublisher by remember { mutableStateOf("") }
@@ -47,6 +54,7 @@ fun DocDetail(doc: Doc, coverUrl: String, onDismiss: () -> Unit, onConfirm: (boo
     LaunchedEffect(
         key1 = Unit,
         block = {
+            delay(250)
             title = doc.title.toString()
             selectedAuthor = doc.author?.first() ?: ""
             selectedPublisher = doc.publisher?.first() ?: ""
@@ -57,17 +65,14 @@ fun DocDetail(doc: Doc, coverUrl: String, onDismiss: () -> Unit, onConfirm: (boo
     )
 
 
-    /*TODO: Something here makes the app unresponsive (might be related to the dropdowns)*/
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(
                 onClick = {
-                    /*TODO: I can add modified info to the dab?
-                    * I can't modify the doc objects and i don't want to
-                    * attach this composable to the viewmodel...
-                    * */
-                    /*onConfirm()*/
+                    //TODO: add the remaining doc fields to the db model
+                    val newBook = Book(title = title, author = selectedAuthor, isbn = selectedIsbn)
+                    onConfirm(newBook, doc.coverId.toString())
                 },
                 content = {
                     Text(text = "Add")
@@ -88,17 +93,27 @@ fun DocDetail(doc: Doc, coverUrl: String, onDismiss: () -> Unit, onConfirm: (boo
         text = {
             Column {
                 LazyColumn(
-                    verticalArrangement = Arrangement.SpaceEvenly,
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                     content = {
+                        item {
+                            AsyncImage(
+                                model = "https://covers.openlibrary.org/b/id/${doc.coverId}-M.jpg",
+                                contentDescription = null,
+                                contentScale = ContentScale.FillBounds,
+                                modifier = Modifier.size(120.dp, 180.dp)
+                            )
+                        }
 
                         item {
                             OutlinedTextField(
-                                value = doc.title.toString(),
-                                onValueChange = {},
+                                value = title,
+                                onValueChange = { title = it },
                                 label = { Text(text = "Title") }
                             )
                         }
 
+                        //TODO: use a searchbar that will recommend similar values as the user enters it.
+                        //TODO: can it be implemented as a dropdown?
                         if (!doc.author.isNullOrEmpty()) {
                             item {
                                 FormSpinner(

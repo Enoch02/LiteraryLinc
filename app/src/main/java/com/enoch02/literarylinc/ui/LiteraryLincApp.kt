@@ -92,16 +92,6 @@ fun LiteraryLincApp(navController: NavController) {
                     when (currentScreen) {
                         TopLevelDestination.BOOK_LIST -> {
                             IconButton(
-                                onClick = { navController.navigate(Screen.BarcodeScanner.route) },
-                                content = {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.barcode_scanner_24px),
-                                        contentDescription = stringResource(R.string.barcode_scanner_desc)
-                                    )
-                                }
-                            )
-
-                            IconButton(
                                 onClick = { showSortOptions = true },
                                 content = {
                                     Icon(
@@ -156,7 +146,15 @@ fun LiteraryLincApp(navController: NavController) {
                         }
 
                         TopLevelDestination.SEARCH -> {
-                            /*TODO()*/
+                            IconButton(
+                                onClick = { navController.navigate(Screen.BarcodeScanner.route) },
+                                content = {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.barcode_scanner_24px),
+                                        contentDescription = stringResource(R.string.barcode_scanner_desc)
+                                    )
+                                }
+                            )
                         }
 
                         TopLevelDestination.STATS -> {
