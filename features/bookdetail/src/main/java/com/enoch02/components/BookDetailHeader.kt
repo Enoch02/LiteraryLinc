@@ -38,8 +38,7 @@ internal fun BookDetailHeader(
                     model = coverPath,
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds,
-                    modifier = Modifier
-                        .size(width = 149.dp, height = 225.dp)
+                    modifier = Modifier.size(width = 149.dp, height = 225.dp)
                 )
 
                 Spacer(modifier = Modifier.width(16.dp))

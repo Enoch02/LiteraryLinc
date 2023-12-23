@@ -40,7 +40,7 @@ data class Book(
             personalRating: String,
             isbn: String,
             genre: String,
-            type: String, //TODO: remove?
+            type: String,
             coverImageName: String?,
             description: String,
             status: String
