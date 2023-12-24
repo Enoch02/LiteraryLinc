@@ -1,6 +1,7 @@
 package com.enoch02.booklist.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,15 +9,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,6 +34,7 @@ import com.enoch02.database.model.Book
 internal fun BookGridView(
     books: List<Book>,
     covers: Map<String, String?>,
+    gridState: LazyGridState,
     onItemClick: (Int) -> Unit,
     onItemDelete: (Int) -> Unit
 ) {
@@ -38,6 +42,7 @@ internal fun BookGridView(
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 113.dp),
             verticalArrangement = Arrangement.Top,
+            state = gridState,
             content = {
                 items(
                     count = books.size,
@@ -55,7 +60,8 @@ internal fun BookGridView(
                         )
                     }
                 )
-            }
+            },
+            modifier = Modifier.fillMaxSize()
         )
     } else {
         Column(
@@ -69,6 +75,10 @@ internal fun BookGridView(
     }
 }
 
+/**
+ * Most [Book] properties are not used. Might remove it.
+ * Implement onHold for deleting and multi-selection.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BookGridItem(
@@ -95,12 +105,19 @@ private fun BookGridItem(
                         modifier = Modifier.fillMaxWidth(),
                     )
 
-                    // TODO: change text color based on cover image color
-                    Text(
-                        text = book.title,
-                        color = Color.White,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                    Box(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.primary)
+                            .fillMaxWidth(),
+                        content = {
+                            Text(
+                                text = book.title,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.padding(4.dp)
+                            )
+                        }
                     )
                 }
             )
@@ -111,13 +128,27 @@ private fun BookGridItem(
 @Preview
 @Composable
 fun GridItemPreview() {
-    BookGridItem(
-        modifier = Modifier,
-        book = Book(title = "Hello World", author = "John Smith", pagesRead = 100, pageCount = 500),
-        coverPath = "",
-        onClick = { /*TODO*/ },
-        onDelete = {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(113.dp),
+        content = {
+            repeat(5) {
+                item {
+                    BookGridItem(
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp),
+                        book = Book(
+                            title = "Hello World $it",
+                            author = "John Smith",
+                            pagesRead = 100,
+                            pageCount = 500
+                        ),
+                        coverPath = "",
+                        onClick = { /*TODO*/ },
+                        onDelete = {
 
+                        }
+                    )
+                }
+            }
         }
     )
 }

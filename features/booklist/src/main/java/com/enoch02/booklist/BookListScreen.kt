@@ -3,6 +3,8 @@ package com.enoch02.booklist
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -28,11 +30,14 @@ fun BookListScreen(
     modifier: Modifier,
     scope: CoroutineScope,
     sorting: Sorting,
+    listViewMode: BookListViewMode,
     onItemClick: (Int) -> Unit,
     viewModel: BookListViewModel = hiltViewModel()
 ) {
     val pagerState = rememberPagerState()
     val tabLabels = Book.types.values
+    val listState = rememberLazyListState()
+    val gridState = rememberLazyGridState()
 
     Column(modifier = modifier.fillMaxSize()) {
         ScrollableTabRow(
@@ -59,24 +64,35 @@ fun BookListScreen(
             count = tabLabels.size,
             state = pagerState,
             content = { tabIndex ->
-                //TODO: add setting to switch from list to grid
-                /*BookListView(
-                    books = viewModel.getBooks(tabIndex, sorting)
-                        .collectAsState(initial = emptyList()).value,
-                    covers = viewModel.getCovers().collectAsState(initial = emptyMap()).value,
-                    onItemClick = onItemClick,
-                    onItemDelete = { id ->
-                        viewModel.deleteBook(id)
-                    }
-                )*/
+                val books = viewModel.getBooks(tabIndex, sorting)
+                    .collectAsState(initial = emptyList()).value
+                val covers = viewModel.getCovers()
+                    .collectAsState(initial = emptyMap()).value
 
-                BookGridView(
-                    books = viewModel.getBooks(tabIndex, sorting)
-                        .collectAsState(initial = emptyList()).value,
-                    covers = viewModel.getCovers().collectAsState(initial = emptyMap()).value,
-                    onItemClick = onItemClick,
-                    onItemDelete = { id -> viewModel.deleteBook(id) }
-                )
+                when (listViewMode) {
+                    BookListViewMode.LIST_VIEW -> {
+                        BookListView(
+                            books = books,
+                            covers = covers,
+                            onItemClick = onItemClick,
+                            listState = listState,
+                            onItemDelete = { id ->
+                                viewModel.deleteBook(id)
+                            }
+                        )
+                    }
+
+                    BookListViewMode.GRID_VIEW -> {
+                        //TODO: The alignment is messed up when there is only one item in the list
+                        BookGridView(
+                            books = books,
+                            covers = covers,
+                            gridState = gridState,
+                            onItemClick = onItemClick,
+                            onItemDelete = { id -> viewModel.deleteBook(id) }
+                        )
+                    }
+                }
             }
         )
     }

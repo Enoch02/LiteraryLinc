@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
 import com.enoch02.booklist.BookListScreen
+import com.enoch02.booklist.BookListViewMode
 import com.enoch02.database.model.Sorting
 import com.enoch02.literarylinc.R
 import com.enoch02.literarylinc.navigation.Screen
@@ -63,6 +64,7 @@ fun LiteraryLincApp(navController: NavController) {
     var sorting by rememberSaveable { mutableStateOf(Sorting.ALPHABETICAL) }
     var showSortOptions by rememberSaveable { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
+    var bookListViewMode by rememberSaveable { mutableStateOf(BookListViewMode.LIST_VIEW) }
 
     Scaffold(
         topBar = {
@@ -91,6 +93,34 @@ fun LiteraryLincApp(navController: NavController) {
                 actions = {
                     when (currentScreen) {
                         TopLevelDestination.BOOK_LIST -> {
+                            IconButton(
+                                onClick = {
+                                    bookListViewMode = when (bookListViewMode) {
+                                        BookListViewMode.LIST_VIEW -> {
+                                            BookListViewMode.GRID_VIEW
+                                        }
+
+                                        BookListViewMode.GRID_VIEW -> {
+                                            BookListViewMode.LIST_VIEW
+                                        }
+                                    }
+                                },
+                                content = {
+                                    Icon(
+                                        painter = when (bookListViewMode) {
+                                            BookListViewMode.LIST_VIEW -> {
+                                                painterResource(id = R.drawable.round_grid_view_24)
+                                            }
+
+                                            BookListViewMode.GRID_VIEW -> {
+                                                painterResource(id = R.drawable.round_view_list_24)
+                                            }
+                                        },
+                                        contentDescription = stringResource(R.string.toggle_arrangement_desc)
+                                    )
+                                }
+                            )
+
                             IconButton(
                                 onClick = { showSortOptions = true },
                                 content = {
@@ -229,6 +259,7 @@ fun LiteraryLincApp(navController: NavController) {
                                 modifier = Modifier.padding(paddingValues),
                                 scope = scope,
                                 sorting = sorting,
+                                listViewMode = bookListViewMode,
                                 onItemClick = { id ->
                                     navController.navigate(Screen.BookDetail.withArgs(id.toString()))
                                 }

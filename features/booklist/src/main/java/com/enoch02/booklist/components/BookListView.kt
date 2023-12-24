@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.PlusOne
@@ -45,6 +46,7 @@ import com.enoch02.database.model.Book
 internal fun BookListView(
     books: List<Book>,
     covers: Map<String, String?>,
+    listState: LazyListState,
     onItemClick: (Int) -> Unit,
     onItemDelete: (Int) -> Unit
 ) {
@@ -67,6 +69,7 @@ internal fun BookListView(
                     }
                 )
             },
+            state = listState,
             modifier = Modifier.fillMaxSize()
         )
     } else {
