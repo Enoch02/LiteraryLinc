@@ -19,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -53,6 +54,7 @@ import com.enoch02.components.FormSpinner
 import com.enoch02.components.FormTextField
 import com.enoch02.components.ImagePicker
 import com.enoch02.components.IncrementalFormIntField
+import com.enoch02.components.ModalWebView
 import com.enoch02.database.model.Book
 import kotlinx.coroutines.launch
 
@@ -80,7 +82,7 @@ fun EditBookScreen(
     var personalRating by rememberSaveable { mutableStateOf("0") }
     var isbn by rememberSaveable { mutableStateOf("") }
     var genre by rememberSaveable { mutableStateOf("") }
-    var bookDescription by rememberSaveable { mutableStateOf("") }
+    var bookSynopsis by rememberSaveable { mutableStateOf("") }
     var coverImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
 
     LaunchedEffect(key1 = Unit) {
@@ -101,7 +103,7 @@ fun EditBookScreen(
         personalRating = book.personalRating.toString()
         isbn = book.isbn
         genre = book.genre
-        bookDescription = book.description
+        bookSynopsis = book.synopsis
     }
 
     Scaffold(
@@ -136,7 +138,7 @@ fun EditBookScreen(
                             type = type,
                             coverImageUri = coverImageUri,
                             coverImageName = book.coverImageName,
-                            description = bookDescription,
+                            synopsis = bookSynopsis,
                             status = status
                         ).onSuccess {
                             navController.popBackStack()
@@ -320,8 +322,8 @@ fun EditBookScreen(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             OutlinedTextField(
-                                value = bookDescription,
-                                onValueChange = { bookDescription = it },
+                                value = bookSynopsis,
+                                onValueChange = { bookSynopsis = it },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .defaultMinSize(minHeight = 200.dp),
@@ -329,11 +331,28 @@ fun EditBookScreen(
                                     keyboardType = KeyboardType.Text,
                                     imeAction = ImeAction.Next,
                                     capitalization = KeyboardCapitalization.Words,
-                                )
+                                ),
+                                trailingIcon = {
+                                    IconButton(
+                                        onClick = { viewModel.startSynopsisSearch(book.title) },
+                                        content = {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.round_search_24),
+                                                contentDescription = null
+                                            )
+                                        }
+                                    )
+                                }
                             )
                         }
                     }
                 }
+            )
+
+            ModalWebView(
+                visible = viewModel.showWebView.value,
+                url = viewModel.searchUrl.value,
+                onDismiss = { viewModel.showWebView.value = false }
             )
         }
     )

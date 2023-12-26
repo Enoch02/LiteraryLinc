@@ -14,12 +14,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -54,6 +56,7 @@ import com.enoch02.components.FormSpinner
 import com.enoch02.components.FormTextField
 import com.enoch02.components.ImagePicker
 import com.enoch02.components.IncrementalFormIntField
+import com.enoch02.components.ModalWebView
 import com.enoch02.database.model.Book
 import kotlinx.coroutines.launch
 
@@ -308,11 +311,29 @@ fun AddBookScreen(
                                     keyboardType = KeyboardType.Text,
                                     imeAction = ImeAction.Next,
                                     capitalization = KeyboardCapitalization.Words,
-                                )
+                                ),
+                                trailingIcon = {
+                                    IconButton(
+                                        onClick = { viewModel.startSynopsisSearch(bookTitle) },
+                                        content = {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.round_search_24),
+                                                contentDescription = null
+                                            )
+                                        },
+                                        modifier = Modifier.size(24.dp, 24.dp)
+                                    )
+                                }
                             )
                         }
                     }
                 }
+            )
+
+            ModalWebView(
+                visible = viewModel.showWebView.value,
+                url = viewModel.searchUrl.value,
+                onDismiss = { viewModel.showWebView.value = false },
             )
         }
     )

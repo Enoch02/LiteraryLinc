@@ -52,4 +52,13 @@ class BookListViewModel @Inject constructor(
     fun deleteBook(id: Int) {
         viewModelScope.launch { bookDao.deleteBook(id) }
     }
+
+    fun incrementBook(id: Int) {
+        viewModelScope.launch {
+            var book = bookDao.getBookById(id)
+
+            book = book.copy(pagesRead = book.pagesRead + 1)
+            bookDao.updateBook(book)
+        }
+    }
 }

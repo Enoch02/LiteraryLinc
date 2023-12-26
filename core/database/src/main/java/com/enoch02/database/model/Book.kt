@@ -21,7 +21,7 @@ data class Book(
     val genre: String = "",
     val type: String = types.values.first(),
     val coverImageName: String? = null,
-    val description: String = "",
+    val synopsis: String = "",
     val status: String = Book.status.first()
 ) {
     companion object {
@@ -42,7 +42,7 @@ data class Book(
             genre: String,
             type: String,
             coverImageName: String?,
-            description: String,
+            synopsis: String,
             status: String
         ): Book {
             when {
@@ -79,7 +79,7 @@ data class Book(
                 genre = genre,
                 type = type,
                 coverImageName = coverImageName,
-                description = description,
+                synopsis = synopsis,
                 status = status
             )
         }

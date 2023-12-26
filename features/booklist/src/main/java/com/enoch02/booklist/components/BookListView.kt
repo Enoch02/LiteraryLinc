@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.PlusOne
@@ -32,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -47,8 +49,9 @@ internal fun BookListView(
     books: List<Book>,
     covers: Map<String, String?>,
     listState: LazyListState,
-    onItemClick: (Int) -> Unit,
-    onItemDelete: (Int) -> Unit
+    onItemClick: (id: Int) -> Unit,
+    onItemDelete: (id: Int) -> Unit,
+    onItemIncrement: (id: Int) -> Unit
 ) {
 
     if (books.isNotEmpty()) {
@@ -64,7 +67,8 @@ internal fun BookListView(
                             book = book,
                             coverPath = covers[book.coverImageName],
                             onClick = { book.id?.let { onItemClick(it) } },
-                            onDelete = { book.id?.let { it1 -> onItemDelete(it1) } }
+                            onDelete = { book.id?.let { it1 -> onItemDelete(it1) } },
+                            onItemIncrement = { book.id?.let { onItemIncrement(it) } }
                         )
                     }
                 )
@@ -90,7 +94,8 @@ private fun BookListItem(
     book: Book,
     coverPath: String?,
     onClick: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onItemIncrement: () -> Unit
 ) {
     var currentProgress by remember { mutableFloatStateOf(0f) }
     val currentPercentage by animateFloatAsState(
@@ -139,7 +144,7 @@ private fun BookListItem(
             Spacer(modifier = Modifier.height(4.dp))
 
             if (showEmptyProgress) {
-                Text(text = "Progress: ??")
+                Text(text = "Progress: ?%")
             } else {
                 Text(text = "Progress: ${currentPercentage.toInt()}%")
             }
@@ -150,7 +155,8 @@ private fun BookListItem(
                 model = coverPath ?: R.drawable.placeholder_image,
                 contentDescription = null,
                 contentScale = ContentScale.FillBounds,
-                modifier = Modifier.size(width = 50.dp, height = 80.dp),
+                modifier = Modifier
+                    .size(width = 50.dp, height = 80.dp)
             )
         },
         supportingContent = {
@@ -168,7 +174,7 @@ private fun BookListItem(
                 )
 
                 OutlinedIconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = { onItemIncrement() },
                     shape = RectangleShape,
                     content = {
                         Icon(imageVector = Icons.Rounded.PlusOne, contentDescription = null)

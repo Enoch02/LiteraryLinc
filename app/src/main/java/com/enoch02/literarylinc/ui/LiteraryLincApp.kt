@@ -4,6 +4,8 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Analytics
@@ -260,6 +262,8 @@ fun LiteraryLincApp(navController: NavController) {
                                 scope = scope,
                                 sorting = sorting,
                                 listViewMode = bookListViewMode,
+                                listState = rememberLazyListState(),
+                                gridState = rememberLazyGridState(),
                                 onItemClick = { id ->
                                     navController.navigate(Screen.BookDetail.withArgs(id.toString()))
                                 }
