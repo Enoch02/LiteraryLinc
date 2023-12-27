@@ -245,17 +245,19 @@ fun BookDetailScreen(
                         Column(
                             modifier = Modifier.padding(top = 24.dp, start = 8.dp, end = 8.dp),
                             content = {
-                                if (book.synopsis.isNotBlank()) {
-                                    Text(
-                                        text = "About Book",
-                                        fontSize = MaterialTheme.typography.headlineMedium.fontSize,
-                                        fontWeight = MaterialTheme.typography.headlineMedium.fontWeight
-                                    )
+                                //TODO: extract strings
+                                Text(
+                                    text = "Additional Notes",
+                                    fontSize = MaterialTheme.typography.headlineMedium.fontSize,
+                                    fontWeight = MaterialTheme.typography.headlineMedium.fontWeight
+                                )
 
-                                    Spacer(modifier = Modifier.height(16.dp))
+                                Spacer(modifier = Modifier.height(16.dp))
 
-                                    Text(text = book.synopsis, textAlign = TextAlign.Justify)
-                                }
+                                Text(
+                                    text = book.notes.ifBlank { "There's nothing here... 🥲" },
+                                    textAlign = TextAlign.Justify
+                                )
                             }
                         )
                     }

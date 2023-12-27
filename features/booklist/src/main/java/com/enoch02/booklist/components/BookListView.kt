@@ -5,7 +5,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,8 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.PlusOne
 import androidx.compose.material3.Icon
@@ -29,14 +28,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -53,39 +50,27 @@ internal fun BookListView(
     onItemDelete: (id: Int) -> Unit,
     onItemIncrement: (id: Int) -> Unit
 ) {
+    LazyColumn(
+        content = {
+            items(
+                count = books.size,
+                itemContent = { index ->
+                    val book = books[index]
 
-    if (books.isNotEmpty()) {
-        LazyColumn(
-            content = {
-                items(
-                    count = books.size,
-                    itemContent = { index ->
-                        val book = books[index]
-
-                        BookListItem(
-                            modifier = Modifier.animateItemPlacement(),
-                            book = book,
-                            coverPath = covers[book.coverImageName],
-                            onClick = { book.id?.let { onItemClick(it) } },
-                            onDelete = { book.id?.let { it1 -> onItemDelete(it1) } },
-                            onItemIncrement = { book.id?.let { onItemIncrement(it) } }
-                        )
-                    }
-                )
-            },
-            state = listState,
-            modifier = Modifier.fillMaxSize()
-        )
-    } else {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "Your list is empty!", fontWeight = FontWeight.Bold)
-            Text(text = "Add Some Books to start tracking them.")
-        }
-    }
+                    BookListItem(
+                        modifier = Modifier.animateItemPlacement(),
+                        book = book,
+                        coverPath = covers[book.coverImageName],
+                        onClick = { book.id?.let { onItemClick(it) } },
+                        onDelete = { book.id?.let { it1 -> onItemDelete(it1) } },
+                        onItemIncrement = { book.id?.let { onItemIncrement(it) } }
+                    )
+                }
+            )
+        },
+        state = listState,
+        modifier = Modifier.fillMaxSize()
+    )
 }
 
 @Composable
@@ -104,13 +89,16 @@ private fun BookListItem(
         label = "progress"
     )
     val showEmptyProgress by remember { derivedStateOf { book.pagesRead == 0 && book.pageCount == 0 } }
+    var isComplete by remember { mutableStateOf(false) }
 
     LaunchedEffect(
-        key1 = Unit,
+        key1 = book,
         block = {
             if (book.pagesRead != 0 && book.pageCount != 0) {
                 currentProgress = (book.pagesRead.toFloat() / book.pageCount.toFloat()) * 100
             }
+            isComplete =
+                book.pagesRead == book.pageCount && book.pagesRead != 0 && book.pageCount != 0
         }
     )
 
@@ -177,8 +165,12 @@ private fun BookListItem(
                     onClick = { onItemIncrement() },
                     shape = RectangleShape,
                     content = {
-                        Icon(imageVector = Icons.Rounded.PlusOne, contentDescription = null)
-                    }
+                        Icon(
+                            imageVector = if (isComplete) Icons.Rounded.Check else Icons.Rounded.PlusOne,
+                            contentDescription = null
+                        )
+                    },
+                    enabled = !isComplete
                 )
             }
         },

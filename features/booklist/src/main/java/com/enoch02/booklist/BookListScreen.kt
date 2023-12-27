@@ -86,8 +86,6 @@ fun BookListScreen(
                                         viewModel.deleteBook(id)
                                     },
                                     onItemIncrement = { id ->
-                                        //TODO: Might remove
-                                        //TODO: Increment works but the view is not updated immediately
                                         viewModel.incrementBook(id)
                                     }
                                 )

@@ -4,12 +4,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -21,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,41 +35,30 @@ internal fun BookGridView(
     onItemClick: (Int) -> Unit,
     onItemDelete: (Int) -> Unit
 ) {
-    if (books.isNotEmpty()) {
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 113.dp),
-            verticalArrangement = Arrangement.Top,
-            state = gridState,
-            content = {
-                items(
-                    count = books.size,
-                    itemContent = { index ->
-                        val book = books[index]
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 113.dp),
+        verticalArrangement = Arrangement.Top,
+        state = gridState,
+        content = {
+            items(
+                count = books.size,
+                itemContent = { index ->
+                    val book = books[index]
 
-                        BookGridItem(
-                            modifier = Modifier
-                                .animateItemPlacement()
-                                .padding(horizontal = 4.dp, vertical = 8.dp),
-                            book = book,
-                            coverPath = covers[book.coverImageName],
-                            onClick = { book.id?.let { onItemClick(it) } },
-                            onDelete = { book.id?.let { it1 -> onItemDelete(it1) } }
-                        )
-                    }
-                )
-            },
-            modifier = Modifier.fillMaxSize()
-        )
-    } else {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "Your list is empty!", fontWeight = FontWeight.Bold)
-            Text(text = "Add Some Books to start tracking them.")
-        }
-    }
+                    BookGridItem(
+                        modifier = Modifier
+                            .animateItemPlacement()
+                            .padding(horizontal = 4.dp, vertical = 8.dp),
+                        book = book,
+                        coverPath = covers[book.coverImageName],
+                        onClick = { book.id?.let { onItemClick(it) } },
+                        onDelete = { book.id?.let { it1 -> onItemDelete(it1) } }
+                    )
+                }
+            )
+        },
+        modifier = Modifier.fillMaxSize()
+    )
 }
 
 /**

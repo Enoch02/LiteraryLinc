@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,6 +27,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 fun ModalWebView(visible: Boolean, url: String, onDismiss: () -> Unit) {
     var loading by rememberSaveable { mutableStateOf(false) }
     var progress by remember { mutableFloatStateOf(0f) }
+    val context = LocalContext.current
 
     if (visible) {
         ModalBottomSheet(
@@ -39,6 +41,10 @@ fun ModalWebView(visible: Boolean, url: String, onDismiss: () -> Unit) {
                     factory = {
                         WebView(it).apply {
                             settings.javaScriptEnabled = true
+                            settings.domStorageEnabled = true
+                            settings.allowContentAccess = true
+                            settings.allowFileAccess = true
+
 
                             webViewClient = object : WebViewClient() {
                                 override fun onPageStarted(
@@ -68,13 +74,12 @@ fun ModalWebView(visible: Boolean, url: String, onDismiss: () -> Unit) {
                     },
                     update = { webView ->
                         /*it.loadUrl(url)*/
-                        webView.setOnLongClickListener {
-                            it.showContextMenu()
-                        }
                     },
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(
+                            rememberScrollState()
+                        )
                 )
             }
         )

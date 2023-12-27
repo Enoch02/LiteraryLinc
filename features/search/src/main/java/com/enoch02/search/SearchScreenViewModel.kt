@@ -29,7 +29,7 @@ class SearchScreenViewModel @Inject constructor(
 ) :
     ViewModel() {
     val searchQuery = mutableStateOf("")
-    var searchState = mutableStateOf(SearchState.NOT_SEARCHING)
+    val searchState = mutableStateOf(SearchState.NOT_SEARCHING)
     val searchResults = mutableStateListOf<Doc>()
     var active = mutableStateOf(false)
 

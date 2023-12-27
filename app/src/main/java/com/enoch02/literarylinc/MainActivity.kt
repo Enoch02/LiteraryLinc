@@ -23,9 +23,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()
-                        .nestedScroll(
-                            rememberNestedScrollInteropConnection()
-                        ),
+                        .nestedScroll(rememberNestedScrollInteropConnection()),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     LiteraryLincNavHost()

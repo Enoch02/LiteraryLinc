@@ -19,7 +19,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -54,7 +53,6 @@ import com.enoch02.components.FormSpinner
 import com.enoch02.components.FormTextField
 import com.enoch02.components.ImagePicker
 import com.enoch02.components.IncrementalFormIntField
-import com.enoch02.components.ModalWebView
 import com.enoch02.database.model.Book
 import kotlinx.coroutines.launch
 
@@ -82,7 +80,7 @@ fun EditBookScreen(
     var personalRating by rememberSaveable { mutableStateOf("0") }
     var isbn by rememberSaveable { mutableStateOf("") }
     var genre by rememberSaveable { mutableStateOf("") }
-    var bookSynopsis by rememberSaveable { mutableStateOf("") }
+    var bookNotes by rememberSaveable { mutableStateOf("") }
     var coverImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
 
     LaunchedEffect(key1 = Unit) {
@@ -103,7 +101,7 @@ fun EditBookScreen(
         personalRating = book.personalRating.toString()
         isbn = book.isbn
         genre = book.genre
-        bookSynopsis = book.synopsis
+        bookNotes = book.notes
     }
 
     Scaffold(
@@ -138,7 +136,7 @@ fun EditBookScreen(
                             type = type,
                             coverImageUri = coverImageUri,
                             coverImageName = book.coverImageName,
-                            synopsis = bookSynopsis,
+                            notes = bookNotes,
                             status = status
                         ).onSuccess {
                             navController.popBackStack()
@@ -317,13 +315,13 @@ fun EditBookScreen(
                             modifier = Modifier.padding(vertical = 8.dp)
                         ) {
                             Text(
-                                text = stringResource(R.string.description_label),
+                                text = stringResource(R.string.notes_label),
                                 fontWeight = FontWeight.Bold
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             OutlinedTextField(
-                                value = bookSynopsis,
-                                onValueChange = { bookSynopsis = it },
+                                value = bookNotes,
+                                onValueChange = { bookNotes = it },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .defaultMinSize(minHeight = 200.dp),
@@ -332,9 +330,11 @@ fun EditBookScreen(
                                     imeAction = ImeAction.Next,
                                     capitalization = KeyboardCapitalization.Words,
                                 ),
-                                trailingIcon = {
+                                /*trailingIcon = {
                                     IconButton(
-                                        onClick = { viewModel.startSynopsisSearch(book.title) },
+                                        onClick = {
+
+                                        },
                                         content = {
                                             Icon(
                                                 painter = painterResource(id = R.drawable.round_search_24),
@@ -342,17 +342,11 @@ fun EditBookScreen(
                                             )
                                         }
                                     )
-                                }
+                                }*/
                             )
                         }
                     }
                 }
-            )
-
-            ModalWebView(
-                visible = viewModel.showWebView.value,
-                url = viewModel.searchUrl.value,
-                onDismiss = { viewModel.showWebView.value = false }
             )
         }
     )

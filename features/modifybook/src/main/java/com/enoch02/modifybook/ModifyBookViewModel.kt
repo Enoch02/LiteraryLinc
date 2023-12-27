@@ -1,7 +1,6 @@
 package com.enoch02.modifybook
 
 import android.net.Uri
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
@@ -18,8 +17,6 @@ class ModifyBookViewModel @Inject constructor(
     private val bookCoverRepository: BookCoverRepository
 ) : ViewModel() {
     private val covers = bookCoverRepository.latestCoverPath
-    val showWebView = mutableStateOf(false)
-    val searchUrl = mutableStateOf("")
 
     suspend fun getBook(id: Int): Book {
         return withContext(viewModelScope.coroutineContext) {
@@ -42,7 +39,7 @@ class ModifyBookViewModel @Inject constructor(
         genre: String,
         type: String,
         coverImageUri: Uri?,
-        description: String,
+        notes: String,
         status: String
     ): Result<Unit> {
         try {
@@ -60,7 +57,7 @@ class ModifyBookViewModel @Inject constructor(
                 genre = genre,
                 type = type,
                 coverImageName = fileName,
-                synopsis = description,
+                notes = notes,
                 status = status
             )
             bookDao.insertBook(newBook)
@@ -87,7 +84,7 @@ class ModifyBookViewModel @Inject constructor(
         type: String,
         coverImageUri: Uri?,
         coverImageName: String?,
-        synopsis: String,
+        notes: String,
         status: String
     ): Result<Unit> {
         try {
@@ -106,7 +103,7 @@ class ModifyBookViewModel @Inject constructor(
                 genre = genre,
                 type = type,
                 coverImageName = if (coverImageUri == null) coverImageName else fileName,
-                synopsis = synopsis,
+                notes = notes,
                 status = status
             )
             bookDao.updateBook(book)
@@ -118,10 +115,7 @@ class ModifyBookViewModel @Inject constructor(
         return Result.success(Unit)
     }
 
-    //TODO
-    // https://www.google.com/search?q=harry+potter+book+synopsis
     fun startSynopsisSearch(bookTitle: String) {
-        showWebView.value = true
-        searchUrl.value = "https://www.google.com/search?q=${bookTitle.replace(' ', '+')}+synopsis"
+
     }
 }

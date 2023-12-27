@@ -8,7 +8,7 @@
     <string name="rating_label">Rating</string>
     <string name="isbn_label">ISBN</string>
     <string name="genre_label">Genre</string>
-    <string name="description_label">Description</string>
+    <string name="notes_label">Additional Notes</string>
     <string name="page_count_label">Page Count</string>
     <string name="pages_read_label">Pages Read</string>
     <string name="status_label">Status</string>
