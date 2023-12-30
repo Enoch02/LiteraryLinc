@@ -27,6 +27,7 @@ data class Book(
     companion object {
         val types = mapOf(0 to "Any", 1 to "Comic", 2 to "Light Novel", 3 to "Manga", 4 to "Novel")
         val status = listOf("Reading", "Completed", "On Hold", "Planning")
+        const val DEFAULT_STATUS = "All"
 
         fun createBook(
             id: Int? = null,

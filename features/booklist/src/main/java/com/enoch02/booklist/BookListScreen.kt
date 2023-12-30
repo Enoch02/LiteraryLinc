@@ -20,6 +20,7 @@ import com.enoch02.booklist.components.BookGridView
 import com.enoch02.booklist.components.BookListView
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.Sorting
+import com.enoch02.database.model.StatusFilter
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -32,6 +33,7 @@ fun BookListScreen(
     modifier: Modifier,
     scope: CoroutineScope,
     sorting: Sorting,
+    statusFilter: StatusFilter,
     listViewMode: BookListViewMode,
     listState: LazyListState,
     gridState: LazyGridState,
@@ -66,7 +68,9 @@ fun BookListScreen(
             count = tabLabels.size,
             state = pagerState,
             content = { tabIndex ->
-                val books = viewModel.getBooks(tabIndex, sorting)
+                val books = viewModel.getBooks(filter = tabIndex, sorting = sorting,
+                    status = statusFilter
+                )
                     .collectAsState(initial = emptyList()).value
                 val covers = viewModel.getCovers()
                     .collectAsState(initial = emptyMap()).value
