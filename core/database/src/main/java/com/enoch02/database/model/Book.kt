@@ -21,12 +21,13 @@ data class Book(
     val genre: String = "",
     val type: String = types.values.first(),
     val coverImageName: String? = null,
-    val description: String = "",
+    val notes: String = "",
     val status: String = Book.status.first()
 ) {
     companion object {
         val types = mapOf(0 to "Any", 1 to "Comic", 2 to "Light Novel", 3 to "Manga", 4 to "Novel")
         val status = listOf("Reading", "Completed", "On Hold", "Planning")
+        const val DEFAULT_STATUS = "All"
 
         fun createBook(
             id: Int? = null,
@@ -40,9 +41,9 @@ data class Book(
             personalRating: String,
             isbn: String,
             genre: String,
-            type: String, //TODO: remove?
+            type: String,
             coverImageName: String?,
-            description: String,
+            notes: String,
             status: String
         ): Book {
             when {
@@ -79,7 +80,7 @@ data class Book(
                 genre = genre,
                 type = type,
                 coverImageName = coverImageName,
-                description = description,
+                notes = notes,
                 status = status
             )
         }

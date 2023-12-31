@@ -79,7 +79,7 @@ fun AddBookScreen(
     var genre by rememberSaveable { mutableStateOf("") }
     var type by rememberSaveable { mutableStateOf(Book.types.values.first()) }
     var coverImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
-    var bookDescription by rememberSaveable { mutableStateOf("") }
+    var bookNotes by rememberSaveable { mutableStateOf("") }
     var status by rememberSaveable { mutableStateOf(Book.status.first()) }
 
     Scaffold(
@@ -112,7 +112,7 @@ fun AddBookScreen(
                             genre = genre,
                             type = type,
                             coverImageUri = coverImageUri,
-                            description = bookDescription,
+                            notes = bookNotes,
                             status = status
                         ).onSuccess {
                             navController.popBackStack()
@@ -294,13 +294,13 @@ fun AddBookScreen(
                             modifier = Modifier.padding(vertical = 8.dp)
                         ) {
                             Text(
-                                text = stringResource(R.string.description_label),
+                                text = stringResource(R.string.notes_label),
                                 fontWeight = FontWeight.Bold
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             OutlinedTextField(
-                                value = bookDescription,
-                                onValueChange = { bookDescription = it },
+                                value = bookNotes,
+                                onValueChange = { bookNotes = it },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .defaultMinSize(minHeight = 200.dp),
@@ -308,7 +308,20 @@ fun AddBookScreen(
                                     keyboardType = KeyboardType.Text,
                                     imeAction = ImeAction.Next,
                                     capitalization = KeyboardCapitalization.Words,
-                                )
+                                ),
+                                /*trailingIcon = {
+                                    IconButton(
+                                        onClick = {
+
+                                        },
+                                        content = {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.round_search_24),
+                                                contentDescription = null
+                                            )
+                                        }
+                                    )
+                                }*/
                             )
                         }
                     }

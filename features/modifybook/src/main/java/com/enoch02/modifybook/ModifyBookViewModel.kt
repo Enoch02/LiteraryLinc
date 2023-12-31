@@ -39,7 +39,7 @@ class ModifyBookViewModel @Inject constructor(
         genre: String,
         type: String,
         coverImageUri: Uri?,
-        description: String,
+        notes: String,
         status: String
     ): Result<Unit> {
         try {
@@ -57,7 +57,7 @@ class ModifyBookViewModel @Inject constructor(
                 genre = genre,
                 type = type,
                 coverImageName = fileName,
-                description = description,
+                notes = notes,
                 status = status
             )
             bookDao.insertBook(newBook)
@@ -84,7 +84,7 @@ class ModifyBookViewModel @Inject constructor(
         type: String,
         coverImageUri: Uri?,
         coverImageName: String?,
-        description: String,
+        notes: String,
         status: String
     ): Result<Unit> {
         try {
@@ -103,7 +103,7 @@ class ModifyBookViewModel @Inject constructor(
                 genre = genre,
                 type = type,
                 coverImageName = if (coverImageUri == null) coverImageName else fileName,
-                description = description,
+                notes = notes,
                 status = status
             )
             bookDao.updateBook(book)
@@ -113,5 +113,9 @@ class ModifyBookViewModel @Inject constructor(
         }
 
         return Result.success(Unit)
+    }
+
+    fun startSynopsisSearch(bookTitle: String) {
+
     }
 }
