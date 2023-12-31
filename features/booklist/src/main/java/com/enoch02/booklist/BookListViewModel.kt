@@ -1,6 +1,6 @@
 package com.enoch02.booklist
 
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
@@ -9,6 +9,7 @@ import com.enoch02.database.model.Book
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -21,38 +22,10 @@ class BookListViewModel @Inject constructor(
 ) : ViewModel() {
     private val books = bookDao.getBooks()
     private val covers = bookCoverRepository.latestCoverPath
-    val pBooks = mutableStateListOf<Book>()
-
-    /*fun getBooks(filter: Int, sorting: Sorting): Flow<List<Book>> {
-        val temp = if (filter == 0) books else
-            books.map { books ->
-                books.filter { book ->
-                    book.type == Book.types[filter]
-                }
-            }
-
-        return when (sorting) {
-            Sorting.ALPHABETICAL -> {
-                temp.map { books -> books.sortedBy { it.title } }
-            }
-
-            Sorting.ALPHABETICAL_REVERSE -> {
-                temp.map { books -> books.sortedByDescending { it.title } }
-            }
-
-            Sorting.DATE_STARTED -> {
-                temp.map { books -> books.sortedBy { it.dateStarted } }
-            }
-
-            Sorting.DATE_STARTED_REVERSE -> {
-                temp.map { books -> books.sortedByDescending { it.dateStarted } }
-            }
-        }
-    }*/
 
     fun getBooks(filter: Int, sorting: Sorting, status: StatusFilter): Flow<List<Book>> {
         val filteredBooks = filterBooks(filter)
-        val sortedBooks = sortBooks(sorting=sorting, filteredBooks = filteredBooks)
+        val sortedBooks = sortBooks(sorting = sorting, filteredBooks = filteredBooks)
 
         return filterStatus(status = status, sortedBooks = sortedBooks)
     }
@@ -102,11 +75,11 @@ class BookListViewModel @Inject constructor(
     fun getCovers() = covers
 
     fun deleteBook(id: Int) {
-        viewModelScope.launch { bookDao.deleteBook(id) }
+        viewModelScope.launch(Dispatchers.IO) { bookDao.deleteBook(id) }
     }
 
     fun incrementBook(id: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             var book = bookDao.getBookById(id)
 
             book = book.copy(pagesRead = book.pagesRead + 1)
