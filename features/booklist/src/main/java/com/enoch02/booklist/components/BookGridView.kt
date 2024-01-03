@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,30 +36,44 @@ internal fun BookGridView(
     onItemClick: (Int) -> Unit,
     onItemDelete: (Int) -> Unit
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 113.dp),
-        verticalArrangement = Arrangement.Top,
-        state = gridState,
-        content = {
-            items(
-                count = books.size,
-                itemContent = { index ->
-                    val book = books[index]
+    //TODO: Extract string resource
+    if (books.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+            content = {
+                Text(
+                    text = "Your book list is empty.\nTap the + button to start tracking",
+                    textAlign = TextAlign.Center
+                )
+            }
+        )
+    } else {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 113.dp),
+            verticalArrangement = Arrangement.Top,
+            state = gridState,
+            content = {
+                items(
+                    count = books.size,
+                    itemContent = { index ->
+                        val book = books[index]
 
-                    BookGridItem(
-                        modifier = Modifier
-                            .animateItemPlacement()
-                            .padding(horizontal = 4.dp, vertical = 8.dp),
-                        book = book,
-                        coverPath = covers[book.coverImageName],
-                        onClick = { book.id?.let { onItemClick(it) } },
-                        onDelete = { book.id?.let { it1 -> onItemDelete(it1) } }
-                    )
-                }
-            )
-        },
-        modifier = Modifier.fillMaxSize()
-    )
+                        BookGridItem(
+                            modifier = Modifier
+                                .animateItemPlacement()
+                                .padding(horizontal = 4.dp, vertical = 8.dp),
+                            book = book,
+                            coverPath = covers[book.coverImageName],
+                            onClick = { book.id?.let { onItemClick(it) } },
+                            onDelete = { book.id?.let { it1 -> onItemDelete(it1) } }
+                        )
+                    }
+                )
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }
 
 /**

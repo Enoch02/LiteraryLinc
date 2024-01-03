@@ -25,9 +25,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val viewModel: SettingViewModel = hiltViewModel()
-            val alwaysDark by viewModel.getNullableBooleanPreference(key = viewModel.darkModeKey)
+            val alwaysDark by viewModel.getBooleanPreference(key = viewModel.darkModeKey)
                 .collectAsState(initial = null)
-            val dynamicColor by viewModel.getNullableBooleanPreference(key = viewModel.dynamicColorKey)
+            val dynamicColor by viewModel.getBooleanPreference(key = viewModel.dynamicColorKey)
                 .collectAsState(initial = null)
 
             if (alwaysDark != null && dynamicColor != null) {
