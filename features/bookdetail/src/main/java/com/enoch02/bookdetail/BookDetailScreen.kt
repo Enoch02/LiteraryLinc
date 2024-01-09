@@ -49,6 +49,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.enoch02.components.BookInfoText
 import com.enoch02.database.model.Book
+import com.enoch02.database.util.formatEpochDate
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -319,29 +320,6 @@ fun BookDetailScreen(
             }
         }
     )
-}
-
-//TODO: move to some module or package...
-fun formatEpochDate(date: Long?): String {
-    return when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && date != null -> {
-            val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
-            val dateObj = LocalDateTime.ofInstant(
-                Instant.ofEpochMilli(date),
-                ZoneId.systemDefault()
-            )
-            formatter.format(dateObj)
-        }
-
-        Build.VERSION.SDK_INT <= Build.VERSION_CODES.O && date != null -> {
-            val formatter = SimpleDateFormat("dd MMM yyyy", Locale.ROOT)
-            formatter.format(Date(date))
-        }
-
-        else -> {
-            ""
-        }
-    }
 }
 
 @Composable

@@ -2,9 +2,11 @@ package com.enoch02.database.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlin.reflect.KProperty1
 
 
 //TODO: Improvement -> Create subclasses for different kinds of `books`
+//TODO: Default sorting for book-list should be date added
 @Entity(tableName = "books")
 data class Book(
     @PrimaryKey(autoGenerate = true)

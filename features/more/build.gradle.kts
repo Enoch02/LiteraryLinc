@@ -44,6 +44,7 @@ dependencies {
     val daggerVersion: String by rootProject.extra
 
     implementation(project(":core:settings"))
+    implementation(project(":core:database"))
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")

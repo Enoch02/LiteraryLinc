@@ -9,6 +9,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+const val BOOK_LIST_DB_NAME = "literary-linc-db"
+
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
@@ -18,7 +20,7 @@ object DatabaseModule {
         Room.databaseBuilder(
             context,
             LiteraryLincDatabase::class.java,
-            "literary-linc-db"
+            BOOK_LIST_DB_NAME
         ).build()
 
     @Provides

@@ -7,4 +7,5 @@
     <string name="custom_tags_text">Manage custom tags</string>
     <string name="bckup_res_text">Backup and restore</string>
     <string name="wishlist_text">Wishlist</string>
+    <string name="backup_and_restore">Backup and Restore</string>
 </resources>

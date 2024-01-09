@@ -42,12 +42,4 @@ class SettingViewModel @Inject constructor(private val application: Application)
             }
         return flow
     }
-
-    fun getNullableBooleanPreference(key: Preferences.Key<Boolean>): Flow<Boolean?> {
-        val flow: Flow<Boolean?> =
-            application.applicationContext.dataStore.data.map { preferences ->
-                preferences[key]
-            }
-        return flow
-    }
 }
