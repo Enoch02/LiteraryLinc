@@ -4,24 +4,18 @@ import android.app.Application
 import android.net.Uri
 import android.util.Log
 import com.enoch02.database.dao.BookDao
-import com.enoch02.database.util.formatEpochDate
+import com.enoch02.database.model.Book
+import com.enoch02.database.util.formatEpochAsString
+import com.enoch02.database.util.getEpochFromString
+import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.File
 
 
 class CSVManager(private val application: Application, private val bookDao: BookDao) {
-    private val tempFile = File(application.filesDir, "temp.csv")
 
-    init {
-        if (tempFile.exists()) {
-            tempFile.writeText("")
-        } else {
-            tempFile.createNewFile()
-        }
-    }
-
+    //TODO: add error handling and return Result object
     suspend fun export(uri: Uri) = withContext(Dispatchers.IO) {
         val contentResolver = application.contentResolver
         val outputStream = contentResolver.openOutputStream(uri)
@@ -54,8 +48,8 @@ class CSVManager(private val application: Application, private val bookDao: Book
                         it.author,
                         it.pagesRead,
                         it.pageCount,
-                        formatEpochDate(it.dateStarted),
-                        formatEpochDate(it.dateCompleted),
+                        formatEpochAsString(it.dateStarted),
+                        formatEpochAsString(it.dateCompleted),
                         it.timesReread,
                         it.personalRating,
                         it.isbn,
@@ -67,6 +61,43 @@ class CSVManager(private val application: Application, private val bookDao: Book
                     )
 
                     writeRow(row)
+                }
+            }
+        }
+    }
+
+    //TODO: handle potential errors
+    suspend fun import(uri: Uri) = withContext(Dispatchers.IO) {
+        val contentResolver = application.contentResolver
+        val csvFileStream = contentResolver.openInputStream(uri)
+
+        if (csvFileStream != null) {
+            csvReader().openAsync(csvFileStream) {
+                readAllAsSequence().forEachIndexed { index, row ->
+                    if (index != 0) {
+                        try {
+                            val book = Book(
+                                title = row[0],
+                                author = row[1],
+                                pagesRead = row[2].toInt(),
+                                pageCount = row[3].toInt(),
+                                dateStarted = getEpochFromString(row[4]),
+                                dateCompleted = getEpochFromString(row[5]),
+                                timesReread = row[6].toInt(),
+                                personalRating = row[7].toInt(),
+                                isbn = row[8],
+                                genre = row[9],
+                                type = row[10],
+                                coverImageName = row[11],
+                                notes = row[12],
+                                status = row[13]
+                            )
+
+                            bookDao.insertBook(book)
+                        } catch (e: Exception) {
+                            Log.e("TAG", "import: ${e.message}")
+                        }
+                    }
                 }
             }
         }

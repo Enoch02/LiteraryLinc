@@ -11,9 +11,15 @@ import javax.inject.Inject
 @HiltViewModel
 class BackupRestoreViewModel @Inject constructor(private val csvManager: CSVManager) : ViewModel() {
 
-    fun createBackup(uri: Uri) {
+    fun createCSVBackup(uri: Uri) {
         viewModelScope.launch {
             csvManager.export(uri)
+        }
+    }
+
+    fun restoreCSVBackup(uri: Uri) {
+        viewModelScope.launch {
+            csvManager.import(uri)
         }
     }
 }

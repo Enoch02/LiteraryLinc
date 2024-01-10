@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.enoch02.database.util.formatEpochDate
+import com.enoch02.database.util.formatEpochAsString
 import com.enoch02.more.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,20 +31,32 @@ fun BackupRestoreScreen(
     navController: NavController,
     viewModel: BackupRestoreViewModel = hiltViewModel()
 ) {
-    val openFileIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+    val createFileIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
         addCategory(Intent.CATEGORY_OPENABLE)
         type = "text/csv"
         putExtra(
             Intent.EXTRA_TITLE,
-            "literarylinc_csv_backup-${formatEpochDate(System.currentTimeMillis())}"
+            "literarylinc_csv_backup-${formatEpochAsString(System.currentTimeMillis())}"
         )
     }
-    val launcher =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == RESULT_OK) {
-                viewModel.createBackup(it.data?.data!!)
+    val createFileLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult(),
+            onResult = {
+                if (it.resultCode == RESULT_OK) {
+                    viewModel.createCSVBackup(it.data?.data!!)
+                }
+            }
+        )
+
+    val openFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = {
+            if (it != null) {
+                viewModel.restoreCSVBackup(it)
             }
         }
+    )
 
     Scaffold(
         topBar = {
@@ -68,14 +80,20 @@ fun BackupRestoreScreen(
                             overlineContent = { Text(text = "CSV backup") },
                             headlineContent = { Text(text = "Create CSV backup") },
                             supportingContent = { Text(text = "Backup entries in a CSV file. Cover Images are not backed up") },
-                            modifier = Modifier.clickable { launcher.launch(openFileIntent) }
+                            modifier = Modifier.clickable {
+                                createFileLauncher.launch(
+                                    createFileIntent
+                                )
+                            }
                         )
                     }
                     item {
                         ListItem(
                             headlineContent = { Text(text = "Restore CSV backup") },
                             supportingContent = { Text(text = "Restore backup from a CSV file") },
-                            modifier = Modifier.clickable { }
+                            modifier = Modifier.clickable {
+                                openFileLauncher.launch("*/*")
+                            }
                         )
                     }
                     item { Divider() }
