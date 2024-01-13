@@ -67,15 +67,16 @@ class CSVManager(private val application: Application, private val bookDao: Book
     }
 
     //TODO: handle potential errors
-    suspend fun import(uri: Uri) = withContext(Dispatchers.IO) {
+    //TODO: create a flag that allows ignoring errors during import
+    suspend fun import(uri: Uri): Result<Unit> = withContext(Dispatchers.IO) {
         val contentResolver = application.contentResolver
         val csvFileStream = contentResolver.openInputStream(uri)
 
         if (csvFileStream != null) {
-            csvReader().openAsync(csvFileStream) {
-                readAllAsSequence().forEachIndexed { index, row ->
-                    if (index != 0) {
-                        try {
+            try {
+                csvReader().openAsync(csvFileStream) {
+                    readAllAsSequence().forEachIndexed { index, row ->
+                        if (index != 0) {
                             val book = Book(
                                 title = row[0],
                                 author = row[1],
@@ -94,12 +95,14 @@ class CSVManager(private val application: Application, private val bookDao: Book
                             )
 
                             bookDao.insertBook(book)
-                        } catch (e: Exception) {
-                            Log.e("TAG", "import: ${e.message}")
                         }
                     }
                 }
+            } catch (e: Exception) {
+                return@withContext Result.failure(e)
             }
         }
+
+        return@withContext Result.success(Unit)
     }
 }

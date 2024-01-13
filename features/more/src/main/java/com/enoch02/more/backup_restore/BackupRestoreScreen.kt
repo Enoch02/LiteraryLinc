@@ -15,15 +15,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.enoch02.database.util.formatEpochAsString
 import com.enoch02.more.R
+import com.enoch02.more.components.ErrorAlertDialog
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +37,8 @@ fun BackupRestoreScreen(
     navController: NavController,
     viewModel: BackupRestoreViewModel = hiltViewModel()
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     val createFileIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
         addCategory(Intent.CATEGORY_OPENABLE)
         type = "text/csv"
@@ -53,7 +61,9 @@ fun BackupRestoreScreen(
         contract = ActivityResultContracts.GetContent(),
         onResult = {
             if (it != null) {
-                viewModel.restoreCSVBackup(it)
+                viewModel.restoreCSVBackup(
+                    it,
+                    onSuccess = { scope.launch { snackbarHostState.showSnackbar("Restore Completed Successfully", withDismissAction = true) } })
             }
         }
     )
@@ -71,6 +81,9 @@ fun BackupRestoreScreen(
                     )
                 }
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         },
         content = {
             LazyColumn(
@@ -120,6 +133,13 @@ fun BackupRestoreScreen(
                 },
                 modifier = Modifier.padding(it)
             )
+
+            if (viewModel.showErrorDialog.value) {
+                ErrorAlertDialog(
+                    message = viewModel.errorDialogMessage.value,
+                    onDismiss = { viewModel.closeErrorDialog() }
+                )
+            }
         }
     )
 }
