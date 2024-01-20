@@ -107,7 +107,7 @@ fun EditBookScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.editing_text, book.title)) },
+                title = { },
                 navigationIcon = {
                     BackArrowButton {
                         navController.popBackStack()

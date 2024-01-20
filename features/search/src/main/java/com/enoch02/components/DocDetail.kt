@@ -36,7 +36,7 @@ import kotlinx.coroutines.delay
 
 //TODO: extract string resources
 //TODO: add option to select multiple authors
-//TODO: figure out the best way to implement onConfirm
+//TODO: can add the same entry multiple times from here, add warning?
 @Composable
 fun DocDetail(
     doc: Doc,
