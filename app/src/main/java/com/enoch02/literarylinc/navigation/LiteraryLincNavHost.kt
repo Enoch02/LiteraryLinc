@@ -20,7 +20,7 @@ import com.enoch02.more.MoreScreen
 import com.enoch02.more.about.AboutScreen
 import com.enoch02.more.navigation.MoreScreenDestination
 import com.enoch02.more.settings.SettingsScreen
-import com.enoch02.search.SearchScreen
+import com.enoch02.more.backup_restore.BackupRestoreScreen
 
 @Composable
 fun LiteraryLincNavHost(navController: NavHostController = rememberNavController()) {
@@ -90,7 +90,7 @@ fun LiteraryLincNavHost(navController: NavHostController = rememberNavController
                 }
 
                 composable(route = MoreScreenDestination.BackupRestore.route) {
-
+                    BackupRestoreScreen(navController = navController)
                 }
 
                 composable(route = MoreScreenDestination.Update.route) {

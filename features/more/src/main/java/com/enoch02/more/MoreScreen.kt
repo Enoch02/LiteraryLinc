@@ -91,7 +91,7 @@ fun MoreScreen(navController: NavController, modifier: Modifier) {
                     },
                     headlineContent = { Text(stringResource(R.string.bckup_res_text)) },
                     modifier = Modifier.clickable {
-                        //TODO
+                        navController.navigate(MoreScreenDestination.BackupRestore.route)
                     }
                 )
             }

@@ -22,6 +22,7 @@ import androidx.navigation.NavController
 import com.enoch02.more.R
 import com.enoch02.setting.SettingViewModel
 
+//TODO: add option to refresh covers that are FROM open library api
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = hiltViewModel()) {

@@ -31,9 +31,11 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -50,27 +52,41 @@ internal fun BookListView(
     onItemDelete: (id: Int) -> Unit,
     onItemIncrement: (id: Int) -> Unit
 ) {
-    LazyColumn(
-        content = {
-            items(
-                count = books.size,
-                itemContent = { index ->
-                    val book = books[index]
+    //TODO: Extract string resource
+    if (books.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+            content = {
+                Text(
+                    text = "Your book list is empty.\nTap the + button to start tracking",
+                    textAlign = TextAlign.Center
+                )
+            }
+        )
+    } else {
+        LazyColumn(
+            content = {
+                items(
+                    count = books.size,
+                    itemContent = { index ->
+                        val book = books[index]
 
-                    BookListItem(
-                        modifier = Modifier.animateItemPlacement(),
-                        book = book,
-                        coverPath = covers[book.coverImageName],
-                        onClick = { book.id?.let { onItemClick(it) } },
-                        onDelete = { book.id?.let { it1 -> onItemDelete(it1) } },
-                        onItemIncrement = { book.id?.let { onItemIncrement(it) } }
-                    )
-                }
-            )
-        },
-        state = listState,
-        modifier = Modifier.fillMaxSize()
-    )
+                        BookListItem(
+                            modifier = Modifier.animateItemPlacement(),
+                            book = book,
+                            coverPath = covers[book.coverImageName],
+                            onClick = { book.id?.let { onItemClick(it) } },
+                            onDelete = { book.id?.let { it1 -> onItemDelete(it1) } },
+                            onItemIncrement = { book.id?.let { onItemIncrement(it) } }
+                        )
+                    }
+                )
+            },
+            state = listState,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }
 
 @Composable

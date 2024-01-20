@@ -32,6 +32,9 @@ interface BookDao {
     @Query(value = "SELECT * FROM books")
     fun getBooks(): Flow<List<Book>>
 
+    @Query(value = "SELECT * FROM books")
+    suspend fun getBooksNonFlow(): List<Book>
+
     @Query(value = "SELECT EXISTS (SELECT 1 FROM books WHERE title = :bookTitle)")
     fun checkBookTitle(bookTitle: String): Flow<Boolean>
 
