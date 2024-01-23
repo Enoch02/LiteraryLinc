@@ -24,4 +24,7 @@ interface SearchHistoryDao {
 
     @Query(value = "DELETE FROM items")
     suspend fun clearAllHistory()
+
+    @Query(value = "DELETE FROM items WHERE value =:value")
+    suspend fun delete(value: String)
 }

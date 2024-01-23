@@ -149,6 +149,12 @@ class SearchScreenViewModel @Inject constructor(
         }
     }
 
+    fun removeSearchHistoryItem(value: String) {
+        viewModelScope.launch {
+            searchHistoryDao.delete(value)
+        }
+    }
+
     enum class SearchState {
         NOT_SEARCHING,
         SEARCHING,
