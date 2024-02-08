@@ -5,7 +5,6 @@ import androidx.room.PrimaryKey
 import kotlin.reflect.KProperty1
 
 
-//TODO: Improvement -> Create subclasses for different kinds of `books`
 //TODO: Default sorting for book-list should be date added
 @Entity(tableName = "books")
 data class Book(
@@ -24,12 +23,13 @@ data class Book(
     val type: String = types.values.first(),
     val coverImageName: String? = null,
     val notes: String = "",
-    val status: String = Book.status.first()
+    val status: String = Book.status.first(),
+    val volumesRead: Int = 0,
+    val totalVolumes: Int = 0
 ) {
     companion object {
         val types = mapOf(0 to "Any", 1 to "Comic", 2 to "Light Novel", 3 to "Manga", 4 to "Novel")
         val status = listOf("Reading", "Completed", "On Hold", "Planning")
-        const val DEFAULT_STATUS = "All"
 
         fun createBook(
             id: Int? = null,
@@ -46,7 +46,9 @@ data class Book(
             type: String,
             coverImageName: String?,
             notes: String,
-            status: String
+            status: String,
+            volumesRead: String,
+            totalVolumes: String
         ): Book {
             when {
                 title.isEmpty() -> {
@@ -59,6 +61,14 @@ data class Book(
 
                 pageCount.isEmpty() -> {
                     throw Exception("Please enter the Page Count")
+                }
+
+                volumesRead.isEmpty() -> {
+                    throw Exception("Please enter the Volumes Read")
+                }
+
+                totalVolumes.isEmpty() -> {
+                    throw Exception("Please enter the Total Volumes")
                 }
 
                 (dateStarted != null && dateCompleted != null) -> {
@@ -83,9 +93,10 @@ data class Book(
                 type = type,
                 coverImageName = coverImageName,
                 notes = notes,
-                status = status
+                status = status,
+                volumesRead = volumesRead.toInt(),
+                totalVolumes = totalVolumes.toInt()
             )
         }
     }
 }
-
