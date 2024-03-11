@@ -75,7 +75,8 @@ fun BookListScreen(
                 val covers = viewModel.getCovers()
                     .collectAsState(initial = emptyMap()).value
 
-                AnimatedContent(
+                //TODO: Figure out why this Composable crashes the app
+                /*AnimatedContent(
                     targetState = listViewMode,
                     label = "book list animation",
                     content = { lvm ->
@@ -106,7 +107,33 @@ fun BookListScreen(
                             }
                         }
                     }
-                )
+                )*/
+                when (listViewMode) {
+                    BookListViewMode.LIST_VIEW -> {
+                        BookListView(
+                            books = books,
+                            covers = covers,
+                            onItemClick = onItemClick,
+                            listState = listState,
+                            onItemDelete = { id ->
+                                viewModel.deleteBook(id)
+                            },
+                            onItemIncrement = { id ->
+                                viewModel.incrementBook(id)
+                            }
+                        )
+                    }
+
+                    BookListViewMode.GRID_VIEW -> {
+                        BookGridView(
+                            books = books,
+                            covers = covers,
+                            gridState = gridState,
+                            onItemClick = onItemClick,
+                            onItemDelete = { id -> viewModel.deleteBook(id) }
+                        )
+                    }
+                }
             }
         )
     }

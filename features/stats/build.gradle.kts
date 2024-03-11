@@ -5,8 +5,8 @@ plugins {
 }
 
 android {
-    namespace = "com.enoch02.booklist"
-    compileSdk = 34
+    namespace = "com.enoch02.stats"
+    compileSdk = 33
 
     defaultConfig {
         minSdk = 24
@@ -40,9 +40,7 @@ android {
 }
 
 dependencies {
-
     implementation(project(":core:database"))
-    implementation(project(":core:coverfile"))
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
@@ -59,16 +57,8 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
-    implementation("com.google.accompanist:accompanist-pager:0.21.2-beta")
-    implementation("com.google.accompanist:accompanist-pager-indicators:0.21.2-beta")
-
-    implementation("androidx.compose.material:material-icons-extended:1.4.3")
-    implementation("androidx.navigation:navigation-compose:2.5.3")
-
     implementation("com.google.dagger:hilt-android:2.47")
     implementation ("androidx.hilt:hilt-navigation-compose:1.0.0")
     ksp ("androidx.hilt:hilt-compiler:1.0.0")
     ksp("com.google.dagger:hilt-android-compiler:2.47")
-
-    implementation("io.coil-kt:coil-compose:2.4.0")
 }

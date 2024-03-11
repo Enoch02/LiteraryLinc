@@ -64,6 +64,7 @@ import com.enoch02.literarylinc.navigation.Screen
 import com.enoch02.literarylinc.navigation.TopLevelDestination
 import com.enoch02.more.MoreScreen
 import com.enoch02.search.SearchScreen
+import com.enoch02.stats.stats.StatsScreen
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -385,7 +386,10 @@ fun LiteraryLincApp(navController: NavController) {
                                 }
 
                                 TopLevelDestination.STATS -> {
-
+                                    StatsScreen(
+                                        navController = navController,
+                                        modifier = Modifier.padding(paddingValues)
+                                    )
                                 }
 
                                 TopLevelDestination.MORE -> {

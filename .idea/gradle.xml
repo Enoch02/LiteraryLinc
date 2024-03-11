@@ -23,6 +23,7 @@
             <option value="$PROJECT_DIR$/features/modifybook" />
             <option value="$PROJECT_DIR$/features/more" />
             <option value="$PROJECT_DIR$/features/search" />
+            <option value="$PROJECT_DIR$/features/stats" />
           </set>
         </option>
       </GradleProjectSettings>
