@@ -10,15 +10,20 @@ interface StatsDao {
     suspend fun getTotalBooks(): Int
 
     @Query(value = "SELECT COUNT(*) FROM books WHERE status = :status")
-    suspend fun getCompletedBooks(status: String=Book.status[1]): Int
+    suspend fun getCompletedBooks(status: String = Book.status[1]): Int
 
-    /*suspend fun getMangaCount(): Int
+    @Query(value = "SELECT COUNT(*) FROM books WHERE type = :type")
+    suspend fun getMangaCount(type: String = Book.types[3].toString()): Int
 
-    suspend fun getLNCount(): Int
+    @Query(value = "SELECT COUNT(*) FROM books WHERE type = :type")
+    suspend fun getLNCount(type: String = Book.types[2].toString()): Int
 
-    suspend fun getComicCount(): Int
+    @Query(value = "SELECT COUNT(*) FROM books WHERE type = :type")
+    suspend fun getComicCount(type: String = Book.types[1].toString()): Int
 
-    suspend fun getNovelCount(): Int
+    @Query(value = "SELECT COUNT(*) FROM books WHERE type = :type")
+    suspend fun getNovelCount(type: String = Book.types[4].toString()): Int
 
-    suspend fun getAnyTypeCount(): Int*/
+    @Query(value = "SELECT COUNT(*) FROM books WHERE type = :type")
+    suspend fun getAnyTypeCount(type: String = Book.types[0].toString()): Int
 }

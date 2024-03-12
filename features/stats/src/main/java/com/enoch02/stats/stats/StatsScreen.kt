@@ -38,12 +38,18 @@ fun StatsScreen(
     StatsScreenContent(
         modifier = modifier,
         total = statsScreenViewModel.total.value,
-        completed = statsScreenViewModel.completed.value
+        completed = statsScreenViewModel.completed.value,
+        categoriesStats = statsScreenViewModel.categories.value
     )
 }
 
 @Composable
-private fun StatsScreenContent(modifier: Modifier, total: Int, completed: Int) {
+private fun StatsScreenContent(
+    modifier: Modifier,
+    total: Int,
+    completed: Int,
+    categoriesStats: CategoriesStats
+) {
     LazyColumn(
         content = {
             item {
@@ -69,11 +75,11 @@ private fun StatsScreenContent(modifier: Modifier, total: Int, completed: Int) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     content = {
-                        StatItem(label = "Manga", value = "0")
-                        StatItem(label = "Light Novel", value = "0")
-                        StatItem(label = "Comic", value = "0")
-                        StatItem(label = "Novel", value = "0")
-                        StatItem(label = "Any Type", value = "0")
+                        StatItem(label = "Manga", value = "${categoriesStats.mangaCount}")
+                        StatItem(label = "Light Novel", value = "${categoriesStats.lnCount}")
+                        StatItem(label = "Comic", value = "${categoriesStats.comicCount}")
+                        StatItem(label = "Novel", value = "${categoriesStats.novelCount}")
+                        StatItem(label = "of Any Type", value = "${categoriesStats.anyCount}")
                     }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -89,7 +95,7 @@ private fun StatsScreenContent(modifier: Modifier, total: Int, completed: Int) {
 fun StatHeadingText(value: String) {
     Text(
         text = value,
-        Modifier.padding(bottom = 16.dp),
+        modifier = Modifier.padding(bottom = 4.dp),
         fontSize = MaterialTheme.typography.titleLarge.fontSize
     )
 }
@@ -111,5 +117,10 @@ fun StatItem(label: String, value: String) {
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 private fun Preview() {
-    StatsScreenContent(modifier = Modifier, total = 100, completed = 69)
+    StatsScreenContent(
+        modifier = Modifier,
+        total = 100,
+        completed = 69,
+        categoriesStats = CategoriesStats()
+    )
 }
