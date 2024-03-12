@@ -54,6 +54,7 @@ import com.enoch02.components.FormSpinner
 import com.enoch02.components.FormTextField
 import com.enoch02.components.ImagePicker
 import com.enoch02.components.IncrementalFormIntField
+import com.enoch02.components.ProgressForms
 import com.enoch02.database.model.Book
 import kotlinx.coroutines.launch
 
@@ -81,6 +82,8 @@ fun AddBookScreen(
     var coverImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     var bookNotes by rememberSaveable { mutableStateOf("") }
     var status by rememberSaveable { mutableStateOf(Book.status.first()) }
+    var volumesRead by rememberSaveable { mutableStateOf("0") }
+    var totalVolumes by rememberSaveable { mutableStateOf("0") }
 
     Scaffold(
         topBar = {
@@ -113,7 +116,9 @@ fun AddBookScreen(
                             type = type,
                             coverImageUri = coverImageUri,
                             notes = bookNotes,
-                            status = status
+                            status = status,
+                            volumesRead = volumesRead,
+                            totalVolumes = totalVolumes
                         ).onSuccess {
                             navController.popBackStack()
                         }.onFailure { e ->
@@ -223,30 +228,16 @@ fun AddBookScreen(
                     }
 
                     item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            content = {
-                                FormIntField(
-                                    label = stringResource(R.string.pages_read_label),
-                                    value = pagesRead,
-                                    onValueChange = { pagesRead = it },
-                                    modifier = Modifier.weight(0.45f)
-                                )
-                                Spacer(
-                                    modifier = Modifier
-                                        .width(4.dp)
-                                        .weight(0.1f)
-                                )
-                                FormIntField(
-                                    label = stringResource(R.string.page_count_label),
-                                    value = pageCount,
-                                    onValueChange = { pageCount = it },
-                                    modifier = Modifier.weight(0.45f)
-                                )
-                            }
+                        ProgressForms(
+                            type = type,
+                            pagesRead = pagesRead,
+                            onPagesReadChange = { pagesRead = it },
+                            pageCount = pageCount,
+                            onPageCountChange = { pageCount = it },
+                            volumesRead = volumesRead,
+                            onVolumesReadChange = { volumesRead = it },
+                            totalVolumes = totalVolumes,
+                            onTotalVolumesChange = { totalVolumes = it }
                         )
                     }
 

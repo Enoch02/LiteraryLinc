@@ -40,7 +40,9 @@ class ModifyBookViewModel @Inject constructor(
         type: String,
         coverImageUri: Uri?,
         notes: String,
-        status: String
+        status: String,
+        volumesRead: String,
+        totalVolumes: String
     ): Result<Unit> {
         try {
             val fileName = coverImageUri?.let { bookCoverRepository.copyCover(it) }
@@ -58,7 +60,9 @@ class ModifyBookViewModel @Inject constructor(
                 type = type,
                 coverImageName = fileName,
                 notes = notes,
-                status = status
+                status = status,
+                volumesRead = volumesRead,
+                totalVolumes = totalVolumes
             )
             bookDao.insertBook(newBook)
 
@@ -85,7 +89,9 @@ class ModifyBookViewModel @Inject constructor(
         coverImageUri: Uri?,
         coverImageName: String?,
         notes: String,
-        status: String
+        status: String,
+        volumesRead: String,
+        totalVolumes: String
     ): Result<Unit> {
         try {
             val fileName = coverImageUri?.let { bookCoverRepository.copyCover(it) }
@@ -104,7 +110,9 @@ class ModifyBookViewModel @Inject constructor(
                 type = type,
                 coverImageName = if (coverImageUri == null) coverImageName else fileName,
                 notes = notes,
-                status = status
+                status = status,
+                volumesRead = volumesRead,
+                totalVolumes = totalVolumes
             )
             bookDao.updateBook(book)
 
@@ -113,9 +121,5 @@ class ModifyBookViewModel @Inject constructor(
         }
 
         return Result.success(Unit)
-    }
-
-    fun startSynopsisSearch(bookTitle: String) {
-
     }
 }

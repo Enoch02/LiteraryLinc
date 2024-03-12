@@ -35,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.enoch02.components.DocDetail
+import com.enoch02.components.SearchHistoryItem
 import com.enoch02.components.SearchResultItem
 import kotlinx.coroutines.launch
 
@@ -118,17 +119,14 @@ fun SearchScreen(
                             items(
                                 count = history.size,
                                 itemContent = { index ->
-                                    ListItem(
-                                        leadingContent = {
-                                            Icon(
-                                                painter = painterResource(id = R.drawable.round_history_24),
-                                                contentDescription = null
-                                            )
-                                        },
-                                        headlineContent = { Text(text = history[index].value) },
-                                        modifier = Modifier.clickable {
+                                    SearchHistoryItem(
+                                        text = history[index].value,
+                                        onClick = {
                                             searchQuery = history[index].value
                                             onSearch()
+                                        },
+                                        onLongPress = {
+                                            viewModel.removeSearchHistoryItem(history[index].value)
                                         }
                                     )
                                 }

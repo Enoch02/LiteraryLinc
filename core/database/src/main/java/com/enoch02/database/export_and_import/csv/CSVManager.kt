@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 
+//TODO: Figure out how to run this in the background even when the app is closed.
 class CSVManager(private val application: Application, private val bookDao: BookDao) {
 
     //TODO: add error handling and return Result object

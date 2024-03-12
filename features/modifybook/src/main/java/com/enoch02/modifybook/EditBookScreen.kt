@@ -82,6 +82,8 @@ fun EditBookScreen(
     var genre by rememberSaveable { mutableStateOf("") }
     var bookNotes by rememberSaveable { mutableStateOf("") }
     var coverImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    var volumesRead by rememberSaveable { mutableStateOf("0") }
+    var totalVolumes by rememberSaveable { mutableStateOf("0") }
 
     LaunchedEffect(key1 = Unit) {
         book = viewModel.getBook(id)
@@ -107,7 +109,7 @@ fun EditBookScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.editing_text, book.title)) },
+                title = { },
                 navigationIcon = {
                     BackArrowButton {
                         navController.popBackStack()
@@ -137,7 +139,9 @@ fun EditBookScreen(
                             coverImageUri = coverImageUri,
                             coverImageName = book.coverImageName,
                             notes = bookNotes,
-                            status = status
+                            status = status,
+                            volumesRead = volumesRead,
+                            totalVolumes = totalVolumes
                         ).onSuccess {
                             navController.popBackStack()
                             navController.popBackStack()
@@ -250,23 +254,45 @@ fun EditBookScreen(
                                 .padding(vertical = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             content = {
-                                FormIntField(
-                                    label = stringResource(R.string.pages_read_label),
-                                    value = pagesRead,
-                                    onValueChange = { pagesRead = it },
-                                    modifier = Modifier.weight(0.45f)
-                                )
-                                Spacer(
-                                    modifier = Modifier
-                                        .width(4.dp)
-                                        .weight(0.1f)
-                                )
-                                FormIntField(
-                                    label = stringResource(R.string.page_count_label),
-                                    value = pageCount,
-                                    onValueChange = { pageCount = it },
-                                    modifier = Modifier.weight(0.45f)
-                                )
+                                val types = Book.types.values.toList()
+
+                                if (type == types[0] || type == types[2] || type == types[4]) {
+                                    FormIntField(
+                                        label = stringResource(R.string.pages_read_label),
+                                        value = pagesRead,
+                                        onValueChange = { pagesRead = it },
+                                        modifier = Modifier.weight(0.45f)
+                                    )
+                                    Spacer(
+                                        modifier = Modifier
+                                            .width(4.dp)
+                                            .weight(0.1f)
+                                    )
+                                    FormIntField(
+                                        label = stringResource(R.string.page_count_label),
+                                        value = pageCount,
+                                        onValueChange = { pageCount = it },
+                                        modifier = Modifier.weight(0.45f)
+                                    )
+                                } else {
+                                    FormIntField(
+                                        label = stringResource(R.string.volumes_read_label),
+                                        value = volumesRead,
+                                        onValueChange = { volumesRead = it },
+                                        modifier = Modifier.weight(0.45f)
+                                    )
+                                    Spacer(
+                                        modifier = Modifier
+                                            .width(4.dp)
+                                            .weight(0.1f)
+                                    )
+                                    FormIntField(
+                                        label = stringResource(R.string.total_volumes_label),
+                                        value = totalVolumes,
+                                        onValueChange = { totalVolumes = it },
+                                        modifier = Modifier.weight(0.45f)
+                                    )
+                                }
                             }
                         )
                     }

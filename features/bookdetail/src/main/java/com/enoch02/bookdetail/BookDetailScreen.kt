@@ -142,32 +142,6 @@ fun BookDetailScreen(
             )
         },
         content = { paddingValues ->
-            /*LazyColumn(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .padding(horizontal = 8.dp)
-                    .fillMaxSize()
-            ) {
-                item {
-                    BookDetailHeader(
-                        coverPath = coverPath.toString(),
-                        title = book.title,
-                        author = book.author,
-                        publicationDate = "",
-                        genre = book.genre,
-                        status = book.status,
-                        modifier = Modifier
-                    )
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-
-                item {
-                    Text(text = book.description)
-                }
-            }*/
             LazyColumn(
                 content = {
                     item {
