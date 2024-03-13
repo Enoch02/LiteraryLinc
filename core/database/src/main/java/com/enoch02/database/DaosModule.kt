@@ -2,6 +2,7 @@ package com.enoch02.database
 
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.dao.SearchHistoryDao
+import com.enoch02.database.dao.StatsDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,4 +17,7 @@ class DaosModule {
     @Provides
     fun providesSearchHistoryDao(database: SearchHistoryDatabase): SearchHistoryDao =
         database.getSearchHistoryDao()
+
+    @Provides
+    fun providesStatsDao(database: LiteraryLincDatabase): StatsDao = database.getStatsDao()
 }

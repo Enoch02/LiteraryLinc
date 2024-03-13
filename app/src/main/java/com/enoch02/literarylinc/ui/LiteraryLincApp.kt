@@ -64,6 +64,7 @@ import com.enoch02.literarylinc.navigation.Screen
 import com.enoch02.literarylinc.navigation.TopLevelDestination
 import com.enoch02.more.MoreScreen
 import com.enoch02.search.SearchScreen
+import com.enoch02.stats.StatsScreen
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -141,7 +142,27 @@ fun LiteraryLincApp(navController: NavController) {
                             Text(
                                 text = when (currentScreen) {
                                     TopLevelDestination.BOOK_LIST -> {
-                                        stringResource(id = R.string.your_library_label)
+                                        when (statusFilter) {
+                                            StatusFilter.ALL -> {
+                                                stringResource(id = R.string.your_library_label)
+                                            }
+
+                                            StatusFilter.READING -> {
+                                                StatusFilter.READING.stringify()
+                                            }
+
+                                            StatusFilter.COMPLETED -> {
+                                                StatusFilter.COMPLETED.stringify()
+                                            }
+
+                                            StatusFilter.ON_HOLD -> {
+                                                StatusFilter.ON_HOLD.stringify()
+                                            }
+
+                                            StatusFilter.PLANNING -> {
+                                                StatusFilter.PLANNING.stringify()
+                                            }
+                                        }
                                     }
 
                                     TopLevelDestination.SEARCH -> {
@@ -385,7 +406,10 @@ fun LiteraryLincApp(navController: NavController) {
                                 }
 
                                 TopLevelDestination.STATS -> {
-
+                                    StatsScreen(
+                                        navController = navController,
+                                        modifier = Modifier.padding(paddingValues)
+                                    )
                                 }
 
                                 TopLevelDestination.MORE -> {
