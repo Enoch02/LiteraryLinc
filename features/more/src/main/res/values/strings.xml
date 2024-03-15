@@ -8,4 +8,9 @@
     <string name="bckup_res_text">Backup and restore</string>
     <string name="wishlist_text">Wishlist</string>
     <string name="backup_and_restore">Backup and Restore</string>
+    <string name="about_label">About</string>
+    <string name="back_label">Navigate back</string>
+    <string name="version_label">Version</string>
+    <string name="check_for_updates_label">Check for updates</string>
+    <string name="open_source_licenses_label">Open source licenses</string>
 </resources>
