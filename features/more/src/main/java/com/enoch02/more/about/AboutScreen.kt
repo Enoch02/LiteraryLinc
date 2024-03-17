@@ -1,9 +1,12 @@
 package com.enoch02.more.about
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,14 +25,19 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.navigation.NavController
 import com.enoch02.more.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(navController: NavController) {
+    val context = LocalContext.current
+    val clipBoard = LocalClipboardManager.current
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -57,16 +65,25 @@ fun AboutScreen(navController: NavController) {
                                 if (version.first == "" || version.second == 0) 0f else 1f
                             )
                         }
+                        val appVersionText = "version ${version.first}(${version.second})"
 
                         ListItem(
                             headlineContent = { Text(text = stringResource(R.string.version_label)) },
                             supportingContent = {
-                                Text(text = "version ${version.first}(${version.second})")
+                                Text(text = appVersionText)
                             },
                             modifier = Modifier
                                 .alpha(alpha)
                                 .clickable {
-                                    /*TODO: open the repo releases page?*/
+                                    // TODO: copy more info to clipboard in the future?
+                                    clipBoard.setText(buildAnnotatedString { append(appVersionText) })
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "App version copied to clipboard",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
                                 }
                         )
                     }
@@ -77,7 +94,13 @@ fun AboutScreen(navController: NavController) {
                                 Text(text = stringResource(R.string.check_for_updates_label))
                             },
                             modifier = Modifier.clickable {
-                                /*TODO*/
+                                /*TODO: open the releases page for now*/
+                                context.startActivity(
+                                    Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse("https://github.com/Enoch02/LiteraryLinc/releases")
+                                    )
+                                )
                             }
                         )
                     }
@@ -89,6 +112,22 @@ fun AboutScreen(navController: NavController) {
                             },
                             modifier = Modifier.clickable {
                                 /*TODO*/
+                            }
+                        )
+                    }
+
+                    item {
+                        ListItem(
+                            headlineContent = {
+                                Text(text = stringResource(R.string.visit_repo_label))
+                            },
+                            modifier = Modifier.clickable {
+                                context.startActivity(
+                                    Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse("https://github.com/Enoch02/LiteraryLinc")
+                                    )
+                                )
                             }
                         )
                     }
