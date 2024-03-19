@@ -93,11 +93,6 @@ fun LiteraryLincNavHost(navController: NavHostController = rememberNavController
                     BackupRestoreScreen(navController = navController)
                 }
 
-                // TODO: remove [moved to about screen]
-                composable(route = MoreScreenDestination.Update.route) {
-
-                }
-
                 composable(route = MoreScreenDestination.About.route) {
                     AboutScreen(navController = navController)
                 }
