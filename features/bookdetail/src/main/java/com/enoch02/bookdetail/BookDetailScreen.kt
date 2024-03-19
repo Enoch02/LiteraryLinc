@@ -156,7 +156,11 @@ fun BookDetailScreen(
                                         .padding(8.dp),
                                     content = {
                                         AsyncImage(
-                                            model = coverPath,
+                                            model = if (coverPath == null) {
+                                                R.drawable.placeholder_image  // TODO: a white placeholder would be better
+                                            } else {
+                                                coverPath
+                                            },
                                             contentDescription = null,
                                             contentScale = ContentScale.FillBounds,
                                             modifier = Modifier

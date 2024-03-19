@@ -74,6 +74,7 @@ import kotlinx.coroutines.withContext
  * TODO: find an efficient or recommended method of preloading the app settings.
  * TODO: Can i animate the changing of themes?
  * TODO: remove the extended material icons dependency (eventually...)
+ * TODO: Consider sharing the placeholder image in booklist and bookdetail modules
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
