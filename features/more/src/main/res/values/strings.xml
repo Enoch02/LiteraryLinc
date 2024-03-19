@@ -3,7 +3,6 @@
     <string name="settings_text">Settings</string>
     <string name="about_text">About</string>
     <string name="timer_text">Pomodoro Timer</string>
-    <string name="check_update_text">Check for updates</string>
     <string name="custom_tags_text">Manage custom tags</string>
     <string name="bckup_res_text">Backup and restore</string>
     <string name="wishlist_text">Wishlist</string>
