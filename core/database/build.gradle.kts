@@ -39,6 +39,7 @@ dependencies {
     implementation ("androidx.room:room-runtime:2.5.2")
     implementation ("androidx.room:room-ktx:2.5.2")
     implementation ("androidx.compose.runtime:runtime-livedata:1.5.2")
+    implementation(project(":core:coverfile"))
     annotationProcessor ("androidx.room:room-compiler:2.5.2")
     ksp("androidx.room:room-compiler:2.5.2")
 

@@ -31,8 +31,8 @@ fun StatsScreen(
 
     StatsScreenContent(
         modifier = modifier,
-        total = statsScreenViewModel.total.value,
-        completed = statsScreenViewModel.completed.value,
+        total = statsScreenViewModel.total.intValue,
+        completed = statsScreenViewModel.completed.intValue,
         categoriesStats = statsScreenViewModel.categories.value
     )
 }

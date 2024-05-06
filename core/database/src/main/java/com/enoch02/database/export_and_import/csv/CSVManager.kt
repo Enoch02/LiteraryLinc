@@ -1,29 +1,37 @@
 package com.enoch02.database.export_and_import.csv
 
 import android.app.Application
+import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
+import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.model.Book
+import com.enoch02.database.util.Base64Functions
 import com.enoch02.database.util.formatEpochAsString
 import com.enoch02.database.util.getEpochFromString
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
 
 //TODO: Figure out how to run this in the background even when the app is closed.
-class CSVManager(private val application: Application, private val bookDao: BookDao) {
+class CSVManager(
+    private val application: Application,
+    private val bookDao: BookDao,
+    private val bookCoverRepository: BookCoverRepository
+) {
 
     //TODO: add error handling and return Result object
     suspend fun export(uri: Uri) = withContext(Dispatchers.IO) {
         val contentResolver = application.contentResolver
         val outputStream = contentResolver.openOutputStream(uri)
         val books = bookDao.getBooksNonFlow()
+        val covers = bookCoverRepository.latestCoverPath
 
         if (outputStream != null) {
-            csvWriter().open(outputStream) {
+            csvWriter().openAsync(outputStream) {
                 writeRow(
                     listOf(
                         "Title",
@@ -37,13 +45,21 @@ class CSVManager(private val application: Application, private val bookDao: Book
                         "ISBN",
                         "Genre",
                         "Type",
-                        "Cover Image Name",
+                        "Cover Image[Base64]",
                         "Notes",
                         "Status"
                     )
                 )
 
                 books.forEach {
+                    val coverImagePath = covers.first()[it.coverImageName]
+                    val encodedImageResult = Base64Functions.encode(coverImagePath.toString())
+                    var encodedImage = ""
+
+                    encodedImageResult.onSuccess { encodedStr ->
+                        encodedImage = encodedStr
+                    }
+
                     val row = listOf(
                         it.title,
                         it.author,
@@ -56,7 +72,7 @@ class CSVManager(private val application: Application, private val bookDao: Book
                         it.isbn,
                         it.genre,
                         it.type,
-                        it.coverImageName,
+                        encodedImage,
                         it.notes,
                         it.status
                     )
@@ -67,8 +83,6 @@ class CSVManager(private val application: Application, private val bookDao: Book
         }
     }
 
-    //TODO: handle potential errors
-    //TODO: create a flag that allows ignoring errors during import
     suspend fun import(uri: Uri): Result<Unit> = withContext(Dispatchers.IO) {
         val contentResolver = application.contentResolver
         val csvFileStream = contentResolver.openInputStream(uri)
@@ -78,6 +92,14 @@ class CSVManager(private val application: Application, private val bookDao: Book
                 csvReader().openAsync(csvFileStream) {
                     readAllAsSequence().forEachIndexed { index, row ->
                         if (index != 0) {
+                            val encodedImage = row[11]
+                            val decodedImageResult = Base64Functions.decode(encodedImage)
+                            var decodedImage: Bitmap? = null
+
+                            decodedImageResult.onSuccess { bitmap ->
+                                decodedImage = bitmap
+                            }
+
                             val book = Book(
                                 title = row[0],
                                 author = row[1],
@@ -90,7 +112,10 @@ class CSVManager(private val application: Application, private val bookDao: Book
                                 isbn = row[8],
                                 genre = row[9],
                                 type = row[10],
-                                coverImageName = row[11],
+                                coverImageName = bookCoverRepository.copyCoverFrom(
+                                    bitmap = decodedImage,
+                                    name = row[0]
+                                ),
                                 notes = row[12],
                                 status = row[13]
                             )
