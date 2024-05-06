@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
+//TODO: add stats for pages read
 @Composable
 fun StatsScreen(
     navController: NavController,
