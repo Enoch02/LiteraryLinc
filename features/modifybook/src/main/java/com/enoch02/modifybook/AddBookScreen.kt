@@ -5,7 +5,6 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -298,21 +297,8 @@ fun AddBookScreen(
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Text,
                                     imeAction = ImeAction.Next,
-                                    capitalization = KeyboardCapitalization.Words,
-                                ),
-                                /*trailingIcon = {
-                                    IconButton(
-                                        onClick = {
-
-                                        },
-                                        content = {
-                                            Icon(
-                                                painter = painterResource(id = R.drawable.round_search_24),
-                                                contentDescription = null
-                                            )
-                                        }
-                                    )
-                                }*/
+                                    capitalization = KeyboardCapitalization.Sentences,
+                                )
                             )
                         }
                     }
