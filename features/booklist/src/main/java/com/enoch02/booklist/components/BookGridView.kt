@@ -37,6 +37,7 @@ internal fun BookGridView(
     onItemDelete: (Int) -> Unit
 ) {
     //TODO: Extract string resource
+    //TODO: implement hold to delete
     if (books.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),

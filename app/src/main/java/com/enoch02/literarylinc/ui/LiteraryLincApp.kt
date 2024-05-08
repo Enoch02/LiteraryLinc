@@ -56,7 +56,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.enoch02.booklist.BookListScreen
-import com.enoch02.booklist.BookListViewMode
+import com.enoch02.booklist.components.BookListViewMode
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
 import com.enoch02.literarylinc.R
