@@ -18,6 +18,8 @@ import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -45,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.enoch02.components.BookInfoText
+import com.enoch02.bookdetail.components.BookInfoText
 import com.enoch02.database.model.Book
 import com.enoch02.database.util.formatEpochAsString
 
@@ -57,23 +60,12 @@ fun BookDetailScreen(
     editScreenRoute: () -> String,
     viewModel: BookDetailViewModel = hiltViewModel()
 ) {
-    /*val bookSaver = Saver<Book, Map<Int, Any?>>(
-        save = {
-            mapOf(0 to it.id, 1 to it.title, 2 to it.type, 3 to it.coverImageName)
-        },
-        restore = {
-            Book(
-                id = it[0] as Int,
-                title = it[1].toString(),
-                type = it[2].toString(),
-                coverImageName = it[3].toString()
-            )
-        }
-    )*/
-    /*var book by rememberSaveable(saver = bookSaver) { mutableStateOf(Book()) }*/
     var book by remember { mutableStateOf(Book()) }
     var coverPath: String? by rememberSaveable { mutableStateOf(null) }
     var showBookDetails by rememberSaveable { mutableStateOf(false) }
+    var showWarningDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
 
     LaunchedEffect(key1 = Unit) {
         book = viewModel.getBook(id)
@@ -123,8 +115,7 @@ fun BookDetailScreen(
                                     }
 
                                     2 -> {
-                                        viewModel.deleteBook(id)
-                                        navController.popBackStack()
+                                        showWarningDialog = true
                                     }
                                 }
                             },
@@ -156,7 +147,11 @@ fun BookDetailScreen(
                                         .padding(8.dp),
                                     content = {
                                         AsyncImage(
-                                            model = coverPath,
+                                            model = if (coverPath == null) {
+                                                R.drawable.placeholder_image  // TODO: a white placeholder would be better
+                                            } else {
+                                                coverPath
+                                            },
                                             contentDescription = null,
                                             contentScale = ContentScale.FillBounds,
                                             modifier = Modifier
@@ -281,6 +276,37 @@ fun BookDetailScreen(
                                 item { BookInfoText(header = "Genre(s)", value = book.genre) }
                             }
                         )
+                    }
+                )
+            }
+
+            if (showWarningDialog) {
+                AlertDialog(
+                    onDismissRequest = { showWarningDialog = false },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                viewModel.deleteBook(id)
+                                navController.popBackStack()
+                            },
+                            content = {
+                                Text(text = "Yes")
+                            }
+                        )
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showWarningDialog = false },
+                            content = {
+                                Text(text = "No")
+                            }
+                        )
+                    },
+                    icon = {
+                        Icon(imageVector = Icons.Rounded.Warning, contentDescription = null)
+                    },
+                    text = {
+                        Text(text = "Do you want to delete this entry?")
                     }
                 )
             }

@@ -1,6 +1,7 @@
 package com.enoch02.coverfile
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import com.enoch02.util.getFileFromUri
@@ -62,6 +63,23 @@ class BookCoverRepository(private val context: Context) {
             }
 
         return coverFile.getOrThrow().name
+    }
+
+    suspend fun copyCoverFrom(bitmap: Bitmap?, name: String): String {
+        val coverFile = File(coverFolder, "$name.jpg")
+
+        return withContext(Dispatchers.IO) {
+            try {
+                val outPutStream = FileOutputStream(coverFile)
+                bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, outPutStream)
+                outPutStream.close()
+
+                return@withContext coverFile.name
+            } catch (e: Exception) {
+                return@withContext ""
+            }
+        }
+
     }
 
     fun deleteAllCovers() {

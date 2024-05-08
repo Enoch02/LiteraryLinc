@@ -100,21 +100,6 @@ fun MoreScreen(navController: NavController, modifier: Modifier) {
                 ListItem(
                     leadingContent = {
                         Icon(
-                            painter = painterResource(id = R.drawable.round_update_24),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(R.string.check_update_text)) },
-                    modifier = Modifier.clickable {
-                        //TODO
-                    }
-                )
-            }
-
-            item {
-                ListItem(
-                    leadingContent = {
-                        Icon(
                             imageVector = Icons.Rounded.Info,
                             contentDescription = null
                         )

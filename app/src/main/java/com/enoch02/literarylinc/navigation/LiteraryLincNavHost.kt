@@ -93,12 +93,8 @@ fun LiteraryLincNavHost(navController: NavHostController = rememberNavController
                     BackupRestoreScreen(navController = navController)
                 }
 
-                composable(route = MoreScreenDestination.Update.route) {
-
-                }
-
                 composable(route = MoreScreenDestination.About.route) {
-                    AboutScreen()
+                    AboutScreen(navController = navController)
                 }
             }
         }

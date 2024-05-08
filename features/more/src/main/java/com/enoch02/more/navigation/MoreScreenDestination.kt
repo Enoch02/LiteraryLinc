@@ -8,7 +8,6 @@ sealed class MoreScreenDestination(val route: String) {
     object Wishlist : MoreScreenDestination("wishlist_screen")
     object Settings : MoreScreenDestination("settings_screen")
     object BackupRestore : MoreScreenDestination("backup_restore_screen")
-    object Update : MoreScreenDestination("check_update_screen")
     object About : MoreScreenDestination("about_app_screen")
 
     fun withArgs(vararg args: String): String {

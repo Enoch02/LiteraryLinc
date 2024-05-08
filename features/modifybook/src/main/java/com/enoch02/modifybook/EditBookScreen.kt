@@ -354,21 +354,8 @@ fun EditBookScreen(
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Text,
                                     imeAction = ImeAction.Next,
-                                    capitalization = KeyboardCapitalization.Words,
+                                    capitalization = KeyboardCapitalization.Sentences,
                                 ),
-                                /*trailingIcon = {
-                                    IconButton(
-                                        onClick = {
-
-                                        },
-                                        content = {
-                                            Icon(
-                                                painter = painterResource(id = R.drawable.round_search_24),
-                                                contentDescription = null
-                                            )
-                                        }
-                                    )
-                                }*/
                             )
                         }
                     }
