@@ -39,7 +39,8 @@ import com.enoch02.components.SearchHistoryItem
 import com.enoch02.components.SearchResultItem
 import kotlinx.coroutines.launch
 
-/***
+/**
+ *[onEdit] - Callback used to edit a search result that has been added to the database.
  * [onError] - Callback used to show a snackbar with desired message when an error occurs.
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -211,13 +212,14 @@ fun SearchScreen(
                                                             onError = onError
                                                         )
 
-                                                        scope.launch {
+                                                        //TODO: remove?
+                                                        /*scope.launch {
                                                             // No error here 🙂
                                                             onError(
                                                                 "Adding to database, please wait",
                                                                 ""
                                                             )
-                                                        }
+                                                        }*/
                                                     },
                                                     onEditBtnClick = {
                                                         onEdit(id.value)

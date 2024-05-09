@@ -49,7 +49,7 @@ import coil.compose.AsyncImage
 import com.enoch02.booklist.R
 import com.enoch02.database.model.Book
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun BookListView(
     books: List<Book>,
@@ -96,7 +96,6 @@ internal fun BookListView(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BookListItem(
     modifier: Modifier,
