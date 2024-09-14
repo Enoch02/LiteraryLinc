@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Analytics
+import androidx.compose.material.icons.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.ListAlt
 import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.icons.rounded.Search
@@ -63,6 +64,7 @@ import com.enoch02.literarylinc.R
 import com.enoch02.literarylinc.navigation.Screen
 import com.enoch02.literarylinc.navigation.TopLevelDestination
 import com.enoch02.more.MoreScreen
+import com.enoch02.reader.ReaderScreen
 import com.enoch02.search.SearchScreen
 import com.enoch02.stats.StatsScreen
 import kotlinx.coroutines.launch
@@ -166,6 +168,10 @@ fun LiteraryLincApp(navController: NavController) {
                                         }
                                     }
 
+                                    TopLevelDestination.READER -> {
+                                        stringResource(R.string.reader_label)
+                                    }
+
                                     TopLevelDestination.SEARCH -> {
                                         stringResource(id = R.string.search_label)
                                     }
@@ -263,6 +269,10 @@ fun LiteraryLincApp(navController: NavController) {
                                     }
                                 }
 
+                                TopLevelDestination.READER -> {
+
+                                }
+
                                 TopLevelDestination.SEARCH -> {
                                     IconButton(
                                         onClick = { navController.navigate(Screen.BarcodeScanner.route) },
@@ -311,12 +321,14 @@ fun LiteraryLincApp(navController: NavController) {
                     val screens = TopLevelDestination.values()
                     val icons = listOf(
                         Icons.Rounded.ListAlt,
+                        Icons.Rounded.InsertDriveFile,
                         Icons.Rounded.Search,
                         Icons.Rounded.Analytics,
                         Icons.Rounded.MoreHoriz
                     )
                     val labels = listOf(
                         stringResource(R.string.book_list_label),
+                        stringResource(R.string.reader_label),
                         stringResource(R.string.search_label),
                         stringResource(R.string.statistics_label),
                         stringResource(R.string.more_label)
@@ -375,6 +387,13 @@ fun LiteraryLincApp(navController: NavController) {
                                         onItemClick = { id ->
                                             navController.navigate(Screen.BookDetail.withArgs(id.toString()))
                                         }
+                                    )
+                                }
+
+                                TopLevelDestination.READER -> {
+                                    ReaderScreen(
+                                        modifier = Modifier.padding(paddingValues),
+                                        navController = navController
                                     )
                                 }
 

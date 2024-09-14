@@ -17,4 +17,5 @@
     <string name="search_history_desc">View search history</string>
     <string name="toggle_arrangement_desc">Toggle book list arrangement</string>
     <string name="status_filter_menu_desc">Open book status filter menu</string>
+    <string name="reader_label">Reader</string>
 </resources>

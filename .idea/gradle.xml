@@ -20,6 +20,7 @@
             <option value="$PROJECT_DIR$/features/booklist" />
             <option value="$PROJECT_DIR$/features/modifybook" />
             <option value="$PROJECT_DIR$/features/more" />
+            <option value="$PROJECT_DIR$/features/reader" />
             <option value="$PROJECT_DIR$/features/search" />
             <option value="$PROJECT_DIR$/features/stats" />
           </set>
