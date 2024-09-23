@@ -60,6 +60,7 @@ android {
 dependencies {
     val daggerVersion: String by rootProject.extra
 
+    api(project(":mupdf-lib"))
     implementation(project(":features:booklist"))
     implementation(project(":features:modifybook"))
     implementation(project(":features:bookdetail"))

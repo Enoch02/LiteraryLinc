@@ -6,8 +6,8 @@ pluginManagement {
     }
 }
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        maven { url = uri("https://maven.ghostscript.com") }
         google()
         mavenCentral()
     }
@@ -28,3 +28,4 @@ include(":core:settings")
 include(":features:search")
 include(":features:stats")
 include(":features:reader")
+include(":mupdf-lib")
