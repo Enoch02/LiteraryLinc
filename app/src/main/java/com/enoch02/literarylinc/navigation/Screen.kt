@@ -2,6 +2,7 @@ package com.enoch02.literarylinc.navigation
 
 enum class TopLevelDestination {
     BOOK_LIST,
+    READER,
     SEARCH,
     STATS,
     MORE

@@ -24,7 +24,7 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix += ".debug"
+            applicationIdSuffix = ".debug"
             resValue("string", "app_name", "LiteraryLinc Debug")
         }
 
@@ -60,6 +60,7 @@ android {
 dependencies {
     val daggerVersion: String by rootProject.extra
 
+    api(project(":mupdf-lib"))
     implementation(project(":features:booklist"))
     implementation(project(":features:modifybook"))
     implementation(project(":features:bookdetail"))
@@ -67,6 +68,7 @@ dependencies {
     implementation(project(":features:search"))
     implementation(project(":features:more"))
     implementation(project(":features:stats"))
+    implementation(project(":features:reader"))
     implementation(project(":core:database"))
     implementation(project(":core:settings"))
 
