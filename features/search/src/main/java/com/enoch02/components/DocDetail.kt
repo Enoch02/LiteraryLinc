@@ -155,7 +155,7 @@ fun DocDetail(
                         if (!doc.publishYear.isNullOrEmpty()) {
                             item {
                                 FormSpinner(
-                                    label = "Publisher(s)",
+                                    label = "Publish Year(s)",
                                     options = doc.publishYear,
                                     selectedOption = selectedPublishYear,
                                     onSelectionChange = { selectedPublishYear = it }
