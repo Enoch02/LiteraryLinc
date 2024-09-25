@@ -24,7 +24,7 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
+            applicationIdSuffix += ".debug"
             resValue("string", "app_name", "LiteraryLinc Debug")
         }
 
