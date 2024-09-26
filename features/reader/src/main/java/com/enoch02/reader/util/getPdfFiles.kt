@@ -5,7 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
-import com.enoch02.reader.models.PdfFile
+import com.enoch02.database.model.Document
 
 val allowedTypes = arrayOf(
     "application/pdf",
@@ -45,12 +45,11 @@ fun generateThumbnail(context: Context, uri: Uri): Bitmap? {
     }
 }
 
-
 /**
  * Get files from app directory
  */
-fun listPdfFilesInDirectory(context: Context, directoryUri: Uri): List<PdfFile> {
-    val foundFiles = mutableListOf<PdfFile>()
+fun listPdfFilesInDirectory(context: Context, directoryUri: Uri): List<Document> {
+    val foundFiles = mutableListOf<Document>()
 
     directoryUri.let { uri ->
         val documentFile = DocumentFile.fromTreeUri(context, uri)
@@ -63,13 +62,10 @@ fun listPdfFilesInDirectory(context: Context, directoryUri: Uri): List<PdfFile> 
                         val fileUri = file.uri
                         val fileName = file.name ?: "Unknown"
 
-                        val thumbnail = generateThumbnail(context, fileUri)
-
                         foundFiles.add(
-                            PdfFile(
+                            Document(
                                 contentUri = fileUri,
-                                name = fileName,
-                                thumbnail = thumbnail
+                                name = fileName
                             )
                         )
                     }
