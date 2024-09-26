@@ -14,7 +14,7 @@ import com.enoch02.reader.util.generateThumbnail
 import com.enoch02.reader.util.listPdfFilesInDirectory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,8 +33,21 @@ class ReaderViewModel @Inject constructor(
     var documents = documentDao.getDocuments()
     val covers = bookCoverRepository.latestCoverPath
 
-    //TODO: cache the list of PDF files, load content occasionally or manually to check if there are changes
+    private var currentCoverLoadingJob: Job? = null
+    var isRefreshing by mutableStateOf(false)
+
+    fun refreshing(context: Context) {
+        isRefreshing = true
+        loadContent(context)
+    }
+
     fun loadContent(context: Context) {
+        loadDocuments(context)
+        //getNewCovers(context)
+    }
+
+    //TODO: cache the list of PDF files, load content occasionally or manually to check if there are changes
+    private fun loadDocuments(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 documents.collectLatest { docs ->
@@ -55,6 +68,9 @@ class ReaderViewModel @Inject constructor(
                             contentState = ContentState.Success
                         }
                     }
+
+                    getNewCovers(context)
+                    isRefreshing = false
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "loadContent", e)
@@ -66,26 +82,38 @@ class ReaderViewModel @Inject constructor(
     }
 
 
-    fun getCovers(context: Context) {
-        val coversSnapshot = bookCoverRepository.getCoverFolderSnapshot()
+    private fun getNewCovers(context: Context) {
+        if (currentCoverLoadingJob == null) {
+            val coversSnapshot = bookCoverRepository.getCoverFolderSnapshot()
 
-        viewModelScope.launch(Dispatchers.IO) {
-            documentDao.getDocumentsNonFlow().forEach { document ->
-                Log.e(TAG, "getCovers for ${document.name}")
-                if (!coversSnapshot.containsKey(document.id)) {
-                    val bitmap = document.contentUri?.let { it1 ->
-                        generateThumbnail(
-                            context,
-                            it1
-                        )
-                    }
-                    bookCoverRepository.saveCoverFromBitmap(bitmap = bitmap, name = document.id)
-                        .onSuccess { name ->
-                            documentDao.updateDocument(document.copy(cover = name))
-                            Log.e(TAG, "getCovers: cover created for ${document.name}")
+            currentCoverLoadingJob = viewModelScope.launch(Dispatchers.IO) {
+                documentDao.getDocumentsNonFlow().forEach { document ->
+                    if (!coversSnapshot.containsKey(document.cover)) {
+                        val bitmap = document.contentUri?.let { it1 ->
+                            generateThumbnail(
+                                context,
+                                it1
+                            )
                         }
+                        if (bitmap != null) {
+                            bookCoverRepository.saveCoverFromBitmap(
+                                bitmap = bitmap,
+                                name = document.id
+                            )
+                                .onSuccess { name ->
+                                    documentDao.updateDocument(document.copy(cover = name))
+                                    Log.d(TAG, "getCovers: cover created for ${document.name}")
+                                }
+                        } else {
+                            Log.d(TAG, "getCovers: cover not created for ${document.name}")
+                        }
+                    }
                 }
+
+                currentCoverLoadingJob = null
             }
+        } else {
+            Log.d(TAG, "getNewCovers: a job is still running")
         }
     }
 

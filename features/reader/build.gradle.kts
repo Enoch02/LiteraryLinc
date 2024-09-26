@@ -47,8 +47,8 @@ dependencies {
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation("androidx.activity:activity-compose:1.7.2")
-    implementation(platform("androidx.compose:compose-bom:2023.05.01"))
+    implementation("androidx.activity:activity-compose:1.9.0")
+    implementation(platform("androidx.compose:compose-bom:2024.06.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -68,9 +68,14 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.5.3")
 
     implementation("com.google.dagger:hilt-android:2.47")
-    implementation ("androidx.hilt:hilt-navigation-compose:1.0.0")
-    ksp ("androidx.hilt:hilt-compiler:1.0.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    ksp("androidx.hilt:hilt-compiler:1.0.0")
     ksp("com.google.dagger:hilt-android-compiler:2.47")
 
     implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("nl.siegmann.epublib:epublib-core:3.1") {
+        exclude(group = "org.slf4j")
+        exclude(group = "xmlpull")
+    }
+    implementation("org.slf4j:slf4j-android:1.7.25")
 }

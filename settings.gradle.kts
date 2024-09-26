@@ -8,6 +8,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositories {
         maven { url = uri("https://maven.ghostscript.com") }
+        maven { url = uri("https://github.com/psiegman/mvn-repo/raw/master/releases") }
         google()
         mavenCentral()
     }

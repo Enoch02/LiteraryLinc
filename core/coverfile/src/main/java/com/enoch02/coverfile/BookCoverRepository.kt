@@ -78,18 +78,17 @@ class BookCoverRepository(private val context: Context) {
 
     }
 
-    suspend fun saveCoverFromBitmap(bitmap: Bitmap?, name: String): Result<String> {
+    suspend fun saveCoverFromBitmap(bitmap: Bitmap, name: String): Result<String> {
         return withContext(Dispatchers.IO) {
             try {
                 val file = File(coverFolder, "$name.png")
                 val fileOutputStream = FileOutputStream(file)
 
-                bitmap?.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
                 fileOutputStream.close()
 
                 Result.success(file.name)
             } catch (e: Exception) {
-                Log.e(TAG, "saveCoverFromBitmap: ", e)
                 Result.failure(e)
             }
         }

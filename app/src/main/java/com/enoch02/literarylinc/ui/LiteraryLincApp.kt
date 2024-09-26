@@ -70,14 +70,6 @@ import com.enoch02.stats.StatsScreen
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * TODO: replace all [androidx.compose.ui.graphics.vector.ImageVector] icons
- * with [painterResource]?
- * TODO: find an efficient or recommended method of preloading the app settings.
- * TODO: Can i animate the changing of themes?
- * TODO: remove the extended material icons dependency (eventually...)
- * TODO: Consider sharing the placeholder image in booklist and bookdetail modules
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LiteraryLincApp(navController: NavController) {
@@ -393,7 +385,6 @@ fun LiteraryLincApp(navController: NavController) {
                                 TopLevelDestination.READER -> {
                                     ReaderScreen(
                                         modifier = Modifier.padding(paddingValues),
-                                        navController = navController
                                     )
                                 }
 
