@@ -7,7 +7,7 @@ import kotlin.reflect.KProperty1
 
 //TODO: Default sorting for book-list should be date added
 @Entity(tableName = "books")
-data class Book(
+data class  Book(
     @PrimaryKey(autoGenerate = true)
     val id: Int? = null,
     val title: String = "",

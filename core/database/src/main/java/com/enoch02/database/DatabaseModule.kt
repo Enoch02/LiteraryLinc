@@ -31,4 +31,13 @@ object DatabaseModule {
             SearchHistoryDatabase::class.java,
             "search-history-db"
         ).build()
+
+    @Provides
+    @Singleton
+    fun providesDocumentsDatabase(@ApplicationContext context: Context): DocumentDatabase =
+        Room.databaseBuilder(
+            context,
+            DocumentDatabase::class.java,
+            "documents-db"
+        ).build()
 }

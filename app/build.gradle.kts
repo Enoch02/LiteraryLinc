@@ -13,8 +13,8 @@ android {
         applicationId = "com.enoch02.literarylinc"
         minSdk = 24
         targetSdk = 33
-        versionCode = 4
-        versionName = "0.0.4"
+        versionCode = 5
+        versionName = "0.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -24,7 +24,7 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix += ".debug"
+            applicationIdSuffix = ".debug"
             resValue("string", "app_name", "LiteraryLinc Debug")
         }
 
