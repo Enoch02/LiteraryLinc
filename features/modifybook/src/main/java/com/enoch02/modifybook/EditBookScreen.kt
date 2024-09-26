@@ -97,8 +97,8 @@ fun EditBookScreen(
         status = book.status
         pagesRead = book.pagesRead.toString()
         pageCount = book.pageCount.toString()
-        dateStarted.setSelection(book.dateStarted)
-        dateCompleted.setSelection(book.dateCompleted)
+        dateStarted.selectedDateMillis = book.dateStarted
+        dateCompleted.selectedDateMillis = book.dateCompleted
         timesReread = book.timesReread.toString()
         personalRating = book.personalRating.toString()
         isbn = book.isbn
