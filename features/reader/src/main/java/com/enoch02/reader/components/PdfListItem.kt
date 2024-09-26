@@ -1,6 +1,5 @@
 package com.enoch02.reader.components
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
@@ -13,11 +12,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 
 @Composable
 fun PdfListItem(
     name: String,
-    thumbnail: Bitmap?,
+    cover: String?,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -26,14 +26,13 @@ fun PdfListItem(
             Text(name)
         },
         leadingContent = {
-            thumbnail?.let {
-                Image(
-                    it.asImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier.size(width = 50.dp, height = 80.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                )
-            }
+            AsyncImage(
+                model = cover,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(width = 50.dp, height = 80.dp)
+                    .clip(RoundedCornerShape(4.dp))
+            )
         },
         modifier = modifier.clickable {
             onClick()
@@ -44,5 +43,5 @@ fun PdfListItem(
 @Preview
 @Composable
 private fun Preview() {
-    PdfListItem(name = "Hello", thumbnail = null, onClick = {})
+    PdfListItem(name = "Hello", cover = null, onClick = {})
 }
