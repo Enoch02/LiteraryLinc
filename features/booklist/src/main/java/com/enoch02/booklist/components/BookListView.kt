@@ -38,6 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
@@ -104,63 +105,44 @@ private fun BookListItem(
     onDelete: () -> Unit,
     onItemIncrement: () -> Unit
 ) {
-    var currentProgress by remember { mutableFloatStateOf(0f) }
+    var currentProgress by rememberSaveable { mutableFloatStateOf(0f) }
+
     val currentPercentage by animateFloatAsState(
         targetValue = currentProgress,
         animationSpec = tween(durationMillis = 1000, easing = LinearEasing),
         label = "progress"
     )
+
     val showEmptyProgress by remember { derivedStateOf { book.pagesRead == 0 && book.pageCount == 0 } }
     var isComplete by remember { mutableStateOf(false) }
-    var showWarningDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
+    var showWarningDialog by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(
-        key1 = book,
-        block = {
-            if (book.pagesRead != 0 && book.pageCount != 0) {
-                currentProgress = (book.pagesRead.toFloat() / book.pageCount.toFloat()) * 100
-            }
-            isComplete =
-                book.pagesRead == book.pageCount && book.pagesRead != 0 && book.pageCount != 0
+    LaunchedEffect(book) {
+        if (book.pagesRead != 0 && book.pageCount != 0) {
+            currentProgress = (book.pagesRead.toFloat() / book.pageCount.toFloat()) * 100
         }
-    )
+        isComplete =
+            book.pagesRead == book.pageCount && book.pagesRead > 0 && book.pageCount > 0
+    }
 
     ListItem(
         headlineContent = {
-            Text(
-                text = book.title,
-                fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
-                fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                fontWeight = MaterialTheme.typography.titleMedium.fontWeight,
-                maxLines = 4,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (book.author.isNotEmpty()) {
+            Column {
                 Text(
-                    text = "by ${book.author}",
-                    fontSize = MaterialTheme.typography.labelSmall.fontSize
+                    text = book.title,
+                    fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                    fontWeight = MaterialTheme.typography.titleMedium.fontWeight,
+                    maxLines = 4,
+                    overflow = TextOverflow.Ellipsis
                 )
-            }
-            Spacer(modifier = Modifier.height(12.dp))
 
-            if (showEmptyProgress) {
-                LinearProgressIndicator(progress = 0.5f, modifier = Modifier.height(10.dp))
-            } else {
-                LinearProgressIndicator(
-                    progress = currentPercentage / 100f,
-                    modifier = Modifier
-
-                        .height(10.dp)
-                )
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-
-            if (showEmptyProgress) {
-                Text(text = "Progress: ?%")
-            } else {
-                Text(text = "Progress: ${currentPercentage.toInt()}%")
+                if (book.author.isNotEmpty()) {
+                    Text(
+                        text = "by ${book.author}",
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize
+                    )
+                }
             }
         },
         leadingContent = {
@@ -174,10 +156,34 @@ private fun BookListItem(
             )
         },
         supportingContent = {
-            Box(modifier = Modifier.height(45.dp))
+            Column {
+                if (showEmptyProgress) {
+                    LinearProgressIndicator(progress = 0f, modifier = Modifier.height(10.dp))
+                } else {
+                    LinearProgressIndicator(
+                        progress = currentPercentage / 100f,
+                        modifier = Modifier.height(10.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+
+                if (showEmptyProgress) {
+                    Text(
+                        text = "Progress: Not Recorded",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                } else {
+                    Text(
+                        text = "Progress: ${currentPercentage.toInt()}%",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+            }
         },
         trailingContent = {
-            //TODO: Replace with painterResource
             Column {
                 OutlinedIconButton(
                     onClick = { showWarningDialog = true },
