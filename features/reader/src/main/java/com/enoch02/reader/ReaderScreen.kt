@@ -57,7 +57,7 @@ fun ReaderScreen(
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
-                viewModel.pdfDirectory = uri
+                viewModel.documentDirectory = uri
 
                 context.contentResolver.takePersistableUriPermission(
                     uri,
@@ -87,14 +87,14 @@ fun ReaderScreen(
         block = {
             isDirectoryPicked = viewModel.isDirectoryPickedBefore(context)
             if (isDirectoryPicked) {
-                viewModel.loadContent(context)
+                viewModel.loadDocuments(context)
             }
         }
     )
 
     SideEffect {
-        if (viewModel.isDirectoryPickedBefore(context) && pdfFiles.value.isEmpty()) {
-            viewModel.loadContent(context)
+        if (viewModel.isDirectoryPickedBefore(context) && pdfFiles.value.isEmpty() && viewModel.contentState != ContentState.Empty) {
+            viewModel.loadDocuments(context)
         }
     }
 
@@ -128,6 +128,9 @@ fun ReaderScreen(
                         data = item.contentUri
                     }
                 documentViewerLauncher.launch(intent)
+            },
+            onRetry = {
+                viewModel.loadDocuments(context)
             }
         )
 
@@ -147,7 +150,10 @@ fun ReaderList(
     directoryPickerLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     modifier: Modifier = Modifier,
     onItemClicked: (item: Document) -> Unit,
+    onRetry: () -> Unit
 ) {
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+
     if (isDirectoryPicked) {
         AnimatedContent(
             targetState = contentState,
@@ -180,7 +186,28 @@ fun ReaderList(
                         )
                     }
 
-                    ContentState.Error -> TODO()
+                    ContentState.Empty -> {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            content = {
+                                Text(text = "No Document found")
+                                Button(
+                                    onClick = { directoryPickerLauncher.launch(intent) },
+                                    content = {
+                                        Text(text = "Pick New Directory")
+                                    }
+                                )
+                                Button(
+                                    onClick = onRetry,
+                                    content = {
+                                        Text(text = "Retry")
+                                    }
+                                )
+                            }
+                        )
+                    }
                 }
             }, label = ""
         )
@@ -196,7 +223,6 @@ fun ReaderList(
                         Text("Select")
                     },
                     onClick = {
-                        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
                         directoryPickerLauncher.launch(intent)
                     }
                 )

@@ -10,14 +10,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.DocumentDao
+import com.enoch02.database.model.existsAsFile
 import com.enoch02.reader.util.generateThumbnail
-import com.enoch02.reader.util.listPdfFilesInDirectory
+import com.enoch02.reader.util.listDocsInDirectory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 private const val TAG = "ReaderViewModel"
@@ -29,55 +28,37 @@ class ReaderViewModel @Inject constructor(
 ) :
     ViewModel() {
     var contentState by mutableStateOf(ContentState.Loading)
-    var pdfDirectory: Uri? by mutableStateOf(null)
-    var documents = documentDao.getDocuments()
+    var documentDirectory: Uri? by mutableStateOf(null)
+    var documents = documentDao.getDocumentsAscending()
     val covers = bookCoverRepository.latestCoverPath
 
+    private var loadDocumentJob: Job? = null
     private var currentCoverLoadingJob: Job? = null
     var isRefreshing by mutableStateOf(false)
 
     fun refreshing(context: Context) {
         isRefreshing = true
-        loadContent(context)
-    }
-
-    fun loadContent(context: Context) {
         loadDocuments(context)
-        //getNewCovers(context)
     }
 
-    //TODO: cache the list of PDF files, load content occasionally or manually to check if there are changes
-    private fun loadDocuments(context: Context) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                documents.collectLatest { docs ->
-                    if (docs.isEmpty()) {
-                        val temp = listPdfFilesInDirectory(
-                            context = context,
-                            directoryUri = pdfDirectory ?: Uri.EMPTY
-                        )
-
-                        documentDao.insertDocuments(temp)
-                        withContext(Dispatchers.Main) {
-                            contentState = ContentState.Success
-                        }
-
-                    } else {
-                        //TODO: compare db contents with books folder contents to see if an update of the db is needed
-                        withContext(Dispatchers.Main) {
-                            contentState = ContentState.Success
-                        }
+    /**
+     * Load documents from the selected directory. Also check if new documents have
+     * been added or removed from the directory to update the local database.
+     * */
+    fun loadDocuments(context: Context) {
+        Log.e(TAG, "loadDocuments: Loading documents")
+        if (loadDocumentJob == null) {
+            loadDocumentJob = viewModelScope.launch(Dispatchers.IO) {
+                compareLists(context)
+                    .onSuccess {
+                        isRefreshing = false
                     }
-
-                    getNewCovers(context)
-                    isRefreshing = false
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "loadContent", e)
-                withContext(Dispatchers.Main) {
-                    contentState = ContentState.Error
-                }
+                    .onFailure {
+                        Log.e(TAG, "loadContent", it)
+                    }
             }
+
+            loadDocumentJob = null
         }
     }
 
@@ -135,17 +116,79 @@ class ReaderViewModel @Inject constructor(
             val persistedUris = context.contentResolver.persistedUriPermissions
             for (persistedUri in persistedUris) {
                 if (persistedUri.uri == uri) {
-                    pdfDirectory = persistedUri.uri
+                    documentDirectory = persistedUri.uri
                     return true
                 }
             }
         }
         return false
     }
+
+    private suspend fun compareLists(context: Context): Result<Unit> {
+        return try {
+            if (!isRefreshing) {
+                contentState = ContentState.Loading
+            }
+
+            val db = documentDao.getDocumentsNonFlow()
+            val dir = documentDirectory?.let { listDocsInDirectory(context, it) }
+
+            if (dir != null) {
+                // do nothing
+                if (db.isNotEmpty() && dir.isNotEmpty() && db.size == dir.size) {
+                    Log.e(TAG, "compareLists: Action not needed")
+                    contentState = ContentState.Success
+                    return Result.success(Unit)
+                }
+
+                // items have been deleted
+                if (db.size > dir.size) {
+                    Log.e(TAG, "compareLists: Remove docs")
+                    removeDocsFromDb(context)
+                    contentState = ContentState.Success
+                }
+
+                // items have been added
+                if (dir.size > db.size) {
+                    Log.e(TAG, "compareLists: Add docs")
+                    addDocsToDb(context)
+                    contentState = ContentState.Success
+                }
+            }
+
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    //TODO: clean up cover files
+    private suspend fun removeDocsFromDb(context: Context) {
+        val documents = documentDao.getDocumentsNonFlow()
+
+        documents.forEach { document ->
+            if (!document.existsAsFile(context)) {
+                documentDao.deleteDocument(document.contentUri.toString())
+            }
+        }
+    }
+
+    private suspend fun addDocsToDb(context: Context) {
+        val dir = listDocsInDirectory(
+            context = context,
+            directoryUri = documentDirectory ?: Uri.EMPTY
+        )
+
+        if (dir.isNotEmpty()) {
+            documentDao.insertDocuments(dir)
+            getNewCovers(context)
+        }
+    }
 }
 
 enum class ContentState {
     Loading,
     Success,
-    Error
+    Empty
 }
