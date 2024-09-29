@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.enoch02.more.R
+import com.enoch02.more.components.SwitchSettingItem
 
 //TODO: add option to refresh covers that are FROM open library api
 @OptIn(ExperimentalMaterial3Api::class)

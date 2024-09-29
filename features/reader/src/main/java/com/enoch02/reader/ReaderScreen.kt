@@ -2,29 +2,20 @@ package com.enoch02.reader
 
 import android.app.Activity
 import android.content.Intent
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.artifex.mupdf.viewer.DocumentActivity
 import com.enoch02.database.model.Document
@@ -45,30 +35,13 @@ import com.enoch02.reader.components.PdfListItem
 fun ReaderScreen(
     modifier: Modifier,
     viewModel: ReaderViewModel = hiltViewModel(),
+    onScanForDocs: () -> Unit
 ) {
-    val contentState = viewModel.contentState
     val context = LocalContext.current
     val pdfFiles = viewModel.documents.collectAsState(initial = emptyList())
     val covers = viewModel.covers.collectAsState(initial = emptyMap())
 
     var isDirectoryPicked by rememberSaveable { mutableStateOf(false) }
-    val directoryPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.data?.let { uri ->
-                viewModel.documentDirectory = uri
-
-                context.contentResolver.takePersistableUriPermission(
-                    uri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                )
-
-                viewModel.savePickedDirectoryUri(context, uri)
-                isDirectoryPicked = true
-            }
-        }
-    }
     val documentViewerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { activityResult ->
@@ -79,48 +52,18 @@ fun ReaderScreen(
         }
     }
 
-    val isRefreshing = viewModel.isRefreshing
-    val pullRefreshState = rememberPullToRefreshState()
-
     LaunchedEffect(
         key1 = Unit,
         block = {
             isDirectoryPicked = viewModel.isDirectoryPickedBefore(context)
-            if (isDirectoryPicked) {
-                viewModel.loadDocuments(context)
-            }
         }
     )
 
-    SideEffect {
-        if (viewModel.isDirectoryPickedBefore(context) && pdfFiles.value.isEmpty() && viewModel.contentState != ContentState.Empty) {
-            viewModel.loadDocuments(context)
-        }
-    }
-
-    if (pullRefreshState.isRefreshing) {
-        LaunchedEffect(true) {
-            viewModel.refreshing(context)
-        }
-    }
-
-    LaunchedEffect(isRefreshing) {
-        if (isRefreshing) {
-            pullRefreshState.startRefresh()
-        } else {
-            pullRefreshState.endRefresh()
-        }
-    }
-
-
-    Box(modifier = modifier) {
+    if (isDirectoryPicked) {
         ReaderList(
-            isDirectoryPicked = isDirectoryPicked,
-            contentState = contentState,
             documents = pdfFiles.value,
             covers = covers.value,
-            directoryPickerLauncher = directoryPickerLauncher,
-            modifier = Modifier.nestedScroll(pullRefreshState.nestedScrollConnection),
+            modifier = modifier,
             onItemClicked = { item ->
                 val intent = Intent(context, DocumentActivity::class.java)
                     .apply {
@@ -129,105 +72,66 @@ fun ReaderScreen(
                     }
                 documentViewerLauncher.launch(intent)
             },
-            onRetry = {
-                viewModel.loadDocuments(context)
+            onScanForDocs = {
+                onScanForDocs()
             }
         )
 
-        PullToRefreshContainer(
-            modifier = Modifier.align(Alignment.TopCenter),
-            state = pullRefreshState
+    } else {
+        Column(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            content = {
+                Text(text = "Directory has not been selected")
+                Button(
+                    onClick = onScanForDocs,
+                    content = {
+                        Text(text = "Pick a new directory")
+                    }
+                )
+            }
         )
     }
 }
 
 @Composable
 fun ReaderList(
-    isDirectoryPicked: Boolean,
-    contentState: ContentState,
     documents: List<Document>,
     covers: Map<String, String?>,
-    directoryPickerLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     modifier: Modifier = Modifier,
     onItemClicked: (item: Document) -> Unit,
-    onRetry: () -> Unit
+    onScanForDocs: () -> Unit
 ) {
-    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-
-    if (isDirectoryPicked) {
-        AnimatedContent(
-            targetState = contentState,
-            content = {
-                when (it) {
-                    ContentState.Loading -> {
-                        Box(
-                            modifier = modifier.fillMaxSize(),
-                            content = {
-                                CircularProgressIndicator()
-                            },
-                            contentAlignment = Alignment.Center
-                        )
-                    }
-
-                    ContentState.Success -> {
-                        LazyColumn(
-                            content = {
-                                items(documents) { item ->
-                                    PdfListItem(
-                                        name = item.name,
-                                        cover = covers[item.cover],
-                                        onClick = {
-                                            onItemClicked(item)
-                                        }
-                                    )
-                                }
-                            },
-                            modifier = modifier.fillMaxWidth()
-                        )
-                    }
-
-                    ContentState.Empty -> {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            content = {
-                                Text(text = "No Document found")
-                                Button(
-                                    onClick = { directoryPickerLauncher.launch(intent) },
-                                    content = {
-                                        Text(text = "Pick New Directory")
-                                    }
-                                )
-                                Button(
-                                    onClick = onRetry,
-                                    content = {
-                                        Text(text = "Retry")
-                                    }
-                                )
-                            }
-                        )
-                    }
-                }
-            }, label = ""
-        )
-    } else {
+    if (documents.isEmpty()) {
         Column(
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             content = {
-                Text("Select or create a PDF directory")
-                Spacer(Modifier.height(4.dp))
+                Text(text = "No Document found")
                 Button(
+                    onClick = onScanForDocs,
                     content = {
-                        Text("Select")
-                    },
-                    onClick = {
-                        directoryPickerLauncher.launch(intent)
+                        Text(text = "Scan for new documents")
                     }
                 )
+            }
+        )
+    } else {
+        LazyColumn(
+            content = {
+                items(documents) { item ->
+                    PdfListItem(
+                        name = item.name,
+                        cover = covers[item.cover],
+                        onClick = {
+                            onItemClicked(item)
+                        }
+                    )
+                }
             },
-            modifier = modifier.fillMaxSize()
+            modifier = modifier.fillMaxWidth()
         )
     }
 }

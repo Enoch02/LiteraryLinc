@@ -9,6 +9,7 @@ sealed class MoreScreenDestination(val route: String) {
     object Settings : MoreScreenDestination("settings_screen")
     object BackupRestore : MoreScreenDestination("backup_restore_screen")
     object About : MoreScreenDestination("about_app_screen")
+    object Scanner: MoreScreenDestination("file_scanner_screen")
 
     fun withArgs(vararg args: String): String {
         return buildString {

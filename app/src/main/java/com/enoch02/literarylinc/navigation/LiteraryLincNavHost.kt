@@ -21,6 +21,7 @@ import com.enoch02.more.about.AboutScreen
 import com.enoch02.more.navigation.MoreScreenDestination
 import com.enoch02.more.settings.SettingsScreen
 import com.enoch02.more.backup_restore.BackupRestoreScreen
+import com.enoch02.more.file_scan.FileScanScreen
 
 @Composable
 fun LiteraryLincNavHost(navController: NavHostController = rememberNavController()) {
@@ -95,6 +96,10 @@ fun LiteraryLincNavHost(navController: NavHostController = rememberNavController
 
                 composable(route = MoreScreenDestination.About.route) {
                     AboutScreen(navController = navController)
+                }
+
+                composable(route = MoreScreenDestination.Scanner.route) {
+                    FileScanScreen(navController = navController)
                 }
             }
         }

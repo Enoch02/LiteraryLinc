@@ -64,6 +64,7 @@ import com.enoch02.literarylinc.R
 import com.enoch02.literarylinc.navigation.Screen
 import com.enoch02.literarylinc.navigation.TopLevelDestination
 import com.enoch02.more.MoreScreen
+import com.enoch02.more.navigation.MoreScreenDestination
 import com.enoch02.reader.ReaderScreen
 import com.enoch02.search.SearchScreen
 import com.enoch02.stats.StatsScreen
@@ -385,6 +386,9 @@ fun LiteraryLincApp(navController: NavController) {
                                 TopLevelDestination.READER -> {
                                     ReaderScreen(
                                         modifier = Modifier.padding(paddingValues),
+                                        onScanForDocs = {
+                                            navController.navigate(MoreScreenDestination.Scanner.route)
+                                        }
                                     )
                                 }
 

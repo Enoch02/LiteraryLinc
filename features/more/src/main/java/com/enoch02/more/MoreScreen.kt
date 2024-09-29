@@ -76,7 +76,7 @@ fun MoreScreen(navController: NavController, modifier: Modifier) {
                         Icon(imageVector = Icons.Rounded.Search, contentDescription = null)
                     },
                     headlineContent = { Text(text = stringResource(R.string.file_scan_text)) },
-                    modifier = Modifier.clickable { }
+                    modifier = Modifier.clickable { navController.navigate(MoreScreenDestination.Scanner.route) }
                 )
             }
 
