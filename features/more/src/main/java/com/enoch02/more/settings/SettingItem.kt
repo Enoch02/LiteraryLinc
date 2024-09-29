@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun SwitchSettingItem(
@@ -33,6 +34,7 @@ fun SwitchSettingItem(
         },
         modifier = Modifier.clickable {
             onCheckChanged(!checked)
-        }
+        },
+        tonalElevation = 30.dp
     )
 }

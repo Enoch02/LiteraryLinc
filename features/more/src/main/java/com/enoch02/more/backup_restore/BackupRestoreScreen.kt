@@ -9,8 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material3.Divider
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.enoch02.database.util.formatEpochAsString
@@ -63,7 +65,14 @@ fun BackupRestoreScreen(
             if (it != null) {
                 viewModel.restoreCSVBackup(
                     it,
-                    onSuccess = { scope.launch { snackbarHostState.showSnackbar("Restore Completed Successfully", withDismissAction = true) } })
+                    onSuccess = {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                "Restore Completed Successfully",
+                                withDismissAction = true
+                            )
+                        }
+                    })
             }
         }
     )
@@ -89,46 +98,67 @@ fun BackupRestoreScreen(
             LazyColumn(
                 content = {
                     item {
+                        //TODO: use WorkManager to create and restore backups
                         ListItem(
                             overlineContent = { Text(text = "CSV backup") },
-                            headlineContent = { Text(text = "Create CSV backup") },
-                            supportingContent = { Text(text = "Backup entries in a CSV file. Cover Images are not backed up") },
-                            modifier = Modifier.clickable {
-                                createFileLauncher.launch(
-                                    createFileIntent
+                            headlineContent = {
+                                Card(
+                                    content = {
+                                        ListItem(
+                                            headlineContent = { Text(text = "Create CSV backup") },
+                                            supportingContent = { Text(text = "Backup entries in a CSV file. Cover Images are not backed up") },
+                                            modifier = Modifier.clickable {
+                                                createFileLauncher.launch(
+                                                    createFileIntent
+                                                )
+                                            },
+                                            tonalElevation = 30.dp
+                                        )
+
+                                        HorizontalDivider()
+
+                                        ListItem(
+                                            headlineContent = { Text(text = "Restore CSV backup") },
+                                            supportingContent = { Text(text = "Restore backup from a CSV file") },
+                                            modifier = Modifier.clickable {
+                                                openFileLauncher.launch("*/*")
+                                            },
+                                            tonalElevation = 30.dp
+                                        )
+                                    }
                                 )
                             }
                         )
                     }
-                    item {
-                        ListItem(
-                            headlineContent = { Text(text = "Restore CSV backup") },
-                            supportingContent = { Text(text = "Restore backup from a CSV file") },
-                            modifier = Modifier.clickable {
-                                openFileLauncher.launch("*/*")
-                            }
-                        )
-                    }
-                    item { Divider() }
 
                     item {
-                        ListItem(
-                            overlineContent = { Text(text = "Automatic backups") },
-                            headlineContent = { Text(text = "") },
-                            supportingContent = { Text(text = "") }
-                        )
-                    }
-                    item {
-                        ListItem(
-                            headlineContent = { Text(text = "") },
-                            supportingContent = { Text(text = "") }
-                        )
-                    }
-                    item {
-                        ListItem(
-                            headlineContent = { Text(text = "") },
-                            supportingContent = { Text(text = "") }
-                        )
+                        // TODO
+                        if (false) {
+                            ListItem(
+                                overlineContent = { Text(text = "Automatic backups") },
+                                headlineContent = {
+                                    Card {
+                                        ListItem(
+                                            headlineContent = { Text(text = "") },
+                                            supportingContent = { Text(text = "") },
+                                            tonalElevation = 30.dp
+                                        )
+
+                                        ListItem(
+                                            headlineContent = { Text(text = "") },
+                                            supportingContent = { Text(text = "") },
+                                            tonalElevation = 30.dp
+                                        )
+
+                                        ListItem(
+                                            headlineContent = { Text(text = "") },
+                                            supportingContent = { Text(text = "") },
+                                            tonalElevation = 30.dp
+                                        )
+                                    }
+                                }
+                            )
+                        }
                     }
                 },
                 modifier = Modifier.padding(it)

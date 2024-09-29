@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -21,7 +22,8 @@ import com.enoch02.more.navigation.MoreScreenDestination
 fun MoreScreen(navController: NavController, modifier: Modifier) {
     LazyColumn(
         content = {
-            item {
+            //TODO: or not TODO
+            /*item {
                 ListItem(
                     leadingContent = {
                         Icon(
@@ -66,7 +68,17 @@ fun MoreScreen(navController: NavController, modifier: Modifier) {
                 )
             }
 
-            item { Divider() }
+            item { Divider() }*/
+
+            item {
+                ListItem(
+                    leadingContent = {
+                        Icon(imageVector = Icons.Rounded.Search, contentDescription = null)
+                    },
+                    headlineContent = { Text(text = stringResource(R.string.file_scan_text)) },
+                    modifier = Modifier.clickable { }
+                )
+            }
 
             item {
                 ListItem(

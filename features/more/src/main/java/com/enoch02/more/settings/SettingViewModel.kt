@@ -1,4 +1,4 @@
-package com.enoch02.setting
+package com.enoch02.more.settings
 
 import android.app.Application
 import android.content.Context
