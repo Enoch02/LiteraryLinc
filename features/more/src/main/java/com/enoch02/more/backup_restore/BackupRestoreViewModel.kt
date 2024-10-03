@@ -5,31 +5,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.database.export_and_import.csv.CSVManager
+import com.enoch02.more.backup_restore.data.BackupRestoreRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class BackupRestoreViewModel @Inject constructor(private val csvManager: CSVManager) : ViewModel() {
+class BackupRestoreViewModel @Inject constructor(
+    private val csvManager: CSVManager,
+    private val backupRestoreRepository: BackupRestoreRepository
+) : ViewModel() {
     val showErrorDialog = mutableStateOf(false)
     val errorDialogMessage = mutableStateOf("")
 
     fun createCSVBackup(uri: Uri) {
-        viewModelScope.launch {
-            csvManager.export(uri)
-        }
+        backupRestoreRepository.createBackup(uri)
     }
 
     fun restoreCSVBackup(uri: Uri, onSuccess: () -> Unit) {
-        viewModelScope.launch {
-            csvManager.import(uri)
-                .onSuccess {
-                    onSuccess()
-                }
-                .onFailure { e ->
-                    showErrorDialog(e.stackTraceToString())
-                }
-        }
+        backupRestoreRepository.restoreBackup(uri)
     }
 
     private fun showErrorDialog(message: String) {

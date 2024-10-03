@@ -2,6 +2,7 @@ package com.enoch02.more.file_scan
 
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +56,8 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
     var showRemovalDialog by remember {
         mutableStateOf(false)
     }
+    val fileScanInfo by viewModel.fileScanWorkInfoFlow.collectAsState(initial = null)
+    val coverScanInfo by viewModel.coverScanWorkInfoFlow.collectAsState(initial = null)
 
     val directoryPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -69,7 +73,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
 
                 viewModel.savePickedDirectoryUri(context, uri)
                 isDirectoryPicked = true
-                viewModel.loadDocuments(context)
+                viewModel.loadDocuments()
             }
         }
     }
@@ -81,6 +85,28 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
             isDirectoryPicked = viewModel.isDirectoryPickedBefore(context)
         }
     )
+
+    LaunchedEffect(
+        key1 = fileScanInfo,
+        key2 = coverScanInfo,
+        block = {
+            if (fileScanInfo?.state?.isFinished == true && coverScanInfo?.state?.isFinished == true) {
+                viewModel.contentState = ContentState.NotLoading
+            } else {
+                Log.e(TAG, "FileScanScreen: Not Finished")
+            }
+        }
+    )
+
+    LaunchedEffect(
+        key1 = coverScanInfo,
+        block = {
+            if (coverScanInfo?.state?.isFinished == true) {
+                viewModel.contentState = ContentState.NotLoading
+            }
+        }
+    )
+
 
     Scaffold(
         topBar = {
@@ -155,7 +181,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                         )
                                                             .show()
                                                     } else {
-                                                        viewModel.loadDocuments(context)
+                                                        viewModel.loadDocuments()
                                                     }
                                                 }
                                             )
@@ -164,10 +190,13 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                 headlineContent = {
                                                     Text(text = "Reload covers")
                                                 },
+                                                supportingContent = {
+                                                    Text(text = "Try to load covers for documents with missing covers")
+                                                },
                                                 trailingContent = {
                                                     Icon(
                                                         imageVector = Icons.Rounded.Image,
-                                                        contentDescription = "Reload covers"
+                                                        contentDescription = "Reload missing covers"
                                                     )
                                                 },
                                                 tonalElevation = 30.dp,
@@ -180,7 +209,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                         )
                                                             .show()
                                                     } else {
-                                                        viewModel.reloadCovers(context)
+                                                        viewModel.rescanCovers()
                                                     }
                                                 }
                                             )
