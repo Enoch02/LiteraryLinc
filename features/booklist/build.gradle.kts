@@ -70,4 +70,5 @@ dependencies {
     ksp(libs.hilt.android.compiler)
 
     implementation(libs.coil.compose)
+    implementation(libs.core)
 }

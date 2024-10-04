@@ -14,8 +14,8 @@ android {
         applicationId = "com.enoch02.literarylinc"
         minSdk = 24
         targetSdk = 33
-        versionCode = 6
-        versionName = "0.0.6"
+        versionCode = 7
+        versionName = "0.0.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -86,6 +86,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.hilt.work)
+    implementation(libs.androidx.ui.text.google.fonts)
     ksp(libs.hilt.android.compiler)
 
     implementation(libs.androidx.datastore.preferences)

@@ -18,6 +18,7 @@ import androidx.compose.material.icons.rounded.ListAlt
 import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -236,7 +237,7 @@ fun LiteraryLincApp(navController: NavController) {
                                             text = {
                                                 val options = Sorting.values()
 
-                                                Column {
+                                                Card {
                                                     options.forEach {
                                                         val onClick = {
                                                             showSortOptions = false
