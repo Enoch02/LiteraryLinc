@@ -1,11 +1,10 @@
 package com.enoch02.reader.util
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.pdf.PdfRenderer
 import android.net.Uri
+import android.util.Log
 import androidx.documentfile.provider.DocumentFile
-import com.enoch02.reader.models.PdfFile
+import com.enoch02.database.model.Document
 
 val allowedTypes = arrayOf(
     "application/pdf",
@@ -19,38 +18,46 @@ val allowedTypes = arrayOf(
 )
 
 /**
- * Generate thumbnail from the first page of the document
- * */
-//TODO: make it generate thumbnails for various kinds of documents
-fun generateThumbnail(context: Context, uri: Uri): Bitmap? {
-    return try {
-        val parcelFileDescriptor = context.contentResolver.openFileDescriptor(uri, "r")
-        parcelFileDescriptor?.use { pfd ->
-            val pdfRenderer = PdfRenderer(pfd)
-            val page = pdfRenderer.openPage(0)
-
-            val width = page.width
-            val height = page.height
-            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-
-            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-            page.close()
-
-            pdfRenderer.close()
-            bitmap
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-}
-
-
-/**
  * Get files from app directory
  */
-fun listPdfFilesInDirectory(context: Context, directoryUri: Uri): List<PdfFile> {
-    val foundFiles = mutableListOf<PdfFile>()
+fun listDocsInDirectory(context: Context, directoryUri: Uri): List<Document> {
+    val foundFiles = mutableListOf<Document>()
+
+    val documentFile = DocumentFile.fromTreeUri(context, directoryUri)
+    if (documentFile == null || !documentFile.isDirectory) {
+        Log.e("DocumentFile", "Invalid directory URI or not a directory.")
+        return foundFiles // Early exit if invalid
+    }
+
+    val files = documentFile.listFiles()
+    if (files.isEmpty()) {
+        return foundFiles // Early exit if no files
+    }
+
+    for (file in files) {
+        if (file.isFile && allowedTypes.contains(file.type)) {
+            val fileUri = file.uri
+            val fileName = file.name ?: "Unknown"
+            val nameWithoutExtension = fileName.substringBeforeLast(".")
+
+            foundFiles.add(
+                Document(
+                    id = getDocumentFileMd5(context.contentResolver, file).toString(),
+                    contentUri = fileUri,
+                    name = nameWithoutExtension
+                )
+            )
+        } else if (file.isDirectory) {
+            // Recursive call for subdirectories
+            foundFiles.addAll(listDocsInDirectory(context, file.uri))
+        }
+    }
+
+    return foundFiles
+}
+
+fun listDocsInDirectoryOld(context: Context, directoryUri: Uri): List<Document> {
+    val foundFiles = mutableListOf<Document>()
 
     directoryUri.let { uri ->
         val documentFile = DocumentFile.fromTreeUri(context, uri)
@@ -62,14 +69,13 @@ fun listPdfFilesInDirectory(context: Context, directoryUri: Uri): List<PdfFile> 
                     if (file.isFile && allowedTypes.contains(file.type)) {
                         val fileUri = file.uri
                         val fileName = file.name ?: "Unknown"
-
-                        val thumbnail = generateThumbnail(context, fileUri)
+                        val nameWithoutExtension = fileName.substringBeforeLast(".")
 
                         foundFiles.add(
-                            PdfFile(
+                            Document(
+                                id = getDocumentFileMd5(context.contentResolver, file).toString(),
                                 contentUri = fileUri,
-                                name = fileName,
-                                thumbnail = thumbnail
+                                name = nameWithoutExtension
                             )
                         )
                     }
@@ -80,4 +86,3 @@ fun listPdfFilesInDirectory(context: Context, directoryUri: Uri): List<PdfFile> 
 
     return foundFiles
 }
-

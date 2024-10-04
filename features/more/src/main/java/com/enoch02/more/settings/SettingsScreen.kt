@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,7 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.enoch02.more.R
-import com.enoch02.setting.SettingViewModel
+import com.enoch02.more.components.SwitchSettingItem
 
 //TODO: add option to refresh covers that are FROM open library api
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,40 +60,44 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                         ListItem(
                             overlineContent = { Text(text = "Appearance") },
                             headlineContent = {
-                                SwitchSettingItem(
-                                    label = "Always dark mode",
-                                    description = "Dark mode is always on",
-                                    checked = alwaysDark,
-                                    onCheckChanged = {
-                                        viewModel.switchBooleanPreference(
-                                            key = viewModel.darkModeKey,
-                                            newValue = it
+                                Card(
+                                    content = {
+                                        SwitchSettingItem(
+                                            label = "Always dark mode",
+                                            description = "Dark mode is always on",
+                                            checked = alwaysDark,
+                                            onCheckChanged = {
+                                                viewModel.switchBooleanPreference(
+                                                    key = viewModel.darkModeKey,
+                                                    newValue = it
+                                                )
+                                            }
                                         )
-                                    }
-                                )
 
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                    SwitchSettingItem(
-                                        label = "Dynamic Colors",
-                                        description = "Toggle dynamic colors",
-                                        checked = dynamicColors,
-                                        onCheckChanged = {
-                                            viewModel.switchBooleanPreference(
-                                                key = viewModel.dynamicColorKey,
-                                                newValue = it
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                            SwitchSettingItem(
+                                                label = "Dynamic Colors",
+                                                description = "Toggle dynamic colors",
+                                                checked = dynamicColors,
+                                                onCheckChanged = {
+                                                    viewModel.switchBooleanPreference(
+                                                        key = viewModel.dynamicColorKey,
+                                                        newValue = it
+                                                    )
+                                                }
                                             )
+
                                         }
-                                    )
 
-                                }
-
-                                SwitchSettingItem(
-                                    label = "Disable Animations",
-                                    checked = disableAnim,
-                                    onCheckChanged = {
-                                        viewModel.switchBooleanPreference(
-                                            key = viewModel.animationKey,
-                                            newValue = it
+                                        SwitchSettingItem(
+                                            label = "Disable Animations",
+                                            checked = disableAnim,
+                                            onCheckChanged = {
+                                                viewModel.switchBooleanPreference(
+                                                    key = viewModel.animationKey,
+                                                    newValue = it
+                                                )
+                                            }
                                         )
                                     }
                                 )
@@ -102,15 +107,21 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
 
                     item {
                         ListItem(
-                            overlineContent = { Text(text = "Behaviour") },
+                            overlineContent = {
+                                Text(text = "Behaviour")
+                            },
                             headlineContent = {
-                                SwitchSettingItem(
-                                    label = "Show confirmation before deletion",
-                                    checked = showConfirmDialog,
-                                    onCheckChanged = {
-                                        viewModel.switchBooleanPreference(
-                                            key = viewModel.confirmDialogKey,
-                                            newValue = it
+                                Card(
+                                    content = {
+                                        SwitchSettingItem(
+                                            label = "Show confirmation before deletion",
+                                            checked = showConfirmDialog,
+                                            onCheckChanged = {
+                                                viewModel.switchBooleanPreference(
+                                                    key = viewModel.confirmDialogKey,
+                                                    newValue = it
+                                                )
+                                            }
                                         )
                                     }
                                 )

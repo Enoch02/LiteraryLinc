@@ -18,6 +18,7 @@ import androidx.compose.material.icons.rounded.ListAlt
 import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,20 +65,13 @@ import com.enoch02.literarylinc.R
 import com.enoch02.literarylinc.navigation.Screen
 import com.enoch02.literarylinc.navigation.TopLevelDestination
 import com.enoch02.more.MoreScreen
+import com.enoch02.more.navigation.MoreScreenDestination
 import com.enoch02.reader.ReaderScreen
 import com.enoch02.search.SearchScreen
 import com.enoch02.stats.StatsScreen
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * TODO: replace all [androidx.compose.ui.graphics.vector.ImageVector] icons
- * with [painterResource]?
- * TODO: find an efficient or recommended method of preloading the app settings.
- * TODO: Can i animate the changing of themes?
- * TODO: remove the extended material icons dependency (eventually...)
- * TODO: Consider sharing the placeholder image in booklist and bookdetail modules
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LiteraryLincApp(navController: NavController) {
@@ -243,7 +237,7 @@ fun LiteraryLincApp(navController: NavController) {
                                             text = {
                                                 val options = Sorting.values()
 
-                                                Column {
+                                                Card {
                                                     options.forEach {
                                                         val onClick = {
                                                             showSortOptions = false
@@ -393,7 +387,9 @@ fun LiteraryLincApp(navController: NavController) {
                                 TopLevelDestination.READER -> {
                                     ReaderScreen(
                                         modifier = Modifier.padding(paddingValues),
-                                        navController = navController
+                                        onScanForDocs = {
+                                            navController.navigate(MoreScreenDestination.Scanner.route)
+                                        }
                                     )
                                 }
 

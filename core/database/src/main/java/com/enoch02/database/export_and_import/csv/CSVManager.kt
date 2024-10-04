@@ -24,7 +24,7 @@ class CSVManager(
 ) {
 
     //TODO: add error handling and return Result object
-    suspend fun export(uri: Uri) = withContext(Dispatchers.IO) {
+    suspend fun export(uri: Uri) {
         val contentResolver = application.contentResolver
         val outputStream = contentResolver.openOutputStream(uri)
         val books = bookDao.getBooksNonFlow()

@@ -33,11 +33,7 @@ class BookCoverRepository(private val context: Context) {
 
     val latestCoverPath: Flow<Map<String, String?>> = flow {
         while (true) {
-            val latestPathMap = mutableMapOf<String, String?>()
-            coverFolder.listFiles()?.forEach {
-                latestPathMap[it.name] = it.absolutePath
-            }
-            emit(latestPathMap.toMap())
+            emit(getCoverFolderSnapshot())
             delay(5000)
         }
     }.flowOn(Dispatchers.IO)
@@ -81,6 +77,32 @@ class BookCoverRepository(private val context: Context) {
         }
 
     }
+
+    suspend fun saveCoverFromBitmap(bitmap: Bitmap, name: String): Result<String> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val file = File(coverFolder, "$name.png")
+                val fileOutputStream = FileOutputStream(file)
+
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
+                fileOutputStream.close()
+
+                Result.success(file.name)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    fun getCoverFolderSnapshot(): Map<String, String?> {
+        val latestPathMap = mutableMapOf<String, String?>()
+        coverFolder.listFiles()?.forEach {
+            latestPathMap[it.name] = it.absolutePath
+        }
+
+        return latestPathMap.toMap()
+    }
+
 
     fun deleteAllCovers() {
         val files = coverFolder.listFiles()?.toList()

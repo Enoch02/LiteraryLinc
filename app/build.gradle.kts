@@ -3,6 +3,7 @@
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("dagger.hilt.android.plugin")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -13,8 +14,8 @@ android {
         applicationId = "com.enoch02.literarylinc"
         minSdk = 24
         targetSdk = 33
-        versionCode = 4
-        versionName = "0.0.4"
+        versionCode = 7
+        versionName = "0.0.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -24,7 +25,7 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix += ".debug"
+            applicationIdSuffix = ".debug"
             resValue("string", "app_name", "LiteraryLinc Debug")
         }
 
@@ -46,9 +47,6 @@ android {
     }
     buildFeatures {
         compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
     }
     packaging {
         resources {
@@ -72,21 +70,24 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":core:settings"))
 
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation("androidx.activity:activity-compose:1.7.2")
-    implementation(platform("androidx.compose:compose-bom:2023.05.01"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
 
-    implementation("androidx.compose.material:material-icons-extended:1.4.3")
-    implementation("androidx.navigation:navigation-compose:2.5.3")
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.navigation.compose)
 
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
-    implementation("com.google.dagger:hilt-android:$daggerVersion")
-    ksp("com.google.dagger:hilt-android-compiler:$daggerVersion")
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
+    implementation(libs.androidx.ui.text.google.fonts)
+    ksp(libs.hilt.android.compiler)
 
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation(libs.androidx.datastore.preferences)
 }

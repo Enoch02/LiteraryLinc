@@ -35,21 +35,22 @@ android {
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation ("androidx.room:room-runtime:2.5.2")
-    implementation ("androidx.room:room-ktx:2.5.2")
-    implementation ("androidx.compose.runtime:runtime-livedata:1.5.2")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.runtime.livedata)
     implementation(project(":core:coverfile"))
-    annotationProcessor ("androidx.room:room-compiler:2.5.2")
-    ksp("androidx.room:room-compiler:2.5.2")
+    implementation(libs.androidx.documentfile)
+    annotationProcessor(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
 
-    implementation("com.google.dagger:hilt-android:2.47")
-    ksp("com.google.dagger:hilt-android-compiler:2.47")
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
 
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 
-    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.2")
+    implementation(libs.kotlin.csv.jvm)
     implementation(kotlin("reflect"))
 }

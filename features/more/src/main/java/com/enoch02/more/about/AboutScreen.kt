@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +30,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.enoch02.more.R
 
@@ -68,66 +70,74 @@ fun AboutScreen(navController: NavController) {
                         val appVersionText = "version ${version.first}(${version.second})"
 
                         ListItem(
-                            headlineContent = { Text(text = stringResource(R.string.version_label)) },
-                            supportingContent = {
-                                Text(text = appVersionText)
-                            },
-                            modifier = Modifier
-                                .alpha(alpha)
-                                .clickable {
-                                    // TODO: copy more info to clipboard in the future?
-                                    clipBoard.setText(buildAnnotatedString { append(appVersionText) })
-                                    Toast
-                                        .makeText(
-                                            context,
-                                            "App version copied to clipboard",
-                                            Toast.LENGTH_SHORT
-                                        )
-                                        .show()
+                            headlineContent = {
+                                Card {
+                                    ListItem(
+                                        headlineContent = { Text(text = stringResource(R.string.version_label)) },
+                                        supportingContent = {
+                                            Text(text = appVersionText)
+                                        },
+                                        modifier = Modifier
+                                            .alpha(alpha)
+                                            .clickable {
+                                                // TODO: copy more info to clipboard in the future?
+                                                clipBoard.setText(buildAnnotatedString {
+                                                    append(
+                                                        appVersionText
+                                                    )
+                                                })
+                                                Toast
+                                                    .makeText(
+                                                        context,
+                                                        "App version copied to clipboard",
+                                                        Toast.LENGTH_SHORT
+                                                    )
+                                                    .show()
+                                            },
+                                        tonalElevation = 30.dp
+                                    )
+
+                                    ListItem(
+                                        headlineContent = {
+                                            Text(text = stringResource(R.string.check_for_updates_label))
+                                        },
+                                        modifier = Modifier.clickable {
+                                            /*TODO: open the releases page for now*/
+                                            context.startActivity(
+                                                Intent(
+                                                    Intent.ACTION_VIEW,
+                                                    Uri.parse("https://github.com/Enoch02/LiteraryLinc/releases")
+                                                )
+                                            )
+                                        },
+                                        tonalElevation = 30.dp
+                                    )
+
+                                    ListItem(
+                                        headlineContent = {
+                                            Text(text = stringResource(R.string.open_source_licenses_label))
+                                        },
+                                        modifier = Modifier.clickable {
+                                            /*TODO*/
+                                        },
+                                        tonalElevation = 30.dp
+                                    )
+
+                                    ListItem(
+                                        headlineContent = {
+                                            Text(text = stringResource(R.string.visit_repo_label))
+                                        },
+                                        modifier = Modifier.clickable {
+                                            context.startActivity(
+                                                Intent(
+                                                    Intent.ACTION_VIEW,
+                                                    Uri.parse("https://github.com/Enoch02/LiteraryLinc")
+                                                )
+                                            )
+                                        },
+                                        tonalElevation = 30.dp
+                                    )
                                 }
-                        )
-                    }
-
-                    item {
-                        ListItem(
-                            headlineContent = {
-                                Text(text = stringResource(R.string.check_for_updates_label))
-                            },
-                            modifier = Modifier.clickable {
-                                /*TODO: open the releases page for now*/
-                                context.startActivity(
-                                    Intent(
-                                        Intent.ACTION_VIEW,
-                                        Uri.parse("https://github.com/Enoch02/LiteraryLinc/releases")
-                                    )
-                                )
-                            }
-                        )
-                    }
-
-                    item {
-                        ListItem(
-                            headlineContent = {
-                                Text(text = stringResource(R.string.open_source_licenses_label))
-                            },
-                            modifier = Modifier.clickable {
-                                /*TODO*/
-                            }
-                        )
-                    }
-
-                    item {
-                        ListItem(
-                            headlineContent = {
-                                Text(text = stringResource(R.string.visit_repo_label))
-                            },
-                            modifier = Modifier.clickable {
-                                context.startActivity(
-                                    Intent(
-                                        Intent.ACTION_VIEW,
-                                        Uri.parse("https://github.com/Enoch02/LiteraryLinc")
-                                    )
-                                )
                             }
                         )
                     }
