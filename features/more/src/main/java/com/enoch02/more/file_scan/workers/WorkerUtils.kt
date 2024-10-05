@@ -19,6 +19,7 @@ import com.enoch02.more.file_scan.COMPLETION_NOTIFICATION_CHANNEL_NAME
 import com.enoch02.more.file_scan.PROGRESS_CHANNEL_ID
 import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_CHANNEL_DESCRIPTION
 import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_CHANNEL_NAME
+import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_ID
 
 fun makeStatusNotification(message: String, context: Context) {
 
@@ -62,4 +63,43 @@ fun makeStatusNotification(message: String, context: Context) {
         return
     }
     NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, builder.build())
+}
+
+fun createProgressNotificationChannel(context: Context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val channelId = PROGRESS_CHANNEL_ID
+        val channelName = PROGRESS_NOTIFICATION_CHANNEL_NAME
+        val importance = NotificationManager.IMPORTANCE_LOW
+        val channel = NotificationChannel(channelId, channelName, importance).apply {
+            description = PROGRESS_NOTIFICATION_CHANNEL_DESCRIPTION
+        }
+
+        val notificationManager = context.getSystemService(NotificationManager::class.java)
+        notificationManager?.createNotificationChannel(channel)
+    }
+}
+
+fun sendFinalProgressNotification(context: Context) {
+    val finalNotification = NotificationCompat.Builder(context, PROGRESS_CHANNEL_ID)
+        .setContentTitle(NOTIFICATION_TITLE)
+        .setContentText("Loading Complete!")
+        .setSmallIcon(R.drawable.ic_android_black_24dp) //TODO: change!
+        .setOngoing(false)
+        .build()
+
+    if (ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
+        // TODO: Consider calling
+        //    ActivityCompat#requestPermissions
+        // here to request the missing permissions, and then overriding
+        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+        //                                          int[] grantResults)
+        // to handle the case where the user grants the permission. See the documentation
+        // for ActivityCompat#requestPermissions for more details.
+        return
+    }
+    NotificationManagerCompat.from(context).notify(PROGRESS_NOTIFICATION_ID, finalNotification)
 }

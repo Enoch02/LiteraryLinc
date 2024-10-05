@@ -7,9 +7,12 @@ const val APP_PREFS_KEY = "app_prefs"
 const val DOCUMENT_DIR_KEY = "directory_uri"
 const val DOCUMENT_COUNT_KEY = "document_count"
 
-// UUIDs for when scanning for both
+// UUIDs for when scanning
+const val SAVED_WORK_IDS_KEY = "work_ids"
 val FILE_SCAN_WORKER_ID: UUID = UUID.randomUUID()
 val COVER_SCAN_WORKER_ID: UUID = UUID.randomUUID()
+const val FILE_SCAN_WORKER_KEY = "file_scan_work_id"
+const val COVER_SCAN_WORKER_KEY = "cover_scan_work_id"
 
 // Notification Channel constants
 

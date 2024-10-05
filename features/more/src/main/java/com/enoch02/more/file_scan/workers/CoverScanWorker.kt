@@ -1,11 +1,8 @@
 package com.enoch02.more.file_scan.workers
 
 import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -17,8 +14,6 @@ import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.more.R
 import com.enoch02.more.file_scan.PROGRESS_CHANNEL_ID
-import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_CHANNEL_DESCRIPTION
-import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_CHANNEL_NAME
 import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_ID
 import com.enoch02.more.file_scan.util.generateThumbnail
 import dagger.assisted.Assisted
@@ -34,11 +29,11 @@ class CoverScanWorker @AssistedInject constructor(
     private val documentDao: DocumentDao
 ) : CoroutineWorker(ctx, parameters) {
     override suspend fun doWork(): Result {
+        createProgressNotificationChannel(applicationContext)
+
         val coversSnapshot = bookCoverRepository.getCoverFolderSnapshot()
         val documents = documentDao.getDocumentsNonFlow()
         val totalDocsCount = documents.size
-
-        createNotificationChannel(applicationContext)
 
         documents.forEachIndexed { index, document ->
             if (!coversSnapshot.containsKey(document.cover)) {
@@ -60,7 +55,7 @@ class CoverScanWorker @AssistedInject constructor(
 
                 val progress = (((index + 1).toDouble() / totalDocsCount.toDouble()) * 100).toInt()
 
-                createCoverLoadingNotification(
+                createFileScanningNotification(
                     context = applicationContext,
                     progress = progress
                 )
@@ -69,25 +64,13 @@ class CoverScanWorker @AssistedInject constructor(
             }
         }
 
+        sendFinalProgressNotification(applicationContext)
+
         return Result.success()
     }
 }
 
-private fun createNotificationChannel(context: Context) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val channelId = PROGRESS_CHANNEL_ID
-        val channelName = PROGRESS_NOTIFICATION_CHANNEL_NAME
-        val importance = NotificationManager.IMPORTANCE_LOW
-        val channel = NotificationChannel(channelId, channelName, importance).apply {
-            description = PROGRESS_NOTIFICATION_CHANNEL_DESCRIPTION
-        }
-
-        val notificationManager = context.getSystemService(NotificationManager::class.java)
-        notificationManager?.createNotificationChannel(channel)
-    }
-}
-
-private fun createCoverLoadingNotification(context: Context, progress: Int) {
+private fun createFileScanningNotification(context: Context, progress: Int) {
     val builder = NotificationCompat.Builder(context, PROGRESS_CHANNEL_ID)
         .setContentTitle("Loading Covers")
         .setContentText("Progress: $progress%")
