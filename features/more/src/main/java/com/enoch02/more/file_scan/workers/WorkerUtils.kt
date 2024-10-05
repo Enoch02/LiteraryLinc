@@ -14,8 +14,11 @@ import com.enoch02.more.R
 import com.enoch02.more.file_scan.CHANNEL_ID
 import com.enoch02.more.file_scan.NOTIFICATION_ID
 import com.enoch02.more.file_scan.NOTIFICATION_TITLE
-import com.enoch02.more.file_scan.VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION
-import com.enoch02.more.file_scan.VERBOSE_NOTIFICATION_CHANNEL_NAME
+import com.enoch02.more.file_scan.COMPLETION_NOTIFICATION_CHANNEL_DESCRIPTION
+import com.enoch02.more.file_scan.COMPLETION_NOTIFICATION_CHANNEL_NAME
+import com.enoch02.more.file_scan.PROGRESS_CHANNEL_ID
+import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_CHANNEL_DESCRIPTION
+import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_CHANNEL_NAME
 
 fun makeStatusNotification(message: String, context: Context) {
 
@@ -23,8 +26,8 @@ fun makeStatusNotification(message: String, context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
-        val name = VERBOSE_NOTIFICATION_CHANNEL_NAME
-        val description = VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION
+        val name = COMPLETION_NOTIFICATION_CHANNEL_NAME
+        val description = COMPLETION_NOTIFICATION_CHANNEL_DESCRIPTION
         val importance = NotificationManager.IMPORTANCE_HIGH
         val channel = NotificationChannel(CHANNEL_ID, name, importance)
         channel.description = description

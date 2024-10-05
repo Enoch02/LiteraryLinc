@@ -5,13 +5,13 @@ import androidx.documentfile.provider.DocumentFile
 import java.io.InputStream
 import java.security.MessageDigest
 
-fun getDocumentFileMd5(contentResolver: ContentResolver, documentFile: DocumentFile): String? {
+fun DocumentFile.getDocumentFileMd5(contentResolver: ContentResolver): String? {
     try {
         // Create an MD5 digest instance
         val md = MessageDigest.getInstance("MD5")
 
         // Use ContentResolver to open an InputStream for the DocumentFile
-        val inputStream: InputStream? = contentResolver.openInputStream(documentFile.uri)
+        val inputStream: InputStream? = contentResolver.openInputStream(this.uri)
 
         inputStream.use { fis ->
             if (fis != null) {

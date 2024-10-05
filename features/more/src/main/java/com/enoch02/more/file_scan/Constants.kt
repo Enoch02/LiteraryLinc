@@ -13,14 +13,20 @@ val COVER_SCAN_WORKER_ID: UUID = UUID.randomUUID()
 
 // Notification Channel constants
 
-// Name of Notification Channel for verbose notifications of background work
-val VERBOSE_NOTIFICATION_CHANNEL_NAME: CharSequence =
-    "LiteraryLinc Notifications"
-const val VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION =
+// Name of Notification Channel for completion notifications of background work
+val COMPLETION_NOTIFICATION_CHANNEL_NAME: CharSequence = "LiteraryLinc Notifications"
+const val COMPLETION_NOTIFICATION_CHANNEL_DESCRIPTION =
     "Shows notifications for LiteraryLinc background tasks"
 val NOTIFICATION_TITLE: CharSequence = "LiteraryLinc"
-const val CHANNEL_ID = "VERBOSE_NOTIFICATION"
+const val CHANNEL_ID = "APP_NOTIFICATIONS"
 const val NOTIFICATION_ID = 1
+
+// For progress notifications
+val PROGRESS_NOTIFICATION_CHANNEL_NAME: CharSequence = "LiteraryLinc Progress Notifications"
+const val PROGRESS_NOTIFICATION_CHANNEL_DESCRIPTION =
+    "Shows notifications for LiteraryLinc background tasks"
+const val PROGRESS_CHANNEL_ID = "PROGRESS_NOTIFICATION"
+const val PROGRESS_NOTIFICATION_ID = 2
 
 //BackupWorker
 val CREATE_BACKUP_WORKER_ID: UUID = UUID.randomUUID()

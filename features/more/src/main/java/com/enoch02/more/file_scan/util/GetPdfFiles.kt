@@ -42,7 +42,7 @@ fun listDocsInDirectory(context: Context, directoryUri: Uri): List<Document> {
 
             foundFiles.add(
                 Document(
-                    id = getDocumentFileMd5(context.contentResolver, file).toString(),
+                    id = file.getDocumentFileMd5(context.contentResolver).toString(),
                     contentUri = fileUri,
                     name = nameWithoutExtension
                 )
@@ -50,37 +50,6 @@ fun listDocsInDirectory(context: Context, directoryUri: Uri): List<Document> {
         } else if (file.isDirectory) {
             // Recursive call for subdirectories
             foundFiles.addAll(listDocsInDirectory(context, file.uri))
-        }
-    }
-
-    return foundFiles
-}
-
-fun listDocsInDirectoryOld(context: Context, directoryUri: Uri): List<Document> {
-    val foundFiles = mutableListOf<Document>()
-
-    directoryUri.let { uri ->
-        val documentFile = DocumentFile.fromTreeUri(context, uri)
-
-        documentFile?.let { dir ->
-            if (dir.isDirectory) {
-                val files = dir.listFiles()
-                for (file in files) {
-                    if (file.isFile && allowedTypes.contains(file.type)) {
-                        val fileUri = file.uri
-                        val fileName = file.name ?: "Unknown"
-                        val nameWithoutExtension = fileName.substringBeforeLast(".")
-
-                        foundFiles.add(
-                            Document(
-                                id = getDocumentFileMd5(context.contentResolver, file).toString(),
-                                contentUri = fileUri,
-                                name = nameWithoutExtension
-                            )
-                        )
-                    }
-                }
-            }
         }
     }
 
