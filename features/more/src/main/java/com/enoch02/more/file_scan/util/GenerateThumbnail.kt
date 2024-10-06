@@ -59,7 +59,3 @@ private fun generateEpubThumbnail(context: Context, uri: Uri): Bitmap? {
     }
     return null
 }
-
-private fun getFileExtension(uri: Uri): String {
-    return uri.path?.substringAfterLast('.', "")?.lowercase(Locale.ROOT) ?: ""
-}

@@ -3,6 +3,8 @@ package com.enoch02.booklist.components
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -52,10 +54,12 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.composables.core.ScrollArea
 import com.composables.core.Thumb
+import com.composables.core.ThumbVisibility
 import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.enoch02.booklist.R
 import com.enoch02.database.model.Book
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -110,9 +114,18 @@ internal fun BookListView(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .fillMaxHeight()
-                        .width(4.dp),
+                        .width(8.dp),
                     thumb = {
-                        Thumb(Modifier.background(Color.LightGray))
+                        Thumb(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Color.LightGray),
+                            thumbVisibility = ThumbVisibility.HideWhileIdle(
+                                enter = fadeIn(),
+                                exit = fadeOut(),
+                                hideDelay = 0.5.seconds
+                            )
+                        )
                     }
                 )
             }
@@ -157,7 +170,7 @@ private fun BookListItem(
                     fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
                     fontSize = MaterialTheme.typography.titleMedium.fontSize,
                     fontWeight = MaterialTheme.typography.titleMedium.fontWeight,
-                    maxLines = 4,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
 

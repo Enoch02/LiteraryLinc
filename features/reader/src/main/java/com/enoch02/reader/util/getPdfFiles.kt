@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
-import com.enoch02.database.model.Document
+import com.enoch02.database.model.LLDocument
 
 val allowedTypes = arrayOf(
     "application/pdf",
@@ -20,8 +20,8 @@ val allowedTypes = arrayOf(
 /**
  * Get files from app directory
  */
-fun listDocsInDirectory(context: Context, directoryUri: Uri): List<Document> {
-    val foundFiles = mutableListOf<Document>()
+fun listDocsInDirectory(context: Context, directoryUri: Uri): List<LLDocument> {
+    val foundFiles = mutableListOf<LLDocument>()
 
     val documentFile = DocumentFile.fromTreeUri(context, directoryUri)
     if (documentFile == null || !documentFile.isDirectory) {
@@ -41,7 +41,7 @@ fun listDocsInDirectory(context: Context, directoryUri: Uri): List<Document> {
             val nameWithoutExtension = fileName.substringBeforeLast(".")
 
             foundFiles.add(
-                Document(
+                LLDocument(
                     id = getDocumentFileMd5(context.contentResolver, file).toString(),
                     contentUri = fileUri,
                     name = nameWithoutExtension
@@ -56,8 +56,8 @@ fun listDocsInDirectory(context: Context, directoryUri: Uri): List<Document> {
     return foundFiles
 }
 
-fun listDocsInDirectoryOld(context: Context, directoryUri: Uri): List<Document> {
-    val foundFiles = mutableListOf<Document>()
+fun listDocsInDirectoryOld(context: Context, directoryUri: Uri): List<LLDocument> {
+    val foundFiles = mutableListOf<LLDocument>()
 
     directoryUri.let { uri ->
         val documentFile = DocumentFile.fromTreeUri(context, uri)
@@ -72,7 +72,7 @@ fun listDocsInDirectoryOld(context: Context, directoryUri: Uri): List<Document> 
                         val nameWithoutExtension = fileName.substringBeforeLast(".")
 
                         foundFiles.add(
-                            Document(
+                            LLDocument(
                                 id = getDocumentFileMd5(context.contentResolver, file).toString(),
                                 contentUri = fileUri,
                                 name = nameWithoutExtension

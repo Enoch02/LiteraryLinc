@@ -4,24 +4,25 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
-import com.enoch02.database.model.Document
+import com.enoch02.database.model.LLDocument
 
 val allowedTypes = arrayOf(
     "application/pdf",
-    "application/vnd.ms-xpsdocument",
+    "application/epub+zip",
+    /*TODO*/
+    /*"application/vnd.ms-xpsdocument",
     "application/oxps",
     "application/x-cbz",
     "application/vnd.comicbook+zip",
-    "application/epub+zip",
     "application/x-fictionbook",
-    "application/x-mobipocket-ebook",
+    "application/x-mobipocket-ebook",*/
 )
 
 /**
  * Get files from app directory
  */
-fun listDocsInDirectory(context: Context, directoryUri: Uri): List<Document> {
-    val foundFiles = mutableListOf<Document>()
+fun listDocsInDirectory(context: Context, directoryUri: Uri): List<LLDocument> {
+    val foundFiles = mutableListOf<LLDocument>()
 
     val documentFile = DocumentFile.fromTreeUri(context, directoryUri)
     if (documentFile == null || !documentFile.isDirectory) {
@@ -41,7 +42,7 @@ fun listDocsInDirectory(context: Context, directoryUri: Uri): List<Document> {
             val nameWithoutExtension = fileName.substringBeforeLast(".")
 
             foundFiles.add(
-                Document(
+                LLDocument(
                     id = file.getDocumentFileMd5(context.contentResolver).toString(),
                     contentUri = fileUri,
                     name = nameWithoutExtension

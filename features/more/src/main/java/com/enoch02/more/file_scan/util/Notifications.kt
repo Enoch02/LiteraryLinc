@@ -1,4 +1,4 @@
-package com.enoch02.more.file_scan.workers
+package com.enoch02.more.file_scan.util
 
 import android.Manifest
 import android.app.NotificationChannel

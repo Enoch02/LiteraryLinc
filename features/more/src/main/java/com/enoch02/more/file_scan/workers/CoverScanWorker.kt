@@ -15,7 +15,9 @@ import com.enoch02.database.dao.DocumentDao
 import com.enoch02.more.R
 import com.enoch02.more.file_scan.PROGRESS_CHANNEL_ID
 import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_ID
+import com.enoch02.more.file_scan.util.createProgressNotificationChannel
 import com.enoch02.more.file_scan.util.generateThumbnail
+import com.enoch02.more.file_scan.util.sendFinalProgressNotification
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 

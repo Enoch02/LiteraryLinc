@@ -13,7 +13,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.enoch02.database.dao.DocumentDao
-import com.enoch02.database.model.Document
+import com.enoch02.database.model.LLDocument
 import com.enoch02.database.model.existsAsFile
 import com.enoch02.more.R
 import com.enoch02.more.file_scan.APP_PREFS_KEY
@@ -21,7 +21,9 @@ import com.enoch02.more.file_scan.DOCUMENT_COUNT_KEY
 import com.enoch02.more.file_scan.DOCUMENT_DIR_KEY
 import com.enoch02.more.file_scan.PROGRESS_CHANNEL_ID
 import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_ID
+import com.enoch02.more.file_scan.util.createProgressNotificationChannel
 import com.enoch02.more.file_scan.util.listDocsInDirectory
+import com.enoch02.more.file_scan.util.makeStatusNotification
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -122,7 +124,7 @@ class FileScanWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun addDocsToDb(context: Context, dir: List<Document>) {
+    private suspend fun addDocsToDb(context: Context, dir: List<LLDocument>) {
         documentDao.insertDocuments(dir)
 
         withContext(Dispatchers.Main) {
