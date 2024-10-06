@@ -847,15 +847,17 @@ public class DocumentActivity extends Activity {
     public void onBackPressed() {
         if (mDocView == null || (mDocView != null && !mDocView.popHistory())) {
             super.onBackPressed();
-            Intent intent = new Intent();
-            // send metadata to calling activity (composable)
-            intent.putExtra("title", core.getTitle());
-            intent.putExtra("author", core.getAuthor());
-            intent.putExtra("pages", core.countPages());
-            intent.putExtra("currentPage", mDocView.getDisplayedViewIndex());
-            setResult(Activity.RESULT_OK, intent);
-            Log.e("TAG", "onBackPressed: going back to composable");
-            finish();
         }
+    }
+
+    @Override
+    public void finish() {
+        Intent intent = new Intent();
+        intent.putExtra("title", core.getTitle());
+        intent.putExtra("author", core.getAuthor());
+        intent.putExtra("pages", core.countPages());
+        intent.putExtra("currentPage", mDocView.getDisplayedViewIndex());
+        setResult(Activity.RESULT_OK, intent);
+        super.finish();
     }
 }

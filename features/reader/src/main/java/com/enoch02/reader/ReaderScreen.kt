@@ -2,7 +2,6 @@ package com.enoch02.reader
 
 import android.app.Activity
 import android.content.Intent
-import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
@@ -64,32 +63,26 @@ fun ReaderScreen(
         mutableIntStateOf(0)
     }
     val documentViewerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { activityResult ->
-        if (activityResult.resultCode == Activity.RESULT_OK) {
-            val title = activityResult.data?.getStringExtra("title")
-            val author = activityResult.data?.getStringExtra("author")
-            val pages = activityResult.data?.getIntExtra("pages", 0)
-            val currentPage =
-                activityResult.data?.getIntExtra("currentPage", 0)
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = { activityResult ->
+            if (activityResult.resultCode == Activity.RESULT_OK) {
+                val title = activityResult.data?.getStringExtra("title")
+                val author = activityResult.data?.getStringExtra("author")
+                val pages = activityResult.data?.getIntExtra("pages", 0)
+                val currentPage =
+                    activityResult.data?.getIntExtra("currentPage", 0)
+                val currentDocument = documents[currentDocumentIndex]
+                val modifiedDocument = currentDocument.copy(
+                    name = if (title.isNullOrBlank()) currentDocument.name else title,
+                    author = author ?: "",
+                    pages = pages ?: 0,
+                    currentPage = currentPage ?: 0
+                )
 
-            Toast.makeText(
-                context,
-                "Received data: $title, $author, $pages, $currentPage",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            val currentDocument = documents[currentDocumentIndex]
-            val modifiedDocument = currentDocument.copy(
-                name = if (title.isNullOrBlank()) currentDocument.name else title,
-                author = author ?: "",
-                pages = pages ?: 0,
-                currentPage = currentPage ?: 0
-            )
-
-            viewModel.updateDocumentInfo(modifiedDocument)
+                viewModel.updateDocumentInfo(modifiedDocument)
+            }
         }
-    }
+    )
 
     LaunchedEffect(
         key1 = Unit,
