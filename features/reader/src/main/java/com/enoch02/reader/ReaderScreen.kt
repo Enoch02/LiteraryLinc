@@ -2,11 +2,11 @@ package com.enoch02.reader
 
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -46,7 +47,6 @@ import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.enoch02.database.model.LLDocument
 import com.enoch02.reader.components.DocumentListItem
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
@@ -56,10 +56,40 @@ fun ReaderScreen(
     onScanForDocs: () -> Unit
 ) {
     val context = LocalContext.current
-    val pdfFiles = viewModel.documents.collectAsState(initial = emptyList())
-    val covers = viewModel.covers.collectAsState(initial = emptyMap())
+    val documents by viewModel.documents.collectAsState(initial = emptyList())
+    val covers by viewModel.covers.collectAsState(initial = emptyMap())
 
     var isDirectoryPicked by rememberSaveable { mutableStateOf(false) }
+    var currentDocumentIndex by rememberSaveable {
+        mutableIntStateOf(0)
+    }
+    val documentViewerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { activityResult ->
+        if (activityResult.resultCode == Activity.RESULT_OK) {
+            val title = activityResult.data?.getStringExtra("title")
+            val author = activityResult.data?.getStringExtra("author")
+            val pages = activityResult.data?.getIntExtra("pages", 0)
+            val currentPage =
+                activityResult.data?.getIntExtra("currentPage", 0)
+
+            Toast.makeText(
+                context,
+                "Received data: $title, $author, $pages, $currentPage",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            val currentDocument = documents[currentDocumentIndex]
+            val modifiedDocument = currentDocument.copy(
+                name = if (title.isNullOrBlank()) currentDocument.name else title,
+                author = author ?: "",
+                pages = pages ?: 0,
+                currentPage = currentPage ?: 0
+            )
+
+            viewModel.updateDocumentInfo(modifiedDocument)
+        }
+    }
 
     LaunchedEffect(
         key1 = Unit,
@@ -70,14 +100,15 @@ fun ReaderScreen(
 
     if (isDirectoryPicked) {
         ReaderList(
-            documents = pdfFiles.value,
-            covers = covers.value,
+            documents = documents,
+            covers = covers,
+            documentViewerLauncher = documentViewerLauncher,
             modifier = modifier,
             onScanForDocs = {
                 onScanForDocs()
             },
-            onModifyDoc = { doc ->
-                viewModel.updateDocumentInfo(doc)
+            onItemClick = { index ->
+                currentDocumentIndex = index
             }
         )
 
@@ -104,9 +135,10 @@ fun ReaderScreen(
 fun ReaderList(
     documents: List<LLDocument>,
     covers: Map<String, String?>,
+    documentViewerLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     modifier: Modifier = Modifier,
     onScanForDocs: () -> Unit,
-    onModifyDoc: (doc: LLDocument) -> Unit
+    onItemClick: (index: Int) -> Unit
 ) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
@@ -135,37 +167,12 @@ fun ReaderList(
                     state = listState,
                     content = {
                         items(documents) { item ->
-                            val documentViewerLauncher = rememberLauncherForActivityResult(
-                                contract = ActivityResultContracts.StartActivityForResult()
-                            ) { activityResult ->
-                                if (activityResult.resultCode == Activity.RESULT_OK) {
-                                    val title = activityResult.data?.getStringExtra("title")
-                                    val author = activityResult.data?.getStringExtra("author")
-                                    val pages = activityResult.data?.getIntExtra("pages", 0)
-                                    val currentPage =
-                                        activityResult.data?.getIntExtra("currentPage", 0)
-
-                                    Log.e(
-                                        "TAG",
-                                        "ReaderList: $title, $author, $pages, $currentPage"
-                                    )
-
-                                    val modifiedDocument =
-                                        item.copy(
-                                            name = if (title.isNullOrBlank()) item.name else title,
-                                            author = author ?: "",
-                                            pages = pages ?: 0,
-                                            currentPage = currentPage ?: 0
-                                        )
-
-                                    onModifyDoc(modifiedDocument)
-                                }
-                            }
-
                             DocumentListItem(
                                 document = item,
                                 cover = covers[item.cover],
                                 onClick = {
+                                    onItemClick(documents.indexOf(item))
+
                                     val intent = Intent(context, DocumentActivity::class.java)
                                         .apply {
                                             action = Intent.ACTION_VIEW

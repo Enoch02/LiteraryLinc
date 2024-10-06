@@ -2,6 +2,7 @@ package com.enoch02.reader
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -45,7 +46,6 @@ class ReaderViewModel @Inject constructor(
     fun updateDocumentInfo(document: LLDocument) {
         viewModelScope.launch(Dispatchers.IO) {
             documentDao.updateDocument(document)
-
         }
     }
 }

@@ -630,6 +630,7 @@ public class DocumentActivity extends Activity {
     }
 
     public void onDestroy() {
+        Log.e("TAG", "onDestroy: destroying");
         if (mDocView != null) {
             mDocView.applyToChildren(new ReaderView.ViewMapper() {
                 void applyToView(View view) {
@@ -846,7 +847,6 @@ public class DocumentActivity extends Activity {
     public void onBackPressed() {
         if (mDocView == null || (mDocView != null && !mDocView.popHistory())) {
             super.onBackPressed();
-            Log.e("TAG", "onBackPressed: going back to composable");
             Intent intent = new Intent();
             // send metadata to calling activity (composable)
             intent.putExtra("title", core.getTitle());
@@ -854,6 +854,7 @@ public class DocumentActivity extends Activity {
             intent.putExtra("pages", core.countPages());
             intent.putExtra("currentPage", mDocView.getDisplayedViewIndex());
             setResult(Activity.RESULT_OK, intent);
+            Log.e("TAG", "onBackPressed: going back to composable");
             finish();
         }
     }
