@@ -3,7 +3,6 @@ package com.artifex.mupdf.viewer;
 import com.artifex.mupdf.R;
 import com.artifex.mupdf.fitz.SeekableInputStream;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -12,13 +11,9 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.graphics.Rect;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RectShape;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,7 +25,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -45,13 +39,8 @@ import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewAnimator;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -92,8 +81,7 @@ public class DocumentActivity extends Activity {
     private final Handler mHandler = new Handler();
     private boolean mAlertsActive = false;
     private AlertDialog mAlertDialog;
-    private ArrayList<OutlineActivity.Item> mFlatOutline;
-    private boolean mReturnToLibraryActivity = false;
+    private ArrayList<NewOutlineActivity.Item> mFlatOutline;
 
     protected int mDisplayDPI;
     private int mLayoutEM = 10;
@@ -209,8 +197,6 @@ public class DocumentActivity extends Activity {
         if (core == null) {
             Intent intent = getIntent();
             SeekableInputStream file;
-
-            mReturnToLibraryActivity = intent.getIntExtra(getComponentName().getPackageName() + ".ReturnToLibraryActivity", 0) != 0;
 
             if (Intent.ACTION_VIEW.equals(intent.getAction())) {
                 Uri uri = intent.getData();
@@ -544,7 +530,7 @@ public class DocumentActivity extends Activity {
                     if (mFlatOutline == null)
                         mFlatOutline = core.getOutline();
                     if (mFlatOutline != null) {
-                        Intent intent = new Intent(DocumentActivity.this, OutlineActivity.class);
+                        Intent intent = new Intent(DocumentActivity.this, NewOutlineActivity.class);
                         Bundle bundle = new Bundle();
                         bundle.putInt("POSITION", mDocView.getDisplayedViewIndex());
                         bundle.putSerializable("OUTLINE", mFlatOutline);

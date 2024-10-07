@@ -13,7 +13,6 @@ import com.artifex.mupdf.fitz.RectI;
 import com.artifex.mupdf.fitz.SeekableInputStream;
 import com.artifex.mupdf.fitz.android.AndroidDrawDevice;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PointF;
 
@@ -202,19 +201,19 @@ public class MuPDFCore {
         return outline != null;
     }
 
-    private void flattenOutlineNodes(ArrayList<OutlineActivity.Item> result, Outline list[], String indent) {
+    private void flattenOutlineNodes(ArrayList<NewOutlineActivity.Item> result, Outline list[], String indent) {
         for (Outline node : list) {
             if (node.title != null) {
                 int page = doc.pageNumberFromLocation(doc.resolveLink(node));
-                result.add(new OutlineActivity.Item(indent + node.title, page));
+                result.add(new NewOutlineActivity.Item(indent + node.title, page));
             }
             if (node.down != null)
                 flattenOutlineNodes(result, node.down, indent + "    ");
         }
     }
 
-    public synchronized ArrayList<OutlineActivity.Item> getOutline() {
-        ArrayList<OutlineActivity.Item> result = new ArrayList<OutlineActivity.Item>();
+    public synchronized ArrayList<NewOutlineActivity.Item> getOutline() {
+        ArrayList<NewOutlineActivity.Item> result = new ArrayList<NewOutlineActivity.Item>();
         flattenOutlineNodes(result, outline, "");
         return result;
     }
