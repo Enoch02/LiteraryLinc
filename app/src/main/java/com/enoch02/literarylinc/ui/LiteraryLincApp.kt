@@ -62,6 +62,7 @@ import com.enoch02.booklist.components.BookListViewMode
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
 import com.enoch02.literarylinc.R
+import com.enoch02.literarylinc.RequestNotificationPermission
 import com.enoch02.literarylinc.navigation.Screen
 import com.enoch02.literarylinc.navigation.TopLevelDestination
 import com.enoch02.more.MoreScreen
@@ -370,6 +371,7 @@ fun LiteraryLincApp(navController: NavController) {
                         content = {
                             when (it) {
                                 TopLevelDestination.BOOK_LIST -> {
+                                    RequestNotificationPermission()
                                     BookListScreen(
                                         modifier = Modifier.padding(paddingValues),
                                         scope = scope,

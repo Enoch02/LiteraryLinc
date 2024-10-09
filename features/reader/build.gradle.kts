@@ -75,4 +75,5 @@ dependencies {
         exclude(group = "xmlpull")
     }
     implementation(libs.slf4j.android)
+    implementation(libs.core)
 }

@@ -5,19 +5,20 @@ import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.lang.IllegalArgumentException
-import java.util.UUID
 
 @Entity(tableName = "documents")
-data class Document(
+data class LLDocument(
     @PrimaryKey
     val id: String,
     val contentUri: Uri?,
     val name: String,
-    val cover: String = ""
+    val cover: String = "",
+    val author: String = "",
+    val pages: Int = 0,
+    val currentPage: Int = 0
 )
 
-fun Document.existsAsFile(context: Context): Boolean {
+fun LLDocument.existsAsFile(context: Context): Boolean {
     try {
         val documentFile =
             contentUri?.let { DocumentFile.fromSingleUri(context, it) } ?: return false

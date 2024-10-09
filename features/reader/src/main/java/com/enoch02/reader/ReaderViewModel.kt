@@ -2,13 +2,18 @@ package com.enoch02.reader
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.DocumentDao
+import com.enoch02.database.model.LLDocument
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val TAG = "ReaderViewModel"
@@ -16,7 +21,7 @@ private const val TAG = "ReaderViewModel"
 @HiltViewModel
 class ReaderViewModel @Inject constructor(
     private val documentDao: DocumentDao,
-    private val bookCoverRepository: BookCoverRepository
+    bookCoverRepository: BookCoverRepository
 ) :
     ViewModel() {
     var documents = documentDao.getDocumentsAscending()
@@ -36,5 +41,11 @@ class ReaderViewModel @Inject constructor(
             }
         }
         return false
+    }
+
+    fun updateDocumentInfo(document: LLDocument) {
+        viewModelScope.launch(Dispatchers.IO) {
+            documentDao.updateDocument(document)
+        }
     }
 }

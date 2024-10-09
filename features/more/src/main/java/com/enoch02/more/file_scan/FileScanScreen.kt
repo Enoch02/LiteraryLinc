@@ -2,7 +2,6 @@ package com.enoch02.more.file_scan
 
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,7 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,8 +55,15 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
     var showRemovalDialog by remember {
         mutableStateOf(false)
     }
-    val fileScanInfo by viewModel.fileScanWorkInfoFlow.collectAsState(initial = null)
-    val coverScanInfo by viewModel.coverScanWorkInfoFlow.collectAsState(initial = null)
+    val fileScanInfo = viewModel.fileScanWorkInfo
+    val coverScanInfo = viewModel.coverScanWorkInfo
+
+    var isFileScanRunning by remember {
+        mutableStateOf(false)
+    }
+    var isCoverScanRunning by remember {
+        mutableStateOf(false)
+    }
 
     val directoryPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -88,24 +94,43 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
 
     LaunchedEffect(
         key1 = fileScanInfo,
-        key2 = coverScanInfo,
+        key2 = viewModel.contentState,
         block = {
-            if (fileScanInfo?.state?.isFinished == true && coverScanInfo?.state?.isFinished == true) {
-                viewModel.contentState = ContentState.NotLoading
-            } else {
-                Log.e(TAG, "FileScanScreen: Not Finished")
+            if (fileScanInfo != null) {
+                if (fileScanInfo.state.isFinished) {
+                    isFileScanRunning = false
+                    viewModel.contentState = ContentState.NotLoading
+                    viewModel.clearStoredFileScanId()
+                } else {
+                    viewModel.contentState = ContentState.Loading
+                    isFileScanRunning = true
+                }
             }
         }
     )
 
     LaunchedEffect(
         key1 = coverScanInfo,
+        key2 = viewModel.contentState,
         block = {
-            if (coverScanInfo?.state?.isFinished == true) {
-                viewModel.contentState = ContentState.NotLoading
+            if (coverScanInfo != null) {
+                if (coverScanInfo.state.isFinished) {
+                    isCoverScanRunning = false
+                    viewModel.contentState = ContentState.NotLoading
+                    viewModel.clearStoredCoverScanId()
+
+                } else {
+                    isCoverScanRunning = true
+                    viewModel.contentState = ContentState.Loading
+                }
             }
         }
     )
+
+    SideEffect {
+
+        viewModel.collectWorks()
+    }
 
 
     Scaffold(
@@ -180,6 +205,13 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                             Toast.LENGTH_SHORT
                                                         )
                                                             .show()
+                                                    } else if (isFileScanRunning || isCoverScanRunning) {
+                                                        Toast.makeText(
+                                                            context,
+                                                            "A scan is in progress",
+                                                            Toast.LENGTH_SHORT
+                                                        )
+                                                            .show()
                                                     } else {
                                                         viewModel.loadDocuments()
                                                     }
@@ -205,6 +237,13 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                         Toast.makeText(
                                                             context,
                                                             "Select app directory first",
+                                                            Toast.LENGTH_SHORT
+                                                        )
+                                                            .show()
+                                                    } else if (isFileScanRunning || isCoverScanRunning) {
+                                                        Toast.makeText(
+                                                            context,
+                                                            "A scan is in progress",
                                                             Toast.LENGTH_SHORT
                                                         )
                                                             .show()

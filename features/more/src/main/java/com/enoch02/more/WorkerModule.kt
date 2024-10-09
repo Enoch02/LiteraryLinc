@@ -7,8 +7,8 @@ import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.export_and_import.csv.CSVManager
 import com.enoch02.more.backup_restore.data.BackupRestoreRepository
 import com.enoch02.more.backup_restore.data.WorkManagerBackRestoreRepository
-import com.enoch02.more.file_scan.data.DocumentScanRepository
-import com.enoch02.more.file_scan.data.WorkManagerDocumentScanRepository
+import com.enoch02.more.file_scan.DocumentScanRepository
+import com.enoch02.more.file_scan.WorkManagerDocumentScanRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,8 +28,8 @@ class WorkerModule {
 
     @Provides
     @Singleton
-    fun providesDocumentScanRepository(workManager: WorkManager): DocumentScanRepository =
-        WorkManagerDocumentScanRepository(workManager)
+    fun providesDocumentScanRepository(@ApplicationContext context: Context, workManager: WorkManager): DocumentScanRepository =
+        WorkManagerDocumentScanRepository(context, workManager)
 
     @Provides
     @Singleton

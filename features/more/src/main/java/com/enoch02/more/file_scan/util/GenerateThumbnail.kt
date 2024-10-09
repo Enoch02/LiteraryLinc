@@ -8,11 +8,11 @@ import android.net.Uri
 import nl.siegmann.epublib.epub.EpubReader
 import java.util.Locale
 
-fun generateThumbnail(context: Context, uri: Uri): Bitmap? {
+fun Uri.generateThumbnail(context: Context): Bitmap? {
     return try {
-        when (getFileExtension(uri)) {
-            "pdf" -> generatePdfThumbnail(context, uri)
-            "epub" -> generateEpubThumbnail(context, uri)
+        when (getFileExtension(this)) {
+            "pdf" -> generatePdfThumbnail(context, this)
+            "epub" -> generateEpubThumbnail(context, this)
             else -> null
         }
     } catch (e: Exception) {
@@ -58,8 +58,4 @@ private fun generateEpubThumbnail(context: Context, uri: Uri): Bitmap? {
         }
     }
     return null
-}
-
-private fun getFileExtension(uri: Uri): String {
-    return uri.path?.substringAfterLast('.', "")?.lowercase(Locale.ROOT) ?: ""
 }

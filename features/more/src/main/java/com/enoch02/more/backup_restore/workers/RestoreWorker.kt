@@ -8,7 +8,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.enoch02.database.export_and_import.csv.CSVManager
 import com.enoch02.more.file_scan.BACKUP_FILE_URI_KEY
-import com.enoch02.more.file_scan.workers.makeStatusNotification
+import com.enoch02.more.file_scan.util.makeStatusNotification
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
