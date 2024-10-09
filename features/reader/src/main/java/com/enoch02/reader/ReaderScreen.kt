@@ -2,6 +2,7 @@ package com.enoch02.reader
 
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
@@ -46,7 +47,10 @@ import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.enoch02.database.model.LLDocument
 import com.enoch02.reader.components.DocumentListItem
+import java.lang.IndexOutOfBoundsException
 import kotlin.time.Duration.Companion.seconds
+
+private const val TAG = "ReaderScreen"
 
 @Composable
 fun ReaderScreen(
@@ -66,20 +70,24 @@ fun ReaderScreen(
         contract = ActivityResultContracts.StartActivityForResult(),
         onResult = { activityResult ->
             if (activityResult.resultCode == Activity.RESULT_OK) {
-                val title = activityResult.data?.getStringExtra("title")
-                val author = activityResult.data?.getStringExtra("author")
-                val pages = activityResult.data?.getIntExtra("pages", 0)
-                val currentPage =
-                    activityResult.data?.getIntExtra("currentPage", 0)
-                val currentDocument = documents[currentDocumentIndex]
-                val modifiedDocument = currentDocument.copy(
-                    name = if (title.isNullOrBlank()) currentDocument.name else title,
-                    author = author ?: "",
-                    pages = pages ?: 0,
-                    currentPage = currentPage ?: 0
-                )
+                try {
+                    val title = activityResult.data?.getStringExtra("title")
+                    val author = activityResult.data?.getStringExtra("author")
+                    val pages = activityResult.data?.getIntExtra("pages", 0)
+                    val currentPage =
+                        activityResult.data?.getIntExtra("currentPage", 0)
+                    val currentDocument = documents[currentDocumentIndex]
+                    val modifiedDocument = currentDocument.copy(
+                        name = if (title.isNullOrBlank()) currentDocument.name else title,
+                        author = author ?: "",
+                        pages = pages ?: 0,
+                        currentPage = currentPage ?: 0
+                    )
 
-                viewModel.updateDocumentInfo(modifiedDocument)
+                    viewModel.updateDocumentInfo(modifiedDocument)
+                } catch (e: IndexOutOfBoundsException) {
+                    Log.e(TAG, "ReaderScreen: could not update document reader list")
+                }
             }
         }
     )
