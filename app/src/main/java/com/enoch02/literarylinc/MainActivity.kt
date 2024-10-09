@@ -1,5 +1,7 @@
 package com.enoch02.literarylinc
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
@@ -14,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.artifex.mupdf.viewer.DocumentActivity
 import com.enoch02.literarylinc.navigation.LiteraryLincNavHost
 import com.enoch02.literarylinc.ui.theme.LiteraryLincTheme
 import com.enoch02.more.settings.SettingViewModel
@@ -61,6 +64,27 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             )
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent) {
+        if (Intent.ACTION_VIEW == intent.action) {
+            val uri: Uri? = intent.data
+
+            if (uri != null) {
+                val viewerIntent = Intent(this, DocumentActivity::class.java)
+                    .apply {
+                        action = Intent.ACTION_VIEW
+                        data = uri
+                    }
+
+                startActivity(viewerIntent)
+            }
         }
     }
 }

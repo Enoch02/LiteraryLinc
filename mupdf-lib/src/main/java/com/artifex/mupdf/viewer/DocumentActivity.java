@@ -1,14 +1,11 @@
 package com.artifex.mupdf.viewer;
 
-import com.artifex.mupdf.R;
-import com.artifex.mupdf.fitz.SeekableInputStream;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -40,6 +37,8 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
+
+import com.artifex.mupdf.fitz.SeekableInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;

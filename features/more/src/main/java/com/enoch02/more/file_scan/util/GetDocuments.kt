@@ -9,11 +9,11 @@ import com.enoch02.database.model.LLDocument
 val allowedTypes = arrayOf(
     "application/pdf",
     "application/epub+zip",
+    "application/vnd.comicbook+zip",
+    "application/x-cbz",
     /*TODO*/
     /*"application/vnd.ms-xpsdocument",
     "application/oxps",
-    "application/x-cbz",
-    "application/vnd.comicbook+zip",
     "application/x-fictionbook",
     "application/x-mobipocket-ebook",*/
 )

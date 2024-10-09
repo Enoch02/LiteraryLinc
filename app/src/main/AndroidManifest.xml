@@ -23,12 +23,36 @@
             android:theme="@style/Theme.LiteraryLinc">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.artifex.mupdf.viewer.DocumentActivity" />
+
+        <activity
+            android:name="com.artifex.mupdf.viewer.DocumentActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <!-- list the mime-types we know about -->
+                <data android:mimeType="application/pdf" />
+                <data android:mimeType="application/epub+zip" />
+                <data android:mimeType="application/vnd.comicbook+zip" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+
+                <!--<data android:mimeType="application/vnd.ms-xpsdocument" />
+                <data android:mimeType="application/oxps" />
+                <data android:mimeType="application/x-cbz" />
+                <data android:mimeType="application/x-fictionbook" />
+                <data android:mimeType="application/x-mobipocket-ebook" />
+                <data android:mimeType="application/octet-stream" /> -->
+            </intent-filter>
+        </activity>
+
         <activity android:name="com.artifex.mupdf.viewer.NewOutlineActivity" />
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
