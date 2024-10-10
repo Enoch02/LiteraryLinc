@@ -4,6 +4,7 @@
     <application>
         <activity
             android:name=".DocumentActivity"
+            android:theme="@style/AppTheme"
             android:configChanges="orientation|screenSize|keyboardHidden">
         </activity>
         <activity
