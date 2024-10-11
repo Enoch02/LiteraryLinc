@@ -1,18 +1,10 @@
 package com.artifex.mupdf.viewer;
 
-import com.artifex.mupdf.R;
 import com.artifex.mupdf.fitz.Cookie;
 import com.artifex.mupdf.fitz.Link;
 import com.artifex.mupdf.fitz.Quad;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.content.ClipData;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap.Config;
 import android.graphics.Bitmap;
@@ -29,14 +21,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.FileUriExposedException;
 import android.os.Handler;
-import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;

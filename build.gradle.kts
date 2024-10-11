@@ -9,20 +9,3 @@ plugins {
     alias(libs.plugins.org.jetbrains.kotlin.android) apply false
     alias(libs.plugins.compose.compiler) apply false
 }
-
-allprojects {
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        kotlinOptions {
-            jvmTarget = "1.8"
-        }
-    }
-}
-
-buildscript {
-    val daggerVersion by extra { "2.52" }
-
-    dependencies {
-        val daggerVersion: String by rootProject.extra
-        classpath("com.google.dagger:hilt-android-gradle-plugin:$daggerVersion")
-    }
-}

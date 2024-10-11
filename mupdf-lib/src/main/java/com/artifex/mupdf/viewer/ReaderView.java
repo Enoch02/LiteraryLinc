@@ -1,6 +1,5 @@
 package com.artifex.mupdf.viewer;
 
-import com.artifex.mupdf.R;
 import com.artifex.mupdf.fitz.Link;
 
 import java.util.LinkedList;
@@ -10,7 +9,6 @@ import java.util.Stack;
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;

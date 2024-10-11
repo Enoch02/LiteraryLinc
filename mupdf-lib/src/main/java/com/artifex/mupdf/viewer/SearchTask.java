@@ -1,6 +1,5 @@
 package com.artifex.mupdf.viewer;
 
-import com.artifex.mupdf.R;
 import com.artifex.mupdf.fitz.Quad;
 
 import android.app.AlertDialog;
