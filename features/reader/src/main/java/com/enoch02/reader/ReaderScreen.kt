@@ -163,6 +163,7 @@ fun ReaderList(
     } else {
         ScrollArea(
             state = state,
+            modifier = modifier,
             content = {
                 LazyColumn(
                     state = listState,
@@ -189,7 +190,7 @@ fun ReaderList(
                             }
                         }
                     },
-                    modifier = modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 VerticalScrollbar(

@@ -1,5 +1,6 @@
 package com.enoch02.reader.components
 
+import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -33,6 +35,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.enoch02.database.model.LLDocument
+import java.time.Instant
+import java.util.Calendar
+import java.util.Date
 
 @Composable
 fun DocumentListItem(
@@ -58,11 +63,18 @@ fun DocumentListItem(
                 )
 
                 Text(
-                    text = "by ${document.author}",
+                    text = document.author,
                     maxLines = 1,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize,
                     modifier = Modifier.alpha(if (document.author.isNotEmpty()) 1f else 0f)
                 )
+
+                Text(
+                    text = "${document.type}, ${document.sizeInMb}MB",
+                    maxLines = 1,
+                    fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                )
+
 
                 LinearProgressIndicator(
                     progress = {
@@ -96,7 +108,7 @@ fun DocumentListItem(
                     onClick = { /*TODO*/ },
                     content = {
                         Icon(
-                            imageVector = Icons.Rounded.Star,
+                            imageVector = Icons.Rounded.StarOutline,
                             contentDescription = "Add to favorites"
                         )
                     }
@@ -143,15 +155,33 @@ fun DocumentListItem(
 @Preview
 @Composable
 private fun Preview() {
+    val now =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) Date.from(Instant.now()) else Calendar.getInstance().time
+
     Column {
         DocumentListItem(
-            LLDocument(name = "Hello", cover = "", contentUri = null, id = "1"),
+            LLDocument(
+                name = "Hello",
+                cover = "",
+                contentUri = null,
+                id = "1",
+                lastRead = now,
+                type = "PDF"
+            ),
             cover = null,
             onClick = {}
         )
 
         DocumentListItem(
-            LLDocument(name = "Hello", cover = "", contentUri = null, id = "1", author = "Enoch"),
+            LLDocument(
+                name = "Hello",
+                cover = "",
+                contentUri = null,
+                id = "1",
+                author = "Enoch",
+                lastRead = now,
+                type = "EPUB"
+            ),
             cover = null,
             onClick = {}
         )

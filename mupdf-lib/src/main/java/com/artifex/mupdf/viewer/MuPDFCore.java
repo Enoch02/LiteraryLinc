@@ -64,6 +64,10 @@ public class MuPDFCore {
         return pageCount;
     }
 
+    public int getCurrentPage() {
+        return currentPage;
+    }
+
     public boolean isReflowable() {
         return reflowable;
     }

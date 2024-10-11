@@ -2,6 +2,8 @@ package com.enoch02.database
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteQuery
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -39,5 +41,8 @@ object DatabaseModule {
             context,
             DocumentDatabase::class.java,
             "documents-db"
-        ).build()
+        )
+            //TODO: Replace with actual migration (do for other dbs)
+            .fallbackToDestructiveMigration()
+            .build()
 }

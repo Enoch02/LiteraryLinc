@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.Date
 
 @Entity(tableName = "documents")
 data class LLDocument(
@@ -15,7 +16,10 @@ data class LLDocument(
     val cover: String = "",
     val author: String = "",
     val pages: Int = 0,
-    val currentPage: Int = 0
+    val currentPage: Int = 0,
+    val sizeInMb: Double = 0.0,
+    val lastRead: Date?,
+    val type: String
 )
 
 fun LLDocument.existsAsFile(context: Context): Boolean {
