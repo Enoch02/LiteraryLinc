@@ -1,8 +1,10 @@
 package com.enoch02.more.file_scan
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -13,8 +15,13 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.util.UUID
 import javax.inject.Inject
 
@@ -25,18 +32,15 @@ class FileScanViewModel @Inject constructor(
     private val documentScanRepository: DocumentScanRepository,
     private val workManager: WorkManager
 ) : ViewModel() {
-    var contentState by mutableStateOf(ContentState.NotLoading)
     var documentDirectory: Uri? by mutableStateOf(null)
     var totalDocuments by mutableIntStateOf(0)
+    var scanDirectories by mutableStateOf(emptyMap<String?, Uri>())
 
-    private var collectCoverJob: Job? = null
-    private var collectFileJob: Job? = null
-    var fileScanWorkInfo by mutableStateOf<WorkInfo?>(null)
-    var coverScanWorkInfo by mutableStateOf<WorkInfo?>(null)
+    private var coverScanCollectionJob: Job? = null
+    private var fileScanWorkCollectionJob: Job? = null
 
-    init {
-        collectWorks()
-    }
+    val fileScanWorkInfo = MutableStateFlow<WorkInfo?>(null)
+    val coverScanWorkInfo = MutableStateFlow<WorkInfo?>(null)
 
     fun collectWorks() {
         val ids = documentScanRepository.getIds()
@@ -47,52 +51,107 @@ class FileScanViewModel @Inject constructor(
         collectCoverScanWork(coverScanWorkId)
     }
 
-    private fun collectFileScanWork(id: UUID) {
-        if (collectFileJob == null) {
-            collectFileJob = viewModelScope.launch {
-                workManager.getWorkInfoByIdFlow(id)
-                    .collectLatest {
-                        fileScanWorkInfo = it
-                    }
-
-                collectFileJob = null
-            }
+    private fun collectFileScanWork(fileScanWorkId: UUID) {
+        if (fileScanWorkCollectionJob == null) {
+            fileScanWorkCollectionJob = workManager.getWorkInfoByIdFlow(fileScanWorkId)
+                .onEach { fileScanWorkInfo.value = it }
+                .catch { exception ->
+                    Log.e(TAG, "Error collecting file scan work info", exception)
+                    //TODO: show error msg?
+                }
+                .launchIn(viewModelScope)
         } else {
             Log.d(TAG, "collectFileScanWork: A job is running!")
         }
     }
 
-    private fun collectCoverScanWork(id: UUID) {
-        if (collectCoverJob == null) {
-            collectCoverJob = viewModelScope.launch {
-                workManager.getWorkInfoByIdFlow(id)
-                    .collectLatest {
-                        coverScanWorkInfo = it
+    private fun collectCoverScanWork(coverScanWorkId: UUID) {
+        if (coverScanCollectionJob == null) {
+            coverScanCollectionJob = viewModelScope.launch {
+                workManager.getWorkInfoByIdFlow(coverScanWorkId)
+                    .onEach { coverScanWorkInfo.value = it }
+                    .catch { exception ->
+                        Log.e(TAG, "Error collecting cover scan work info", exception)
                     }
-
-                collectCoverJob = null
+                    .launchIn(viewModelScope)
             }
         } else {
             Log.d(TAG, "collectCoverScanWork: A job is running!")
         }
     }
 
-    fun clearStoredFileScanId() {
+    fun isScanningFiles(fileScanInfo: WorkInfo?): Boolean {
+        if (fileScanInfo == null || fileScanInfo.state.isFinished) {
+            if (fileScanInfo?.state?.isFinished == true) {
+                clearStoredFileScanId()
+                fileScanWorkCollectionJob?.cancel()
+                fileScanWorkCollectionJob = null
+                Log.e(TAG, "isScanningFiles: Clear stored id")
+            }
+            return false
+        }
+        return true
+    }
+
+    fun isScanningCovers(coverScanInfo: WorkInfo?): Boolean {
+        if (coverScanInfo == null || coverScanInfo.state.isFinished) {
+            if (coverScanInfo?.state?.isFinished == true) {
+                clearStoredCoverScanId()
+                coverScanCollectionJob?.cancel()
+                coverScanCollectionJob = null
+                Log.e(TAG, "isScanningCovers: Clear stored id")
+            }
+            return false
+        }
+        return true
+    }
+
+    private fun clearStoredFileScanId() {
         documentScanRepository.clearStoredFileScanId()
     }
 
-    fun clearStoredCoverScanId() {
+    private fun clearStoredCoverScanId() {
         documentScanRepository.clearStoredCoverScanId()
     }
 
-    fun loadDocuments() {
-        documentScanRepository.scanFiles()
-        contentState = ContentState.Loading
+    fun loadDocuments(context: Context, isScanningFiles: Boolean, isScanningCovers: Boolean) {
+        if (documentDirectory == null || scanDirectories.isEmpty()) {
+            Toast.makeText(
+                context,
+                "Select app directory",
+                Toast.LENGTH_SHORT
+            )
+                .show()
+        } else if (isScanningFiles || isScanningCovers) {
+            Toast.makeText(
+                context,
+                "A scan is in progress",
+                Toast.LENGTH_SHORT
+            )
+                .show()
+        } else {
+            documentScanRepository.scanFiles()
+        }
     }
 
-    fun rescanCovers() {
-        documentScanRepository.rescanCovers()
-        contentState = ContentState.Loading
+    fun rescanCovers(context: Context, isScanningFiles: Boolean, isScanningCovers: Boolean) {
+        if (documentDirectory == null || scanDirectories.isEmpty()) {
+            Toast.makeText(
+                context,
+                "Select app directory",
+                Toast.LENGTH_SHORT
+            )
+                .show()
+        } else if (isScanningFiles || isScanningCovers) {
+            Toast.makeText(
+                context,
+                "A scan is in progress",
+                Toast.LENGTH_SHORT
+            )
+                .show()
+        } else {
+            documentScanRepository.rescanCovers()
+        }
     }
 
     fun savePickedDirectoryUri(context: Context, uri: Uri) {
@@ -121,9 +180,51 @@ class FileScanViewModel @Inject constructor(
 
         return false
     }
-}
 
-enum class ContentState {
-    NotLoading,
-    Loading,
+    /**
+     * Retrieves the list of directories the user has granted persistent access to.
+     *
+     * @param context The context to access the content resolver.
+     * @return A list of URIs representing the directories with persistent access.
+     */
+    fun getPersistedDirectories(context: Context) {
+        fun extractFolderName(uri: Uri): String? {
+            // Get the last path segment (after "tree/")
+            val lastSegment = uri.lastPathSegment ?: return null
+            // Decode the URI-encoded string
+            val decodedSegment = URLDecoder.decode(lastSegment, StandardCharsets.UTF_8.name())
+            // Split the decoded string by ":" to get the actual folder path
+            val splitSegment = decodedSegment.split(":")
+
+            // Return the last part of the folder path (the folder name)
+            return splitSegment.getOrNull(1)?.substringAfterLast('/')
+        }
+
+
+        val persistedUriPermissions = context.contentResolver.persistedUriPermissions
+        val uris = persistedUriPermissions.map { it.uri }
+
+        scanDirectories = uris.associateBy { uri ->
+            extractFolderName(uri)
+        }
+    }
+
+    /**
+     * Removes persistent access to a folder or document.
+     *
+     * @param context The context to access the content resolver.
+     * @param uri The Uri of the folder or document for which to revoke access.
+     */
+    fun removePersistedFolderAccess(context: Context, uri: Uri) {
+        try {
+            // Release both read and write URI permissions
+            context.contentResolver.releasePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+            // Handle exception if the URI permission does not exist or was already released
+        }
+    }
 }

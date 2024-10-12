@@ -2,7 +2,6 @@ package com.enoch02.more.file_scan
 
 import android.app.Activity
 import android.content.Intent
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Delete
@@ -21,16 +21,18 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,15 +57,10 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
     var showRemovalDialog by remember {
         mutableStateOf(false)
     }
-    val fileScanInfo = viewModel.fileScanWorkInfo
-    val coverScanInfo = viewModel.coverScanWorkInfo
-
-    var isFileScanRunning by remember {
-        mutableStateOf(false)
-    }
-    var isCoverScanRunning by remember {
-        mutableStateOf(false)
-    }
+    val fileScanInfo by viewModel.fileScanWorkInfo.collectAsState()
+    val coverScanInfo by viewModel.coverScanWorkInfo.collectAsState()
+    val isScanningFiles = viewModel.isScanningFiles(fileScanInfo)
+    val isScanningCovers = viewModel.isScanningCovers(coverScanInfo)
 
     val directoryPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -79,56 +76,30 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
 
                 viewModel.savePickedDirectoryUri(context, uri)
                 isDirectoryPicked = true
-                viewModel.loadDocuments()
+                viewModel.loadDocuments(context, isScanningFiles, isScanningCovers)
+            }
+        }
+    }
+    val otherDirectoryPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+
+                viewModel.getPersistedDirectories(context)
+                viewModel.loadDocuments(context, isScanningFiles, isScanningCovers)
             }
         }
     }
     val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
 
-    LaunchedEffect(
-        key1 = Unit,
-        block = {
-            isDirectoryPicked = viewModel.isDirectoryPickedBefore(context)
-        }
-    )
-
-    LaunchedEffect(
-        key1 = fileScanInfo,
-        key2 = viewModel.contentState,
-        block = {
-            if (fileScanInfo != null) {
-                if (fileScanInfo.state.isFinished) {
-                    isFileScanRunning = false
-                    viewModel.contentState = ContentState.NotLoading
-                    viewModel.clearStoredFileScanId()
-                } else {
-                    viewModel.contentState = ContentState.Loading
-                    isFileScanRunning = true
-                }
-            }
-        }
-    )
-
-    LaunchedEffect(
-        key1 = coverScanInfo,
-        key2 = viewModel.contentState,
-        block = {
-            if (coverScanInfo != null) {
-                if (coverScanInfo.state.isFinished) {
-                    isCoverScanRunning = false
-                    viewModel.contentState = ContentState.NotLoading
-                    viewModel.clearStoredCoverScanId()
-
-                } else {
-                    isCoverScanRunning = true
-                    viewModel.contentState = ContentState.Loading
-                }
-            }
-        }
-    )
-
     SideEffect {
-
+        isDirectoryPicked = viewModel.isDirectoryPickedBefore(context)
+        viewModel.getPersistedDirectories(context)
         viewModel.collectWorks()
     }
 
@@ -153,7 +124,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
         content = { paddingValues ->
             Column(
                 content = {
-                    AnimatedVisibility(visible = viewModel.contentState == ContentState.Loading) {
+                    AnimatedVisibility(visible = isScanningFiles || isScanningCovers) {
                         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                     }
 
@@ -198,23 +169,11 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                 },
                                                 tonalElevation = 30.dp,
                                                 modifier = Modifier.clickable {
-                                                    if (viewModel.documentDirectory == null) {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "Select app directory first",
-                                                            Toast.LENGTH_SHORT
-                                                        )
-                                                            .show()
-                                                    } else if (isFileScanRunning || isCoverScanRunning) {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "A scan is in progress",
-                                                            Toast.LENGTH_SHORT
-                                                        )
-                                                            .show()
-                                                    } else {
-                                                        viewModel.loadDocuments()
-                                                    }
+                                                    viewModel.loadDocuments(
+                                                        context,
+                                                        isScanningFiles,
+                                                        isScanningCovers
+                                                    )
                                                 }
                                             )
 
@@ -233,23 +192,11 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                 },
                                                 tonalElevation = 30.dp,
                                                 modifier = Modifier.clickable {
-                                                    if (viewModel.documentDirectory == null) {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "Select app directory first",
-                                                            Toast.LENGTH_SHORT
-                                                        )
-                                                            .show()
-                                                    } else if (isFileScanRunning || isCoverScanRunning) {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "A scan is in progress",
-                                                            Toast.LENGTH_SHORT
-                                                        )
-                                                            .show()
-                                                    } else {
-                                                        viewModel.rescanCovers()
-                                                    }
+                                                    viewModel.rescanCovers(
+                                                        context,
+                                                        isScanningFiles,
+                                                        isScanningCovers
+                                                    )
                                                 }
                                             )
                                         }
@@ -272,7 +219,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                             text = "Current: ${viewModel.documentDirectory?.path.toString()}"
                                                         )
                                                     } else {
-                                                        Text(text = "This is where the app will scan by default")
+                                                        Text(text = "This is where the app will scan")
                                                     }
                                                 },
                                                 tonalElevation = 30.dp,
@@ -286,11 +233,11 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                     Text(text = "Select other directories")
                                                 },
                                                 supportingContent = {
-                                                    //TODO: add the count of the added dirs here
+                                                    Text(text = "Total Selected: ${viewModel.scanDirectories.size}")
                                                 },
                                                 tonalElevation = 30.dp,
                                                 modifier = Modifier.clickable {
-
+                                                    otherDirectoryPickerLauncher.launch(intent)
                                                 }
                                             )
 
@@ -316,35 +263,60 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
     )
 
     AnimatedVisibility(
-        visible = showRemovalDialog,
+        visible = showRemovalDialog && viewModel.scanDirectories.isNotEmpty(),
         content = {
+            val scanDirs = viewModel.scanDirectories
+
             AlertDialog(
                 onDismissRequest = { showRemovalDialog = false },
-                confirmButton = { },
-                text = {
-                    LazyColumn(
-                        content = {
-                            items(10) {
-                                //TODO: replace ofc
-                                ListItem(
-                                    headlineContent = {
-                                        Text(text = "Folder $it")
-                                    },
-                                    trailingContent = {
-                                        IconButton(
-                                            onClick = { /*TODO*/ },
-                                            content = {
-                                                Icon(
-                                                    imageVector = Icons.Rounded.Delete,
-                                                    contentDescription = "Delete"
-                                                )
-                                            }
-                                        )
-                                    }
-                                )
-                            }
-                        }
+                confirmButton = {
+                    TextButton(
+                        content = { Text(text = "Cancel") },
+                        onClick = { showRemovalDialog = false }
                     )
+                },
+                text = {
+                    Card {
+                        LazyColumn(
+                            content = {
+                                items(scanDirs.keys.toList()) { key ->
+                                    ListItem(
+                                        headlineContent = {
+                                            Text(text = "$key", maxLines = 1)
+                                        },
+                                        trailingContent = {
+                                            IconButton(
+                                                onClick = {
+                                                    scanDirs[key]?.let {
+                                                        viewModel.removePersistedFolderAccess(
+                                                            context,
+                                                            it
+                                                        )
+                                                    }
+                                                    showRemovalDialog = false
+                                                    viewModel.loadDocuments(
+                                                        context,
+                                                        isScanningFiles,
+                                                        isScanningCovers
+                                                    )
+                                                },
+                                                content = {
+                                                    Icon(
+                                                        imageVector = Icons.Rounded.Delete,
+                                                        contentDescription = "Delete"
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    )
+
+                                    if (key != scanDirs.keys.last()) {
+                                        HorizontalDivider()
+                                    }
+                                }
+                            }
+                        )
+                    }
                 }
             )
         }

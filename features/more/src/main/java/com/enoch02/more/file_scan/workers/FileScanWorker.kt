@@ -44,35 +44,32 @@ class FileScanWorker @AssistedInject constructor(
 
             val notificationManager = NotificationManagerCompat.from(applicationContext)
             val db = documentDao.getDocumentsNonFlow()
-            val dir = getDirUri()?.let { listDocsInDirectory(applicationContext, it) }
+            val persistedUriPermissions = applicationContext.contentResolver.persistedUriPermissions
+            val uris = persistedUriPermissions.map { it.uri }
+            val dir = uris.map { listDocsInDirectory(applicationContext, it) }.flatten()
 
-            if (dir != null) {
-                saveFoundDocsCount(applicationContext, dir.size)
+            saveFoundDocsCount(applicationContext, dir.size)
 
-                // do nothing
-                if (db.isNotEmpty() && dir.isNotEmpty() && db.size == dir.size) {
-                    Log.d(TAG, "doWork: Doing nothing")
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            applicationContext,
-                            "No new files have been found",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+            // do nothing
+            if (db.isNotEmpty() && dir.isNotEmpty() && db.size == dir.size) {
+                Log.d(TAG, "doWork: Doing nothing")
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        applicationContext,
+                        "No new files have been found",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
+            }
 
-                // items have been deleted
-                if (db.size > dir.size) {
-                    removeDocsFromDb(applicationContext)
-                }
+            // items have been deleted
+            if (db.size > dir.size) {
+                removeDocsFromDb(applicationContext)
+            }
 
-                // items have been added
-                if (dir.size > db.size) {
-                    addDocsToDb(applicationContext, dir)
-                }
-            } else {
-                //TODO: send a notification when the scan fails???
-                Result.failure()
+            // items have been added
+            if (dir.size > db.size) {
+                addDocsToDb(applicationContext, dir)
             }
 
             notificationManager.cancel(PROGRESS_NOTIFICATION_ID)
@@ -120,7 +117,7 @@ class FileScanWorker @AssistedInject constructor(
         }
 
         withContext(Dispatchers.Main) {
-            makeStatusNotification(message = "$removedCount documents added removed", context)
+            makeStatusNotification(message = "$removedCount documents removed", context)
         }
     }
 

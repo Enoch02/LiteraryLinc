@@ -1,6 +1,6 @@
 package com.enoch02.more.file_scan.util
 
-import android.annotation.SuppressLint
+import android.content.ContentResolver
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
@@ -12,21 +12,28 @@ import com.artifex.mupdf.viewer.ContentInputStream
 import com.artifex.mupdf.viewer.MuPDFCore
 import com.enoch02.database.model.LLDocument
 import com.enoch02.more.file_scan.TAG
+import java.io.InputStream
+import java.security.MessageDigest
+import kotlin.math.roundToInt
 
 val allowedTypes = arrayOf(
     "application/pdf",
     "application/epub+zip",
+    "application/x-cbz",
+    "application/vnd.comicbook+zip",
     /*TODO*/
     /*"application/vnd.ms-xpsdocument",
     "application/oxps",
-    "application/x-cbz",
-    "application/vnd.comicbook+zip",
     "application/x-fictionbook",
     "application/x-mobipocket-ebook",*/
 )
 
 /**
- * Get files from app directory
+ * Get files from specified app directory
+ *
+ * @param context The context for accessing the content resolver.
+ * @param directoryUri The Uri of the directory to scan.
+ * @return a list of [LLDocument]
  */
 fun listDocsInDirectory(context: Context, directoryUri: Uri): List<LLDocument> {
     val foundFiles = mutableListOf<LLDocument>()
@@ -81,10 +88,20 @@ data class DocumentMetadata(
     val currentPage: Int
 )
 
+/**
+ * Obtains document metadata using [MuPDFCore]
+ *
+ * @param context The context for accessing the content resolver.
+ * @param uri The Uri of the document file.
+ * @return [DocumentMetadata] if data is available or null
+ */
 private fun getDocumentMetadata(context: Context, uri: Uri): DocumentMetadata? {
     var cursor: Cursor? = null
     val mimeType = context.contentResolver.getType(uri).toString()
     var fileSize = 0L
+    fun roundToTwoDecimalPlaces(number: Double): Double {
+        return (number * 100).roundToInt() / 100.0
+    }
 
     try {
         cursor = context.contentResolver.query(uri, null, null, null, null)
@@ -103,11 +120,13 @@ private fun getDocumentMetadata(context: Context, uri: Uri): DocumentMetadata? {
     }
 
     val core = openStream(ContentInputStream(context.contentResolver, uri, fileSize), mimeType)
+    val fileSizeInMb = if (fileSize > 0L) fileSize.toDouble() / (1024 * 1024) else 0.0
+
     if (core != null) {
         return DocumentMetadata(
             author = core.author,
             title = core.title,
-            sizeInMb = if (fileSize > 0L) fileSize.toDouble() / (1024 * 1024) else 0.0,
+            sizeInMb = if (fileSizeInMb > 0.0) roundToTwoDecimalPlaces(fileSizeInMb) else fileSizeInMb,
             pages = core.countPages(),
             currentPage = core.currentPage
         )
@@ -126,4 +145,39 @@ private fun openStream(stm: SeekableInputStream, magic: String): MuPDFCore? {
         return null
     }
     return core
+}
+
+/**
+ * Generate document file MD5
+ *
+ * @param contentResolver The content resolver.
+ * @return A [String] of the MD5 or null if no MD5 can be obtained.
+ */
+fun DocumentFile.getDocumentFileMd5(contentResolver: ContentResolver): String? {
+    try {
+        // Create an MD5 digest instance
+        val md = MessageDigest.getInstance("MD5")
+
+        // Use ContentResolver to open an InputStream for the DocumentFile
+        val inputStream: InputStream? = contentResolver.openInputStream(this.uri)
+
+        inputStream.use { fis ->
+            if (fis != null) {
+                val buffer = ByteArray(1024)
+                var bytesRead: Int
+
+                // Read the file in chunks and update the digest
+                while (fis.read(buffer).also { bytesRead = it } != -1) {
+                    md.update(buffer, 0, bytesRead)
+                }
+            }
+        }
+
+        // Convert the digest to a hex string
+        val digest = md.digest()
+        return digest.joinToString("") { "%02x".format(it) }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+    return null
 }
