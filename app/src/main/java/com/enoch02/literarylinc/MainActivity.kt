@@ -11,8 +11,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.enoch02.literarylinc.navigation.LiteraryLincNavHost
 import com.enoch02.literarylinc.ui.theme.LiteraryLincTheme
@@ -35,10 +37,12 @@ class MainActivity : ComponentActivity() {
                     alwaysDark = alwaysDark!!,
                     dynamicColor = dynamicColor!!,
                     content = {
+                        window.navigationBarColor =  MaterialTheme.colorScheme.surfaceContainer.toArgb()
+
                         Surface(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .nestedScroll(rememberNestedScrollInteropConnection()), //TODO: is this still needed?
+                                .nestedScroll(rememberNestedScrollInteropConnection()),
                             color = MaterialTheme.colorScheme.background
                         ) {
                             LiteraryLincNavHost()
