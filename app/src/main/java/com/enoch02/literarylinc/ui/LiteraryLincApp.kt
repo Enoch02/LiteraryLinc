@@ -3,7 +3,6 @@ package com.enoch02.literarylinc.ui
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -11,10 +10,10 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
+import androidx.compose.material.icons.automirrored.rounded.ListAlt
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Analytics
-import androidx.compose.material.icons.rounded.InsertDriveFile
-import androidx.compose.material.icons.rounded.ListAlt
 import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
@@ -59,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.enoch02.booklist.BookListScreen
 import com.enoch02.booklist.components.BookListViewMode
+import com.enoch02.database.model.ReaderSorting
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
 import com.enoch02.literarylinc.R
@@ -73,13 +73,18 @@ import com.enoch02.stats.StatsScreen
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+//TODO: extract common composables
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LiteraryLincApp(navController: NavController) {
     val scope = rememberCoroutineScope()
     var currentScreen by rememberSaveable { mutableStateOf(TopLevelDestination.BOOK_LIST) }
-    var sorting by rememberSaveable { mutableStateOf(Sorting.ALPHABETICAL) }
-    var showSortOptions by rememberSaveable { mutableStateOf(false) }
+    var currentBookListSorting by rememberSaveable { mutableStateOf(Sorting.ALPHABETICAL) }
+    var showBookListSortOptions by rememberSaveable { mutableStateOf(false) }
+
+    var currentReaderListSorting by rememberSaveable { mutableStateOf(ReaderSorting.LAST_READ) }
+    var showReaderListSortOptions by rememberSaveable { mutableStateOf(false) }
+
     val snackbarHostState = remember { SnackbarHostState() }
     var bookListViewMode by rememberSaveable { mutableStateOf(BookListViewMode.LIST_VIEW) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -96,7 +101,7 @@ fun LiteraryLincApp(navController: NavController) {
     ModalNavigationDrawer(
         gesturesEnabled = enableDrawerGestures,
         drawerContent = {
-            val statusFilters = StatusFilter.values()
+            val statusFilters = StatusFilter.entries.toTypedArray()
 
             ModalDrawerSheet(
                 drawerShape = RectangleShape,
@@ -213,7 +218,7 @@ fun LiteraryLincApp(navController: NavController) {
                                     )
 
                                     IconButton(
-                                        onClick = { showSortOptions = true },
+                                        onClick = { showBookListSortOptions = true },
                                         content = {
                                             Icon(
                                                 painter = painterResource(id = R.drawable.round_sort_24),
@@ -222,33 +227,33 @@ fun LiteraryLincApp(navController: NavController) {
                                         }
                                     )
 
-                                    if (showSortOptions) {
+                                    if (showBookListSortOptions) {
                                         AlertDialog(
                                             title = { Text(text = stringResource(R.string.sorting_options_text)) },
-                                            onDismissRequest = { showSortOptions = false },
+                                            onDismissRequest = { showBookListSortOptions = false },
                                             confirmButton = {},
                                             dismissButton = {
                                                 TextButton(
-                                                    onClick = { showSortOptions = false },
+                                                    onClick = { showBookListSortOptions = false },
                                                     content = {
                                                         Text(text = "Cancel")
                                                     }
                                                 )
                                             },
                                             text = {
-                                                val options = Sorting.values()
+                                                val options = Sorting.entries.toTypedArray()
 
                                                 Card {
                                                     options.forEach {
                                                         val onClick = {
-                                                            showSortOptions = false
-                                                            sorting = it
+                                                            showBookListSortOptions = false
+                                                            currentBookListSorting = it
                                                         }
 
                                                         ListItem(
                                                             leadingContent = {
                                                                 RadioButton(
-                                                                    selected = it == sorting,
+                                                                    selected = it == currentBookListSorting,
                                                                     onClick = { onClick() }
                                                                 )
                                                             },
@@ -265,7 +270,58 @@ fun LiteraryLincApp(navController: NavController) {
                                 }
 
                                 TopLevelDestination.READER -> {
+                                    IconButton(
+                                        onClick = { showReaderListSortOptions = true },
+                                        content = {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.round_sort_24),
+                                                contentDescription = stringResource(R.string.sort_desc)
+                                            )
+                                        }
+                                    )
 
+                                    if (showReaderListSortOptions) {
+                                        AlertDialog(
+                                            title = { Text(text = stringResource(R.string.sorting_options_text)) },
+                                            onDismissRequest = {
+                                                showReaderListSortOptions = false
+                                            },
+                                            confirmButton = {},
+                                            dismissButton = {
+                                                TextButton(
+                                                    onClick = { showReaderListSortOptions = false },
+                                                    content = {
+                                                        Text(text = "Cancel")
+                                                    }
+                                                )
+                                            },
+                                            text = {
+                                                val readerSortOptions = ReaderSorting.entries.toTypedArray()
+
+                                                Card {
+                                                    readerSortOptions.forEach {
+                                                        val onClick = {
+                                                            showReaderListSortOptions = false
+                                                            currentReaderListSorting = it
+                                                        }
+
+                                                        ListItem(
+                                                            leadingContent = {
+                                                                RadioButton(
+                                                                    selected = it == currentReaderListSorting,
+                                                                    onClick = { onClick() }
+                                                                )
+                                                            },
+                                                            headlineContent = {
+                                                                Text(text = it.value)
+                                                            },
+                                                            modifier = Modifier.clickable { onClick() }
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        )
+                                    }
                                 }
 
                                 TopLevelDestination.SEARCH -> {
@@ -313,10 +369,10 @@ fun LiteraryLincApp(navController: NavController) {
                     )
                 },
                 bottomBar = {
-                    val screens = TopLevelDestination.values()
+                    val screens = TopLevelDestination.entries.toTypedArray()
                     val icons = listOf(
-                        Icons.Rounded.ListAlt,
-                        Icons.Rounded.InsertDriveFile,
+                        Icons.AutoMirrored.Rounded.ListAlt,
+                        Icons.AutoMirrored.Rounded.InsertDriveFile,
                         Icons.Rounded.Search,
                         Icons.Rounded.Analytics,
                         Icons.Rounded.MoreHoriz
@@ -375,7 +431,7 @@ fun LiteraryLincApp(navController: NavController) {
                                     BookListScreen(
                                         modifier = Modifier.padding(paddingValues),
                                         scope = scope,
-                                        sorting = sorting,
+                                        sorting = currentBookListSorting,
                                         statusFilter = statusFilter,
                                         listViewMode = bookListViewMode,
                                         listState = rememberLazyListState(),
@@ -389,6 +445,7 @@ fun LiteraryLincApp(navController: NavController) {
                                 TopLevelDestination.READER -> {
                                     ReaderScreen(
                                         modifier = Modifier.padding(paddingValues),
+                                        sorting = currentReaderListSorting,
                                         onScanForDocs = {
                                             navController.navigate(MoreScreenDestination.Scanner.route)
                                         }

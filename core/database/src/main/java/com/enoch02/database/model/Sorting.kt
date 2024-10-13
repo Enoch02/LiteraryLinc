@@ -10,3 +10,10 @@ enum class Sorting {
         return this.name.lowercase().replaceFirstChar { c -> c.uppercase() }.replace("_", " ")
     }
 }
+
+enum class ReaderSorting(val value: String) {
+    NAME("Name"),
+    LAST_READ("Last read"),
+    SIZE("File size"),
+    FORMAT("File format")
+}

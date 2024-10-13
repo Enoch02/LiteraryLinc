@@ -4,17 +4,19 @@ import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,7 +42,7 @@ import java.util.Calendar
 import java.util.Date
 
 @Composable
-fun DocumentListItem(
+fun ReaderListItem(
     document: LLDocument,
     cover: String?,
     modifier: Modifier = Modifier,
@@ -95,8 +97,8 @@ fun DocumentListItem(
                 model = cover,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(width = 50.dp, height = 80.dp)
-                    .clip(RoundedCornerShape(4.dp))
+                    .width(80.dp)
+                    .fillMaxHeight()
             )
         },
         supportingContent = {
@@ -146,9 +148,11 @@ fun DocumentListItem(
                 )
             }
         },
-        modifier = modifier.clickable {
-            onClick()
-        }
+        modifier = modifier
+            .height(IntrinsicSize.Min)
+            .clickable {
+                onClick()
+            }
     )
 }
 
@@ -159,7 +163,7 @@ private fun Preview() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) Date.from(Instant.now()) else Calendar.getInstance().time
 
     Column {
-        DocumentListItem(
+        ReaderListItem(
             LLDocument(
                 name = "Hello",
                 cover = "",
@@ -172,7 +176,7 @@ private fun Preview() {
             onClick = {}
         )
 
-        DocumentListItem(
+        ReaderListItem(
             LLDocument(
                 name = "Hello",
                 cover = "",

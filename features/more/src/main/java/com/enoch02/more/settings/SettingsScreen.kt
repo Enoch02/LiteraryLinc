@@ -23,7 +23,6 @@ import androidx.navigation.NavController
 import com.enoch02.more.R
 import com.enoch02.more.components.SwitchSettingItem
 
-//TODO: add option to refresh covers that are FROM open library api
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = hiltViewModel()) {
@@ -89,7 +88,8 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
 
                                         }
 
-                                        SwitchSettingItem(
+                                        //TODO: remove
+                                        /*SwitchSettingItem(
                                             label = "Disable Animations",
                                             checked = disableAnim,
                                             onCheckChanged = {
@@ -98,7 +98,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                                     newValue = it
                                                 )
                                             }
-                                        )
+                                        )*/
                                     }
                                 )
                             },

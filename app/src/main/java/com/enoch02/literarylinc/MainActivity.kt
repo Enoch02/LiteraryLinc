@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -37,7 +38,15 @@ class MainActivity : ComponentActivity() {
                     alwaysDark = alwaysDark!!,
                     dynamicColor = dynamicColor!!,
                     content = {
-                        window.navigationBarColor =  MaterialTheme.colorScheme.surfaceContainer.toArgb()
+                        window.navigationBarColor =
+                            MaterialTheme.colorScheme.surfaceContainer.toArgb()
+                        val windowInsetsController =
+                            WindowInsetsControllerCompat(window, window.decorView)
+                        if (!isSystemInDarkTheme()) {
+                            // Set to true for dark icons, false for light icons
+                            windowInsetsController.isAppearanceLightNavigationBars = true
+                        }
+
 
                         Surface(
                             modifier = Modifier

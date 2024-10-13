@@ -1,8 +1,5 @@
 package com.enoch02.booklist.components
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -18,13 +15,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.PlusOne
-import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -143,13 +138,6 @@ private fun BookListItem(
     onItemIncrement: () -> Unit
 ) {
     var currentProgress by rememberSaveable { mutableFloatStateOf(0f) }
-
-    val currentPercentage by animateFloatAsState(
-        targetValue = currentProgress,
-        animationSpec = tween(durationMillis = 1000, easing = LinearEasing),
-        label = "progress"
-    )
-
     val showEmptyProgress by remember { derivedStateOf { book.pagesRead == 0 && book.pageCount == 0 } }
     var isComplete by remember { mutableStateOf(false) }
     var showWarningDialog by rememberSaveable { mutableStateOf(false) }
@@ -201,7 +189,7 @@ private fun BookListItem(
                     )
                 } else {
                     LinearProgressIndicator(
-                        progress = { currentPercentage / 100f },
+                        progress = { currentProgress / 100f },
                         modifier = Modifier.height(10.dp),
                     )
                 }
@@ -215,7 +203,7 @@ private fun BookListItem(
                     )
                 } else {
                     Text(
-                        text = "Progress: ${currentPercentage.toInt()}%",
+                        text = "Progress: ${currentProgress.toInt()}%",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -268,9 +256,6 @@ private fun BookListItem(
                     }
                 )
             },
-            /*icon = {
-                Icon(imageVector = Icons.Rounded.Warning, contentDescription = null)
-            },*/
             text = {
                 Text(text = "Do you want to delete this entry?", textAlign = TextAlign.Center)
             }

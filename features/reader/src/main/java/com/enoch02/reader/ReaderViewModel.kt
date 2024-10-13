@@ -2,17 +2,15 @@ package com.enoch02.reader
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.model.LLDocument
+import com.enoch02.database.model.ReaderSorting
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,7 +22,6 @@ class ReaderViewModel @Inject constructor(
     bookCoverRepository: BookCoverRepository
 ) :
     ViewModel() {
-    var documents = documentDao.getDocumentsAscending()
     val covers = bookCoverRepository.latestCoverPath
 
     fun isDirectoryPickedBefore(context: Context): Boolean {
@@ -41,6 +38,26 @@ class ReaderViewModel @Inject constructor(
             }
         }
         return false
+    }
+
+    fun getDocuments(sorting: ReaderSorting): Flow<List<LLDocument>> {
+        return when (sorting) {
+            ReaderSorting.NAME -> {
+                documentDao.getDocumentsByName()
+            }
+
+            ReaderSorting.LAST_READ -> {
+                documentDao.getDocumentsByLastRead()
+            }
+
+            ReaderSorting.SIZE -> {
+                documentDao.getDocumentsBySize()
+            }
+
+            ReaderSorting.FORMAT -> {
+                documentDao.getDocumentsByFormat()
+            }
+        }
     }
 
     fun updateDocumentInfo(document: LLDocument) {

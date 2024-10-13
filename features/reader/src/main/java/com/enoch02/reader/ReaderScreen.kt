@@ -2,6 +2,7 @@ package com.enoch02.reader
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -46,8 +47,12 @@ import com.composables.core.ThumbVisibility
 import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.enoch02.database.model.LLDocument
-import com.enoch02.reader.components.DocumentListItem
+import com.enoch02.database.model.ReaderSorting
+import com.enoch02.reader.components.ReaderListItem
 import java.lang.IndexOutOfBoundsException
+import java.time.Instant
+import java.util.Calendar
+import java.util.Date
 import kotlin.time.Duration.Companion.seconds
 
 private const val TAG = "ReaderScreen"
@@ -56,10 +61,11 @@ private const val TAG = "ReaderScreen"
 fun ReaderScreen(
     modifier: Modifier,
     viewModel: ReaderViewModel = hiltViewModel(),
+    sorting: ReaderSorting,
     onScanForDocs: () -> Unit
 ) {
     val context = LocalContext.current
-    val documents by viewModel.documents.collectAsState(initial = emptyList())
+    val documents by viewModel.getDocuments(sorting = sorting).collectAsState(initial = emptyList())
     val covers by viewModel.covers.collectAsState(initial = emptyMap())
 
     var isDirectoryPicked by rememberSaveable { mutableStateOf(false) }
@@ -74,10 +80,15 @@ fun ReaderScreen(
                     val pages = activityResult.data?.getIntExtra("pages", 0)
                     val currentPage =
                         activityResult.data?.getIntExtra("currentPage", 0)
+                    val lastRead = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) Date.from(
+                        Instant.now()
+                    ) else Calendar.getInstance().time
+
                     val currentDocument = documents[currentDocumentIndex]
                     val modifiedDocument = currentDocument.copy(
                         pages = pages ?: 0,
-                        currentPage = currentPage ?: 0
+                        currentPage = currentPage ?: 0,
+                        lastRead = lastRead
                     )
 
                     viewModel.updateDocumentInfo(modifiedDocument)
@@ -165,7 +176,7 @@ fun ReaderList(
                     state = listState,
                     content = {
                         items(documents) { item ->
-                            DocumentListItem(
+                            ReaderListItem(
                                 document = item,
                                 cover = covers[item.cover],
                                 onClick = {
