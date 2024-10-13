@@ -71,15 +71,11 @@ fun ReaderScreen(
         onResult = { activityResult ->
             if (activityResult.resultCode == Activity.RESULT_OK) {
                 try {
-                    val title = activityResult.data?.getStringExtra("title")
-                    val author = activityResult.data?.getStringExtra("author")
                     val pages = activityResult.data?.getIntExtra("pages", 0)
                     val currentPage =
                         activityResult.data?.getIntExtra("currentPage", 0)
                     val currentDocument = documents[currentDocumentIndex]
                     val modifiedDocument = currentDocument.copy(
-                        name = if (title.isNullOrBlank()) currentDocument.name else title,
-                        author = author ?: "",
                         pages = pages ?: 0,
                         currentPage = currentPage ?: 0
                     )

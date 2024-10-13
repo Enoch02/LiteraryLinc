@@ -275,6 +275,9 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                         onClick = { showRemovalDialog = false }
                     )
                 },
+                title = {
+                    Text("Scanned Directories")
+                },
                 text = {
                     Card {
                         LazyColumn(

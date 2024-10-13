@@ -838,8 +838,6 @@ public class DocumentActivity extends Activity {
     @Override
     public void finish() {
         Intent intent = new Intent();
-        intent.putExtra("title", core.getTitle());
-        intent.putExtra("author", core.getAuthor());
         intent.putExtra("pages", core.countPages());
         intent.putExtra("currentPage", mDocView.getDisplayedViewIndex());
         setResult(Activity.RESULT_OK, intent);
