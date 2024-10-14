@@ -839,7 +839,9 @@ public class DocumentActivity extends Activity {
     public void finish() {
         Intent intent = new Intent();
         intent.putExtra("pages", core.countPages());
-        intent.putExtra("currentPage", mDocView.getDisplayedViewIndex());
+        // pages are zero indexed in the core ig, PDF files with 1 page will always return 0/1
+        // adding 1 is necessary here.
+        intent.putExtra("currentPage", core.getCurrentPage() + 1);
         setResult(Activity.RESULT_OK, intent);
         super.finish();
     }

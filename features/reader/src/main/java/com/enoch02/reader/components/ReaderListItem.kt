@@ -76,11 +76,10 @@ fun ReaderListItem(
                     maxLines = 1,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize,
                 )
-
-
+                
                 LinearProgressIndicator(
                     progress = {
-                        if (document.currentPage > 0 && document.pages >= document.currentPage) {
+                        if (document.currentPage > 0 && document.pages > 0) {
                             document.currentPage.toFloat() / document.pages.toFloat()
                         } else {
                             0f
