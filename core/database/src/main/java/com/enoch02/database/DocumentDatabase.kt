@@ -8,7 +8,7 @@ import com.enoch02.database.converters.UriTypeConverter
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.model.LLDocument
 
-@Database(entities = [LLDocument::class], version = 3, exportSchema = false)
+@Database(entities = [LLDocument::class], version = 1, exportSchema = true)
 @TypeConverters(UriTypeConverter::class, DateTypeConverter::class)
 abstract class DocumentDatabase : RoomDatabase() {
     abstract fun getDocumentDao(): DocumentDao

@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.enoch02.database.dao.SearchHistoryDao
 import com.enoch02.database.model.HistoryItem
 
-@Database(entities = [HistoryItem::class], version = 1, exportSchema = false)
+@Database(entities = [HistoryItem::class], version = 1, exportSchema = true)
 abstract class SearchHistoryDatabase : RoomDatabase() {
 
     abstract fun getSearchHistoryDao(): SearchHistoryDao

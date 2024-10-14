@@ -113,7 +113,7 @@ class FileScanViewModel @Inject constructor(
     }
 
     fun loadDocuments(context: Context, isScanningFiles: Boolean, isScanningCovers: Boolean) {
-        if (documentDirectory == null || scanDirectories.isEmpty()) {
+        if (documentDirectory == null) {
             Toast.makeText(
                 context,
                 "Select app directory",

@@ -76,6 +76,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
 
                 viewModel.savePickedDirectoryUri(context, uri)
                 isDirectoryPicked = true
+                viewModel.getPersistedDirectories(context)
                 viewModel.loadDocuments(context, isScanningFiles, isScanningCovers)
             }
         }
@@ -219,7 +220,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                             text = "Current: ${viewModel.documentDirectory?.path.toString()}"
                                                         )
                                                     } else {
-                                                        Text(text = "This is where the app will scan")
+                                                        Text(text = "This is where the app will scan by default")
                                                     }
                                                 },
                                                 tonalElevation = 30.dp,

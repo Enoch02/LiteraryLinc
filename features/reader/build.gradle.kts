@@ -77,3 +77,9 @@ dependencies {
     implementation(libs.slf4j.android)
     implementation(libs.core)
 }
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}

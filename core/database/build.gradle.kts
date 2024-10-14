@@ -6,13 +6,24 @@ plugins {
 
 android {
     namespace = "com.enoch02.database"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["room.incremental"] = "true"
+            }
+        }
+    }
+
+    ksp {
+        arg("room.schemaLocation", "$projectDir/schemas")
+        arg("room.incremental", "true")
     }
 
     buildTypes {
@@ -53,4 +64,10 @@ dependencies {
 
     implementation(libs.kotlin.csv.jvm)
     implementation(kotlin("reflect"))
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
