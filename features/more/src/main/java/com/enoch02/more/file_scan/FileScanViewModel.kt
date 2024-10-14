@@ -86,7 +86,6 @@ class FileScanViewModel @Inject constructor(
                 clearStoredFileScanId()
                 fileScanWorkCollectionJob?.cancel()
                 fileScanWorkCollectionJob = null
-                Log.e(TAG, "isScanningFiles: Clear stored id")
             }
             return false
         }
@@ -99,7 +98,6 @@ class FileScanViewModel @Inject constructor(
                 clearStoredCoverScanId()
                 coverScanCollectionJob?.cancel()
                 coverScanCollectionJob = null
-                Log.e(TAG, "isScanningCovers: Clear stored id")
             }
             return false
         }

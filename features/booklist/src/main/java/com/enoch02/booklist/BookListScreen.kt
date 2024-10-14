@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -20,13 +22,9 @@ import com.enoch02.booklist.components.BookListViewMode
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun BookListScreen(
     modifier: Modifier,
@@ -39,8 +37,8 @@ fun BookListScreen(
     onItemClick: (Int) -> Unit,
     viewModel: BookListViewModel = hiltViewModel()
 ) {
-    val pagerState = rememberPagerState()
     val tabLabels = Book.types.values
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabLabels.size })
 
     Column(modifier = modifier.fillMaxSize()) {
         ScrollableTabRow(
@@ -64,10 +62,10 @@ fun BookListScreen(
         )
 
         HorizontalPager(
-            count = tabLabels.size,
             state = pagerState,
-            content = { tabIndex ->
-                val books = viewModel.getBooks(filter = tabIndex, sorting = sorting,
+            pageContent = { tabIndex ->
+                val books = viewModel.getBooks(
+                    filter = tabIndex, sorting = sorting,
                     status = statusFilter
                 )
                     .collectAsState(initial = emptyList()).value

@@ -28,9 +28,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -64,11 +66,8 @@ fun ReaderScreen(
     sorting: ReaderSorting,
     onScanForDocs: () -> Unit
 ) {
-    val context = LocalContext.current
     val documents by viewModel.getDocuments(sorting = sorting).collectAsState(initial = emptyList())
     val covers by viewModel.covers.collectAsState(initial = emptyMap())
-
-    var isDirectoryPicked by rememberSaveable { mutableStateOf(false) }
     var currentDocumentIndex by rememberSaveable {
         mutableIntStateOf(0)
     }
@@ -99,43 +98,18 @@ fun ReaderScreen(
         }
     )
 
-    LaunchedEffect(
-        key1 = Unit,
-        block = {
-            isDirectoryPicked = viewModel.isDirectoryPickedBefore(context)
+    ReaderList(
+        documents = documents,
+        covers = covers,
+        documentViewerLauncher = documentViewerLauncher,
+        modifier = modifier,
+        onScanForDocs = {
+            onScanForDocs()
+        },
+        onItemClick = { index ->
+            currentDocumentIndex = index
         }
     )
-
-    if (isDirectoryPicked) {
-        ReaderList(
-            documents = documents,
-            covers = covers,
-            documentViewerLauncher = documentViewerLauncher,
-            modifier = modifier,
-            onScanForDocs = {
-                onScanForDocs()
-            },
-            onItemClick = { index ->
-                currentDocumentIndex = index
-            }
-        )
-
-    } else {
-        Column(
-            modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            content = {
-                Text(text = "Directory has not been selected")
-                Button(
-                    onClick = onScanForDocs,
-                    content = {
-                        Text(text = "Pick a new directory")
-                    }
-                )
-            }
-        )
-    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

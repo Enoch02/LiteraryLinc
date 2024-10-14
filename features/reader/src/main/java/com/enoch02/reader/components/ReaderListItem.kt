@@ -170,7 +170,9 @@ private fun Preview() {
                 contentUri = null,
                 id = "1",
                 lastRead = now,
-                type = "PDF"
+                type = "PDF",
+                pages = 1,
+                currentPage = 1
             ),
             cover = null,
             onClick = {}
