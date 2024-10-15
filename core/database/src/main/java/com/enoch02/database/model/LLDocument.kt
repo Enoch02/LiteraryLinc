@@ -19,7 +19,8 @@ data class LLDocument(
     val currentPage: Int = 0,
     val sizeInMb: Double = 0.0,
     val lastRead: Date?,
-    val type: String
+    val type: String,
+    val isComplete: Boolean = false
 )
 
 fun LLDocument.existsAsFile(context: Context): Boolean {

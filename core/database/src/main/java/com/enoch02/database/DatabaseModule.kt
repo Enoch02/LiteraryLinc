@@ -41,8 +41,5 @@ object DatabaseModule {
             context,
             DocumentDatabase::class.java,
             "documents-db"
-        )
-            //TODO: Replace with actual migration (do for other dbs)
-            .fallbackToDestructiveMigration()
-            .build()
+        ).build()
 }

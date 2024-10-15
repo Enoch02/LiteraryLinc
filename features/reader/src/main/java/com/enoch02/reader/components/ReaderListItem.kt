@@ -25,6 +25,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -76,7 +77,7 @@ fun ReaderListItem(
                     maxLines = 1,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize,
                 )
-                
+
                 LinearProgressIndicator(
                     progress = {
                         if (document.currentPage > 0 && document.pages > 0) {
