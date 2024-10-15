@@ -3,6 +3,7 @@ package com.enoch02.database.model
 import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.Date
@@ -19,7 +20,11 @@ data class LLDocument(
     val currentPage: Int = 0,
     val sizeInMb: Double = 0.0,
     val lastRead: Date?,
-    val type: String
+    val type: String,
+    @ColumnInfo(defaultValue = "0") // Setting default value to 0 for false
+    val isRead: Boolean = false,
+    @ColumnInfo(defaultValue = "0")
+    val isFavorite: Boolean = false
 )
 
 fun LLDocument.existsAsFile(context: Context): Boolean {

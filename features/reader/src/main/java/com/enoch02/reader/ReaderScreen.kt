@@ -108,6 +108,12 @@ fun ReaderScreen(
         },
         onItemClick = { index ->
             currentDocumentIndex = index
+        },
+        onAddToFavoritesClicked = { document ->
+            viewModel.toggleFavoriteStatus(document)
+        },
+        onMarkAsReadClicked = { document ->
+            viewModel.toggleDocumentReadStatus(document)
         }
     )
 }
@@ -120,7 +126,9 @@ fun ReaderList(
     documentViewerLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
     modifier: Modifier = Modifier,
     onScanForDocs: () -> Unit,
-    onItemClick: (index: Int) -> Unit
+    onItemClick: (index: Int) -> Unit,
+    onAddToFavoritesClicked: (document: LLDocument) -> Unit,
+    onMarkAsReadClicked: (document: LLDocument) -> Unit,
 ) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
@@ -163,6 +171,12 @@ fun ReaderList(
                                         }
 
                                     documentViewerLauncher.launch(intent)
+                                },
+                                onAddToFavoritesClicked = {
+                                    onAddToFavoritesClicked(item)
+                                },
+                                onMarkAsReadClicked = {
+                                    onMarkAsReadClicked(item)
                                 }
                             )
 

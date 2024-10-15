@@ -1,7 +1,5 @@
 package com.enoch02.reader
 
-import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
@@ -51,6 +49,18 @@ class ReaderViewModel @Inject constructor(
     fun updateDocumentInfo(document: LLDocument) {
         viewModelScope.launch(Dispatchers.IO) {
             documentDao.updateDocument(document)
+        }
+    }
+
+    fun toggleDocumentReadStatus(document: LLDocument) {
+        viewModelScope.launch(Dispatchers.IO) {
+            documentDao.updateDocument(document.copy(isRead = !document.isRead))
+        }
+    }
+
+    fun toggleFavoriteStatus(document: LLDocument) {
+        viewModelScope.launch(Dispatchers.IO) {
+            documentDao.updateDocument(document.copy(isFavorite = !document.isFavorite))
         }
     }
 }

@@ -10,18 +10,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -46,7 +45,9 @@ fun ReaderListItem(
     document: LLDocument,
     cover: String?,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onAddToFavoritesClicked: () -> Unit,
+    onMarkAsReadClicked: () -> Unit,
 ) {
     var showOptions by remember {
         mutableStateOf(false)
@@ -76,7 +77,7 @@ fun ReaderListItem(
                     maxLines = 1,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize,
                 )
-                
+
                 LinearProgressIndicator(
                     progress = {
                         if (document.currentPage > 0 && document.pages > 0) {
@@ -105,22 +106,26 @@ fun ReaderListItem(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                val favoriteIcon = if (document.isFavorite) Icons.Rounded.Star else Icons.Rounded.StarOutline
+
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = onAddToFavoritesClicked,
                     content = {
                         Icon(
-                            imageVector = Icons.Rounded.StarOutline,
-                            contentDescription = "Add to favorites"
+                            imageVector = favoriteIcon,
+                            contentDescription = "Add to favorites",
+                            tint = if (document.isFavorite) MaterialTheme.colorScheme.primary else LocalContentColor.current
                         )
                     }
                 )
 
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = onMarkAsReadClicked,
                     content = {
                         Icon(
                             imageVector = Icons.Rounded.DoneAll,
-                            contentDescription = "Mark as completed"
+                            contentDescription = "Mark as read",
+                            tint = if (document.isRead) MaterialTheme.colorScheme.primary else LocalContentColor.current
                         )
                     }
                 )
@@ -174,7 +179,9 @@ private fun Preview() {
                 currentPage = 1
             ),
             cover = null,
-            onClick = {}
+            onClick = {},
+            onAddToFavoritesClicked = {},
+            onMarkAsReadClicked = {}
         )
 
         ReaderListItem(
@@ -188,7 +195,9 @@ private fun Preview() {
                 type = "EPUB"
             ),
             cover = null,
-            onClick = {}
+            onClick = {},
+            onAddToFavoritesClicked = {},
+            onMarkAsReadClicked = {}
         )
     }
 }
