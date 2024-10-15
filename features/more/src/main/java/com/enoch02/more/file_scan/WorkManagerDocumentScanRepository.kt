@@ -35,7 +35,7 @@ class WorkManagerDocumentScanRepository(
             .build()
         var continuation = workManager.beginUniqueWork(
             FILE_SCAN_WORKER_ID.toString(),
-            ExistingWorkPolicy.APPEND_OR_REPLACE,
+            ExistingWorkPolicy.REPLACE,
             scanFiles
         )
 

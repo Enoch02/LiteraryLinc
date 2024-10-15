@@ -13,9 +13,9 @@ android {
     defaultConfig {
         applicationId = "com.enoch02.literarylinc"
         minSdk = 24
-        targetSdk = 33
-        versionCode = 8
-        versionName = "0.0.8"
+        targetSdk = 35
+        versionCode = 10
+        versionName = "0.0.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -90,4 +90,10 @@ dependencies {
     ksp(libs.hilt.android.compiler)
 
     implementation(libs.androidx.datastore.preferences)
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }

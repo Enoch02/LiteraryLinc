@@ -41,6 +41,7 @@ android {
 dependencies {
     val daggerVersion: String by rootProject.extra
 
+    api(project(":mupdf-lib"))
     implementation(project(":core:settings"))
     implementation(project(":core:database"))
     implementation(project(":core:coverfile"))
@@ -76,4 +77,10 @@ dependencies {
     implementation(libs.slf4j.android)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.hilt.work)
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }

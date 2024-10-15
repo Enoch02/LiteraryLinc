@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.enoch02.stats"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 24
@@ -60,4 +60,11 @@ dependencies {
     implementation (libs.androidx.hilt.navigation.compose)
     ksp (libs.androidx.hilt.compiler)
     ksp(libs.hilt.android.compiler)
+}
+
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
