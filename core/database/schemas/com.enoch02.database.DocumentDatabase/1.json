@@ -67,12 +67,6 @@
             "columnName": "type",
             "affinity": "TEXT",
             "notNull": true
-          },
-          {
-            "fieldPath": "isComplete",
-            "columnName": "isComplete",
-            "affinity": "INTEGER",
-            "notNull": true
           }
         ],
         "primaryKey": {
