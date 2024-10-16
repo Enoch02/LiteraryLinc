@@ -1,4 +1,4 @@
-package com.artifex.mupdf.viewer;
+package com.artifex.mupdf.viewer.old;
 
 import android.app.ListActivity;
 import android.os.Bundle;
@@ -7,6 +7,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import com.artifex.mupdf.viewer.Pallet;
 
 import java.io.Serializable;
 import java.util.ArrayList;

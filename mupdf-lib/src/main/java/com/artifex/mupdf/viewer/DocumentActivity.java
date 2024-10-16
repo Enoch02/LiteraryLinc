@@ -80,7 +80,7 @@ public class DocumentActivity extends Activity {
     private final Handler mHandler = new Handler();
     private boolean mAlertsActive = false;
     private AlertDialog mAlertDialog;
-    private ArrayList<NewOutlineActivity.Item> mFlatOutline;
+    private ArrayList<LLOutlineActivity.Item> mFlatOutline;
 
     protected int mDisplayDPI;
     private int mLayoutEM = 10;
@@ -529,7 +529,7 @@ public class DocumentActivity extends Activity {
                     if (mFlatOutline == null)
                         mFlatOutline = core.getOutline();
                     if (mFlatOutline != null) {
-                        Intent intent = new Intent(DocumentActivity.this, NewOutlineActivity.class);
+                        Intent intent = new Intent(DocumentActivity.this, LLOutlineActivity.class);
                         Bundle bundle = new Bundle();
                         bundle.putInt("POSITION", mDocView.getDisplayedViewIndex());
                         bundle.putSerializable("OUTLINE", mFlatOutline);
