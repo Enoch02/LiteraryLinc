@@ -2,12 +2,10 @@ package com.enoch02.database.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import kotlin.reflect.KProperty1
 
 
-//TODO: Default sorting for book-list should be date added
 @Entity(tableName = "books")
-data class  Book(
+data class Book(
     @PrimaryKey(autoGenerate = true)
     val id: Int? = null,
     val title: String = "",
@@ -25,7 +23,8 @@ data class  Book(
     val notes: String = "",
     val status: String = Book.status.first(),
     val volumesRead: Int = 0,
-    val totalVolumes: Int = 0
+    val totalVolumes: Int = 0,
+    val documentMd5: String? = null
 ) {
     companion object {
         val types = mapOf(0 to "Any", 1 to "Comic", 2 to "Light Novel", 3 to "Manga", 4 to "Novel")

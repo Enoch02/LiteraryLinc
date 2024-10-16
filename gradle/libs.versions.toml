@@ -1,12 +1,11 @@
 [versions]
-accompanistPager = "0.36.0"
 activityCompose = "1.9.2"
 appcompat = "1.7.0"
 coilComposeVersion = "2.7.0"
 composeBom = "2024.09.03"
 compressor = "3.0.1"
 converterGson = "2.11.0"
-core = "1.12.0"
+core = "1.15.0"
 coreKtx = "1.13.1"
 daggerVersion = "2.52"
 datastorePreferences = "1.1.1"
@@ -36,6 +35,8 @@ hiltWork = "1.2.0"
 kotlin = "2.0.20"
 uiTextGoogleFonts = "1.7.3"
 agp = "8.1.1"
+junitKtx = "1.2.1"
+roomTesting = "2.6.1"
 
 
 [libraries]
@@ -82,6 +83,8 @@ androidx-documentfile = { group = "androidx.documentfile", name = "documentfile"
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 androidx-hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWork" }
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
+androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
+androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "roomTesting" }
 
 [plugins]
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

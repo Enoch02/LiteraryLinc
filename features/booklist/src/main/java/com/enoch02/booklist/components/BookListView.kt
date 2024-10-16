@@ -39,6 +39,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -87,11 +88,12 @@ internal fun BookListView(
                     content = {
                         items(
                             count = books.size,
+                            key = { it },
                             itemContent = { index ->
                                 val book = books[index]
 
                                 BookListItem(
-                                    modifier = Modifier.animateItemPlacement(),
+                                    modifier = Modifier.animateItem(),
                                     book = book,
                                     coverPath = covers[book.coverImageName],
                                     onClick = { book.id?.let { onItemClick(it) } },
@@ -155,19 +157,19 @@ private fun BookListItem(
             Column {
                 Text(
                     text = book.title,
-                    fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
-                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                    fontWeight = MaterialTheme.typography.titleMedium.fontWeight,
-                    maxLines = 2,
+                    fontStyle = MaterialTheme.typography.titleMedium.fontStyle,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
-                if (book.author.isNotEmpty()) {
-                    Text(
-                        text = "by ${book.author}",
-                        fontSize = MaterialTheme.typography.labelSmall.fontSize
-                    )
-                }
+                val authorAlpha = if (book.author.isNotEmpty()) 1f else 0f
+                Text(
+                    text = book.author,
+                    fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.alpha(authorAlpha)
+                )
             }
         },
         leadingContent = {
@@ -242,7 +244,10 @@ private fun BookListItem(
             onDismissRequest = { showWarningDialog = false },
             confirmButton = {
                 TextButton(
-                    onClick = { onDelete() },
+                    onClick = {
+                        onDelete()
+                        showWarningDialog = false
+                    },
                     content = {
                         Text(text = "Yes")
                     }
@@ -255,6 +260,9 @@ private fun BookListItem(
                         Text(text = "No")
                     }
                 )
+            },
+            title = {
+                Text("Warning")
             },
             text = {
                 Text(text = "Do you want to delete this entry?", textAlign = TextAlign.Center)
