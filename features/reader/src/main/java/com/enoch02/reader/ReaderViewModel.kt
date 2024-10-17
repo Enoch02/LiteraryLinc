@@ -77,6 +77,20 @@ class ReaderViewModel @Inject constructor(
     fun toggleDocumentReadStatus(document: LLDocument) {
         viewModelScope.launch(Dispatchers.IO) {
             documentDao.updateDocument(document.copy(isRead = !document.isRead))
+
+            if (bookDao.isDocumentInBooklist(document.id)) {
+                val temp = bookDao.getBookByMd5(document.id)
+                temp?.let { theBook ->
+                    bookDao.updateBook(
+                        theBook.copy(
+                            dateCompleted = getCurrentTime(),
+                            pagesRead = document.pages,
+                            // just in case..
+                            pageCount = document.pages
+                        )
+                    )
+                }
+            }
         }
     }
 
@@ -98,12 +112,8 @@ class ReaderViewModel @Inject constructor(
      */
     fun createBookListEntry(document: LLDocument) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (!bookDao.checkDocumentNonFlow(document.id)) {
-                val now = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    Instant.now().toEpochMilli()
-                } else {
-                    Calendar.getInstance().time.time
-                }
+            if (!bookDao.isDocumentInBooklist(document.id)) {
+                val now = getCurrentTime()
                 val pagesRead = if (document.currentPage < 0) {
                     0
                 } else {
@@ -132,7 +142,7 @@ class ReaderViewModel @Inject constructor(
      * */
     fun removeBookListEntry(documentId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (bookDao.checkDocumentNonFlow(documentId)) {
+            if (bookDao.isDocumentInBooklist(documentId)) {
                 bookDao.deleteBookWith(documentId)
             }
         }
@@ -161,6 +171,14 @@ class ReaderViewModel @Inject constructor(
      * */
     fun isDocumentInBookList(documentId: String): Flow<Boolean> {
         return bookDao.checkDocument(documentId)
+    }
+
+    private fun getCurrentTime(): Long {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Instant.now().toEpochMilli()
+        } else {
+            Calendar.getInstance().time.time
+        }
     }
 }
 
