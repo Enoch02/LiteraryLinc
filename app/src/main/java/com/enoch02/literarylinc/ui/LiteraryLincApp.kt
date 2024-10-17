@@ -16,6 +16,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -120,7 +121,9 @@ fun LiteraryLincApp(navController: NavController) {
                 }
 
                 else -> {
+                    ModalDrawerSheet {
 
+                    }
                 }
             }
         },
