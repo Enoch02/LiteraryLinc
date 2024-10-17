@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -65,7 +66,8 @@ internal fun BookListView(
     listState: LazyListState,
     onItemClick: (id: Int) -> Unit,
     onItemDelete: (id: Int) -> Unit,
-    onItemIncrement: (id: Int) -> Unit
+    onItemIncrement: (id: Int) -> Unit,
+    modifier: Modifier
 ) {
     val state = rememberScrollAreaState(listState)
 
@@ -83,6 +85,7 @@ internal fun BookListView(
     } else {
         ScrollArea(
             state = state,
+            modifier = modifier,
             content = {
                 LazyColumn(
                     content = {

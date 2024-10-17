@@ -7,6 +7,7 @@ import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.model.Book
+import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.LLDocument
 import com.enoch02.database.model.ReaderSorting
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,26 +34,68 @@ class ReaderViewModel @Inject constructor(
      * Retrieve (if any) documents from the database
      *
      * @param sorting how should the documents be sorted?
+     * @param filter  what type of documents should be returned?
      * @return a list of the documents in a flow
      * */
-    fun getDocuments(sorting: ReaderSorting): Flow<List<LLDocument>> {
+    fun getDocuments(sorting: ReaderSorting, filter: ReaderFilter): Flow<List<LLDocument>> {
+        val filteredDocuments = filterDocument(filter)
+
+        return sortDocument(sorting, filteredDocuments)
+    }
+
+    private fun filterDocument(filter: ReaderFilter): Flow<List<LLDocument>> {
+        return when (filter) {
+            ReaderFilter.READING -> {
+                documentDao.getDocuments().map { documents ->
+                    documents.filter { it.currentPage > 0 && it.currentPage < it.pages }
+                }
+            }
+
+            ReaderFilter.FAVORITES -> {
+                documentDao.getDocuments().map { documents ->
+                    documents.filter { it.isFavorite }
+                }
+            }
+
+            ReaderFilter.COMPLETED -> {
+                documentDao.getDocuments().map { documents ->
+                    documents.filter { it.isRead }
+                }
+            }
+
+            ReaderFilter.ALL -> {
+                documentDao.getDocuments()
+            }
+        }
+    }
+
+    private fun sortDocument(
+        sorting: ReaderSorting,
+        filteredDocuments: Flow<List<LLDocument>>
+    ): Flow<List<LLDocument>> {
         return when (sorting) {
             ReaderSorting.NAME -> {
-                documentDao.getDocumentsByName().map {
+                filteredDocuments.map {
                     it.sortedWith { a, b -> a.name.naturalCompare(b.name) }
                 }
             }
 
             ReaderSorting.LAST_READ -> {
-                documentDao.getDocumentsByLastRead()
+                filteredDocuments.map {
+                    it.sortedByDescending { document -> document.lastRead }
+                }
             }
 
             ReaderSorting.SIZE -> {
-                documentDao.getDocumentsBySize()
+                filteredDocuments.map {
+                    it.sortedByDescending { document -> document.sizeInMb }
+                }
             }
 
             ReaderSorting.FORMAT -> {
-                documentDao.getDocumentsByFormat()
+                filteredDocuments.map {
+                    it.sortedBy { document -> document.type }
+                }
             }
         }
     }

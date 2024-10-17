@@ -41,6 +41,7 @@ import com.composables.core.Thumb
 import com.composables.core.ThumbVisibility
 import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
+import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.ReaderSorting
 import com.enoch02.reader.components.ReaderListItem
 import java.time.Instant
@@ -56,12 +57,14 @@ fun ReaderScreen(
     modifier: Modifier,
     viewModel: ReaderViewModel = hiltViewModel(),
     sorting: ReaderSorting,
+    filter: ReaderFilter,
     onScanForDocs: () -> Unit
 ) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
     val state = rememberScrollAreaState(listState)
-    val documents by viewModel.getDocuments(sorting = sorting).collectAsState(initial = emptyList())
+    val documents by viewModel.getDocuments(sorting, filter)
+        .collectAsState(initial = emptyList())
     val covers by viewModel.covers.collectAsState(initial = emptyMap())
     var currentDocumentIndex by rememberSaveable {
         mutableIntStateOf(0)
@@ -100,13 +103,29 @@ fun ReaderScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             content = {
-                Text(text = "No Document found")
-                Button(
-                    onClick = onScanForDocs,
-                    content = {
-                        Text(text = "Scan for new documents")
+                when (filter) {
+                    ReaderFilter.READING -> {
+                        Text(text = "There's nothing to continue reading 😔")
                     }
-                )
+
+                    ReaderFilter.FAVORITES -> {
+                        Text(text = "No favorite documents")
+                    }
+
+                    ReaderFilter.COMPLETED -> {
+                        Text(text = "No completed documents")
+                    }
+
+                    ReaderFilter.ALL -> {
+                        Text(text = "No Document found")
+                        Button(
+                            onClick = onScanForDocs,
+                            content = {
+                                Text(text = "Scan for new documents")
+                            }
+                        )
+                    }
+                }
             }
         )
     } else {

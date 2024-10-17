@@ -34,7 +34,8 @@ internal fun BookGridView(
     covers: Map<String, String?>,
     gridState: LazyGridState,
     onItemClick: (Int) -> Unit,
-    onItemDelete: (Int) -> Unit
+    onItemDelete: (Int) -> Unit,
+    modifier: Modifier
 ) {
     //TODO: Extract string resource
     //TODO: implement hold to delete
@@ -72,7 +73,7 @@ internal fun BookGridView(
                     }
                 )
             },
-            modifier = Modifier.fillMaxSize()
+            modifier = modifier.fillMaxSize()
         )
     }
 }

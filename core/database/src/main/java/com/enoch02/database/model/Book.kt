@@ -27,7 +27,14 @@ data class Book(
     val documentMd5: String? = null
 ) {
     companion object {
-        val types = mapOf(0 to "Any", 1 to "Comic", 2 to "Light Novel", 3 to "Manga", 4 to "Novel")
+        val types = mapOf(
+            0 to "All",
+            1 to "Non-Fiction",
+            2 to "Light Novel",
+            3 to "Novel",
+            4 to "Comic",
+            5 to "Manga"
+        )
         val status = listOf("Reading", "Completed", "On Hold", "Planning")
 
         fun createBook(

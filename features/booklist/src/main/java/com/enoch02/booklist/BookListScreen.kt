@@ -13,6 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -47,15 +49,15 @@ fun BookListScreen(
                 tabLabels.forEachIndexed { index, type ->
                     Tab(
                         selected = index == pagerState.currentPage,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
+                        onClick = { scope.launch { pagerState.scrollToPage(index) } },
                         content = {
                             Text(
                                 text = type,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.padding(8.dp)
+                                modifier = Modifier.padding(16.dp)
                             )
-                        }
+                        },
                     )
                 }
             }
@@ -84,7 +86,8 @@ fun BookListScreen(
                             },
                             onItemIncrement = { id ->
                                 viewModel.incrementBook(id)
-                            }
+                            },
+                            modifier = Modifier
                         )
                     }
 
@@ -94,7 +97,8 @@ fun BookListScreen(
                             covers = covers,
                             gridState = gridState,
                             onItemClick = onItemClick,
-                            onItemDelete = { id -> viewModel.deleteBook(id) }
+                            onItemDelete = { id -> viewModel.deleteBook(id) },
+                            modifier = Modifier
                         )
                     }
                 }
