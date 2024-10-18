@@ -47,7 +47,7 @@ class ReaderViewModel @Inject constructor(
         return when (filter) {
             ReaderFilter.READING -> {
                 documentDao.getDocuments().map { documents ->
-                    documents.filter { it.currentPage > 0 && it.currentPage < it.pages }
+                    documents.filter { it.currentPage > 0 && it.currentPage < it.pages && !it.isRead }
                 }
             }
 

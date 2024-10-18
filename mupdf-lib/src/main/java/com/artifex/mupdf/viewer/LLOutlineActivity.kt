@@ -1,6 +1,5 @@
 package com.artifex.mupdf.viewer
 
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -49,19 +48,14 @@ class LLOutlineActivity : ComponentActivity() {
 
         if (bundle != null) {
             val currentPage = bundle.getInt("POSITION")
+
             @Suppress("DEPRECATION")
-            val temp = bundle.getSerializable("OUTLINE") as? List<Item>
-            var found = -1
+            val items = bundle.getSerializable("OUTLINE") as? List<Item>
 
-            temp?.forEachIndexed { index, item ->
-                if (found < 0 && item.page >= currentPage) {
-                    found = index
-                }
-                outline.add(item)
-            }
-
-            if (found >= 0) {
-                selected = found
+            items?.let {
+                outline.addAll(it)
+                selected = it.indexOfFirst { item -> item.page >= currentPage }
+                    .takeIf { it1 -> it1 != -1 } ?: 0 // Default to 0 if not found
             }
         }
 

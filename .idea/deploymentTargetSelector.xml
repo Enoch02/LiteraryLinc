@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-10-14T18:08:45.528739700Z">
+        <DropdownSelection timestamp="2024-10-15T21:21:45.756381700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=c33934960906" />
@@ -15,19 +15,16 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adesa\.android\avd\Pixel_2_API_29.avd" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=c33934960906" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=c33934960906" />
+                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adesa\.android\avd\Pixel_2_API_29.avd" />
               </handle>
             </Target>
           </targets>
         </DialogSelection>
-      </SelectionState>
-      <SelectionState runConfigName="BookDaoTest">
-        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
   </component>
