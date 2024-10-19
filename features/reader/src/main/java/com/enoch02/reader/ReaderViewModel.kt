@@ -121,7 +121,7 @@ class ReaderViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             documentDao.updateDocument(document.copy(isRead = !document.isRead))
 
-            if (bookDao.isDocumentInBooklist(document.id)) {
+            if (bookDao.isDocumentInBookList(document.id)) {
                 val temp = bookDao.getBookByMd5(document.id)
                 temp?.let { theBook ->
                     bookDao.updateBook(
@@ -155,7 +155,7 @@ class ReaderViewModel @Inject constructor(
      */
     fun createBookListEntry(document: LLDocument) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (!bookDao.isDocumentInBooklist(document.id)) {
+            if (!bookDao.isDocumentInBookList(document.id)) {
                 val now = getCurrentTime()
                 val pagesRead = if (document.currentPage < 0) {
                     0
@@ -185,24 +185,32 @@ class ReaderViewModel @Inject constructor(
      * */
     fun removeBookListEntry(documentId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (bookDao.isDocumentInBooklist(documentId)) {
+            if (bookDao.isDocumentInBookList(documentId)) {
                 bookDao.deleteBookWith(documentId)
             }
         }
     }
 
+    /**
+     * Update an item in the book list with updated progress whenever
+     * a document is closed
+     *
+     * @param document the md5 of the document
+     * */
     private fun updateBookListEntry(document: LLDocument) {
         viewModelScope.launch(Dispatchers.IO) {
             val book = bookDao.getBookByMd5(document.id)
 
             book?.let { theBook ->
-                bookDao.updateBook(
-                    theBook.copy(
-                        pageCount = document.pages,
-                        pagesRead = document.currentPage,
-                        coverImageName = if (theBook.coverImageName.isNullOrEmpty()) document.cover else theBook.coverImageName
+                if (theBook.pagesRead < document.currentPage) {
+                    bookDao.updateBook(
+                        theBook.copy(
+                            pageCount = document.pages,
+                            pagesRead = document.currentPage,
+                            coverImageName = if (theBook.coverImageName.isNullOrEmpty()) document.cover else theBook.coverImageName
+                        )
                     )
-                )
+                }
             }
         }
     }

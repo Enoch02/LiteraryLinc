@@ -226,15 +226,6 @@ fun ReaderListItem(
                                         )
 
                                         DropdownMenuItem(
-                                            text = { Text("Remove from book list") },
-                                            enabled = documentInBookList,
-                                            onClick = {
-                                                showOptions = false
-                                                showBookRemovalConfirmationDialog = true
-                                            }
-                                        )
-
-                                        DropdownMenuItem(
                                             text = { Text("Mark as rereading") },
                                             enabled = document.isRead,
                                             onClick = {
@@ -263,6 +254,20 @@ fun ReaderListItem(
                                         HorizontalDivider()
 
                                         DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    text = "Remove from book list",
+                                                    color = Color.Red
+                                                )
+                                            },
+                                            enabled = documentInBookList,
+                                            onClick = {
+                                                showOptions = false
+                                                showBookRemovalConfirmationDialog = true
+                                            }
+                                        )
+
+                                        DropdownMenuItem(
                                             text = { Text("Delete", color = Color.Red) },
                                             onClick = {
                                                 //TODO: also add a confirmation dialog
@@ -289,7 +294,7 @@ fun ReaderListItem(
                         Text(text = "Warning")
                     },
                     text = {
-                        Text(text = "Do you want to stop tracking this document in the book list? This action can not be undone.")
+                        Text(text = "Do you want to remove this document in the book list? This action can not be undone.")
                     },
                     confirmButton = {
                         TextButton(

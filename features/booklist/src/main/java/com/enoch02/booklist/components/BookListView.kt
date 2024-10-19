@@ -1,5 +1,6 @@
 package com.enoch02.booklist.components
 
+import android.widget.Toast
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -17,9 +18,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.PlusOne
+import androidx.compose.material.icons.rounded.Link
+import androidx.compose.material.icons.rounded.LinkOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -42,11 +43,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.composables.core.ScrollArea
@@ -66,7 +67,7 @@ internal fun BookListView(
     listState: LazyListState,
     onItemClick: (id: Int) -> Unit,
     onItemDelete: (id: Int) -> Unit,
-    onItemIncrement: (id: Int) -> Unit,
+    onUnlinkDocument: (book: Book) -> Unit,
     modifier: Modifier
 ) {
     val state = rememberScrollAreaState(listState)
@@ -101,7 +102,7 @@ internal fun BookListView(
                                     coverPath = covers[book.coverImageName],
                                     onClick = { book.id?.let { onItemClick(it) } },
                                     onDelete = { book.id?.let { it1 -> onItemDelete(it1) } },
-                                    onItemIncrement = { book.id?.let { onItemIncrement(it) } }
+                                    onUnlinkDocument = { theBook -> onUnlinkDocument(theBook) }
                                 )
                             }
                         )
@@ -140,12 +141,13 @@ private fun BookListItem(
     coverPath: String?,
     onClick: () -> Unit,
     onDelete: () -> Unit,
-    onItemIncrement: () -> Unit
+    onUnlinkDocument: (book: Book) -> Unit
 ) {
     var currentProgress by rememberSaveable { mutableFloatStateOf(0f) }
     val showEmptyProgress by remember { derivedStateOf { book.pagesRead == 0 && book.pageCount == 0 } }
     var isComplete by remember { mutableStateOf(false) }
     var showWarningDialog by rememberSaveable { mutableStateOf(false) }
+    var showUnlinkWarningDialog by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(book) {
         if (book.pagesRead != 0 && book.pageCount != 0) {
@@ -217,25 +219,37 @@ private fun BookListItem(
             }
         },
         trailingContent = {
+            val context = LocalContext.current
+
             Column {
                 OutlinedIconButton(
                     onClick = { showWarningDialog = true },
-                    shape = RectangleShape,
+                    shape = RoundedCornerShape(8.dp),
                     content = {
                         Icon(imageVector = Icons.Rounded.Delete, contentDescription = null)
                     }
                 )
 
                 OutlinedIconButton(
-                    onClick = { onItemIncrement() },
-                    shape = RectangleShape,
+                    onClick = {
+                        if (book.documentMd5.isNullOrEmpty()) {
+                            //TODO: link document here
+                            Toast.makeText(context, "Coming soon!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            showUnlinkWarningDialog = true
+                        }
+                    },
+                    shape = RoundedCornerShape(8.dp),
                     content = {
                         Icon(
-                            imageVector = if (isComplete) Icons.Rounded.Check else Icons.Rounded.PlusOne,
-                            contentDescription = null
+                            imageVector = if (book.documentMd5.isNullOrEmpty()) {
+                                Icons.Rounded.Link
+                            } else {
+                                Icons.Rounded.LinkOff
+                            },
+                            contentDescription = "Unlink document from entry"
                         )
                     },
-                    enabled = !isComplete
                 )
             }
         },
@@ -243,33 +257,100 @@ private fun BookListItem(
     )
 
     if (showWarningDialog) {
-        AlertDialog(
-            onDismissRequest = { showWarningDialog = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDelete()
-                        showWarningDialog = false
-                    },
-                    content = {
-                        Text(text = "Yes")
-                    }
-                )
+        ItemWarningDialog(
+            onConfirm = {
+                onDelete()
+                showWarningDialog = false
             },
-            dismissButton = {
-                TextButton(
-                    onClick = { showWarningDialog = false },
-                    content = {
-                        Text(text = "No")
-                    }
-                )
+            onDismiss = {
+                showWarningDialog = false
             },
-            title = {
-                Text("Warning")
+            message = "Do you want to delete this entry?"
+        )
+    }
+
+    if (showUnlinkWarningDialog) {
+        ItemWarningDialog(
+            onConfirm = {
+                onUnlinkDocument(book)
+                showUnlinkWarningDialog = false
             },
-            text = {
-                Text(text = "Do you want to delete this entry?", textAlign = TextAlign.Center)
-            }
+            onDismiss = {
+                showUnlinkWarningDialog = false
+            },
+            message = "Do you want to unlink this entry from its document?"
+        )
+    }
+}
+
+@Composable
+private fun ItemWarningDialog(
+    modifier: Modifier = Modifier,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    title: String = "Warning",
+    message: String
+) {
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                content = {
+                    Text(text = "Yes", color = Color.Red)
+                }
+            )
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                content = {
+                    Text(text = "No")
+                }
+            )
+        },
+        title = {
+            Text(title)
+        },
+        text = {
+            Text(text = message)
+        }
+    )
+}
+
+@Preview
+@Composable
+private fun Preview() {
+    Column {
+        BookListItem(
+            modifier = Modifier,
+            book = Book(
+                title = "hello, world!",
+                author = "me",
+                documentMd5 = "akjfavksklankn73g91he",
+                pagesRead = 10,
+                pageCount = 100
+            ),
+            coverPath = null,
+            onClick = {},
+            onDelete = {},
+            onUnlinkDocument = {}
+        )
+
+        BookListItem(
+            modifier = Modifier,
+            book = Book(
+                title = "hello, world!",
+                author = "you",
+                documentMd5 = "",
+                pagesRead = 10,
+                pageCount = 100
+            ),
+            coverPath = null,
+            onClick = {},
+            onDelete = {},
+            onUnlinkDocument = {}
         )
     }
 }

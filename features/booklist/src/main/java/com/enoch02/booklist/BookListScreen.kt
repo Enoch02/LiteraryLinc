@@ -13,8 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,67 +40,70 @@ fun BookListScreen(
     val tabLabels = Book.types.values
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabLabels.size })
 
-    Column(modifier = modifier.fillMaxSize()) {
-        ScrollableTabRow(
-            selectedTabIndex = pagerState.currentPage,
-            tabs = {
-                tabLabels.forEachIndexed { index, type ->
-                    Tab(
-                        selected = index == pagerState.currentPage,
-                        onClick = { scope.launch { pagerState.scrollToPage(index) } },
-                        content = {
-                            Text(
-                                text = type,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        },
+    Column(
+        modifier = modifier.fillMaxSize(),
+        content = {
+            ScrollableTabRow(
+                selectedTabIndex = pagerState.currentPage,
+                tabs = {
+                    tabLabels.forEachIndexed { index, type ->
+                        Tab(
+                            selected = index == pagerState.currentPage,
+                            onClick = { scope.launch { pagerState.scrollToPage(index) } },
+                            content = {
+                                Text(
+                                    text = type,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            },
+                        )
+                    }
+                }
+            )
+
+            HorizontalPager(
+                state = pagerState,
+                pageContent = { tabIndex ->
+                    val books = viewModel.getBooks(
+                        filter = tabIndex, sorting = sorting,
+                        status = statusFilter
                     )
-                }
-            }
-        )
+                        .collectAsState(initial = emptyList()).value
+                    val covers = viewModel.getCovers()
+                        .collectAsState(initial = emptyMap()).value
 
-        HorizontalPager(
-            state = pagerState,
-            pageContent = { tabIndex ->
-                val books = viewModel.getBooks(
-                    filter = tabIndex, sorting = sorting,
-                    status = statusFilter
-                )
-                    .collectAsState(initial = emptyList()).value
-                val covers = viewModel.getCovers()
-                    .collectAsState(initial = emptyMap()).value
+                    when (listViewMode) {
+                        BookListViewMode.LIST_VIEW -> {
+                            BookListView(
+                                books = books,
+                                covers = covers,
+                                onItemClick = onItemClick,
+                                listState = listState,
+                                onItemDelete = { id ->
+                                    viewModel.deleteBook(id)
+                                },
+                                onUnlinkDocument = { theBook ->
+                                    viewModel.unlinkDocumentFromBook(theBook)
+                                },
+                                modifier = Modifier
+                            )
+                        }
 
-                when (listViewMode) {
-                    BookListViewMode.LIST_VIEW -> {
-                        BookListView(
-                            books = books,
-                            covers = covers,
-                            onItemClick = onItemClick,
-                            listState = listState,
-                            onItemDelete = { id ->
-                                viewModel.deleteBook(id)
-                            },
-                            onItemIncrement = { id ->
-                                viewModel.incrementBook(id)
-                            },
-                            modifier = Modifier
-                        )
-                    }
-
-                    BookListViewMode.GRID_VIEW -> {
-                        BookGridView(
-                            books = books,
-                            covers = covers,
-                            gridState = gridState,
-                            onItemClick = onItemClick,
-                            onItemDelete = { id -> viewModel.deleteBook(id) },
-                            modifier = Modifier
-                        )
+                        BookListViewMode.GRID_VIEW -> {
+                            BookGridView(
+                                books = books,
+                                covers = covers,
+                                gridState = gridState,
+                                onItemClick = onItemClick,
+                                onItemDelete = { id -> viewModel.deleteBook(id) },
+                                modifier = Modifier
+                            )
+                        }
                     }
                 }
-            }
-        )
-    }
+            )
+        }
+    )
 }

@@ -2,6 +2,7 @@ package com.enoch02.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.enoch02.database.model.Book
@@ -10,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface BookDao {
 
-    @Insert()
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBook(book: Book)
 
     @Update
@@ -44,7 +45,7 @@ interface BookDao {
     fun checkDocument(md5: String): Flow<Boolean>
 
     @Query(value = "SELECT EXISTS (SELECT 1 FROM books WHERE documentMd5 = :md5)")
-    suspend fun isDocumentInBooklist(md5: String): Boolean
+    suspend fun isDocumentInBookList(md5: String): Boolean
 
     @Query(value = "DELETE FROM books WHERE documentMd5 = :md5")
     suspend fun deleteBookWith(md5: String)

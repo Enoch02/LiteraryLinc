@@ -61,8 +61,11 @@ class BookListViewModel @Inject constructor(
         }
     }
 
-    private fun filterStatus(status: StatusFilter, sortedBooks: Flow<List<Book>>): Flow<List<Book>> {
-        return if (status == StatusFilter.ALL){
+    private fun filterStatus(
+        status: StatusFilter,
+        sortedBooks: Flow<List<Book>>
+    ): Flow<List<Book>> {
+        return if (status == StatusFilter.ALL) {
             sortedBooks
         } else {
             sortedBooks.map { books ->
@@ -77,12 +80,9 @@ class BookListViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) { bookDao.deleteBook(id) }
     }
 
-    fun incrementBook(id: Int) {
+    fun unlinkDocumentFromBook(book: Book) {
         viewModelScope.launch(Dispatchers.IO) {
-            var book = bookDao.getBookById(id)
-
-            book = book.copy(pagesRead = book.pagesRead + 1)
-            bookDao.updateBook(book)
+            bookDao.updateBook(book.copy(documentMd5 = null))
         }
     }
 }

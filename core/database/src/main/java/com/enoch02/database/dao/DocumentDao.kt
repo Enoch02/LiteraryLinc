@@ -14,6 +14,9 @@ interface DocumentDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertDocuments(book: List<LLDocument>)
 
+    @Query(value = "SELECT * FROM documents WHERE id = :id")
+    suspend fun getDocument(id: String): LLDocument?
+
     @Query(value = "SELECT * FROM documents")
     fun getDocuments(): Flow<List<LLDocument>>
 
