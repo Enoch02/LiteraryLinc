@@ -28,4 +28,7 @@ interface DocumentDao {
 
     @Query(value = "DELETE FROM documents WHERE contentUri = :uriString")
     suspend fun deleteDocument(uriString: String)
+
+    @Query(value = "SELECT COUNT(*) FROM documents")
+    fun getDocumentCount(): Flow<Int>
 }

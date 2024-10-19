@@ -57,6 +57,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
     var showRemovalDialog by remember {
         mutableStateOf(false)
     }
+    val totalDocuments by viewModel.totalDocuments.collectAsState(initial = 0)
     val fileScanInfo by viewModel.fileScanWorkInfo.collectAsState()
     val coverScanInfo by viewModel.coverScanWorkInfo.collectAsState()
     val isScanningFiles = viewModel.isScanningFiles(fileScanInfo)
@@ -151,7 +152,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                         modifier = Modifier.fillMaxWidth(),
                                                         content = {
                                                             Text(text = "Total documents: ")
-                                                            Text(text = viewModel.totalDocuments.toString())
+                                                            Text(text = totalDocuments.toString())
                                                         }
                                                     )
                                                 },

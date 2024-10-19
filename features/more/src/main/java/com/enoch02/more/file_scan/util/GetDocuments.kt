@@ -35,7 +35,11 @@ val allowedTypes = arrayOf(
  * @param directoryUri The Uri of the directory to scan.
  * @return a list of [LLDocument]
  */
-fun listDocsInDirectory(context: Context, directoryUri: Uri): List<LLDocument> {
+fun listDocsInDirectory(
+    context: Context,
+    directoryUri: Uri,
+    scanned: List<Uri?>
+): List<LLDocument> {
     val foundFiles = mutableListOf<LLDocument>()
 
     val documentFile = DocumentFile.fromTreeUri(context, directoryUri)
@@ -44,7 +48,9 @@ fun listDocsInDirectory(context: Context, directoryUri: Uri): List<LLDocument> {
         return foundFiles // Early exit if invalid
     }
 
-    val files = documentFile.listFiles()
+    val files = documentFile
+        .listFiles()
+        .filter { df -> !scanned.contains(df.uri) }
     if (files.isEmpty()) {
         return foundFiles // Early exit if no files
     }
@@ -73,7 +79,7 @@ fun listDocsInDirectory(context: Context, directoryUri: Uri): List<LLDocument> {
             )
         } else if (file.isDirectory) {
             // Recursive call for subdirectories
-            foundFiles.addAll(listDocsInDirectory(context, file.uri))
+            foundFiles.addAll(listDocsInDirectory(context, file.uri, scanned))
         }
     }
 
