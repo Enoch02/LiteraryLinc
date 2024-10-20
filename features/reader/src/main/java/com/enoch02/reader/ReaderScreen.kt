@@ -74,22 +74,28 @@ fun ReaderScreen(
         onResult = { activityResult ->
             if (activityResult.resultCode == Activity.RESULT_OK) {
                 try {
-                    val pages = activityResult.data?.getIntExtra("pages", 0)
-                    val currentPage =
-                        activityResult.data?.getIntExtra("currentPage", 0)
-                    val lastRead = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) Date.from(
-                        Instant.now()
-                    ) else Calendar.getInstance().time
-
                     val currentDocument = documents[currentDocumentIndex]
-                    val modifiedDocument = currentDocument.copy(
-                        pages = pages ?: 0,
-                        currentPage = currentPage ?: 0,
-                        lastRead = lastRead,
-                        isRead = currentPage == pages
-                    )
 
-                    viewModel.updateDocumentInfo(modifiedDocument)
+                    if (currentDocument.autoTrackable) {
+                        Log.e(TAG, "ReaderScreen: Document is trackable!", )
+                        val pages = activityResult.data?.getIntExtra("pages", 0)
+                        val currentPage =
+                            activityResult.data?.getIntExtra("currentPage", 0)
+                        val lastRead =
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                Date.from(Instant.now())
+                            } else {
+                                Calendar.getInstance().time
+                            }
+                        val modifiedDocument = currentDocument.copy(
+                            pages = pages ?: 0,
+                            currentPage = currentPage ?: 0,
+                            lastRead = lastRead,
+                            isRead = currentPage == pages
+                        )
+
+                        viewModel.updateDocumentInfo(modifiedDocument)
+                    }
                 } catch (e: IndexOutOfBoundsException) {
                     Log.e(TAG, "ReaderScreen: could not update document reader list")
                 }
@@ -167,6 +173,9 @@ fun ReaderScreen(
                                 },
                                 onRemoveFromBookList = {
                                     viewModel.removeBookListEntry(item.id)
+                                },
+                                onToggleAutoTracking = {
+                                    viewModel.toggleDocumentAutoTracking(item)
                                 }
                             )
 

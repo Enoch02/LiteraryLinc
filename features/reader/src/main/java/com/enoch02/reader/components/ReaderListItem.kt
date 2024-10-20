@@ -66,7 +66,8 @@ fun ReaderListItem(
     onAddToFavoritesClicked: () -> Unit,
     onMarkAsReadClicked: () -> Unit,
     onAddToBookList: () -> Unit,
-    onRemoveFromBookList: () -> Unit
+    onRemoveFromBookList: () -> Unit,
+    onToggleAutoTracking: () -> Unit
 ) {
     val context = LocalContext.current
     var showOptions by remember {
@@ -144,7 +145,11 @@ fun ReaderListItem(
                                 Icon(
                                     imageVector = favoriteIcon,
                                     contentDescription = "Add to Favorites",
-                                    tint = if (document.isFavorite) MaterialTheme.colorScheme.primary else LocalContentColor.current
+                                    tint = if (document.isFavorite) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        LocalContentColor.current
+                                    }
                                 )
                             }
                         )
@@ -164,7 +169,11 @@ fun ReaderListItem(
                                 Icon(
                                     imageVector = Icons.Rounded.DoneAll,
                                     contentDescription = "Mark as read",
-                                    tint = if (document.isRead || document.pages == document.currentPage) MaterialTheme.colorScheme.primary else LocalContentColor.current
+                                    tint = if (document.isRead || document.pages == document.currentPage) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        LocalContentColor.current
+                                    }
                                 )
                             }
                         )
@@ -173,23 +182,22 @@ fun ReaderListItem(
 
                 TooltipBox(
                     tooltip = {
-                        ToolTipText(text = "Do not track this Document")
+                        ToolTipText(text = "Do not automatically track this Document")
                     },
                     state = rememberTooltipState(isPersistent = false),
                     positionProvider = tooltipPosition,
                     content = {
                         IconButton(
-                            onClick = {
-                                Toast.makeText(
-                                    context,
-                                    "Coming Soon!",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            },
+                            onClick = onToggleAutoTracking,
                             content = {
                                 Icon(
                                     imageVector = Icons.Rounded.Block,
-                                    contentDescription = "Do not track document"
+                                    contentDescription = "Do not automatically track document",
+                                    tint = if (document.autoTrackable) {
+                                        LocalContentColor.current
+                                    } else {
+                                        MaterialTheme.colorScheme.primary
+                                    }
                                 )
                             }
                         )
@@ -366,7 +374,8 @@ private fun Preview() {
             onAddToFavoritesClicked = {},
             onMarkAsReadClicked = {},
             onAddToBookList = {},
-            onRemoveFromBookList = {}
+            onRemoveFromBookList = {},
+            onToggleAutoTracking = {}
         )
 
         ReaderListItem(
@@ -385,7 +394,8 @@ private fun Preview() {
             onAddToFavoritesClicked = {},
             onMarkAsReadClicked = {},
             onAddToBookList = {},
-            onRemoveFromBookList = {}
+            onRemoveFromBookList = {},
+            onToggleAutoTracking = {}
         )
     }
 }

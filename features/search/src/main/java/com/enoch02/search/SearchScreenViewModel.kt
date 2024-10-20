@@ -67,7 +67,7 @@ class SearchScreenViewModel @Inject constructor(
         searchResults.clear()
     }
 
-    fun isTitleInDb(title: String) = bookDao.checkBookTitle(title)
+    fun isTitleInDb(title: String) = bookDao.doesBookTitleExist(title)
 
     fun getTitleIdFromDb(title: String) = bookDao.getIdByTitle(title)
 
@@ -136,7 +136,7 @@ class SearchScreenViewModel @Inject constructor(
     fun addToSearchHistory(query: String) {
         viewModelScope.launch {
             history.collect { history ->
-                val item = history.firstOrNull() { it.value == query }
+                val item = history.firstOrNull { it.value == query }
 
                 if (item != null) {
                     searchHistoryDao.updateQuery(item.copy(timestamp = System.currentTimeMillis()))

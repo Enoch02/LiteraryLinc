@@ -35,17 +35,17 @@ interface BookDao {
     @Query(value = "SELECT * FROM books")
     suspend fun getBooksNonFlow(): List<Book>
 
-    @Query(value = "SELECT EXISTS (SELECT 1 FROM books WHERE title = :bookTitle)")
-    fun checkBookTitle(bookTitle: String): Flow<Boolean>
+    @Query(value = "SELECT EXISTS (SELECT 1 FROM books WHERE title = :bookTitle LIMIT 1)")
+    fun doesBookTitleExist(bookTitle: String): Flow<Boolean>
 
     @Query(value = "SELECT id FROM books WHERE title = :bookTitle LIMIT 1")
     fun getIdByTitle(bookTitle: String): Flow<Int>
 
-    @Query(value = "SELECT EXISTS (SELECT 1 FROM books WHERE documentMd5 = :md5)")
-    fun checkDocument(md5: String): Flow<Boolean>
+    @Query(value = "SELECT EXISTS (SELECT 1 FROM books WHERE documentMd5 = :md5 LIMIT 1)")
+    fun doesBookExistByMd5Flow(md5: String): Flow<Boolean>
 
-    @Query(value = "SELECT EXISTS (SELECT 1 FROM books WHERE documentMd5 = :md5)")
-    suspend fun isDocumentInBookList(md5: String): Boolean
+    @Query(value = "SELECT EXISTS (SELECT 1 FROM books WHERE documentMd5 = :md5 LIMIT 1)")
+    suspend fun doesBookExistByMd5(md5: String): Boolean
 
     @Query(value = "DELETE FROM books WHERE documentMd5 = :md5")
     suspend fun deleteBookWith(md5: String)

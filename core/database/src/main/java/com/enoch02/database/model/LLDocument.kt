@@ -24,7 +24,9 @@ data class LLDocument(
     @ColumnInfo(defaultValue = "0") // Setting default value to 0 for false
     val isRead: Boolean = false,
     @ColumnInfo(defaultValue = "0")
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    @ColumnInfo(defaultValue = "1")
+    val autoTrackable: Boolean = true,
 )
 
 fun LLDocument.existsAsFile(context: Context): Boolean {

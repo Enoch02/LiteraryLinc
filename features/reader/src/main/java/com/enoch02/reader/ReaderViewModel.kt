@@ -121,7 +121,7 @@ class ReaderViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             documentDao.updateDocument(document.copy(isRead = !document.isRead))
 
-            if (bookDao.isDocumentInBookList(document.id)) {
+            if (bookDao.doesBookExistByMd5(document.id)) {
                 val temp = bookDao.getBookByMd5(document.id)
                 temp?.let { theBook ->
                     bookDao.updateBook(
@@ -155,7 +155,7 @@ class ReaderViewModel @Inject constructor(
      */
     fun createBookListEntry(document: LLDocument) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (!bookDao.isDocumentInBookList(document.id)) {
+            if (!bookDao.doesBookExistByMd5(document.id) && document.autoTrackable) {
                 val now = getCurrentTime()
                 val pagesRead = if (document.currentPage < 0) {
                     0
@@ -185,7 +185,7 @@ class ReaderViewModel @Inject constructor(
      * */
     fun removeBookListEntry(documentId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (bookDao.isDocumentInBookList(documentId)) {
+            if (bookDao.doesBookExistByMd5(documentId)) {
                 bookDao.deleteBookWith(documentId)
             }
         }
@@ -221,7 +221,7 @@ class ReaderViewModel @Inject constructor(
      * @param documentId id to check
      * */
     fun isDocumentInBookList(documentId: String): Flow<Boolean> {
-        return bookDao.checkDocument(documentId)
+        return bookDao.doesBookExistByMd5Flow(documentId)
     }
 
     private fun getCurrentTime(): Long {
@@ -229,6 +229,16 @@ class ReaderViewModel @Inject constructor(
             Instant.now().toEpochMilli()
         } else {
             Calendar.getInstance().time.time
+        }
+    }
+
+    fun toggleDocumentAutoTracking(document: LLDocument) {
+        viewModelScope.launch(Dispatchers.IO) {
+            documentDao.updateDocument(
+                document.copy(
+                    autoTrackable = !document.autoTrackable
+                )
+            )
         }
     }
 }
