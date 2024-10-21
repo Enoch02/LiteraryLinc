@@ -1,6 +1,9 @@
 <p align="center">
-  <img src="https://github.com/Enoch02/LiteraryLinc/assets/24833806/20fad6e8-30b9-4bee-9092-649521d7854a" alt="App Icon"/>
+  <img src="https://github.com/Enoch02/LiteraryLinc/blob/master/feature_graphic.png" alt="App Icon"/>
 </p>
 
 # LiteraryLinc
-A simple booktracking app i am working on for personal use
+A simple e-book reader and book tracker (WIP)
+
+## App Icon Attribution
+<a target="_blank" href="https://icons8.com/icon/23662/book-shelf">Book Shelf</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
