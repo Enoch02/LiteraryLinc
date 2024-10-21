@@ -15,9 +15,4 @@ class LiteraryLincApp : Application(), Configuration.Provider {
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .build()
-
-    /*override fun onCreate() {
-        super.onCreate()
-        WorkManager.initialize(this, workManagerConfiguration)
-    }*/
 }

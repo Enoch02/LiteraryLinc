@@ -46,11 +46,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.enoch02.database.model.LLDocument
+import com.enoch02.reader.R
 import java.time.Instant
 import java.util.Calendar
 import java.util.Date
@@ -134,7 +136,7 @@ fun ReaderListItem(
 
                 TooltipBox(
                     tooltip = {
-                        ToolTipText(text = "Add to favorites")
+                        ToolTipText(text = stringResource(R.string.add_to_favorites))
                     },
                     state = rememberTooltipState(isPersistent = false),
                     positionProvider = tooltipPosition,
@@ -144,7 +146,7 @@ fun ReaderListItem(
                             content = {
                                 Icon(
                                     imageVector = favoriteIcon,
-                                    contentDescription = "Add to Favorites",
+                                    contentDescription = stringResource(R.string.add_to_favorites),
                                     tint = if (document.isFavorite) {
                                         MaterialTheme.colorScheme.primary
                                     } else {
@@ -158,7 +160,7 @@ fun ReaderListItem(
 
                 TooltipBox(
                     tooltip = {
-                        ToolTipText(text = "Mark as Read")
+                        ToolTipText(text = stringResource(R.string.mark_as_read))
                     },
                     state = rememberTooltipState(isPersistent = false),
                     positionProvider = tooltipPosition,
@@ -168,7 +170,7 @@ fun ReaderListItem(
                             content = {
                                 Icon(
                                     imageVector = Icons.Rounded.DoneAll,
-                                    contentDescription = "Mark as read",
+                                    contentDescription = stringResource(R.string.mark_as_read),
                                     tint = if (document.isRead || document.pages == document.currentPage) {
                                         MaterialTheme.colorScheme.primary
                                     } else {
@@ -182,7 +184,7 @@ fun ReaderListItem(
 
                 TooltipBox(
                     tooltip = {
-                        ToolTipText(text = "Do not automatically track this Document")
+                        ToolTipText(text = stringResource(R.string.do_not_auto_track))
                     },
                     state = rememberTooltipState(isPersistent = false),
                     positionProvider = tooltipPosition,
@@ -192,7 +194,7 @@ fun ReaderListItem(
                             content = {
                                 Icon(
                                     imageVector = Icons.Rounded.Block,
-                                    contentDescription = "Do not automatically track document",
+                                    contentDescription = stringResource(R.string.mark_as_read),
                                     tint = if (document.autoTrackable) {
                                         LocalContentColor.current
                                     } else {
@@ -206,7 +208,7 @@ fun ReaderListItem(
 
                 TooltipBox(
                     tooltip = {
-                        ToolTipText(text = "More")
+                        ToolTipText(text = stringResource(R.string.more))
                     },
                     state = rememberTooltipState(isPersistent = false),
                     positionProvider = tooltipPosition,
@@ -216,7 +218,7 @@ fun ReaderListItem(
                             content = {
                                 Icon(
                                     imageVector = Icons.Rounded.MoreVert,
-                                    contentDescription = "More"
+                                    contentDescription = stringResource(R.string.more)
                                 )
 
                                 DropdownMenu(
@@ -225,7 +227,7 @@ fun ReaderListItem(
                                     onDismissRequest = { showOptions = false },
                                     content = {
                                         DropdownMenuItem(
-                                            text = { Text("Add to book list") },
+                                            text = { Text(stringResource(R.string.add_to_book_list)) },
                                             enabled = !documentInBookList,
                                             onClick = {
                                                 onAddToBookList()
@@ -234,7 +236,7 @@ fun ReaderListItem(
                                         )
 
                                         DropdownMenuItem(
-                                            text = { Text("Mark as rereading") },
+                                            text = { Text(stringResource(R.string.mark_as_rereading)) },
                                             enabled = document.isRead,
                                             onClick = {
                                                 Toast.makeText(
@@ -247,7 +249,7 @@ fun ReaderListItem(
                                         )
 
                                         DropdownMenuItem(
-                                            text = { Text("Share") },
+                                            text = { Text(stringResource(R.string.share)) },
                                             enabled = documentInBookList,
                                             onClick = {
                                                 Toast.makeText(
@@ -264,7 +266,7 @@ fun ReaderListItem(
                                         DropdownMenuItem(
                                             text = {
                                                 Text(
-                                                    text = "Remove from book list",
+                                                    text = stringResource(R.string.remove_from_book_list),
                                                     color = Color.Red
                                                 )
                                             },
@@ -276,7 +278,12 @@ fun ReaderListItem(
                                         )
 
                                         DropdownMenuItem(
-                                            text = { Text("Delete", color = Color.Red) },
+                                            text = {
+                                                Text(
+                                                    text = stringResource(R.string.delete),
+                                                    color = Color.Red
+                                                )
+                                            },
                                             onClick = {
                                                 //TODO: also add a confirmation dialog
                                                 Toast.makeText(
@@ -299,10 +306,10 @@ fun ReaderListItem(
                 AlertDialog(
                     onDismissRequest = { showBookRemovalConfirmationDialog = false },
                     title = {
-                        Text(text = "Warning")
+                        Text(text = stringResource(R.string.warning))
                     },
                     text = {
-                        Text(text = "Do you want to remove this document in the book list? This action can not be undone.")
+                        Text(text = stringResource(R.string.document_removal_warning))
                     },
                     confirmButton = {
                         TextButton(

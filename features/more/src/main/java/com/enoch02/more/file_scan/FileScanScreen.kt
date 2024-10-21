@@ -40,9 +40,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.enoch02.more.R
 import com.enoch02.more.components.SwitchSettingItem
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,7 +111,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "File scan") },
+                title = { Text(text = stringResource(R.string.file_scan)) },
                 navigationIcon = {
                     IconButton(
                         onClick = { navController.popBackStack() },
@@ -134,11 +136,11 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                         content = {
                             item {
                                 ListItem(
-                                    overlineContent = { Text(text = "Scanning") },
+                                    overlineContent = { Text(text = stringResource(R.string.scanning)) },
                                     headlineContent = {
                                         Card {
                                             SwitchSettingItem(
-                                                label = "Autostart Scans",
+                                                label = stringResource(R.string.autostart_scans),
                                                 checked = autoStartScans,
                                                 onCheckChanged = {
                                                     autoStartScans = it
@@ -161,12 +163,12 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
 
                                             ListItem(
                                                 headlineContent = {
-                                                    Text(text = "Start Scan")
+                                                    Text(text = stringResource(R.string.start_scan))
                                                 },
                                                 trailingContent = {
                                                     Icon(
                                                         imageVector = Icons.Rounded.Search,
-                                                        contentDescription = "Start Scan"
+                                                        contentDescription = stringResource(R.string.start_scan)
                                                     )
                                                 },
                                                 tonalElevation = 30.dp,
@@ -181,15 +183,15 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
 
                                             ListItem(
                                                 headlineContent = {
-                                                    Text(text = "Reload covers")
+                                                    Text(text = stringResource(R.string.reload_covers))
                                                 },
                                                 supportingContent = {
-                                                    Text(text = "Try to load covers for documents with missing covers")
+                                                    Text(text = stringResource(R.string.reload_covers_desc))
                                                 },
                                                 trailingContent = {
                                                     Icon(
                                                         imageVector = Icons.Rounded.Image,
-                                                        contentDescription = "Reload missing covers"
+                                                        contentDescription = stringResource(R.string.reload_covers_desc)
                                                     )
                                                 },
                                                 tonalElevation = 30.dp,
@@ -208,20 +210,23 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
 
                             item {
                                 ListItem(
-                                    overlineContent = { Text(text = "Scan Locations") },
+                                    overlineContent = { Text(text = stringResource(R.string.scan_locations)) },
                                     headlineContent = {
                                         Card {
                                             ListItem(
                                                 headlineContent = {
-                                                    Text(text = "Select app directory")
+                                                    Text(text = stringResource(R.string.select_app_directory))
                                                 },
                                                 supportingContent = {
                                                     if (isDirectoryPicked) {
                                                         Text(
-                                                            text = "Current: ${viewModel.documentDirectory?.path.toString()}"
+                                                            text = stringResource(
+                                                                R.string.current,
+                                                                viewModel.documentDirectory?.path.toString()
+                                                            )
                                                         )
                                                     } else {
-                                                        Text(text = "This is where the app will scan by default")
+                                                        Text(text = stringResource(R.string.no_dir_picked_msg))
                                                     }
                                                 },
                                                 tonalElevation = 30.dp,
@@ -232,10 +237,15 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
 
                                             ListItem(
                                                 headlineContent = {
-                                                    Text(text = "Select other directories")
+                                                    Text(text = stringResource(R.string.select_other_directories))
                                                 },
                                                 supportingContent = {
-                                                    Text(text = "Total Selected: ${viewModel.scanDirectories.size}")
+                                                    Text(
+                                                        text = stringResource(
+                                                            R.string.total_selected,
+                                                            viewModel.scanDirectories.size
+                                                        )
+                                                    )
                                                 },
                                                 tonalElevation = 30.dp,
                                                 modifier = Modifier.clickable {
@@ -245,7 +255,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
 
                                             ListItem(
                                                 headlineContent = {
-                                                    Text(text = "Remove other directories")
+                                                    Text(text = stringResource(R.string.remove_other_directories))
                                                 },
                                                 tonalElevation = 30.dp,
                                                 modifier = Modifier.clickable {
@@ -273,12 +283,12 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                 onDismissRequest = { showRemovalDialog = false },
                 confirmButton = {
                     TextButton(
-                        content = { Text(text = "Cancel") },
+                        content = { Text(text = stringResource(R.string.cancel)) },
                         onClick = { showRemovalDialog = false }
                     )
                 },
                 title = {
-                    Text("Scanned Directories")
+                    Text(stringResource(R.string.scanned_directories))
                 },
                 text = {
                     Card {
@@ -308,7 +318,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                 content = {
                                                     Icon(
                                                         imageVector = Icons.Rounded.Delete,
-                                                        contentDescription = "Delete"
+                                                        contentDescription = stringResource(R.string.delete)
                                                     )
                                                 }
                                             )

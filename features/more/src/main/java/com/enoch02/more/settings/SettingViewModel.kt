@@ -24,7 +24,6 @@ class SettingViewModel @Inject constructor(private val application: Application)
     val dynamicColorKey = booleanPreferencesKey("dynamic_color")
 
     //TODO: connect value to relevant functions
-    val animationKey = booleanPreferencesKey("animations")
     val confirmDialogKey = booleanPreferencesKey("confirm_dialogs")
 
     fun switchBooleanPreference(key: Preferences.Key<Boolean>, newValue: Boolean) {

@@ -11,6 +11,7 @@ import com.enoch02.more.file_scan.BACKUP_FILE_URI_KEY
 import com.enoch02.more.file_scan.CREATE_BACKUP_WORKER_ID
 import com.enoch02.more.file_scan.RESTORE_BACKUP_WORKER_ID
 
+//TODO: handle potential errors in the workers and show error messages
 class WorkManagerBackRestoreRepository(private val workManager: WorkManager) :
     BackupRestoreRepository {
     override fun createBackup(backupUri: Uri) {

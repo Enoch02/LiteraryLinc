@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,7 +38,6 @@ internal fun BookGridView(
     onItemDelete: (Int) -> Unit,
     modifier: Modifier
 ) {
-    //TODO: Extract string resource
     //TODO: implement hold to delete
     if (books.isEmpty()) {
         Box(
@@ -45,7 +45,7 @@ internal fun BookGridView(
             contentAlignment = Alignment.Center,
             content = {
                 Text(
-                    text = "Your book list is empty.\nTap the + button to start tracking",
+                    text = stringResource(R.string.empty_booklist_msg),
                     textAlign = TextAlign.Center
                 )
             }

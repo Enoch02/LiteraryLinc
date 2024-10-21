@@ -101,7 +101,7 @@ internal fun IncrementalFormIntField(
                 content = {
                     Icon(
                         painter = painterResource(id = R.drawable.round_add_24),
-                        contentDescription = stringResource(R.string.increment_desc)
+                        contentDescription = stringResource(R.string.decrement_desc)
                     )
                 }
             )

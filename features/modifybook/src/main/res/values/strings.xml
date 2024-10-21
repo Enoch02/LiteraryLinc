@@ -4,6 +4,7 @@
     <string name="navigate_back_desc">Navigate Back</string>
     <string name="save_book_desc">Save book details</string>
     <string name="increment_desc">Increment</string>
+    <string name="decrement_desc">Decrement</string>
     <string name="times_reread_label">Times Reread</string>
     <string name="rating_label">Rating</string>
     <string name="isbn_label">ISBN</string>
@@ -17,4 +18,7 @@
     <string name="add_image_desc">Add Cover Image</string>
     <string name="volumes_read_label">Volumes Read</string>
     <string name="total_volumes_label">Total Volumes</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_image">Add Image</string>
 </resources>

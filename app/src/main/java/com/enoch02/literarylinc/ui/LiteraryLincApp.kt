@@ -66,7 +66,6 @@ import com.enoch02.stats.StatsScreen
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-//TODO: extract common composables
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LiteraryLincApp(navController: NavController) {

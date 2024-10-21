@@ -29,7 +29,7 @@ fun ReaderListSortOptionsAlert(
                 TextButton(
                     onClick = onDismiss,
                     content = {
-                        Text(text = "Cancel")
+                        Text(text = stringResource(R.string.cancel))
                     }
                 )
             },
@@ -43,7 +43,7 @@ fun ReaderListSortOptionsAlert(
                             leadingContent = {
                                 RadioButton(
                                     selected = it == currentReaderListSorting,
-                                    onClick = { onSortingClicked(it)}
+                                    onClick = { onSortingClicked(it) }
                                 )
                             },
                             headlineContent = {

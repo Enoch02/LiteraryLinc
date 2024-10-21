@@ -12,27 +12,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BackupRestoreViewModel @Inject constructor(
-    private val csvManager: CSVManager,
     private val backupRestoreRepository: BackupRestoreRepository
 ) : ViewModel() {
-    val showErrorDialog = mutableStateOf(false)
-    val errorDialogMessage = mutableStateOf("")
-
     fun createCSVBackup(uri: Uri) {
         backupRestoreRepository.createBackup(uri)
     }
 
     fun restoreCSVBackup(uri: Uri, onSuccess: () -> Unit) {
         backupRestoreRepository.restoreBackup(uri)
-    }
-
-    private fun showErrorDialog(message: String) {
-        showErrorDialog.value = true
-        errorDialogMessage.value = "Invalid Input Encountered $message"
-    }
-
-    fun closeErrorDialog() {
-        showErrorDialog.value = false
-        errorDialogMessage.value = ""
     }
 }

@@ -45,7 +45,7 @@ fun ReaderTopAppBar(
                 content = {
                     Icon(
                         painter = painterResource(id = R.drawable.round_menu_24),
-                        contentDescription = null
+                        contentDescription = stringResource(R.string.open_menu)
                     )
                 }
             )

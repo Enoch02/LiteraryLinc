@@ -4,7 +4,7 @@ import android.os.Build
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,8 +30,6 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
         .collectAsState(initial = false)
     val dynamicColors by viewModel.getBooleanPreference(key = viewModel.dynamicColorKey)
         .collectAsState(initial = false)
-    val disableAnim by viewModel.getBooleanPreference(key = viewModel.animationKey)
-        .collectAsState(initial = false)
     val showConfirmDialog by viewModel.getBooleanPreference(key = viewModel.confirmDialogKey)
         .collectAsState(initial = false)
 
@@ -44,8 +42,8 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                         onClick = { navController.popBackStack() },
                         content = {
                             Icon(
-                                imageVector = Icons.Rounded.ArrowBack,
-                                contentDescription = null/*TODO*/
+                                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                contentDescription = stringResource(id = R.string.settings_text)
                             )
                         }
                     )
@@ -57,13 +55,13 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                 content = {
                     item {
                         ListItem(
-                            overlineContent = { Text(text = "Appearance") },
+                            overlineContent = { Text(text = stringResource(R.string.appearance)) },
                             headlineContent = {
                                 Card(
                                     content = {
                                         SwitchSettingItem(
-                                            label = "Always dark mode",
-                                            description = "Dark mode is always on",
+                                            label = stringResource(R.string.always_dark_mode_label),
+                                            description = stringResource(R.string.always_dark_mode_desc),
                                             checked = alwaysDark,
                                             onCheckChanged = {
                                                 viewModel.switchBooleanPreference(
@@ -75,8 +73,8 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
 
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                                             SwitchSettingItem(
-                                                label = "Dynamic Colors",
-                                                description = "Toggle dynamic colors",
+                                                label = stringResource(R.string.dynamic_colors_label),
+                                                description = stringResource(R.string.toggle_dynamic_colors_desc),
                                                 checked = dynamicColors,
                                                 onCheckChanged = {
                                                     viewModel.switchBooleanPreference(
@@ -87,18 +85,6 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                             )
 
                                         }
-
-                                        //TODO: remove
-                                        /*SwitchSettingItem(
-                                            label = "Disable Animations",
-                                            checked = disableAnim,
-                                            onCheckChanged = {
-                                                viewModel.switchBooleanPreference(
-                                                    key = viewModel.animationKey,
-                                                    newValue = it
-                                                )
-                                            }
-                                        )*/
                                     }
                                 )
                             },

@@ -31,7 +31,7 @@ fun BookListSortOptionsAlert(
                 TextButton(
                     onClick = onDismiss,
                     content = {
-                        Text(text = "Cancel")
+                        Text(text = stringResource(R.string.cancel))
                     }
                 )
             },

@@ -45,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -78,7 +79,7 @@ internal fun BookListView(
             contentAlignment = Alignment.Center,
             content = {
                 Text(
-                    text = "Your book list is empty.\nTap the + button to start tracking",
+                    text = stringResource(R.string.empty_booklist_msg),
                     textAlign = TextAlign.Center
                 )
             }
@@ -204,7 +205,7 @@ private fun BookListItem(
 
                 if (showEmptyProgress) {
                     Text(
-                        text = "Progress: Not Recorded",
+                        text = stringResource(R.string.progress_not_recorded),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -247,7 +248,7 @@ private fun BookListItem(
                             } else {
                                 Icons.Rounded.LinkOff
                             },
-                            contentDescription = "Unlink document from entry"
+                            contentDescription = stringResource(R.string.unlink_document)
                         )
                     },
                 )
@@ -265,7 +266,7 @@ private fun BookListItem(
             onDismiss = {
                 showWarningDialog = false
             },
-            message = "Do you want to delete this entry?"
+            message = stringResource(R.string.delete_entry_warning)
         )
     }
 
@@ -278,7 +279,7 @@ private fun BookListItem(
             onDismiss = {
                 showUnlinkWarningDialog = false
             },
-            message = "Do you want to unlink this entry from its document?"
+            message = stringResource(R.string.unlink_entry_warning)
         )
     }
 }
@@ -288,7 +289,7 @@ private fun ItemWarningDialog(
     modifier: Modifier = Modifier,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
-    title: String = "Warning",
+    title: String = stringResource(R.string.warning),
     message: String
 ) {
     AlertDialog(
@@ -298,7 +299,7 @@ private fun ItemWarningDialog(
             TextButton(
                 onClick = onConfirm,
                 content = {
-                    Text(text = "Yes", color = Color.Red)
+                    Text(text = stringResource(R.string.yes), color = Color.Red)
                 }
             )
         },
@@ -306,7 +307,7 @@ private fun ItemWarningDialog(
             TextButton(
                 onClick = onDismiss,
                 content = {
-                    Text(text = "No")
+                    Text(text = stringResource(R.string.no))
                 }
             )
         },

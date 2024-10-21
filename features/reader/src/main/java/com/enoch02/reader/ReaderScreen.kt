@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.artifex.mupdf.viewer.DocumentActivity
@@ -77,7 +78,6 @@ fun ReaderScreen(
                     val currentDocument = documents[currentDocumentIndex]
 
                     if (currentDocument.autoTrackable) {
-                        Log.e(TAG, "ReaderScreen: Document is trackable!", )
                         val pages = activityResult.data?.getIntExtra("pages", 0)
                         val currentPage =
                             activityResult.data?.getIntExtra("currentPage", 0)
@@ -111,23 +111,23 @@ fun ReaderScreen(
             content = {
                 when (filter) {
                     ReaderFilter.READING -> {
-                        Text(text = "There's nothing to continue reading 😔")
+                        Text(text = stringResource(R.string.nothing_to_continue))
                     }
 
                     ReaderFilter.FAVORITES -> {
-                        Text(text = "No favorite documents")
+                        Text(text = stringResource(R.string.no_favorite_docs))
                     }
 
                     ReaderFilter.COMPLETED -> {
-                        Text(text = "No completed documents")
+                        Text(text = stringResource(R.string.no_completed_docs))
                     }
 
                     ReaderFilter.ALL -> {
-                        Text(text = "No Document found")
+                        Text(text = stringResource(R.string.no_doc_found))
                         Button(
                             onClick = onScanForDocs,
                             content = {
-                                Text(text = "Scan for new documents")
+                                Text(text = stringResource(R.string.scan_for_new_docs))
                             }
                         )
                     }
