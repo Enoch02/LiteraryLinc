@@ -154,8 +154,7 @@ private fun BookListItem(
         if (book.pagesRead != 0 && book.pageCount != 0) {
             currentProgress = (book.pagesRead.toFloat() / book.pageCount.toFloat()) * 100
         }
-        isComplete =
-            book.pagesRead == book.pageCount && book.pagesRead > 0 && book.pageCount > 0
+        isComplete = book.pagesRead == book.pageCount && book.pagesRead > 0
     }
 
     ListItem(

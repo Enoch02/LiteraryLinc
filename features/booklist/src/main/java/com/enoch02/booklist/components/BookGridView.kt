@@ -62,8 +62,7 @@ internal fun BookGridView(
                         val book = books[index]
 
                         BookGridItem(
-                            modifier = Modifier
-                                .animateItemPlacement()
+                            modifier = Modifier.animateItem()
                                 .padding(horizontal = 4.dp, vertical = 8.dp),
                             book = book,
                             coverPath = covers[book.coverImageName],
