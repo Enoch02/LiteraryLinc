@@ -2,4 +2,20 @@
 <resources>
     <string name="book_detail_label">Book Detail</string>
     <string name="navigate_up_desc">Navigate Up</string>
+    <string name="title">Title</string>
+    <string name="author">Author</string>
+    <string name="page_count">Page count</string>
+    <string name="date_started">Date Started</string>
+    <string name="date_completed">Date Completed</string>
+    <string name="times_reread">Times Reread</string>
+    <string name="personal_rating">Personal Rating</string>
+    <string name="isbn">ISBN</string>
+    <string name="genre">Genre(s)</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="delete_entry_warning">Do you want to delete this entry?</string>
+    <string name="nothing">There\'s nothing here… 🥲</string>
+    <string name="additional_notes">Additional Notes</string>
+    <string name="status">Status</string>
+    <string name="pages">Pages</string>
 </resources>

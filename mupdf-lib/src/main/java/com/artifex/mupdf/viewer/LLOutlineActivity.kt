@@ -1,11 +1,8 @@
 package com.artifex.mupdf.viewer
 
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
@@ -32,12 +28,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.composables.core.ScrollArea
 import com.composables.core.Thumb
-import com.composables.core.ThumbVisibility
 import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
-import kotlin.time.Duration.Companion.seconds
 
-class NewOutlineActivity : ComponentActivity() {
+class LLOutlineActivity : ComponentActivity() {
     data class Item(
         val title: String,
         val page: Int,
@@ -54,26 +48,14 @@ class NewOutlineActivity : ComponentActivity() {
 
         if (bundle != null) {
             val currentPage = bundle.getInt("POSITION")
-            val temp = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                bundle.getSerializable(
-                    "OUTLINE",
-                    Array<Item>::class.java
-                )?.toList()
-            } else {
-                @Suppress("DEPRECATION")
-                (bundle.getSerializable("OUTLINE") as? Array<Item>)?.toList()
-            }
-            var found = -1
 
-            temp?.forEachIndexed { index, item ->
-                if (found < 0 && item.page >= currentPage) {
-                    found = index
-                }
-                outline.add(item)
-            }
+            @Suppress("DEPRECATION")
+            val items = bundle.getSerializable("OUTLINE") as? List<Item>
 
-            if (found >= 0) {
-                selected = found
+            items?.let {
+                outline.addAll(it)
+                selected = it.indexOfFirst { item -> item.page >= currentPage }
+                    .takeIf { it1 -> it1 != -1 } ?: 0 // Default to 0 if not found
             }
         }
 

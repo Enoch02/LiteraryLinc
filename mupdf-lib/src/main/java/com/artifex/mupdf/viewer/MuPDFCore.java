@@ -205,19 +205,19 @@ public class MuPDFCore {
         return outline != null;
     }
 
-    private void flattenOutlineNodes(ArrayList<NewOutlineActivity.Item> result, Outline list[], String indent) {
+    private void flattenOutlineNodes(ArrayList<LLOutlineActivity.Item> result, Outline list[], String indent) {
         for (Outline node : list) {
             if (node.title != null) {
                 int page = doc.pageNumberFromLocation(doc.resolveLink(node));
-                result.add(new NewOutlineActivity.Item(indent + node.title, page));
+                result.add(new LLOutlineActivity.Item(indent + node.title, page));
             }
             if (node.down != null)
                 flattenOutlineNodes(result, node.down, indent + "    ");
         }
     }
 
-    public synchronized ArrayList<NewOutlineActivity.Item> getOutline() {
-        ArrayList<NewOutlineActivity.Item> result = new ArrayList<NewOutlineActivity.Item>();
+    public synchronized ArrayList<LLOutlineActivity.Item> getOutline() {
+        ArrayList<LLOutlineActivity.Item> result = new ArrayList<LLOutlineActivity.Item>();
         flattenOutlineNodes(result, outline, "");
         return result;
     }

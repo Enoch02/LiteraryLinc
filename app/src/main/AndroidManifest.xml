@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <activity android:name="com.artifex.mupdf.viewer.DocumentActivity" />
-        <activity android:name="com.artifex.mupdf.viewer.NewOutlineActivity" />
+        <activity android:name="com.artifex.mupdf.viewer.LLOutlineActivity" />
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

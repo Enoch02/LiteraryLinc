@@ -1,6 +1,7 @@
 package com.enoch02.reader.components
 
 import android.os.Build
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,47 +11,71 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarOutline
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.enoch02.database.model.LLDocument
+import com.enoch02.reader.R
 import java.time.Instant
 import java.util.Calendar
 import java.util.Date
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReaderListItem(
     document: LLDocument,
+    documentInBookList: Boolean,
     cover: String?,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     onAddToFavoritesClicked: () -> Unit,
     onMarkAsReadClicked: () -> Unit,
+    onAddToBookList: () -> Unit,
+    onRemoveFromBookList: () -> Unit,
+    onToggleAutoTracking: () -> Unit
 ) {
+    val context = LocalContext.current
     var showOptions by remember {
+        mutableStateOf(false)
+    }
+    var showBookRemovalConfirmationDialog by remember {
         mutableStateOf(false)
     }
 
@@ -59,9 +84,7 @@ fun ReaderListItem(
             Column {
                 Text(
                     text = document.name,
-                    fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
-                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                    fontWeight = MaterialTheme.typography.titleMedium.fontWeight,
+                    fontStyle = MaterialTheme.typography.titleMedium.fontStyle,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -107,47 +130,202 @@ fun ReaderListItem(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                val favoriteIcon = if (document.isFavorite) Icons.Rounded.Star else Icons.Rounded.StarOutline
+                val favoriteIcon =
+                    if (document.isFavorite) Icons.Rounded.Star else Icons.Rounded.StarOutline
+                val tooltipPosition = TooltipDefaults.rememberPlainTooltipPositionProvider()
 
-                IconButton(
-                    onClick = onAddToFavoritesClicked,
+                TooltipBox(
+                    tooltip = {
+                        ToolTipText(text = stringResource(R.string.add_to_favorites))
+                    },
+                    state = rememberTooltipState(isPersistent = false),
+                    positionProvider = tooltipPosition,
                     content = {
-                        Icon(
-                            imageVector = favoriteIcon,
-                            contentDescription = "Add to favorites",
-                            tint = if (document.isFavorite) MaterialTheme.colorScheme.primary else LocalContentColor.current
+                        IconButton(
+                            onClick = onAddToFavoritesClicked,
+                            content = {
+                                Icon(
+                                    imageVector = favoriteIcon,
+                                    contentDescription = stringResource(R.string.add_to_favorites),
+                                    tint = if (document.isFavorite) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        LocalContentColor.current
+                                    }
+                                )
+                            }
                         )
                     }
                 )
 
-                IconButton(
-                    onClick = onMarkAsReadClicked,
+                TooltipBox(
+                    tooltip = {
+                        ToolTipText(text = stringResource(R.string.mark_as_read))
+                    },
+                    state = rememberTooltipState(isPersistent = false),
+                    positionProvider = tooltipPosition,
                     content = {
-                        Icon(
-                            imageVector = Icons.Rounded.DoneAll,
-                            contentDescription = "Mark as read",
-                            tint = if (document.isRead) MaterialTheme.colorScheme.primary else LocalContentColor.current
+                        IconButton(
+                            onClick = onMarkAsReadClicked,
+                            content = {
+                                Icon(
+                                    imageVector = Icons.Rounded.DoneAll,
+                                    contentDescription = stringResource(R.string.mark_as_read),
+                                    tint = if (document.isRead || document.pages == document.currentPage) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        LocalContentColor.current
+                                    }
+                                )
+                            }
                         )
                     }
                 )
 
-                IconButton(
-                    onClick = { /*TODO*/ },
+                TooltipBox(
+                    tooltip = {
+                        ToolTipText(text = stringResource(R.string.do_not_auto_track))
+                    },
+                    state = rememberTooltipState(isPersistent = false),
+                    positionProvider = tooltipPosition,
                     content = {
-                        Icon(
-                            imageVector = Icons.Rounded.Share,
-                            contentDescription = "Share Document"
+                        IconButton(
+                            onClick = onToggleAutoTracking,
+                            content = {
+                                Icon(
+                                    imageVector = Icons.Rounded.Block,
+                                    contentDescription = stringResource(R.string.mark_as_read),
+                                    tint = if (document.autoTrackable) {
+                                        LocalContentColor.current
+                                    } else {
+                                        MaterialTheme.colorScheme.primary
+                                    }
+                                )
+                            }
                         )
                     }
                 )
 
-
-                IconButton(
-                    onClick = { /*TODO*/ },
+                TooltipBox(
+                    tooltip = {
+                        ToolTipText(text = stringResource(R.string.more))
+                    },
+                    state = rememberTooltipState(isPersistent = false),
+                    positionProvider = tooltipPosition,
                     content = {
-                        Icon(
-                            imageVector = Icons.Rounded.MoreVert,
-                            contentDescription = "More"
+                        IconButton(
+                            onClick = { showOptions = true },
+                            content = {
+                                Icon(
+                                    imageVector = Icons.Rounded.MoreVert,
+                                    contentDescription = stringResource(R.string.more)
+                                )
+
+                                DropdownMenu(
+                                    expanded = showOptions,
+                                    shape = RoundedCornerShape(4.dp),
+                                    onDismissRequest = { showOptions = false },
+                                    content = {
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.add_to_book_list)) },
+                                            enabled = !documentInBookList,
+                                            onClick = {
+                                                onAddToBookList()
+                                                showOptions = false
+                                            },
+                                        )
+
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.mark_as_rereading)) },
+                                            enabled = document.isRead,
+                                            onClick = {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Coming Soon!",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                showOptions = false
+                                            }
+                                        )
+
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.share)) },
+                                            enabled = documentInBookList,
+                                            onClick = {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Coming Soon!",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                showOptions = false
+                                            }
+                                        )
+
+                                        HorizontalDivider()
+
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    text = stringResource(R.string.remove_from_book_list),
+                                                    color = Color.Red
+                                                )
+                                            },
+                                            enabled = documentInBookList,
+                                            onClick = {
+                                                showOptions = false
+                                                showBookRemovalConfirmationDialog = true
+                                            }
+                                        )
+
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    text = stringResource(R.string.delete),
+                                                    color = Color.Red
+                                                )
+                                            },
+                                            onClick = {
+                                                //TODO: also add a confirmation dialog
+                                                Toast.makeText(
+                                                    context,
+                                                    "Coming Soon!",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                showOptions = false
+                                            }
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    }
+                )
+            }
+
+            if (showBookRemovalConfirmationDialog) {
+                AlertDialog(
+                    onDismissRequest = { showBookRemovalConfirmationDialog = false },
+                    title = {
+                        Text(text = stringResource(R.string.warning))
+                    },
+                    text = {
+                        Text(text = stringResource(R.string.document_removal_warning))
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                onRemoveFromBookList()
+                                showBookRemovalConfirmationDialog = false
+                            },
+                            content = {
+                                Text(text = "Yes", color = Color.Red)
+                            }
+                        )
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showBookRemovalConfirmationDialog = false },
+                            content = { Text("No") }
                         )
                     }
                 )
@@ -159,6 +337,23 @@ fun ReaderListItem(
                 onClick()
             }
     )
+}
+
+@Composable
+fun ToolTipText(modifier: Modifier = Modifier, text: String) {
+    Surface(
+        modifier = modifier.padding(4.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shadowElevation = 4.dp,
+        shape = MaterialTheme.shapes.extraSmall
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(8.dp),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant // Text color for contrast
+        )
+    }
 }
 
 @Preview
@@ -177,12 +372,17 @@ private fun Preview() {
                 lastRead = now,
                 type = "PDF",
                 pages = 1,
-                currentPage = 1
+                currentPage = 1,
+                isFavorite = true
             ),
+            documentInBookList = true,
             cover = null,
             onClick = {},
             onAddToFavoritesClicked = {},
-            onMarkAsReadClicked = {}
+            onMarkAsReadClicked = {},
+            onAddToBookList = {},
+            onRemoveFromBookList = {},
+            onToggleAutoTracking = {}
         )
 
         ReaderListItem(
@@ -193,12 +393,16 @@ private fun Preview() {
                 id = "1",
                 author = "Enoch",
                 lastRead = now,
-                type = "EPUB"
+                type = "EPUB",
             ),
+            documentInBookList = false,
             cover = null,
             onClick = {},
             onAddToFavoritesClicked = {},
-            onMarkAsReadClicked = {}
+            onMarkAsReadClicked = {},
+            onAddToBookList = {},
+            onRemoveFromBookList = {},
+            onToggleAutoTracking = {}
         )
     }
 }

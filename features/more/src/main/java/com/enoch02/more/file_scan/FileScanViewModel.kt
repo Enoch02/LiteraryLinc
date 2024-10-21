@@ -6,13 +6,13 @@ import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.enoch02.database.dao.DocumentDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,10 +30,11 @@ const val TAG = "FileScan"
 @HiltViewModel
 class FileScanViewModel @Inject constructor(
     private val documentScanRepository: DocumentScanRepository,
-    private val workManager: WorkManager
+    private val workManager: WorkManager,
+    private val documentDao: DocumentDao
 ) : ViewModel() {
     var documentDirectory: Uri? by mutableStateOf(null)
-    var totalDocuments by mutableIntStateOf(0)
+    var totalDocuments = documentDao.getDocumentCount()
     var scanDirectories by mutableStateOf(emptyMap<String?, Uri>())
 
     private var coverScanCollectionJob: Job? = null
@@ -163,7 +164,6 @@ class FileScanViewModel @Inject constructor(
     fun isDirectoryPickedBefore(context: Context): Boolean {
         val sharedPreferences = context.getSharedPreferences(APP_PREFS_KEY, Context.MODE_PRIVATE)
         val uriString = sharedPreferences.getString(DOCUMENT_DIR_KEY, null)
-        totalDocuments = sharedPreferences.getInt(DOCUMENT_COUNT_KEY, 0)
 
         if (uriString != null) {
             val uri = Uri.parse(uriString)

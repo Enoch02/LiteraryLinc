@@ -8,7 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -24,13 +24,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.enoch02.database.util.formatEpochAsString
 import com.enoch02.more.R
-import com.enoch02.more.components.ErrorAlertDialog
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,6 +39,7 @@ fun BackupRestoreScreen(
     navController: NavController,
     viewModel: BackupRestoreViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val createFileIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
@@ -68,7 +69,7 @@ fun BackupRestoreScreen(
                     onSuccess = {
                         scope.launch {
                             snackbarHostState.showSnackbar(
-                                "Restore Completed Successfully",
+                                context.getString(R.string.restore_complete_success),
                                 withDismissAction = true
                             )
                         }
@@ -85,7 +86,7 @@ fun BackupRestoreScreen(
                     IconButton(
                         onClick = { navController.popBackStack() },
                         content = {
-                            Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = null)
+                            Icon(imageVector = Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
                         }
                     )
                 }
@@ -98,7 +99,6 @@ fun BackupRestoreScreen(
             LazyColumn(
                 content = {
                     item {
-                        //TODO: use WorkManager to create and restore backups
                         ListItem(
                             overlineContent = { Text(text = "CSV backup") },
                             headlineContent = {
@@ -163,13 +163,6 @@ fun BackupRestoreScreen(
                 },
                 modifier = Modifier.padding(it)
             )
-
-            if (viewModel.showErrorDialog.value) {
-                ErrorAlertDialog(
-                    message = viewModel.errorDialogMessage.value,
-                    onDismiss = { viewModel.closeErrorDialog() }
-                )
-            }
         }
     )
 }

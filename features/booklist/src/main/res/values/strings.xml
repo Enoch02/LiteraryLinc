@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="empty_booklist_msg">Your book list is empty.\nTap the + button to start tracking</string>
+    <string name="progress_not_recorded">Progress: Not Recorded</string>
+    <string name="unlink_document">Unlink document from entry</string>
+    <string name="delete_entry_warning">Do you want to delete this entry?</string>
+    <string name="unlink_entry_warning">Do you want to unlink this entry from its document?</string>
+    <string name="warning">Warning</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+</resources>

@@ -3,7 +3,6 @@ package com.enoch02.more.file_scan.workers
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -18,7 +17,6 @@ import com.enoch02.database.model.existsAsFile
 import com.enoch02.more.R
 import com.enoch02.more.file_scan.APP_PREFS_KEY
 import com.enoch02.more.file_scan.DOCUMENT_COUNT_KEY
-import com.enoch02.more.file_scan.DOCUMENT_DIR_KEY
 import com.enoch02.more.file_scan.PROGRESS_CHANNEL_ID
 import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_ID
 import com.enoch02.more.file_scan.util.createProgressNotificationChannel
@@ -46,9 +44,13 @@ class FileScanWorker @AssistedInject constructor(
             val db = documentDao.getDocumentsNonFlow()
             val persistedUriPermissions = applicationContext.contentResolver.persistedUriPermissions
             val uris = persistedUriPermissions.map { it.uri }
-            val dir = uris.map { listDocsInDirectory(applicationContext, it) }.flatten()
-
-            saveFoundDocsCount(applicationContext, dir.size)
+            val dir = uris.map {
+                listDocsInDirectory(
+                    context = applicationContext,
+                    directoryUri = it,
+                    scanned = db.map { document -> document.contentUri }
+                )
+            }.flatten()
 
             // do nothing
             if (db.isNotEmpty() && dir.isNotEmpty() && db.size == dir.size) {
@@ -72,27 +74,10 @@ class FileScanWorker @AssistedInject constructor(
                 addDocsToDb(applicationContext, dir)
             }
 
+            saveFoundDocsCount(applicationContext, db.size)
             notificationManager.cancel(PROGRESS_NOTIFICATION_ID)
             Result.success()
         }
-    }
-
-    private fun getDirUri(): Uri? {
-        val sharedPreferences =
-            applicationContext.getSharedPreferences(APP_PREFS_KEY, Context.MODE_PRIVATE)
-        val uriString = sharedPreferences.getString(DOCUMENT_DIR_KEY, null)
-
-        if (uriString != null) {
-            val uri = Uri.parse(uriString)
-            val persistedUris = applicationContext.contentResolver.persistedUriPermissions
-            for (persistedUri in persistedUris) {
-                if (persistedUri.uri == uri) {
-                    return uri
-                }
-            }
-        }
-
-        return null
     }
 
     private fun saveFoundDocsCount(context: Context, size: Int) {
@@ -117,7 +102,9 @@ class FileScanWorker @AssistedInject constructor(
         }
 
         withContext(Dispatchers.Main) {
-            makeStatusNotification(message = "$removedCount documents removed", context)
+            if (removedCount > 0) {
+                makeStatusNotification(message = "$removedCount documents removed", context)
+            }
         }
     }
 

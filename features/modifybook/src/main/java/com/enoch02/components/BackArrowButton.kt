@@ -1,7 +1,7 @@
 package com.enoch02.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -14,7 +14,7 @@ internal fun BackArrowButton(onClick: () -> Unit) {
         onClick = onClick,
         content = {
             Icon(
-                imageVector = Icons.Rounded.ArrowBack,
+                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                 contentDescription = stringResource(R.string.navigate_back_desc)
             )
         }

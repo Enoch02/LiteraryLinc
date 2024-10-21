@@ -53,7 +53,7 @@ internal fun ImagePicker(
                 if (coverImageUri == null) {
                     Icon(
                         painter = painterResource(R.drawable.round_image_24),
-                        contentDescription = "Add Image",
+                        contentDescription = stringResource(R.string.add_image),
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {

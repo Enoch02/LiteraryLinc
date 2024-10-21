@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(project(":core:coverfile"))
     implementation(libs.androidx.documentfile)
+    implementation(libs.androidx.room.testing)
     annotationProcessor(libs.androidx.room.compiler)
     ksp(libs.androidx.room.compiler)
 

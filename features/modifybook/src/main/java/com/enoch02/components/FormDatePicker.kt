@@ -27,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.enoch02.addbook.R
@@ -117,14 +118,14 @@ fun FormDatePicker(
                             formatDate()
                         },
                         enabled = confirmEnabled,
-                        content = { Text(text = "OK") }
+                        content = { Text(text = stringResource(R.string.ok)) }
                     )
                 },
                 dismissButton = {
                     TextButton(
                         onClick = { showDialog = false },
                         content = {
-                            Text(text = "Cancel")
+                            Text(text = stringResource(R.string.cancel))
                         }
                     )
                 },

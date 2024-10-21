@@ -14,27 +14,11 @@ interface DocumentDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertDocuments(book: List<LLDocument>)
 
-    @Query(
-        value = """
-    SELECT * FROM documents 
-    ORDER BY 
-        CASE 
-            WHEN name GLOB '*[0-9]*' THEN CAST(name AS INTEGER) 
-            ELSE 0 
-        END, 
-        name ASC
-    """
-    )
-    fun getDocumentsByName(): Flow<List<LLDocument>>
+    @Query(value = "SELECT * FROM documents WHERE id = :id")
+    suspend fun getDocument(id: String): LLDocument?
 
-    @Query(value = "SELECT * FROM documents ORDER BY lastRead DESC")
-    fun getDocumentsByLastRead(): Flow<List<LLDocument>>
-
-    @Query(value = "SELECT * FROM documents ORDER BY sizeInMb DESC")
-    fun getDocumentsBySize(): Flow<List<LLDocument>>
-
-    @Query(value = "SELECT * FROM documents ORDER BY type ASC")
-    fun getDocumentsByFormat(): Flow<List<LLDocument>>
+    @Query(value = "SELECT * FROM documents")
+    fun getDocuments(): Flow<List<LLDocument>>
 
     @Query(value = "SELECT * FROM documents")
     suspend fun getDocumentsNonFlow(): List<LLDocument>
@@ -44,4 +28,7 @@ interface DocumentDao {
 
     @Query(value = "DELETE FROM documents WHERE contentUri = :uriString")
     suspend fun deleteDocument(uriString: String)
+
+    @Query(value = "SELECT COUNT(*) FROM documents")
+    fun getDocumentCount(): Flow<Int>
 }

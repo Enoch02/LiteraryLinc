@@ -11,7 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -49,7 +49,7 @@ fun AboutScreen(navController: NavController) {
                         onClick = { navController.popBackStack() },
                         content = {
                             Icon(
-                                imageVector = Icons.Rounded.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                                 contentDescription = stringResource(R.string.back_label)
                             )
                         }
@@ -89,7 +89,7 @@ fun AboutScreen(navController: NavController) {
                                                 Toast
                                                     .makeText(
                                                         context,
-                                                        "App version copied to clipboard",
+                                                        context.getString(R.string.version_copied),
                                                         Toast.LENGTH_SHORT
                                                     )
                                                     .show()
@@ -106,7 +106,7 @@ fun AboutScreen(navController: NavController) {
                                             context.startActivity(
                                                 Intent(
                                                     Intent.ACTION_VIEW,
-                                                    Uri.parse("https://github.com/Enoch02/LiteraryLinc/releases")
+                                                    Uri.parse(context.getString(R.string.app_repo_url))
                                                 )
                                             )
                                         },
@@ -131,7 +131,7 @@ fun AboutScreen(navController: NavController) {
                                             context.startActivity(
                                                 Intent(
                                                     Intent.ACTION_VIEW,
-                                                    Uri.parse("https://github.com/Enoch02/LiteraryLinc")
+                                                    Uri.parse(context.getString(R.string.app_repo_url))
                                                 )
                                             )
                                         },

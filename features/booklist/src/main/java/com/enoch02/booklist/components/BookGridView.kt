@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,9 +35,9 @@ internal fun BookGridView(
     covers: Map<String, String?>,
     gridState: LazyGridState,
     onItemClick: (Int) -> Unit,
-    onItemDelete: (Int) -> Unit
+    onItemDelete: (Int) -> Unit,
+    modifier: Modifier
 ) {
-    //TODO: Extract string resource
     //TODO: implement hold to delete
     if (books.isEmpty()) {
         Box(
@@ -44,7 +45,7 @@ internal fun BookGridView(
             contentAlignment = Alignment.Center,
             content = {
                 Text(
-                    text = "Your book list is empty.\nTap the + button to start tracking",
+                    text = stringResource(R.string.empty_booklist_msg),
                     textAlign = TextAlign.Center
                 )
             }
@@ -61,8 +62,7 @@ internal fun BookGridView(
                         val book = books[index]
 
                         BookGridItem(
-                            modifier = Modifier
-                                .animateItemPlacement()
+                            modifier = Modifier.animateItem()
                                 .padding(horizontal = 4.dp, vertical = 8.dp),
                             book = book,
                             coverPath = covers[book.coverImageName],
@@ -72,7 +72,7 @@ internal fun BookGridView(
                     }
                 )
             },
-            modifier = Modifier.fillMaxSize()
+            modifier = modifier.fillMaxSize()
         )
     }
 }
