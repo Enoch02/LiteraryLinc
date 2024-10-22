@@ -18,6 +18,7 @@ import javax.inject.Inject
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
+//TODO: move to settings module?
 @HiltViewModel
 class SettingViewModel @Inject constructor(private val application: Application) : ViewModel() {
     val darkModeKey = booleanPreferencesKey("dark_mode")

@@ -69,7 +69,8 @@ fun ReaderListItem(
     onMarkAsReadClicked: () -> Unit,
     onAddToBookList: () -> Unit,
     onRemoveFromBookList: () -> Unit,
-    onToggleAutoTracking: () -> Unit
+    onToggleAutoTracking: () -> Unit,
+    onShare: () -> Unit
 ) {
     val context = LocalContext.current
     var showOptions by remember {
@@ -250,13 +251,8 @@ fun ReaderListItem(
 
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.share)) },
-                                            enabled = documentInBookList,
                                             onClick = {
-                                                Toast.makeText(
-                                                    context,
-                                                    "Coming Soon!",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
+                                                onShare()
                                                 showOptions = false
                                             }
                                         )
@@ -382,7 +378,8 @@ private fun Preview() {
             onMarkAsReadClicked = {},
             onAddToBookList = {},
             onRemoveFromBookList = {},
-            onToggleAutoTracking = {}
+            onToggleAutoTracking = {},
+            onShare = {}
         )
 
         ReaderListItem(
@@ -402,7 +399,8 @@ private fun Preview() {
             onMarkAsReadClicked = {},
             onAddToBookList = {},
             onRemoveFromBookList = {},
-            onToggleAutoTracking = {}
+            onToggleAutoTracking = {},
+            onShare = {}
         )
     }
 }

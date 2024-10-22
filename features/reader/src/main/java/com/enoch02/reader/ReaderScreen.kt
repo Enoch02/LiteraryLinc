@@ -3,6 +3,7 @@ package com.enoch02.reader
 import android.app.Activity
 import android.content.Intent
 import android.os.Build
+import android.provider.ContactsContract.Intents.Insert.ACTION
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -76,26 +77,23 @@ fun ReaderScreen(
             if (activityResult.resultCode == Activity.RESULT_OK) {
                 try {
                     val currentDocument = documents[currentDocumentIndex]
+                    val pages = activityResult.data?.getIntExtra("pages", 0)
+                    val currentPage =
+                        activityResult.data?.getIntExtra("currentPage", 0)
+                    val lastRead =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            Date.from(Instant.now())
+                        } else {
+                            Calendar.getInstance().time
+                        }
+                    val modifiedDocument = currentDocument.copy(
+                        pages = pages ?: 0,
+                        currentPage = currentPage ?: 0,
+                        lastRead = lastRead,
+                        isRead = currentPage == pages
+                    )
 
-                    if (currentDocument.autoTrackable) {
-                        val pages = activityResult.data?.getIntExtra("pages", 0)
-                        val currentPage =
-                            activityResult.data?.getIntExtra("currentPage", 0)
-                        val lastRead =
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                Date.from(Instant.now())
-                            } else {
-                                Calendar.getInstance().time
-                            }
-                        val modifiedDocument = currentDocument.copy(
-                            pages = pages ?: 0,
-                            currentPage = currentPage ?: 0,
-                            lastRead = lastRead,
-                            isRead = currentPage == pages
-                        )
-
-                        viewModel.updateDocumentInfo(modifiedDocument)
-                    }
+                    viewModel.updateDocumentInfo(modifiedDocument)
                 } catch (e: IndexOutOfBoundsException) {
                     Log.e(TAG, "ReaderScreen: could not update document reader list")
                 }
@@ -176,6 +174,26 @@ fun ReaderScreen(
                                 },
                                 onToggleAutoTracking = {
                                     viewModel.toggleDocumentAutoTracking(item)
+                                },
+                                onShare = {
+                                    val intent = Intent().apply {
+                                        action = Intent.ACTION_SEND
+                                        putExtra(Intent.EXTRA_STREAM, item.contentUri)
+                                        type = item.contentUri?.let { uri ->
+                                            context.contentResolver.getType(
+                                                uri
+                                            )
+                                        }
+                                    }
+
+                                    context.startActivity(
+                                        Intent.createChooser(
+                                            intent,
+                                            context.getString(
+                                                R.string.chooser_title
+                                            )
+                                        )
+                                    )
                                 }
                             )
 

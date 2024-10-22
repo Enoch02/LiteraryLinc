@@ -14,6 +14,7 @@ import com.enoch02.database.model.LLDocument
 import com.enoch02.more.file_scan.TAG
 import java.io.InputStream
 import java.security.MessageDigest
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 val allowedTypes = arrayOf(
@@ -120,7 +121,7 @@ private fun getDocumentMetadata(context: Context, uri: Uri): DocumentMetadata? {
         }
     } catch (e: Exception) {
         // Ignore any exception and depend on default values for title
-        // and size (unless one was decoded
+        // and size unless one was decoded
     } finally {
         cursor?.close()
     }
@@ -132,9 +133,9 @@ private fun getDocumentMetadata(context: Context, uri: Uri): DocumentMetadata? {
         return DocumentMetadata(
             author = core.author,
             title = core.title,
-            sizeInMb = if (fileSizeInMb > 0.0) roundToTwoDecimalPlaces(fileSizeInMb) else fileSizeInMb,
+            sizeInMb = max(roundToTwoDecimalPlaces(fileSizeInMb), fileSizeInMb),
             pages = core.countPages(),
-            currentPage = core.currentPage
+            currentPage = max(core.currentPage, 0)
         )
     }
 
