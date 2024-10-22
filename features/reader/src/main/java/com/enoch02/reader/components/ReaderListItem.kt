@@ -83,6 +83,7 @@ fun ReaderListItem(
     ListItem(
         headlineContent = {
             Column {
+                Text("${document.currentPage}/${document.pages}")
                 Text(
                     text = document.name,
                     fontStyle = MaterialTheme.typography.titleMedium.fontStyle,
