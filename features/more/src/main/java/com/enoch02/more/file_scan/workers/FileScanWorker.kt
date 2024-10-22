@@ -109,10 +109,13 @@ class FileScanWorker @AssistedInject constructor(
     }
 
     private suspend fun addDocsToDb(context: Context, dir: List<LLDocument>) {
-        documentDao.insertDocuments(dir)
+        val result = documentDao.insertDocuments(dir)
 
         withContext(Dispatchers.Main) {
-            makeStatusNotification(message = "${dir.size} new documents added", context)
+            makeStatusNotification(
+                message = "${result.count { it != -1L }} new documents added",
+                context
+            )
         }
     }
 }

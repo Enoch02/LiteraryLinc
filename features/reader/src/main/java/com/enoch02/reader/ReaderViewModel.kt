@@ -108,7 +108,10 @@ class ReaderViewModel @Inject constructor(
     fun updateDocumentInfo(document: LLDocument) {
         viewModelScope.launch(Dispatchers.IO) {
             documentDao.updateDocument(document)
-            updateBookListEntry(document)
+
+            if (document.autoTrackable) {
+                updateBookListEntry(document)
+            }
         }
     }
 

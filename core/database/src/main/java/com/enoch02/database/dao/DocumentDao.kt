@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 interface DocumentDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertDocuments(book: List<LLDocument>)
+    suspend fun insertDocuments(book: List<LLDocument>): List<Long>
 
     @Query(value = "SELECT * FROM documents WHERE id = :id")
     suspend fun getDocument(id: String): LLDocument?

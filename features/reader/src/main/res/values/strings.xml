@@ -16,4 +16,5 @@
     <string name="delete">Delete</string>
     <string name="warning">Warning</string>
     <string name="document_removal_warning">Do you want to remove this document in the book list? This action can not be undone.</string>
+    <string name="chooser_title">Share Using</string>
 </resources>

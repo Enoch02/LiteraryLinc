@@ -83,7 +83,8 @@ fun LiteraryLincApp(navController: NavController) {
     // reader list
     var currentReaderListSorting by rememberSaveable { mutableStateOf(ReaderSorting.LAST_READ) }
     var showReaderListSortOptions by rememberSaveable { mutableStateOf(false) }
-    var currentReaderListFilter by rememberSaveable { mutableStateOf(ReaderFilter.READING) }
+    // TODO: persist last used value using datastore
+    var currentReaderListFilter by rememberSaveable { mutableStateOf(ReaderFilter.ALL) }
 
     var enableDrawerGestures by rememberSaveable { mutableStateOf(true) }
 

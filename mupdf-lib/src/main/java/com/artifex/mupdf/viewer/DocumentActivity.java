@@ -837,11 +837,17 @@ public class DocumentActivity extends Activity {
 
     @Override
     public void finish() {
+        int count = core.countPages();
+        int current = core.getCurrentPage();
         Intent intent = new Intent();
+
+        // update: only change current page if the document has only one page
+        if (current <= 0 && count == 1) {
+            current = 1;
+        }
+
         intent.putExtra("pages", core.countPages());
-        // pages are zero indexed in the core ig, PDF files with 1 page will always return 0/1
-        // adding 1 is necessary here.
-        intent.putExtra("currentPage", core.getCurrentPage() + 1);
+        intent.putExtra("currentPage", current);
         setResult(Activity.RESULT_OK, intent);
         super.finish();
     }
