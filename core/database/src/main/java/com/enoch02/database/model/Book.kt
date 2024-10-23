@@ -54,7 +54,8 @@ data class Book(
             notes: String,
             status: String,
             volumesRead: String,
-            totalVolumes: String
+            totalVolumes: String,
+            documentMd5: String? = null
         ): Book {
             when {
                 title.isEmpty() -> {
@@ -101,7 +102,8 @@ data class Book(
                 notes = notes,
                 status = status,
                 volumesRead = volumesRead.toInt(),
-                totalVolumes = totalVolumes.toInt()
+                totalVolumes = totalVolumes.toInt(),
+                documentMd5 = documentMd5
             )
         }
     }

@@ -141,7 +141,8 @@ fun EditBookScreen(
                             notes = bookNotes,
                             status = status,
                             volumesRead = volumesRead,
-                            totalVolumes = totalVolumes
+                            totalVolumes = totalVolumes,
+                            documentMd5 = book.documentMd5
                         ).onSuccess {
                             navController.popBackStack()
                             navController.popBackStack()
