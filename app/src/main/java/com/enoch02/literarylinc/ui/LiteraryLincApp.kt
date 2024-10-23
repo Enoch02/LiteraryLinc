@@ -40,8 +40,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
-import com.enoch02.booklist.BookListScreen
-import com.enoch02.booklist.components.BookListViewMode
+import com.enoch02.booklist.BookViewScreen
+import com.enoch02.booklist.components.BookViewMode
 import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.ReaderSorting
 import com.enoch02.database.model.Sorting
@@ -77,7 +77,7 @@ fun LiteraryLincApp(navController: NavController) {
     //book list
     var currentBookListSorting by rememberSaveable { mutableStateOf(Sorting.ALPHABETICAL) }
     var showBookListSortOptions by rememberSaveable { mutableStateOf(false) }
-    var bookListViewMode by rememberSaveable { mutableStateOf(BookListViewMode.LIST_VIEW) }
+    var bookViewMode by rememberSaveable { mutableStateOf(BookViewMode.LIST_VIEW) }
     var statusFilter by rememberSaveable { mutableStateOf(StatusFilter.ALL) }
 
     // reader list
@@ -135,9 +135,9 @@ fun LiteraryLincApp(navController: NavController) {
                         TopLevelDestination.BOOK_LIST -> {
                             BookListTopAppBar(
                                 statusFilter = statusFilter,
-                                bookListViewMode = bookListViewMode,
+                                bookViewMode = bookViewMode,
                                 onChangeBookListMode = { mode ->
-                                    bookListViewMode = mode
+                                    bookViewMode = mode
                                 },
                                 onShowSortOption = {
                                     showBookListSortOptions = true
@@ -256,12 +256,12 @@ fun LiteraryLincApp(navController: NavController) {
                                         }
                                     )
 
-                                    BookListScreen(
+                                    BookViewScreen(
                                         modifier = Modifier.padding(paddingValues),
                                         scope = scope,
                                         sorting = currentBookListSorting,
                                         statusFilter = statusFilter,
-                                        listViewMode = bookListViewMode,
+                                        listViewMode = bookViewMode,
                                         listState = rememberLazyListState(),
                                         gridState = rememberLazyGridState(),
                                         onItemClick = { id ->

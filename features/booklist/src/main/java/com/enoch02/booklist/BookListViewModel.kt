@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.BookDao
+import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
@@ -17,10 +18,17 @@ import javax.inject.Inject
 @HiltViewModel
 class BookListViewModel @Inject constructor(
     private val bookDao: BookDao,
-    private val bookCoverRepository: BookCoverRepository
+    private val bookCoverRepository: BookCoverRepository,
+    private val documentDao: DocumentDao
 ) : ViewModel() {
     private val books = bookDao.getBooks()
     private val covers = bookCoverRepository.latestCoverPath
+    val documents = documentDao.getDocuments()
+        .map { documents ->
+            documents.sortedByDescending { document ->
+                document.lastRead
+            }
+        }
 
     fun getBooks(filter: Int, sorting: Sorting, status: StatusFilter): Flow<List<Book>> {
         val filteredBooks = filterBooks(filter)
@@ -83,6 +91,12 @@ class BookListViewModel @Inject constructor(
     fun unlinkDocumentFromBook(book: Book) {
         viewModelScope.launch(Dispatchers.IO) {
             bookDao.updateBook(book.copy(documentMd5 = null))
+        }
+    }
+
+    fun linkDocumentToBook(book: Book, documentMd5: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            bookDao.updateBook(book.copy(documentMd5 = documentMd5))
         }
     }
 }

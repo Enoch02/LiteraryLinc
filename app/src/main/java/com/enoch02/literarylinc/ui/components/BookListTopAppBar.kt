@@ -8,7 +8,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.enoch02.booklist.components.BookListViewMode
+import com.enoch02.booklist.components.BookViewMode
 import com.enoch02.database.model.StatusFilter
 import com.enoch02.literarylinc.R
 
@@ -16,8 +16,8 @@ import com.enoch02.literarylinc.R
 @Composable
 fun BookListTopAppBar(
     statusFilter: StatusFilter,
-    bookListViewMode: BookListViewMode,
-    onChangeBookListMode: (mode: BookListViewMode) -> Unit,
+    bookViewMode: BookViewMode,
+    onChangeBookListMode: (mode: BookViewMode) -> Unit,
     onShowSortOption: (show: Boolean) -> Unit,
     onChangeDrawerState: () -> Unit
 ) {
@@ -50,24 +50,24 @@ fun BookListTopAppBar(
         actions = {
             IconButton(
                 onClick = {
-                    when (bookListViewMode) {
-                        BookListViewMode.LIST_VIEW -> {
-                            onChangeBookListMode(BookListViewMode.GRID_VIEW)
+                    when (bookViewMode) {
+                        BookViewMode.LIST_VIEW -> {
+                            onChangeBookListMode(BookViewMode.GRID_VIEW)
                         }
 
-                        BookListViewMode.GRID_VIEW -> {
-                            onChangeBookListMode(BookListViewMode.LIST_VIEW)
+                        BookViewMode.GRID_VIEW -> {
+                            onChangeBookListMode(BookViewMode.LIST_VIEW)
                         }
                     }
                 },
                 content = {
                     Icon(
-                        painter = when (bookListViewMode) {
-                            BookListViewMode.LIST_VIEW -> {
+                        painter = when (bookViewMode) {
+                            BookViewMode.LIST_VIEW -> {
                                 painterResource(id = R.drawable.round_grid_view_24)
                             }
 
-                            BookListViewMode.GRID_VIEW -> {
+                            BookViewMode.GRID_VIEW -> {
                                 painterResource(id = R.drawable.round_view_list_24)
                             }
                         },

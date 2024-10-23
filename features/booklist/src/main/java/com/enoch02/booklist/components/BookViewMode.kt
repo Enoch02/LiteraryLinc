@@ -1,6 +1,6 @@
 package com.enoch02.booklist.components
 
-enum class BookListViewMode {
+enum class BookViewMode {
     LIST_VIEW,
     GRID_VIEW
 }

@@ -3,19 +3,22 @@
   <component name="deploymentTargetSelector">
     <selectionStates>
       <SelectionState runConfigName="app">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-10-19T07:10:11.003509800Z">
+        <option name="selectionMode" value="DIALOG" />
+        <DropdownSelection timestamp="2024-10-23T07:13:44.369853500Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=c33934960906" />
+              <DeviceId pluginId="FirebaseDirectAccess" identifier="reservation=projects/cpe-project-eef93/deviceSessions/session-3x7tac0047ixa" />
             </handle>
+            <template>
+              <DeviceId pluginId="FirebaseDirectAccess" type="TEMPLATE" identifier="model_id=shiba/34" />
+            </template>
           </Target>
         </DropdownSelection>
         <DialogSelection>
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=DEIBY559R4PRYXJB" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=c33934960906" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
