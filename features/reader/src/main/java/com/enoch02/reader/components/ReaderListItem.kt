@@ -149,7 +149,7 @@ fun ReaderListItem(
                                     imageVector = favoriteIcon,
                                     contentDescription = stringResource(R.string.add_to_favorites),
                                     tint = if (document.isFavorite) {
-                                        MaterialTheme.colorScheme.primary
+                                        ReaderColors.activatedIconColor
                                     } else {
                                         LocalContentColor.current
                                     }
@@ -173,7 +173,7 @@ fun ReaderListItem(
                                     imageVector = Icons.Rounded.DoneAll,
                                     contentDescription = stringResource(R.string.mark_as_read),
                                     tint = if (document.isRead || document.pages == document.currentPage) {
-                                        MaterialTheme.colorScheme.primary
+                                        ReaderColors.activatedIconColor
                                     } else {
                                         LocalContentColor.current
                                     }
@@ -195,11 +195,11 @@ fun ReaderListItem(
                             content = {
                                 Icon(
                                     imageVector = Icons.Rounded.Block,
-                                    contentDescription = stringResource(R.string.mark_as_read),
+                                    contentDescription = stringResource(R.string.do_not_auto_track),
                                     tint = if (document.autoTrackable) {
                                         LocalContentColor.current
                                     } else {
-                                        MaterialTheme.colorScheme.primary
+                                        ReaderColors.blockedIconColor
                                     }
                                 )
                             }

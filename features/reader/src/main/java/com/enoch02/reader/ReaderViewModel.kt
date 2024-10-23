@@ -205,12 +205,13 @@ class ReaderViewModel @Inject constructor(
             val book = bookDao.getBookByMd5(document.id)
 
             book?.let { theBook ->
-                if (theBook.pagesRead < document.currentPage) {
+                if (theBook.pagesRead <= document.currentPage) {
                     bookDao.updateBook(
                         theBook.copy(
                             pageCount = document.pages,
                             pagesRead = document.currentPage,
-                            coverImageName = if (theBook.coverImageName.isNullOrEmpty()) document.cover else theBook.coverImageName
+                            coverImageName = if (theBook.coverImageName.isNullOrEmpty()) document.cover else theBook.coverImageName,
+                            status = if (document.pages == document.currentPage) Book.status[1] else Book.status[0]
                         )
                     )
                 }
