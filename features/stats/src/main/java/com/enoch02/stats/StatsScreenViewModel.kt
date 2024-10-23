@@ -16,10 +16,10 @@ class StatsScreenViewModel @Inject constructor(private val statsDao: StatsDao) :
     val completed = mutableIntStateOf(0)
     val categories = mutableStateOf(CategoriesStats())
 
-    suspend fun get() {
+    fun get() {
         viewModelScope.launch(Dispatchers.IO) {
-            total.value = statsDao.getTotalBooks()
-            completed.value = statsDao.getCompletedBooks()
+            total.intValue = statsDao.getTotalBooks()
+            completed.intValue = statsDao.getCompletedBooks()
             categories.value = CategoriesStats(
                 mangaCount = statsDao.getMangaCount(),
                 lnCount = statsDao.getLNCount(),

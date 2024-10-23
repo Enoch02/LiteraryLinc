@@ -31,7 +31,7 @@ const val TAG = "FileScan"
 class FileScanViewModel @Inject constructor(
     private val documentScanRepository: DocumentScanRepository,
     private val workManager: WorkManager,
-    private val documentDao: DocumentDao
+    documentDao: DocumentDao
 ) : ViewModel() {
     var documentDirectory: Uri? by mutableStateOf(null)
     var totalDocuments = documentDao.getDocumentCount()

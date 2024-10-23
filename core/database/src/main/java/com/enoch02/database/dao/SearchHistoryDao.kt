@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SearchHistoryDao {
 
-    @Insert()
+    @Insert
     suspend fun insertQuery(item: HistoryItem)
 
     @Update

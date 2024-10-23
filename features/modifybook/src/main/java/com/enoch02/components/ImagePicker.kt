@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.enoch02.addbook.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ImagePicker(
     label: String,
@@ -74,7 +73,6 @@ internal fun ImagePicker(
  * Modified version of [ImagePicker] that uses
  * uri and a path to determine what image to display
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ImagePicker(
     label: String,

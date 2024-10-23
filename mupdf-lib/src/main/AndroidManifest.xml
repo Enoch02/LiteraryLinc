@@ -7,7 +7,7 @@
 			android:configChanges="orientation|screenSize|keyboardHidden"
 			android:exported="true"
 			>
-			<intent-filter>
+			<intent-filter android:scheme="http">
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.BROWSABLE" />
 				<category android:name="android.intent.category.DEFAULT" />

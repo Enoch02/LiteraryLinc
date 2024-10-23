@@ -18,15 +18,15 @@ import javax.inject.Inject
 @HiltViewModel
 class BookListViewModel @Inject constructor(
     private val bookDao: BookDao,
-    private val bookCoverRepository: BookCoverRepository,
-    private val documentDao: DocumentDao
+    bookCoverRepository: BookCoverRepository,
+    documentDao: DocumentDao
 ) : ViewModel() {
     private val books = bookDao.getBooks()
     private val covers = bookCoverRepository.latestCoverPath
     val documents = documentDao.getDocuments()
         .map { documents ->
-            documents.sortedByDescending { document ->
-                document.lastRead
+            documents.sortedBy { document ->
+                document.name
             }
         }
 

@@ -6,7 +6,6 @@ import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.model.Book
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -15,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BookDetailViewModel @Inject constructor(
     private val bookDao: BookDao,
-    private val bookCoverRepository: BookCoverRepository
+    bookCoverRepository: BookCoverRepository
 ) : ViewModel() {
     private val covers = bookCoverRepository.latestCoverPath
 

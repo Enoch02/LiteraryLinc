@@ -25,6 +25,7 @@ import androidx.compose.material.icons.rounded.LinkOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
@@ -358,7 +359,6 @@ private fun BookListBottomSheet(
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
                     content = {
                         LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
                             content = {
                                 items(
                                     items = documents,
@@ -378,6 +378,10 @@ private fun BookListBottomSheet(
                                                 onDocumentSelected(document.id)
                                             }
                                         )
+
+                                        if (documents.indexOf(document) != documents.lastIndex) {
+                                            HorizontalDivider()
+                                        }
                                     }
                                 )
                             }

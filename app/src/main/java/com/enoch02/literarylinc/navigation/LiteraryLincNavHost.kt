@@ -11,17 +11,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.enoch02.barcodescanner.BarcodeScannerScreen
 import com.enoch02.bookdetail.BookDetailScreen
 import com.enoch02.literarylinc.ui.LiteraryLincApp
 import com.enoch02.modifybook.AddBookScreen
 import com.enoch02.modifybook.EditBookScreen
 import com.enoch02.more.MoreScreen
 import com.enoch02.more.about.AboutScreen
-import com.enoch02.more.navigation.MoreScreenDestination
-import com.enoch02.more.settings.SettingsScreen
 import com.enoch02.more.backup_restore.BackupRestoreScreen
 import com.enoch02.more.file_scan.FileScanScreen
+import com.enoch02.more.navigation.MoreScreenDestination
+import com.enoch02.more.settings.SettingsScreen
 
 @Composable
 fun LiteraryLincNavHost(navController: NavHostController = rememberNavController()) {
@@ -62,10 +61,6 @@ fun LiteraryLincNavHost(navController: NavHostController = rememberNavController
                         }
                     )
                 }
-            }
-
-            composable(Screen.BarcodeScanner.route) {
-                BarcodeScannerScreen(navController = navController)
             }
 
             // nested destinations from MoreScreen
