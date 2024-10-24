@@ -615,7 +615,6 @@ public class DocumentActivity extends Activity {
     }
 
     public void onDestroy() {
-        Log.e("TAG", "onDestroy: destroying");
         if (mDocView != null) {
             mDocView.applyToChildren(new ReaderView.ViewMapper() {
                 void applyToView(View view) {

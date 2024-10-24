@@ -39,6 +39,7 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -70,14 +71,18 @@ fun ReaderListItem(
     onAddToBookList: () -> Unit,
     onRemoveFromBookList: () -> Unit,
     onToggleAutoTracking: () -> Unit,
+    onDeleteDocument: () -> Unit,
     onShare: () -> Unit
 ) {
     val context = LocalContext.current
     var showOptions by remember {
         mutableStateOf(false)
     }
-    var showBookRemovalConfirmationDialog by remember {
+    var showConfirmationDialog by remember {
         mutableStateOf(false)
+    }
+    var confirmationDialogText by remember {
+        mutableIntStateOf(R.string.blank)
     }
 
     ListItem(
@@ -236,18 +241,19 @@ fun ReaderListItem(
                                             },
                                         )
 
-                                        DropdownMenuItem(
-                                            text = { Text(stringResource(R.string.mark_as_rereading)) },
-                                            enabled = document.isRead,
-                                            onClick = {
-                                                Toast.makeText(
-                                                    context,
-                                                    "Coming Soon!",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                                showOptions = false
-                                            }
-                                        )
+                                        if (document.isRead) {
+                                            DropdownMenuItem(
+                                                text = { Text(stringResource(R.string.mark_as_rereading)) },
+                                                onClick = {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Coming Soon!",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                    showOptions = false
+                                                }
+                                            )
+                                        }
 
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.share)) },
@@ -259,19 +265,22 @@ fun ReaderListItem(
 
                                         HorizontalDivider()
 
-                                        DropdownMenuItem(
-                                            text = {
-                                                Text(
-                                                    text = stringResource(R.string.remove_from_book_list),
-                                                    color = Color.Red
-                                                )
-                                            },
-                                            enabled = documentInBookList,
-                                            onClick = {
-                                                showOptions = false
-                                                showBookRemovalConfirmationDialog = true
-                                            }
-                                        )
+                                        if (documentInBookList) {
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(
+                                                        text = stringResource(R.string.remove_from_book_list),
+                                                        color = Color.Red
+                                                    )
+                                                },
+                                                onClick = {
+                                                    showOptions = false
+                                                    confirmationDialogText =
+                                                        R.string.document_removal_warning
+                                                    showConfirmationDialog = true
+                                                }
+                                            )
+                                        }
 
                                         DropdownMenuItem(
                                             text = {
@@ -281,13 +290,10 @@ fun ReaderListItem(
                                                 )
                                             },
                                             onClick = {
-                                                //TODO: also add a confirmation dialog
-                                                Toast.makeText(
-                                                    context,
-                                                    "Coming Soon!",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
                                                 showOptions = false
+                                                confirmationDialogText =
+                                                    R.string.document_deletion_warning
+                                                showConfirmationDialog = true
                                             }
                                         )
                                     }
@@ -298,34 +304,27 @@ fun ReaderListItem(
                 )
             }
 
-            if (showBookRemovalConfirmationDialog) {
-                AlertDialog(
-                    onDismissRequest = { showBookRemovalConfirmationDialog = false },
-                    title = {
-                        Text(text = stringResource(R.string.warning))
-                    },
-                    text = {
-                        Text(text = stringResource(R.string.document_removal_warning))
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                onRemoveFromBookList()
-                                showBookRemovalConfirmationDialog = false
-                            },
-                            content = {
-                                Text(text = "Yes", color = Color.Red)
-                            }
-                        )
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = { showBookRemovalConfirmationDialog = false },
-                            content = { Text("No") }
-                        )
+            ConfirmationDialog(
+                showConfirmationDialog = showConfirmationDialog,
+                onDismiss = {
+                    showConfirmationDialog = false
+                },
+                onConfirm = {
+                    when (confirmationDialogText) {
+                        R.string.document_removal_warning -> {
+                            onRemoveFromBookList()
+                        }
+
+                        R.string.document_deletion_warning -> {
+                            onDeleteDocument()
+                        }
                     }
-                )
-            }
+
+                    showConfirmationDialog = false
+                },
+                title = stringResource(R.string.warning),
+                text = stringResource(confirmationDialogText)
+            )
         },
         modifier = modifier
             .height(IntrinsicSize.Min)
@@ -336,7 +335,7 @@ fun ReaderListItem(
 }
 
 @Composable
-fun ToolTipText(modifier: Modifier = Modifier, text: String) {
+private fun ToolTipText(modifier: Modifier = Modifier, text: String) {
     Surface(
         modifier = modifier.padding(4.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -348,6 +347,43 @@ fun ToolTipText(modifier: Modifier = Modifier, text: String) {
             modifier = Modifier.padding(8.dp),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant // Text color for contrast
+        )
+    }
+}
+
+@Composable
+private fun ConfirmationDialog(
+    modifier: Modifier = Modifier,
+    showConfirmationDialog: Boolean,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    title: String,
+    text: String
+) {
+    if (showConfirmationDialog) {
+        AlertDialog(
+            modifier = modifier,
+            onDismissRequest = onDismiss,
+            title = {
+                Text(text = title)
+            },
+            text = {
+                Text(text = text)
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = onConfirm,
+                    content = {
+                        Text(text = "Yes", color = Color.Red)
+                    }
+                )
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = onDismiss,
+                    content = { Text("No") }
+                )
+            }
         )
     }
 }
@@ -379,7 +415,8 @@ private fun Preview() {
             onAddToBookList = {},
             onRemoveFromBookList = {},
             onToggleAutoTracking = {},
-            onShare = {}
+            onShare = {},
+            onDeleteDocument = {}
         )
 
         ReaderListItem(
@@ -400,7 +437,8 @@ private fun Preview() {
             onAddToBookList = {},
             onRemoveFromBookList = {},
             onToggleAutoTracking = {},
-            onShare = {}
+            onShare = {},
+            onDeleteDocument = {}
         )
     }
 }

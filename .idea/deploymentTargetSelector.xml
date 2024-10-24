@@ -3,11 +3,11 @@
   <component name="deploymentTargetSelector">
     <selectionStates>
       <SelectionState runConfigName="app">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-10-23T08:30:09.695972300Z">
+        <option name="selectionMode" value="DIALOG" />
+        <DropdownSelection timestamp="2024-10-24T07:18:11.968496400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=c33934960906" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adesa\.android\avd\Pixel_2_API_29.avd" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -15,7 +15,7 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=c33934960906" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=DEIBY559R4PRYXJB" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">

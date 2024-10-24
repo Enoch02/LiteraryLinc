@@ -139,67 +139,76 @@ fun ReaderScreen(
                 LazyColumn(
                     state = listState,
                     content = {
-                        items(documents) { item ->
-                            val inBookList by viewModel.isDocumentInBookList(item.id)
-                                .collectAsState(false)
+                        items(
+                            items = documents,
+                            itemContent = { document ->
+                                val inBookList by viewModel.isDocumentInBookList(document.id)
+                                    .collectAsState(false)
 
-                            ReaderListItem(
-                                document = item,
-                                documentInBookList = inBookList,
-                                cover = covers[item.cover],
-                                onClick = {
-                                    currentDocumentIndex = documents.indexOf(item)
-                                    viewModel.createBookListEntry(item)
+                                ReaderListItem(
+                                    document = document,
+                                    documentInBookList = inBookList,
+                                    cover = covers[document.cover],
+                                    onClick = {
+                                        currentDocumentIndex = documents.indexOf(document)
+                                        viewModel.createBookListEntry(document)
 
-                                    val intent = Intent(context, DocumentActivity::class.java)
-                                        .apply {
-                                            action = Intent.ACTION_VIEW
-                                            data = item.contentUri
+                                        val intent = Intent(context, DocumentActivity::class.java)
+                                            .apply {
+                                                action = Intent.ACTION_VIEW
+                                                data = document.contentUri
+                                            }
+
+                                        documentViewerLauncher.launch(intent)
+                                    },
+                                    onAddToFavoritesClicked = {
+                                        viewModel.toggleFavoriteStatus(document)
+                                    },
+                                    onMarkAsReadClicked = {
+                                        viewModel.toggleDocumentReadStatus(document)
+                                    },
+                                    onAddToBookList = {
+                                        viewModel.createBookListEntry(document)
+                                    },
+                                    onRemoveFromBookList = {
+                                        viewModel.removeBookListEntry(document.id)
+                                    },
+                                    onToggleAutoTracking = {
+                                        viewModel.toggleDocumentAutoTracking(document)
+                                    },
+                                    onShare = {
+                                        val intent = Intent().apply {
+                                            action = Intent.ACTION_SEND
+                                            putExtra(Intent.EXTRA_STREAM, document.contentUri)
+                                            type = document.contentUri?.let { uri ->
+                                                context.contentResolver.getType(
+                                                    uri
+                                                )
+                                            }
                                         }
 
-                                    documentViewerLauncher.launch(intent)
-                                },
-                                onAddToFavoritesClicked = {
-                                    viewModel.toggleFavoriteStatus(item)
-                                },
-                                onMarkAsReadClicked = {
-                                    viewModel.toggleDocumentReadStatus(item)
-                                },
-                                onAddToBookList = {
-                                    viewModel.createBookListEntry(item)
-                                },
-                                onRemoveFromBookList = {
-                                    viewModel.removeBookListEntry(item.id)
-                                },
-                                onToggleAutoTracking = {
-                                    viewModel.toggleDocumentAutoTracking(item)
-                                },
-                                onShare = {
-                                    val intent = Intent().apply {
-                                        action = Intent.ACTION_SEND
-                                        putExtra(Intent.EXTRA_STREAM, item.contentUri)
-                                        type = item.contentUri?.let { uri ->
-                                            context.contentResolver.getType(
-                                                uri
-                                            )
-                                        }
-                                    }
-
-                                    context.startActivity(
-                                        Intent.createChooser(
-                                            intent,
-                                            context.getString(
-                                                R.string.chooser_title
+                                        context.startActivity(
+                                            Intent.createChooser(
+                                                intent,
+                                                context.getString(
+                                                    R.string.chooser_title
+                                                )
                                             )
                                         )
-                                    )
-                                }
-                            )
+                                    },
+                                    onDeleteDocument = {
+                                        viewModel.deleteDocument(
+                                            context = context,
+                                            document = document
+                                        )
+                                    }
+                                )
 
-                            if (documents.indexOf(item) != documents.lastIndex) {
-                                HorizontalDivider()
+                                if (documents.indexOf(document) != documents.lastIndex) {
+                                    HorizontalDivider()
+                                }
                             }
-                        }
+                        )
                     },
                     modifier = Modifier.fillMaxSize()
                 )

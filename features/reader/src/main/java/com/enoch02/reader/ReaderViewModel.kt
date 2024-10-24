@@ -1,20 +1,25 @@
 package com.enoch02.reader
 
+import android.content.Context
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.model.Book
-import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.LLDocument
+import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.ReaderSorting
+import com.enoch02.database.model.deleteDocument
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.util.Calendar
 import javax.inject.Inject
@@ -243,6 +248,23 @@ class ReaderViewModel @Inject constructor(
                     autoTrackable = !document.autoTrackable
                 )
             )
+        }
+    }
+
+    fun rereadBook() {
+
+    }
+
+    fun deleteDocument(context: Context, document: LLDocument) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (document.deleteDocument(context)) {
+                documentDao.deleteDocument(document.contentUri.toString())
+            } else {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Document could not be deleted", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
         }
     }
 }
