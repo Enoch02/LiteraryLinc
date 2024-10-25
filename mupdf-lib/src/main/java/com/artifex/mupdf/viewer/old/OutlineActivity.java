@@ -8,8 +8,6 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.artifex.mupdf.viewer.Pallet;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 

@@ -1,8 +1,9 @@
-package com.artifex.mupdf.viewer;
+package com.artifex.mupdf.viewer.old;
 
 import com.artifex.mupdf.fitz.Cookie;
 import com.artifex.mupdf.fitz.Link;
 import com.artifex.mupdf.fitz.Quad;
+import com.artifex.mupdf.viewer.R;
 
 import android.content.Context;
 import android.content.Intent;

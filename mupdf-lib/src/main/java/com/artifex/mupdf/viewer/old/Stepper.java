@@ -1,4 +1,4 @@
-package com.artifex.mupdf.viewer;
+package com.artifex.mupdf.viewer.old;
 
 import android.annotation.SuppressLint;
 import android.os.Build;

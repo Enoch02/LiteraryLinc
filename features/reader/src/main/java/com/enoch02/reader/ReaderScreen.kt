@@ -36,7 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.artifex.mupdf.viewer.DocumentActivity
+import com.artifex.mupdf.viewer.LLDocumentActivity
 import com.composables.core.ScrollArea
 import com.composables.core.Thumb
 import com.composables.core.ThumbVisibility
@@ -153,7 +153,7 @@ fun ReaderScreen(
                                         currentDocumentIndex = documents.indexOf(document)
                                         viewModel.createBookListEntry(document)
 
-                                        val intent = Intent(context, DocumentActivity::class.java)
+                                        val intent = Intent(context, LLDocumentActivity::class.java)
                                             .apply {
                                                 action = Intent.ACTION_VIEW
                                                 data = document.contentUri

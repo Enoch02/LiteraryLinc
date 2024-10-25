@@ -1,4 +1,4 @@
-package com.artifex.mupdf.viewer;
+package com.artifex.mupdf.viewer.old;
 
 import com.artifex.mupdf.fitz.Cookie;
 import com.artifex.mupdf.fitz.DisplayList;
@@ -12,6 +12,7 @@ import com.artifex.mupdf.fitz.Rect;
 import com.artifex.mupdf.fitz.RectI;
 import com.artifex.mupdf.fitz.SeekableInputStream;
 import com.artifex.mupdf.fitz.android.AndroidDrawDevice;
+import com.artifex.mupdf.viewer.LLOutlineActivity;
 
 import android.graphics.Bitmap;
 import android.graphics.PointF;

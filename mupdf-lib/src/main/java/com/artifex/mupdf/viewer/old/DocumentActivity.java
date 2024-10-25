@@ -1,6 +1,8 @@
-package com.artifex.mupdf.viewer;
+package com.artifex.mupdf.viewer.old;
 
 import com.artifex.mupdf.fitz.SeekableInputStream;
+import com.artifex.mupdf.viewer.LLOutlineActivity;
+import com.artifex.mupdf.viewer.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;

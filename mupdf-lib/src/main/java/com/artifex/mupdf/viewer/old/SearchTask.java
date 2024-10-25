@@ -1,6 +1,7 @@
-package com.artifex.mupdf.viewer;
+package com.artifex.mupdf.viewer.old;
 
 import com.artifex.mupdf.fitz.Quad;
+import com.artifex.mupdf.viewer.R;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;

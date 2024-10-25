@@ -8,8 +8,8 @@ import android.provider.OpenableColumns
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.artifex.mupdf.fitz.SeekableInputStream
-import com.artifex.mupdf.viewer.ContentInputStream
-import com.artifex.mupdf.viewer.MuPDFCore
+import com.artifex.mupdf.viewer.old.ContentInputStream
+import com.artifex.mupdf.viewer.old.MuPDFCore
 import com.enoch02.database.model.LLDocument
 import com.enoch02.more.file_scan.TAG
 import java.io.InputStream
@@ -126,14 +126,19 @@ private fun getDocumentMetadata(context: Context, uri: Uri): DocumentMetadata? {
         cursor?.close()
     }
 
-    val core = openStream(ContentInputStream(context.contentResolver, uri, fileSize), mimeType)
+    val core = openStream(
+        ContentInputStream(
+            context.contentResolver,
+            uri,
+            fileSize
+        ), mimeType)
     val fileSizeInMb = if (fileSize > 0L) fileSize.toDouble() / (1024 * 1024) else 0.0
 
     if (core != null) {
         return DocumentMetadata(
             author = core.author,
             title = core.title,
-            sizeInMb = max(roundToTwoDecimalPlaces(fileSizeInMb), fileSizeInMb),
+            sizeInMb = roundToTwoDecimalPlaces(fileSizeInMb),
             pages = core.countPages(),
             currentPage = max(core.currentPage, 0)
         )

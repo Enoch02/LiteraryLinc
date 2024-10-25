@@ -1,4 +1,4 @@
-package com.artifex.mupdf.viewer;
+package com.artifex.mupdf.viewer.old;
 
 import com.artifex.mupdf.fitz.SeekableInputStream;
 
@@ -6,11 +6,8 @@ import android.util.Log;
 import android.content.ContentResolver;
 import android.net.Uri;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 public class ContentInputStream implements SeekableInputStream {
 	private final String APP = "MuPDF";

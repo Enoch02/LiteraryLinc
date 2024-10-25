@@ -1,6 +1,7 @@
-package com.artifex.mupdf.viewer;
+package com.artifex.mupdf.viewer.old;
 
 import com.artifex.mupdf.fitz.Link;
+import com.artifex.mupdf.viewer.R;
 
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
