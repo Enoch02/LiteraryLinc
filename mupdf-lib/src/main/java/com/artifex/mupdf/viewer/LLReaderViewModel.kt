@@ -15,20 +15,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.artifex.mupdf.fitz.Document
 import com.artifex.mupdf.fitz.Matrix
+import com.artifex.mupdf.fitz.Page
 import com.artifex.mupdf.fitz.android.AndroidDrawDevice
+import com.artifex.mupdf.viewer.components.BitmapManager
 import com.artifex.mupdf.viewer.components.ContentState
 import com.artifex.mupdf.viewer.old.ContentInputStream
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import java.io.IOException
 
+private const val TAG = "LL"
+
 class LLReaderViewModel : ViewModel() {
-    private val app = "LL"
+    private val bitmapManager = BitmapManager.getInstance()
 
     var contentState by mutableStateOf(ContentState.LOADING)
     var document by mutableStateOf<Document?>(null)
     var currentPage by mutableIntStateOf(1)
-    var currentPageBitmap: Bitmap? by mutableStateOf(null)
+    private var pages = mutableListOf<Page>()
 
     var docTitle = ""
     var docKey = ""
@@ -38,7 +45,7 @@ class LLReaderViewModel : ViewModel() {
     fun initDocument(context: Context, uri: Uri, mimeType: String?) {
         docKey = uri.toString()
         var cursor: Cursor? = null
-        scale = context.resources.displayMetrics.density;
+        scale = context.resources.displayMetrics.density
 
         try {
             cursor = context.contentResolver.query(uri, null, null, null, null)
@@ -100,10 +107,10 @@ class LLReaderViewModel : ViewModel() {
             }
 
             if (buf != null) {
-                Log.i(app, "  Opening document from memory buffer of size " + buf.size)
+                Log.i(TAG, "  Opening document from memory buffer of size " + buf.size)
                 document = Document.openDocument(buf, mimetype)
             } else {
-                Log.i(app, "  Opening document from stream")
+                Log.i(TAG, "  Opening document from stream")
                 document = Document.openDocument(
                     ContentInputStream(
                         cr,
@@ -113,49 +120,64 @@ class LLReaderViewModel : ViewModel() {
                 )
             }
 
-            getPageBitmap()
+            loadPages()
+            contentState = ContentState.NOT_LOADING
         }
     }
 
-
-    //TODO: optimize function.
-    fun getPageBitmap() {
-        viewModelScope.launch(Dispatchers.IO) {
+    private fun loadPages() {
+        try {
             if (document != null) {
-                val page = document!!.loadPage(currentPage - 1)
-                val bounds = page.bounds
+                for (i in 0..<document!!.countPages()) {
+                    val page = document!!.loadPage(i)
+                    pages.add(page)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "loadPages: ${e.message}")
+        }
+    }
 
-                val ctm = Matrix()
-                ctm.scale(scale)
-                val bitmap =
-                    Bitmap.createBitmap(
+    fun getPageBitmap(index: Int): Flow<Bitmap?> = flow {
+        Log.d(TAG, "getPageBitmap: loading page $index")
+        if (document != null) {
+            val cachedBitmap = bitmapManager.getCachedBitmap(index.toString())
+
+            if (cachedBitmap != null) {
+                Log.d(TAG, "getPageBitmap: using cached bitmap!")
+                emit(cachedBitmap)
+            } else {
+                try {
+                    val page = pages[index]
+                    val bounds = page.bounds
+
+                    val ctm = Matrix()
+                    ctm.scale(scale)
+                    val bitmap = Bitmap.createBitmap(
                         (bounds.x1 * scale).toInt(),
                         (bounds.y1 * scale).toInt(),
                         Bitmap.Config.ARGB_8888
                     )
-                val device = AndroidDrawDevice(bitmap)
+                    val device = AndroidDrawDevice(bitmap)
 
-                page.run(device, ctm, null);
+                    page.run(device, ctm, null)
+                    bitmapManager.cacheBitmap(index.toString(), bitmap)
 
-                currentPageBitmap = bitmap
-                contentState = ContentState.NOT_LOADING
+                    emit(bitmap)
+                } catch (e: Exception) {
+                    Log.e(TAG, "getPageBitmap at index $index: ${e.message}")
+                    e.printStackTrace()
+                    emit(null)
+                }
             }
+        } else {
+            emit(null)
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
-    fun nextPage() {
-        if (document != null) {
-            if (currentPage <= document?.countPages()!!) {
-                currentPage++
-                getPageBitmap()
-            }
-        }
-    }
-
-    fun previousPage() {
-        if (currentPage != 1) {
-            currentPage--
-            getPageBitmap()
-        }
+    override fun onCleared() {
+        super.onCleared()
+        document?.destroy()
+        document = null
     }
 }
