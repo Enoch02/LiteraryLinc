@@ -12,7 +12,6 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Analytics
 import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
@@ -53,7 +52,7 @@ import com.enoch02.literarylinc.ui.components.drawersheets.BookListDrawerSheet
 import com.enoch02.literarylinc.ui.components.drawersheets.ReaderListDrawerSheet
 import com.enoch02.more.MoreScreen
 import com.enoch02.more.navigation.MoreScreenDestination
-import com.enoch02.reader.ReaderScreen
+import com.enoch02.reader.ReaderListScreen
 import com.enoch02.stats.StatsScreen
 import kotlinx.coroutines.launch
 
@@ -264,7 +263,7 @@ fun LiteraryLincApp(navController: NavController) {
                                             currentReaderListSorting = picked
                                         }
                                     )
-                                    ReaderScreen(
+                                    ReaderListScreen(
                                         modifier = Modifier.padding(paddingValues),
                                         sorting = currentReaderListSorting,
                                         filter = currentReaderListFilter,

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContent
@@ -29,16 +30,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.artifex.mupdf.fitz.Document
 import com.artifex.mupdf.viewer.components.ContentState
 import com.artifex.mupdf.viewer.components.ReaderBottomBar
 import com.artifex.mupdf.viewer.components.ReaderTopBar
 import com.enoch02.literarylinc.ui.theme.LiteraryLincTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class LLDocumentActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,11 +53,12 @@ class LLDocumentActivity : ComponentActivity() {
                 if (Intent.ACTION_VIEW == intent.action) {
                     val uri = intent.data
                     val mimeType = getIntent().type
+                    val documentId = intent.getStringExtra("id")
 
                     if (uri == null) {
                         Text("Cannot open Document")
                     } else {
-                        ReaderView(uri = uri, mimeType = mimeType)
+                        ReaderView(uri = uri, mimeType = mimeType, documentId = documentId)
                     }
                 }
             }
@@ -62,24 +66,20 @@ class LLDocumentActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ReaderView(viewModel: LLReaderViewModel = viewModel(), uri: Uri, mimeType: String?) {
+    fun ReaderView(
+        viewModel: LLReaderViewModel = hiltViewModel(),
+        uri: Uri,
+        mimeType: String?,
+        documentId: String?
+    ) {
         val context = LocalContext.current
-        val coroutineScope = rememberCoroutineScope()
-        var showBars by rememberSaveable {
-            mutableStateOf(true)
-        }
-        val pageCount = viewModel.pages.size
-        val pagerState = rememberPagerState(pageCount = { pageCount })
-
         LaunchedEffect(Unit) {
-            viewModel.initDocument(context = context, uri = uri, mimeType = mimeType)
-        }
-
-        LaunchedEffect(pagerState) {
-            // Collect the current page index whenever it changes
-            snapshotFlow { pagerState.currentPage }.collectLatest { currentPage ->
-                viewModel.currentPage = currentPage + 1
-            }
+            viewModel.initDocument(
+                context = context,
+                uri = uri,
+                mimeType = mimeType,
+                id = documentId
+            )
         }
 
         AnimatedContent(
@@ -99,6 +99,24 @@ class LLDocumentActivity : ComponentActivity() {
                     }
 
                     ContentState.NOT_LOADING -> {
+                        val coroutineScope = rememberCoroutineScope()
+                        var showBars by rememberSaveable {
+                            mutableStateOf(true)
+                        }
+                        val pageCount = viewModel.pages.size
+                        val pagerState = rememberPagerState(
+                            pageCount = { pageCount },
+                            initialPage = viewModel.currentPage
+                        )
+
+                        LaunchedEffect(pagerState) {
+                            // Collect the current page index whenever it changes
+                            snapshotFlow { pagerState.currentPage }.collectLatest { currentPage ->
+                                viewModel.currentPage = currentPage + 1
+                                viewModel.updateDocumentData()
+                            }
+                        }
+
                         Box(
                             modifier = Modifier
                                 .background(MaterialTheme.colorScheme.background)
@@ -107,7 +125,7 @@ class LLDocumentActivity : ComponentActivity() {
                             content = {
                                 HorizontalPager(
                                     state = pagerState,
-                                    beyondViewportPageCount = 3,
+                                    /*beyondViewportPageCount = 3,*/
                                     pageContent = { index ->
                                         var pageBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
@@ -156,18 +174,21 @@ class LLDocumentActivity : ComponentActivity() {
                                     }
                                 )
 
+                                val toast = Toast.makeText(context, "Coming soon!", Toast.LENGTH_SHORT)
+
                                 ReaderTopBar(
                                     modifier = Modifier.align(Alignment.TopCenter),
                                     visible = showBars,
                                     documentTitle = viewModel.document?.getMetaData(Document.META_INFO_TITLE)
                                         ?: viewModel.docTitle,
                                     onLink = {
-
+                                        toast.show()
                                     },
                                     onSearch = {
-
+                                        toast.show()
                                     },
                                     onOutline = {
+                                        toast.show()
                                         //TODO: open the outline composable from here
                                     }
                                 )

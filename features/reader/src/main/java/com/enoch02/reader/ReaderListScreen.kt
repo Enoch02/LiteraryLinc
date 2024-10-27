@@ -1,11 +1,6 @@
 package com.enoch02.reader
 
-import android.app.Activity
 import android.content.Intent
-import android.os.Build
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -25,9 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,18 +37,13 @@ import com.composables.core.rememberScrollAreaState
 import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.ReaderSorting
 import com.enoch02.reader.components.ReaderListItem
-import java.time.Instant
-import java.util.Calendar
-import java.util.Date
 import kotlin.time.Duration.Companion.seconds
-
-private const val TAG = "ReaderScreen"
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ReaderScreen(
+fun ReaderListScreen(
     modifier: Modifier,
-    viewModel: ReaderViewModel = hiltViewModel(),
+    viewModel: ReaderListViewModel = hiltViewModel(),
     sorting: ReaderSorting,
     filter: ReaderFilter,
     onScanForDocs: () -> Unit
@@ -67,38 +54,6 @@ fun ReaderScreen(
     val documents by viewModel.getDocuments(sorting, filter)
         .collectAsState(initial = emptyList())
     val covers by viewModel.covers.collectAsState(initial = emptyMap())
-    var currentDocumentIndex by rememberSaveable {
-        mutableIntStateOf(0)
-    }
-    val documentViewerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult(),
-        onResult = { activityResult ->
-            if (activityResult.resultCode == Activity.RESULT_OK) {
-                try {
-                    val currentDocument = documents[currentDocumentIndex]
-                    val pages = activityResult.data?.getIntExtra("pages", 0)
-                    val currentPage =
-                        activityResult.data?.getIntExtra("currentPage", 0)
-                    val lastRead =
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            Date.from(Instant.now())
-                        } else {
-                            Calendar.getInstance().time
-                        }
-                    val modifiedDocument = currentDocument.copy(
-                        pages = pages ?: 0,
-                        currentPage = currentPage ?: 0,
-                        lastRead = lastRead,
-                        isRead = currentPage == pages
-                    )
-
-                    viewModel.updateDocumentInfo(modifiedDocument)
-                } catch (e: IndexOutOfBoundsException) {
-                    Log.e(TAG, "ReaderScreen: could not update document reader list")
-                }
-            }
-        }
-    )
 
     if (documents.isEmpty()) {
         Column(
@@ -150,16 +105,16 @@ fun ReaderScreen(
                                     documentInBookList = inBookList,
                                     cover = covers[document.cover],
                                     onClick = {
-                                        currentDocumentIndex = documents.indexOf(document)
                                         viewModel.createBookListEntry(document)
 
                                         val intent = Intent(context, LLDocumentActivity::class.java)
                                             .apply {
                                                 action = Intent.ACTION_VIEW
                                                 data = document.contentUri
+                                                putExtra("id", document.id)
                                             }
 
-                                        documentViewerLauncher.launch(intent)
+                                        context.startActivity(intent)
                                     },
                                     onAddToFavoritesClicked = {
                                         viewModel.toggleFavoriteStatus(document)

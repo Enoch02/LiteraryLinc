@@ -2,7 +2,6 @@ package com.enoch02.reader
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,7 +26,7 @@ import kotlin.math.min
 
 
 @HiltViewModel
-class ReaderViewModel @Inject constructor(
+class ReaderListViewModel @Inject constructor(
     private val documentDao: DocumentDao,
     private val bookDao: BookDao,
     bookCoverRepository: BookCoverRepository
@@ -101,21 +100,6 @@ class ReaderViewModel @Inject constructor(
                 filteredDocuments.map {
                     it.sortedBy { document -> document.type }
                 }
-            }
-        }
-    }
-
-    /**
-     * Update stored document info after the user has finished reading
-     *
-     * @param document the document to update
-     */
-    fun updateDocumentInfo(document: LLDocument) {
-        viewModelScope.launch(Dispatchers.IO) {
-            documentDao.updateDocument(document)
-
-            if (document.autoTrackable) {
-                updateBookListEntry(document)
             }
         }
     }
@@ -195,31 +179,6 @@ class ReaderViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             if (bookDao.doesBookExistByMd5(documentId)) {
                 bookDao.deleteBookWith(documentId)
-            }
-        }
-    }
-
-    /**
-     * Update an item in the book list with updated progress whenever
-     * a document is closed
-     *
-     * @param document the md5 of the document
-     * */
-    private fun updateBookListEntry(document: LLDocument) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val book = bookDao.getBookByMd5(document.id)
-
-            book?.let { theBook ->
-                if (theBook.pagesRead <= document.currentPage) {
-                    bookDao.updateBook(
-                        theBook.copy(
-                            pageCount = document.pages,
-                            pagesRead = document.currentPage,
-                            coverImageName = if (theBook.coverImageName.isNullOrEmpty()) document.cover else theBook.coverImageName,
-                            status = if (document.pages == document.currentPage) Book.status[1] else Book.status[0]
-                        )
-                    )
-                }
             }
         }
     }

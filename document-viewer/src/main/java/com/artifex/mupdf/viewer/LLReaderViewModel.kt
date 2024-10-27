@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -22,16 +23,31 @@ import com.artifex.mupdf.viewer.components.BitmapManager
 import com.artifex.mupdf.viewer.components.ContentState
 import com.artifex.mupdf.viewer.components.cleanup
 import com.artifex.mupdf.viewer.old.ContentInputStream
+import com.enoch02.database.dao.BookDao
+import com.enoch02.database.dao.DocumentDao
+import com.enoch02.database.model.Book
+import com.enoch02.database.model.LLDocument
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.IOException
+import java.time.Instant
+import java.util.Calendar
+import java.util.Date
+import javax.inject.Inject
 
 private const val TAG = "LL"
 
-class LLReaderViewModel : ViewModel() {
+@HiltViewModel
+class LLReaderViewModel @Inject constructor(
+    private val bookDao: BookDao,
+    private val documentDao: DocumentDao
+) : ViewModel() {
     private val bitmapManager = BitmapManager.getInstance()
 
     var contentState by mutableStateOf(ContentState.LOADING)
@@ -44,16 +60,18 @@ class LLReaderViewModel : ViewModel() {
     var size: Long = -1
 
     private var scale = 2f
-    private var documentPageCount by mutableIntStateOf(0)
+    private var documentPageCount = 0
+    private var documentId: String? = null
 
-    private val lock1 = Any()
-    private val lock2 = Any()
-    private val lock3 = Any()
+    private val pageRunLock = Any()
+    private val updateJobMutex = Mutex()
 
-    fun initDocument(context: Context, uri: Uri, mimeType: String?) {
-        docKey = uri.toString()
+    fun initDocument(context: Context, uri: Uri, mimeType: String?, id: String?) {
         var cursor: Cursor? = null
+
+        docKey = uri.toString()
         scale = context.resources.displayMetrics.density
+        documentId = id
 
         try {
             cursor = context.contentResolver.query(uri, null, null, null, null)
@@ -129,6 +147,7 @@ class LLReaderViewModel : ViewModel() {
             }
 
             documentPageCount = document!!.countPages()
+            getCurrentPage()
             loadPages()
             contentState = ContentState.NOT_LOADING
         }
@@ -147,7 +166,6 @@ class LLReaderViewModel : ViewModel() {
         }
     }
 
-    //TODO: we might have concurrent access issues...
     fun getPageBitmap(index: Int): Flow<Bitmap?> = flow {
         val pageKey = "${docTitle}-$index"
         Log.d(TAG, "getPageBitmap: loading page $pageKey")
@@ -171,7 +189,7 @@ class LLReaderViewModel : ViewModel() {
                     )
                     val device = AndroidDrawDevice(bitmap)
 
-                    synchronized(lock1) {
+                    synchronized(pageRunLock) {
                         page.run(device, ctm, null)
                     }
                     device.close()
@@ -189,9 +207,78 @@ class LLReaderViewModel : ViewModel() {
         }
     }.flowOn(Dispatchers.IO)
 
+    private suspend fun getCurrentPage() {
+        val doc = documentId?.let { documentDao.getDocument(it) }
+
+        if (doc != null) {
+            if (currentPage > 0) currentPage = doc.currentPage
+        }
+
+    }
+
+    /**
+     * Update stored document info
+     */
+    fun updateDocumentData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            updateJobMutex.withLock {
+                val doc = documentId?.let { documentDao.getDocument(it) }
+                if (doc != null) {
+                    val lastRead =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            Date.from(Instant.now())
+                        } else {
+                            Calendar.getInstance().time
+                        }
+
+                    val modifiedDocument = doc.copy(
+                        pages = documentPageCount,
+                        currentPage = currentPage,
+                        lastRead = lastRead,
+                        isRead = currentPage == documentPageCount
+                    )
+
+                    documentDao.updateDocument(modifiedDocument)
+
+                    if (doc.autoTrackable) {
+                        updateBookListEntry(modifiedDocument)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Update an item in the book list with updated progress whenever
+     * a document is closed
+     *
+     * @param document the md5 of the document
+     * */
+    private fun updateBookListEntry(document: LLDocument) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val book = bookDao.getBookByMd5(document.id)
+
+            book?.let { theBook ->
+                if (theBook.pagesRead <= document.currentPage) {
+                    bookDao.updateBook(
+                        theBook.copy(
+                            pageCount = document.pages,
+                            pagesRead = document.currentPage,
+                            coverImageName = if (theBook.coverImageName.isNullOrEmpty()) document.cover else theBook.coverImageName,
+                            status = if (document.pages == document.currentPage) Book.status[1] else Book.status[0]
+                        )
+                    )
+
+                    Log.e(TAG, "updateBookListEntry: Document data updated!!!")
+                }
+            }
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
         document?.destroy()
+
         viewModelScope.launch {
             bitmapManager.cleanup()
         }

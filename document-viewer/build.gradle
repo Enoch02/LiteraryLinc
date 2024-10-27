@@ -4,6 +4,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 apply plugin: 'com.google.devtools.ksp'
+apply plugin: 'dagger.hilt.android.plugin'
 
 group = 'com.artifex.mupdf'
 version = '1.24.9a'
@@ -27,7 +28,8 @@ dependencies {
     implementation libs.coil.compose
 
     implementation libs.hilt.android
-
+    implementation libs.androidx.hilt.navigation.compose
+    ksp libs.androidx.hilt.compiler
     ksp libs.hilt.android.compiler
 
     debugImplementation libs.androidx.ui.tooling
