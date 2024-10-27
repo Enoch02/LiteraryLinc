@@ -36,7 +36,6 @@ import com.artifex.mupdf.fitz.Document
 import com.artifex.mupdf.viewer.components.ContentState
 import com.artifex.mupdf.viewer.components.ReaderBottomBar
 import com.artifex.mupdf.viewer.components.ReaderTopBar
-import com.enoch02.literarylinc.ui.theme.LiteraryLincTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -49,7 +48,7 @@ class LLDocumentActivity : ComponentActivity() {
 
         setContent {
             //TODO: use shared module for the theme
-            LiteraryLincTheme(alwaysDark = false, dynamicColor = true) {
+            MaterialTheme {
                 if (Intent.ACTION_VIEW == intent.action) {
                     val uri = intent.data
                     val mimeType = getIntent().type
@@ -174,7 +173,8 @@ class LLDocumentActivity : ComponentActivity() {
                                     }
                                 )
 
-                                val toast = Toast.makeText(context, "Coming soon!", Toast.LENGTH_SHORT)
+                                val toast =
+                                    Toast.makeText(context, "Coming soon!", Toast.LENGTH_SHORT)
 
                                 ReaderTopBar(
                                     modifier = Modifier.align(Alignment.TopCenter),

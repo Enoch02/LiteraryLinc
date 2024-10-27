@@ -40,6 +40,7 @@ import java.time.Instant
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
+import kotlin.math.max
 
 private const val TAG = "LL"
 
@@ -209,11 +210,11 @@ class LLReaderViewModel @Inject constructor(
 
     private suspend fun getCurrentPage() {
         val doc = documentId?.let { documentDao.getDocument(it) }
+        val book = documentId?.let { bookDao.getBookByMd5(it) }
 
-        if (doc != null) {
-            if (currentPage > 0) currentPage = doc.currentPage
+        if (doc != null && book != null) {
+            currentPage = max(doc.currentPage, book.pagesRead)
         }
-
     }
 
     /**
