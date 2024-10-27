@@ -32,20 +32,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.artifex.mupdf.fitz.Document
-import com.artifex.mupdf.viewer.components.BitmapManager
 import com.artifex.mupdf.viewer.components.ContentState
 import com.artifex.mupdf.viewer.components.ReaderBottomBar
 import com.artifex.mupdf.viewer.components.ReaderTopBar
-import com.artifex.mupdf.viewer.components.cleanup
 import com.enoch02.literarylinc.ui.theme.LiteraryLincTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class LLDocumentActivity : ComponentActivity() {
-    private val scope = CoroutineScope(Dispatchers.IO) // Define a coroutine scope
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val intent = intent
@@ -67,15 +61,6 @@ class LLDocumentActivity : ComponentActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        val manager = BitmapManager.getInstance()
-
-        scope.launch {
-            manager.cleanup()
-        }
-    }
-
     @Composable
     fun ReaderView(viewModel: LLReaderViewModel = viewModel(), uri: Uri, mimeType: String?) {
         val context = LocalContext.current
@@ -83,9 +68,8 @@ class LLDocumentActivity : ComponentActivity() {
         var showBars by rememberSaveable {
             mutableStateOf(true)
         }
-        val pageCount =
-            viewModel.document?.countPages() ?: 0
-        val pagerState = rememberPagerState { pageCount }
+        val pageCount = viewModel.pages.size
+        val pagerState = rememberPagerState(pageCount = { pageCount })
 
         LaunchedEffect(Unit) {
             viewModel.initDocument(context = context, uri = uri, mimeType = mimeType)
@@ -123,6 +107,7 @@ class LLDocumentActivity : ComponentActivity() {
                             content = {
                                 HorizontalPager(
                                     state = pagerState,
+                                    beyondViewportPageCount = 3,
                                     pageContent = { index ->
                                         var pageBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
@@ -175,7 +160,7 @@ class LLDocumentActivity : ComponentActivity() {
                                     modifier = Modifier.align(Alignment.TopCenter),
                                     visible = showBars,
                                     documentTitle = viewModel.document?.getMetaData(Document.META_INFO_TITLE)
-                                        ?: "",
+                                        ?: viewModel.docTitle,
                                     onLink = {
 
                                     },

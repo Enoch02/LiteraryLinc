@@ -15,6 +15,7 @@
             <option value="$PROJECT_DIR$/core/coverfile" />
             <option value="$PROJECT_DIR$/core/database" />
             <option value="$PROJECT_DIR$/core/settings" />
+            <option value="$PROJECT_DIR$/document-viewer" />
             <option value="$PROJECT_DIR$/features" />
             <option value="$PROJECT_DIR$/features/bookdetail" />
             <option value="$PROJECT_DIR$/features/booklist" />
@@ -22,7 +23,6 @@
             <option value="$PROJECT_DIR$/features/more" />
             <option value="$PROJECT_DIR$/features/reader" />
             <option value="$PROJECT_DIR$/features/stats" />
-            <option value="$PROJECT_DIR$/mupdf-lib" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

@@ -39,7 +39,7 @@ android {
 
 dependencies {
 
-    api(project(":mupdf-lib"))
+    api(project(":document-viewer"))
     implementation(project(":core:coverfile"))
     implementation(project(":core:database"))
 

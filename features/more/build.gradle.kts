@@ -39,9 +39,9 @@ android {
 }
 
 dependencies {
+    api(project(":document-viewer"))
     val daggerVersion: String by rootProject.extra
 
-    api(project(":mupdf-lib"))
     implementation(project(":core:settings"))
     implementation(project(":core:database"))
     implementation(project(":core:coverfile"))

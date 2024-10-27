@@ -14,7 +14,7 @@ class BitmapManager private constructor() {
     init {
         // Get max available VM memory
         val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
-        Log.d("BitmapManager", "Max Memory: $maxMemory KBc b")
+        Log.d("BitmapManager", "Max Memory: ${maxMemory / 1024} MB")
         // Use 1/8th of the available memory for this cache
         val cacheSize = maxMemory / 8
 

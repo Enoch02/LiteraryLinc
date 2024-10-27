@@ -9,6 +9,7 @@ import android.provider.OpenableColumns
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -19,6 +20,7 @@ import com.artifex.mupdf.fitz.Page
 import com.artifex.mupdf.fitz.android.AndroidDrawDevice
 import com.artifex.mupdf.viewer.components.BitmapManager
 import com.artifex.mupdf.viewer.components.ContentState
+import com.artifex.mupdf.viewer.components.cleanup
 import com.artifex.mupdf.viewer.old.ContentInputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -35,12 +37,18 @@ class LLReaderViewModel : ViewModel() {
     var contentState by mutableStateOf(ContentState.LOADING)
     var document by mutableStateOf<Document?>(null)
     var currentPage by mutableIntStateOf(1)
-    private var pages = mutableListOf<Page>()
+    val pages = mutableStateListOf<Page>()
 
     var docTitle = ""
     var docKey = ""
     var size: Long = -1
+
     private var scale = 2f
+    private var documentPageCount by mutableIntStateOf(0)
+
+    private val lock1 = Any()
+    private val lock2 = Any()
+    private val lock3 = Any()
 
     fun initDocument(context: Context, uri: Uri, mimeType: String?) {
         docKey = uri.toString()
@@ -120,6 +128,7 @@ class LLReaderViewModel : ViewModel() {
                 )
             }
 
+            documentPageCount = document!!.countPages()
             loadPages()
             contentState = ContentState.NOT_LOADING
         }
@@ -128,7 +137,7 @@ class LLReaderViewModel : ViewModel() {
     private fun loadPages() {
         try {
             if (document != null) {
-                for (i in 0..<document!!.countPages()) {
+                for (i in 0..<documentPageCount) {
                     val page = document!!.loadPage(i)
                     pages.add(page)
                 }
@@ -138,19 +147,21 @@ class LLReaderViewModel : ViewModel() {
         }
     }
 
+    //TODO: we might have concurrent access issues...
     fun getPageBitmap(index: Int): Flow<Bitmap?> = flow {
-        Log.d(TAG, "getPageBitmap: loading page $index")
+        val pageKey = "${docTitle}-$index"
+        Log.d(TAG, "getPageBitmap: loading page $pageKey")
         if (document != null) {
-            val cachedBitmap = bitmapManager.getCachedBitmap(index.toString())
+            val cachedBitmap = bitmapManager.getCachedBitmap(pageKey)
 
             if (cachedBitmap != null) {
                 Log.d(TAG, "getPageBitmap: using cached bitmap!")
                 emit(cachedBitmap)
+
             } else {
                 try {
-                    val page = pages[index]
+                    val page: Page = pages[index]
                     val bounds = page.bounds
-
                     val ctm = Matrix()
                     ctm.scale(scale)
                     val bitmap = Bitmap.createBitmap(
@@ -160,8 +171,11 @@ class LLReaderViewModel : ViewModel() {
                     )
                     val device = AndroidDrawDevice(bitmap)
 
-                    page.run(device, ctm, null)
-                    bitmapManager.cacheBitmap(index.toString(), bitmap)
+                    synchronized(lock1) {
+                        page.run(device, ctm, null)
+                    }
+                    device.close()
+                    bitmapManager.cacheBitmap(pageKey, bitmap)
 
                     emit(bitmap)
                 } catch (e: Exception) {
@@ -178,6 +192,8 @@ class LLReaderViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         document?.destroy()
-        document = null
+        viewModelScope.launch {
+            bitmapManager.cleanup()
+        }
     }
 }

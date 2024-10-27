@@ -3,11 +3,14 @@ apply plugin: 'maven-publish'
 //apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
+apply plugin: 'com.google.devtools.ksp'
 
 group = 'com.artifex.mupdf'
 version = '1.24.9a'
 
 dependencies {
+    implementation project(":core:database")
+
     implementation libs.androidx.appcompat
     implementation libs.androidx.core.ktx
     implementation libs.androidx.lifecycle.runtime.ktx
@@ -22,6 +25,10 @@ dependencies {
     implementation libs.androidx.material.icons.extended
     implementation libs.androidx.lifecycle.viewmodel.compose
     implementation libs.coil.compose
+
+    implementation libs.hilt.android
+
+    ksp libs.hilt.android.compiler
 
     debugImplementation libs.androidx.ui.tooling
     debugImplementation libs.androidx.ui.test.manifest
