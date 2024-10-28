@@ -17,12 +17,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.artifex.mupdf.fitz.Document
 import com.artifex.mupdf.fitz.Matrix
+import com.artifex.mupdf.fitz.Outline
 import com.artifex.mupdf.fitz.Page
 import com.artifex.mupdf.fitz.android.AndroidDrawDevice
 import com.artifex.mupdf.viewer.components.BitmapManager
 import com.artifex.mupdf.viewer.components.ContentState
 import com.artifex.mupdf.viewer.components.cleanup
 import com.artifex.mupdf.viewer.old.ContentInputStream
+import com.artifex.mupdf.viewer.shared.Item
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.model.Book
@@ -35,6 +37,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.time.Instant
 import java.util.Calendar
@@ -55,8 +58,10 @@ class LLReaderViewModel @Inject constructor(
     var document by mutableStateOf<Document?>(null)
     var currentPage by mutableIntStateOf(1)
     val pages = mutableStateListOf<Page>()
+    var hasOutline by mutableStateOf(false)
+    val flatOutline = mutableStateListOf<Item>()
 
-    var docTitle = ""
+    var docTitle by mutableStateOf( "")
     var docKey = ""
     var size: Long = -1
 
@@ -150,6 +155,7 @@ class LLReaderViewModel @Inject constructor(
 
                 documentPageCount = document!!.countPages()
                 getCurrentPage()
+                loadOutline()
                 loadPages()
                 contentState = ContentState.NOT_LOADING
             } catch (_: Exception) {
@@ -219,8 +225,56 @@ class LLReaderViewModel @Inject constructor(
         val book = documentId?.let { bookDao.getBookByMd5(it) }
 
         if (doc != null && book != null) {
+            if (docTitle.isEmpty()) {
+                docTitle = doc.name
+            }
             currentPage = max(doc.currentPage, book.pagesRead)
         }
+    }
+
+    private suspend fun loadOutline() {
+        withContext(Dispatchers.IO) {
+            val outline = document?.loadOutline()
+            if (outline != null) {
+                flattenOutlineNodes(outline, "")
+                hasOutline = true
+            } else {
+                hasOutline = false
+            }
+        }
+    }
+
+    private fun flattenOutlineNodes(
+        list: Array<Outline>,
+        indent: String
+    ) {
+        if (document != null) {
+            for (node in list) {
+                if (node.title != null) {
+                    val page = document!!.pageNumberFromLocation(document!!.resolveLink(node))
+                    flatOutline.add(Item(indent + node.title, page, node.uri))
+                }
+                if (node.down != null) flattenOutlineNodes(node.down, "$indent    ")
+            }
+        }
+    }
+
+    fun getChapterStart(): Int {
+        var chapterStart = -1
+
+        if (document != null) {
+            for (item in flatOutline) {
+                val page = document!!.resolveLink(item.uri).page
+
+                if (page <= currentPage) {
+                    chapterStart = page
+                } else {
+                    break
+                }
+            }
+        }
+
+        return chapterStart
     }
 
     /**

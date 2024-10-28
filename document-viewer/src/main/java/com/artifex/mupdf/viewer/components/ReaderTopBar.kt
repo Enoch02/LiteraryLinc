@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import com.artifex.mupdf.fitz.Document
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,6 +27,7 @@ fun ReaderTopBar(
     documentTitle: String,
     onLink: () -> Unit,
     onSearch: () -> Unit,
+    hasOutline: Boolean,
     onOutline: () -> Unit
 ) {
     AnimatedVisibility(
@@ -71,15 +71,17 @@ fun ReaderTopBar(
                         onClick = onSearch
                     )
 
-                    IconButton(
-                        content = {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.List,
-                                contentDescription = null
-                            )
-                        },
-                        onClick = onOutline
-                    )
+                    if (hasOutline) {
+                        IconButton(
+                            content = {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Rounded.List,
+                                    contentDescription = null
+                                )
+                            },
+                            onClick = onOutline
+                        )
+                    }
                 }
             )
         }
@@ -94,6 +96,7 @@ private fun Preview() {
         documentTitle = "Hello, World",
         onLink = {},
         onSearch = {},
+        hasOutline = true,
         onOutline = {}
     )
 }

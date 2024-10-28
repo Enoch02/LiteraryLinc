@@ -3,6 +3,7 @@ package com.artifex.mupdf.viewer.old;
 import com.artifex.mupdf.fitz.SeekableInputStream;
 import com.artifex.mupdf.viewer.LLOutlineActivity;
 import com.artifex.mupdf.viewer.R;
+import com.artifex.mupdf.viewer.shared.Item;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -82,7 +83,7 @@ public class DocumentActivity extends Activity {
     private final Handler mHandler = new Handler();
     private boolean mAlertsActive = false;
     private AlertDialog mAlertDialog;
-    private ArrayList<LLOutlineActivity.Item> mFlatOutline;
+    private ArrayList<Item> mFlatOutline;
 
     protected int mDisplayDPI;
     private int mLayoutEM = 10;

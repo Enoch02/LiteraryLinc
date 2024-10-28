@@ -19,3 +19,6 @@ mupdf-lib/build/
 /document-viewer/build/generated/ksp/debug/java/
 /document-viewer/build/generated/ksp/debug/kotlin/
 /document-viewer/build/generated/ap_generated_sources/debug/out/
+/document-viewer/build/generated/ksp/debug/java/
+/document-viewer/build/generated/ksp/debug/kotlin/
+/document-viewer/build/generated/ap_generated_sources/debug/out/
