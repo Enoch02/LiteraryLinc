@@ -53,17 +53,9 @@ fun ReaderBottomBar(
             var sliderPosition by remember { mutableFloatStateOf(currentPage.toFloat()) }
             var isDragging by remember { mutableStateOf(false) }
 
-            // Sync sliderPosition with currentPage when not dragging
+            // Sync sliderPosition with currentPage
             LaunchedEffect(currentPage, isDragging) {
-                if (!isDragging) {
-                    sliderPosition = currentPage.toFloat()
-                }
-            }
-
-            LaunchedEffect(isDragging, sliderPosition) {
-                if (!isDragging) {
-                    onPageChange(sliderPosition)
-                }
+                sliderPosition = currentPage.toFloat()
             }
 
             BottomAppBar(
@@ -93,6 +85,7 @@ fun ReaderBottomBar(
                                 },
                                 onValueChangeFinished = {
                                     isDragging = false
+                                    onPageChange(sliderPosition)
                                 },
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )
