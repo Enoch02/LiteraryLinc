@@ -61,7 +61,7 @@ class LLReaderViewModel @Inject constructor(
     var hasOutline by mutableStateOf(false)
     val flatOutline = mutableStateListOf<Item>()
 
-    var docTitle by mutableStateOf( "")
+    var docTitle by mutableStateOf("")
     var docKey = ""
     var size: Long = -1
 
@@ -224,22 +224,34 @@ class LLReaderViewModel @Inject constructor(
         val doc = documentId?.let { documentDao.getDocument(it) }
         val book = documentId?.let { bookDao.getBookByMd5(it) }
 
-        if (doc != null && book != null) {
+        if (doc != null) {
             if (docTitle.isEmpty()) {
                 docTitle = doc.name
             }
-            currentPage = max(doc.currentPage, book.pagesRead)
+
+            if (book != null) {
+                currentPage = if (doc.autoTrackable) {
+                    max(doc.currentPage, book.pagesRead)
+                } else {
+                    doc.currentPage
+                }
+            }
         }
     }
 
     private suspend fun loadOutline() {
         withContext(Dispatchers.IO) {
-            val outline = document?.loadOutline()
-            if (outline != null) {
-                flattenOutlineNodes(outline, "")
-                hasOutline = true
-            } else {
-                hasOutline = false
+            try {
+                val outline = document?.loadOutline()
+
+                if (outline == null) {
+                    throw Exception()
+                } else {
+                    flattenOutlineNodes(outline, "")
+                    hasOutline = true
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "loadOutline: $docTitle has no outline")
             }
         }
     }
@@ -263,16 +275,34 @@ class LLReaderViewModel @Inject constructor(
         var chapterStart = -1
 
         if (document != null) {
-            for (item in flatOutline) {
-                val page = document!!.resolveLink(item.uri).page
+            if (document!!.isPDF) {
+                for (item in flatOutline) {
+                    val page = document!!.resolveLink(item.uri).page
 
-                if (page <= currentPage) {
-                    chapterStart = page
-                } else {
-                    break
+                    if (page <= currentPage) {
+                        chapterStart = page
+                    } else {
+                        break
+                    }
                 }
+            } else {
+                val location = document!!.locationFromPageNumber(currentPage)
+                var testPage = currentPage
+
+                // Search backwards until we find a different chapter or reach page 0
+                while (testPage > 0) {
+                    val prevLocation = document!!.locationFromPageNumber(testPage - 1)
+                    if (prevLocation.chapter != location.chapter) {
+                        return testPage
+                    }
+                    testPage--
+                }
+
+                return 0 // chapter starts at page 0
             }
         }
+
+        Log.e(TAG, "getChapterStart: $chapterStart")
 
         return chapterStart
     }

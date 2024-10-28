@@ -5,15 +5,22 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -43,22 +50,49 @@ fun ReaderBottomBar(
             )
         ),
         content = {
+            var sliderPosition by remember { mutableFloatStateOf(currentPage.toFloat()) }
+            var isDragging by remember { mutableStateOf(false) }
+
+            // Sync sliderPosition with currentPage when not dragging
+            LaunchedEffect(currentPage, isDragging) {
+                if (!isDragging) {
+                    sliderPosition = currentPage.toFloat()
+                }
+            }
+
+            LaunchedEffect(isDragging, sliderPosition) {
+                if (!isDragging) {
+                    onPageChange(sliderPosition)
+                }
+            }
+
             BottomAppBar(
                 content = {
                     Column(
                         content = {
-                            Text(
-                                text = "$currentPage/$pageCount",
-                                textAlign = TextAlign.Center,
+                            Row(
                                 modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center,
+                                content = {
+                                    if (isDragging) {
+                                        Text("${sliderPosition.toInt()}")
+                                    } else {
+                                        Text("${currentPage + 1}")
+                                    }
+                                    Text("/$pageCount")
+                                }
                             )
 
                             Slider(
-                                value = currentPage.toFloat(),
+                                value = sliderPosition,
                                 valueRange = 1f..pageCount.toFloat(),
                                 steps = pageCount,
                                 onValueChange = {
-                                    onPageChange(it)
+                                    isDragging = true
+                                    sliderPosition = it
+                                },
+                                onValueChangeFinished = {
+                                    isDragging = false
                                 },
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )

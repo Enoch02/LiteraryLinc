@@ -23,7 +23,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -137,14 +136,14 @@ class LLDocumentActivity : ComponentActivity() {
                         LaunchedEffect(pagerState) {
                             // Collect the current page index whenever it changes
                             snapshotFlow { pagerState.currentPage }.collectLatest { currentPage ->
-                                viewModel.currentPage = currentPage + 1
+                                viewModel.currentPage = currentPage
                                 viewModel.updateDocumentData()
                             }
                         }
 
                         ModalNavigationDrawer(
                             drawerState = drawerState,
-                            gesturesEnabled = false,
+                            /*gesturesEnabled = false,*/
                             drawerContent = {
                                 TableOfContentSheet(
                                     chapterPage = viewModel.getChapterStart(),
@@ -271,7 +270,7 @@ class LLDocumentActivity : ComponentActivity() {
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun TableOfContentSheet(chapterPage: Int, outline: List<Item>, onItemSelected: (Int) -> Unit) {
-        var selected by remember { mutableIntStateOf(-1) }
+        var selected by remember { mutableIntStateOf(0) }
         selected = outline.indexOfFirst { item -> item.page >= chapterPage }
             .takeIf { it1 -> it1 != -1 } ?: 0 // Default to 0 if not found
 
@@ -281,7 +280,7 @@ class LLDocumentActivity : ComponentActivity() {
                 val state = rememberScrollAreaState(listState)
 
                 LaunchedEffect(
-                    key1 = Unit,
+                    key1 = chapterPage,
                     block = {
                         listState.scrollToItem(selected)
                     }
