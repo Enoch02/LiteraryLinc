@@ -59,8 +59,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun LiteraryLincApp(navController: NavController) {
     val scope = rememberCoroutineScope()
-    //TODO: revert to booklist
-    //var currentScreen by rememberSaveable { mutableStateOf(TopLevelDestination.BOOK_LIST) }
     var currentScreen by rememberSaveable { mutableStateOf(TopLevelDestination.READER) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 

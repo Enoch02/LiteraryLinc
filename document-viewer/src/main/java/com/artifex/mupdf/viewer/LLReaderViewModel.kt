@@ -104,53 +104,58 @@ class LLReaderViewModel @Inject constructor(
     @Throws(IOException::class)
     private fun openDocument(context: Context, uri: Uri, size: Long, mimetype: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val cr: ContentResolver = context.contentResolver
-            val inputStream = cr.openInputStream(uri)
-            var buf: ByteArray? = null
-            var used = -1
             try {
-                val limit = 8 * 1024 * 1024
-                if (size < 0) { // size is unknown
-                    buf = ByteArray(limit)
-                    used = inputStream!!.read(buf)
-                    val atEOF = inputStream.read() == -1
-                    if (used < 0 || (used == limit && !atEOF))  // no or partial data
-                        buf = null
-                } else if (size <= limit) { // size is known and below limit
-                    buf = ByteArray(size.toInt())
-                    used = inputStream!!.read(buf)
-                    if (used < 0 || used < size)  // no or partial data
-                        buf = null
+                val cr: ContentResolver = context.contentResolver
+                val inputStream = cr.openInputStream(uri)
+                var buf: ByteArray? = null
+                var used = -1
+                try {
+                    val limit = 8 * 1024 * 1024
+                    if (size < 0) { // size is unknown
+                        buf = ByteArray(limit)
+                        used = inputStream!!.read(buf)
+                        val atEOF = inputStream.read() == -1
+                        if (used < 0 || (used == limit && !atEOF))  // no or partial data
+                            buf = null
+                    } else if (size <= limit) { // size is known and below limit
+                        buf = ByteArray(size.toInt())
+                        used = inputStream!!.read(buf)
+                        if (used < 0 || used < size)  // no or partial data
+                            buf = null
+                    }
+                    if (buf != null && buf.size != used) {
+                        val newbuf = ByteArray(used)
+                        System.arraycopy(buf, 0, newbuf, 0, used)
+                        buf = newbuf
+                    }
+                } catch (e: OutOfMemoryError) {
+                    buf = null
+                } finally {
+                    inputStream!!.close()
                 }
-                if (buf != null && buf.size != used) {
-                    val newbuf = ByteArray(used)
-                    System.arraycopy(buf, 0, newbuf, 0, used)
-                    buf = newbuf
+
+                if (buf != null) {
+                    Log.i(TAG, "  Opening document from memory buffer of size " + buf.size)
+                    document = Document.openDocument(buf, mimetype)
+                } else {
+                    Log.i(TAG, "  Opening document from stream")
+                    document = Document.openDocument(
+                        ContentInputStream(
+                            cr,
+                            uri,
+                            size
+                        ), mimetype
+                    )
                 }
-            } catch (e: OutOfMemoryError) {
-                buf = null
-            } finally {
-                inputStream!!.close()
-            }
 
-            if (buf != null) {
-                Log.i(TAG, "  Opening document from memory buffer of size " + buf.size)
-                document = Document.openDocument(buf, mimetype)
-            } else {
-                Log.i(TAG, "  Opening document from stream")
-                document = Document.openDocument(
-                    ContentInputStream(
-                        cr,
-                        uri,
-                        size
-                    ), mimetype
-                )
+                documentPageCount = document!!.countPages()
+                getCurrentPage()
+                loadPages()
+                contentState = ContentState.NOT_LOADING
+            } catch (_: Exception) {
+                // catch exceptions that occurs when user closes the screen
+                // before a document loads
             }
-
-            documentPageCount = document!!.countPages()
-            getCurrentPage()
-            loadPages()
-            contentState = ContentState.NOT_LOADING
         }
     }
 
@@ -174,10 +179,11 @@ class LLReaderViewModel @Inject constructor(
             val cachedBitmap = bitmapManager.getCachedBitmap(pageKey)
 
             if (cachedBitmap != null) {
-                Log.d(TAG, "getPageBitmap: using cached bitmap!")
+                Log.i(TAG, "getPageBitmap: using cached bitmap!")
                 emit(cachedBitmap)
 
             } else {
+                Log.i(TAG, "getPageBitmap: page not in cache")
                 try {
                     val page: Page = pages[index]
                     val bounds = page.bounds
@@ -269,8 +275,6 @@ class LLReaderViewModel @Inject constructor(
                             status = if (document.pages == document.currentPage) Book.status[1] else Book.status[0]
                         )
                     )
-
-                    Log.e(TAG, "updateBookListEntry: Document data updated!!!")
                 }
             }
         }
