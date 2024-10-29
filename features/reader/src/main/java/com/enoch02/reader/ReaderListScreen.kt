@@ -18,15 +18,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,17 +54,21 @@ fun ReaderListScreen(
     val context = LocalContext.current
     val listState = rememberLazyListState()
     val state = rememberScrollAreaState(listState)
-    val documents = viewModel.documents
+    val arrangedDocs = viewModel.documents
+    // gives instant access to favorites, read status,...
+    val docs = viewModel.document2.collectAsState(emptyList()).value
     val covers by viewModel.covers.collectAsState(initial = emptyMap())
     val isLoading = viewModel.isLoading
 
     LaunchedEffect(sorting, filter) {
-        viewModel.getDocuments(context, sorting, filter)
-    }
-
-    LaunchedEffect(documents, filter, sorting) {
+        viewModel.getDocuments(sorting, filter)
         listState.requestScrollToItem(0)
     }
+
+    LaunchedEffect(arrangedDocs, sorting, filter) {
+
+    }
+
 
     when {
         isLoading -> {
@@ -79,7 +79,7 @@ fun ReaderListScreen(
             )
         }
 
-        documents.isEmpty() -> {
+        arrangedDocs.isEmpty() -> {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -125,9 +125,10 @@ fun ReaderListScreen(
                         state = listState,
                         content = {
                             items(
-                                items = documents,
-                                key = { it.id },
-                                itemContent = { document ->
+                                items = arrangedDocs,
+                                key = { item -> item.id },
+                                itemContent = { item ->
+                                    val document = docs.find { item.id == it.id } ?: item
                                     val inBookList by viewModel.isDocumentInBookList(document.id)
                                         .collectAsState(false)
 
@@ -184,14 +185,11 @@ fun ReaderListScreen(
                                             )
                                         },
                                         onDeleteDocument = {
-                                            viewModel.deleteDocument(
-                                                context = context,
-                                                document = document
-                                            )
+                                            viewModel.deleteDocument(document = document)
                                         }
                                     )
 
-                                    if (documents.indexOf(document) != documents.lastIndex) {
+                                    if (arrangedDocs.indexOf(document) != arrangedDocs.lastIndex) {
                                         HorizontalDivider()
                                     }
                                 }

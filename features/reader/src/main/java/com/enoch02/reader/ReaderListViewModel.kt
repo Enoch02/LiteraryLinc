@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.util.fastFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
@@ -21,7 +22,7 @@ import com.enoch02.database.model.existsAsFile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -32,14 +33,20 @@ import kotlin.math.min
 
 @HiltViewModel
 class ReaderListViewModel @Inject constructor(
+    private val applicationContext: Context,
     private val documentDao: DocumentDao,
     private val bookDao: BookDao,
     bookCoverRepository: BookCoverRepository
 ) :
     ViewModel() {
     val covers = bookCoverRepository.latestCoverPath
+
     var isLoading by mutableStateOf(true)
     val documents = mutableStateListOf<LLDocument>()
+
+    // FIXME: this is the best solution i could come up with for now that updates those properties ASAP
+    val document2 = documentDao.getDocuments()
+
 
     /**
      * Retrieve (if any) documents from the database
@@ -48,90 +55,12 @@ class ReaderListViewModel @Inject constructor(
      * @param filter  what type of documents should be returned?
      * @return a list of the documents in a flow
      * */
-    /*fun getDocuments(
-        context: Context,
-        sorting: ReaderSorting,
-        filter: ReaderFilter
-    ): Flow<List<LLDocument>> {
-        val filteredDocuments = filterDocument(context, filter)
-
-        return sortDocument(sorting, filteredDocuments)
-    }
-
-    private fun filterDocument(context: Context, filter: ReaderFilter): Flow<List<LLDocument>> {
-        return when (filter) {
-            ReaderFilter.READING -> {
-                documentDao.getDocuments().map { documents ->
-                    documents.filter {
-                        it.currentPage > 0 && it.currentPage < it.pages && !it.isRead && it.existsAsFile(
-                            context
-                        )
-                    }
-                }
-            }
-
-            ReaderFilter.FAVORITES -> {
-                documentDao.getDocuments().map { documents ->
-                    documents.filter { it.isFavorite && it.existsAsFile(context) }
-                }
-            }
-
-            ReaderFilter.COMPLETED -> {
-                documentDao.getDocuments().map { documents ->
-                    documents.filter { it.isRead && it.existsAsFile(context) }
-                }
-            }
-
-            ReaderFilter.ALL -> {
-                documentDao.getDocuments().map { documents ->
-                    documents.filter { it.existsAsFile(context) }
-                }
-            }
-
-            ReaderFilter.NO_FILE -> {
-                documentDao.getDocuments().map { documents ->
-                    documents.filter { !it.existsAsFile(context) }
-                }
-            }
-        }
-    }
-
-    private fun sortDocument(
-        sorting: ReaderSorting,
-        filteredDocuments: Flow<List<LLDocument>>
-    ): Flow<List<LLDocument>> {
-        return when (sorting) {
-            ReaderSorting.NAME -> {
-                filteredDocuments.map {
-                    it.sortedWith { a, b -> a.name.lowercase().naturalCompare(b.name.lowercase()) }
-                }
-            }
-
-            ReaderSorting.LAST_READ -> {
-                filteredDocuments.map {
-                    it.sortedByDescending { document -> document.lastRead }
-                }
-            }
-
-            ReaderSorting.SIZE -> {
-                filteredDocuments.map {
-                    it.sortedByDescending { document -> document.sizeInMb }
-                }
-            }
-
-            ReaderSorting.FORMAT -> {
-                filteredDocuments.map {
-                    it.sortedBy { document -> document.type }
-                }
-            }
-        }
-    }*/
-
-    fun getDocuments(context: Context, sorting: ReaderSorting, filter: ReaderFilter) {
+    fun getDocuments(sorting: ReaderSorting, filter: ReaderFilter) {
         viewModelScope.launch(Dispatchers.IO) {
             isLoading = true
-            val docs = documentDao.getDocumentsNonFlow()
-                .filter { filterPredicate(context, filter, it) }
+            val docs = document2
+                .first()
+                .fastFilter { filterPredicate(applicationContext, filter, it) }
                 .sortedWith(sortingComparator(sorting))
 
             documents.clear()
@@ -266,25 +195,25 @@ class ReaderListViewModel @Inject constructor(
 
     fun toggleDocumentAutoTracking(document: LLDocument) {
         viewModelScope.launch(Dispatchers.IO) {
-            documentDao.updateDocument(
-                document.copy(
-                    autoTrackable = !document.autoTrackable
-                )
-            )
+            documentDao.updateDocument(document.copy(autoTrackable = !document.autoTrackable))
         }
     }
 
     fun rereadBook() {
-
+        /*TODO*/
     }
 
-    fun deleteDocument(context: Context, document: LLDocument) {
+    fun deleteDocument(document: LLDocument) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (document.deleteDocument(context)) {
+            if (document.deleteDocument(applicationContext)) {
                 documentDao.deleteDocument(document.contentUri.toString())
             } else {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Document could not be deleted", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        applicationContext,
+                        "Document could not be deleted",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 }
             }
