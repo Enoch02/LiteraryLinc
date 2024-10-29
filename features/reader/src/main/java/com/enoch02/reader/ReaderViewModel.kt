@@ -1,20 +1,26 @@
 package com.enoch02.reader
 
+import android.content.Context
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.model.Book
-import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.LLDocument
+import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.ReaderSorting
+import com.enoch02.database.model.deleteDocument
+import com.enoch02.database.model.existsAsFile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.util.Calendar
 import javax.inject.Inject
@@ -37,34 +43,50 @@ class ReaderViewModel @Inject constructor(
      * @param filter  what type of documents should be returned?
      * @return a list of the documents in a flow
      * */
-    fun getDocuments(sorting: ReaderSorting, filter: ReaderFilter): Flow<List<LLDocument>> {
-        val filteredDocuments = filterDocument(filter)
+    fun getDocuments(
+        context: Context,
+        sorting: ReaderSorting,
+        filter: ReaderFilter
+    ): Flow<List<LLDocument>> {
+        val filteredDocuments = filterDocument(context, filter)
 
         return sortDocument(sorting, filteredDocuments)
     }
 
-    private fun filterDocument(filter: ReaderFilter): Flow<List<LLDocument>> {
+    private fun filterDocument(context: Context, filter: ReaderFilter): Flow<List<LLDocument>> {
         return when (filter) {
             ReaderFilter.READING -> {
                 documentDao.getDocuments().map { documents ->
-                    documents.filter { it.currentPage > 0 && it.currentPage < it.pages && !it.isRead }
+                    documents.filter {
+                        it.currentPage > 0 && it.currentPage < it.pages && !it.isRead && it.existsAsFile(
+                            context
+                        )
+                    }
                 }
             }
 
             ReaderFilter.FAVORITES -> {
                 documentDao.getDocuments().map { documents ->
-                    documents.filter { it.isFavorite }
+                    documents.filter { it.isFavorite && it.existsAsFile(context) }
                 }
             }
 
             ReaderFilter.COMPLETED -> {
                 documentDao.getDocuments().map { documents ->
-                    documents.filter { it.isRead }
+                    documents.filter { it.isRead && it.existsAsFile(context) }
                 }
             }
 
             ReaderFilter.ALL -> {
-                documentDao.getDocuments()
+                documentDao.getDocuments().map { documents ->
+                    documents.filter { it.existsAsFile(context) }
+                }
+            }
+
+            ReaderFilter.NO_FILE -> {
+                documentDao.getDocuments().map { documents ->
+                    documents.filter { !it.existsAsFile(context) }
+                }
             }
         }
     }
@@ -205,12 +227,13 @@ class ReaderViewModel @Inject constructor(
             val book = bookDao.getBookByMd5(document.id)
 
             book?.let { theBook ->
-                if (theBook.pagesRead < document.currentPage) {
+                if (theBook.pagesRead <= document.currentPage) {
                     bookDao.updateBook(
                         theBook.copy(
                             pageCount = document.pages,
                             pagesRead = document.currentPage,
-                            coverImageName = if (theBook.coverImageName.isNullOrEmpty()) document.cover else theBook.coverImageName
+                            coverImageName = if (theBook.coverImageName.isNullOrEmpty()) document.cover else theBook.coverImageName,
+                            status = if (document.pages == document.currentPage) Book.status[1] else Book.status[0]
                         )
                     )
                 }
@@ -242,6 +265,23 @@ class ReaderViewModel @Inject constructor(
                     autoTrackable = !document.autoTrackable
                 )
             )
+        }
+    }
+
+    fun rereadBook() {
+
+    }
+
+    fun deleteDocument(context: Context, document: LLDocument) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (document.deleteDocument(context)) {
+                documentDao.deleteDocument(document.contentUri.toString())
+            } else {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Document could not be deleted", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
         }
     }
 }

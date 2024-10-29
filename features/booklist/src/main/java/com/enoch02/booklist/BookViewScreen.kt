@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.enoch02.booklist.components.BookGridView
 import com.enoch02.booklist.components.BookListView
-import com.enoch02.booklist.components.BookListViewMode
+import com.enoch02.booklist.components.BookViewMode
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
@@ -26,12 +26,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun BookListScreen(
+fun BookViewScreen(
     modifier: Modifier,
     scope: CoroutineScope,
     sorting: Sorting,
     statusFilter: StatusFilter,
-    listViewMode: BookListViewMode,
+    listViewMode: BookViewMode,
     listState: LazyListState,
     gridState: LazyGridState,
     onItemClick: (Int) -> Unit,
@@ -73,12 +73,14 @@ fun BookListScreen(
                         .collectAsState(initial = emptyList()).value
                     val covers = viewModel.getCovers()
                         .collectAsState(initial = emptyMap()).value
+                    val documents = viewModel.documents.collectAsState(emptyList()).value
 
                     when (listViewMode) {
-                        BookListViewMode.LIST_VIEW -> {
+                        BookViewMode.LIST_VIEW -> {
                             BookListView(
                                 books = books,
                                 covers = covers,
+                                documents = documents,
                                 onItemClick = onItemClick,
                                 listState = listState,
                                 onItemDelete = { id ->
@@ -87,11 +89,14 @@ fun BookListScreen(
                                 onUnlinkDocument = { theBook ->
                                     viewModel.unlinkDocumentFromBook(theBook)
                                 },
+                                onLinkDocument = { document, book ->
+                                    viewModel.linkDocumentToBook(book, document)
+                                },
                                 modifier = Modifier
                             )
                         }
 
-                        BookListViewMode.GRID_VIEW -> {
+                        BookViewMode.GRID_VIEW -> {
                             BookGridView(
                                 books = books,
                                 covers = covers,

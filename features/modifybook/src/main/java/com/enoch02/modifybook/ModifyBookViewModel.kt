@@ -64,8 +64,8 @@ class ModifyBookViewModel @Inject constructor(
                 volumesRead = volumesRead,
                 totalVolumes = totalVolumes
             )
-            bookDao.insertBook(newBook)
 
+            bookDao.insertBook(newBook)
         } catch (e: Exception) {
             return Result.failure(e)
         }
@@ -91,7 +91,8 @@ class ModifyBookViewModel @Inject constructor(
         notes: String,
         status: String,
         volumesRead: String,
-        totalVolumes: String
+        totalVolumes: String,
+        documentMd5: String?
     ): Result<Unit> {
         try {
             val fileName = coverImageUri?.let { bookCoverRepository.copyCover(it) }
@@ -112,10 +113,11 @@ class ModifyBookViewModel @Inject constructor(
                 notes = notes,
                 status = status,
                 volumesRead = volumesRead,
-                totalVolumes = totalVolumes
+                totalVolumes = totalVolumes,
+                documentMd5 = documentMd5
             )
-            bookDao.updateBook(book)
 
+            bookDao.updateBook(book)
         } catch (e: Exception) {
             return Result.failure(e)
         }

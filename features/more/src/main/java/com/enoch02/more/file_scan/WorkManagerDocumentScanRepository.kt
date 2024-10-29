@@ -3,12 +3,9 @@ package com.enoch02.more.file_scan
 import android.content.Context
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.enoch02.more.file_scan.workers.CoverScanWorker
 import com.enoch02.more.file_scan.workers.FileScanWorker
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.UUID
 
 class WorkManagerDocumentScanRepository(

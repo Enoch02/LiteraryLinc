@@ -26,7 +26,7 @@ fun Uri.generateThumbnail(context: Context): Bitmap? {
             else -> null
         }
     } catch (e: Exception) {
-        Log.e("GenerateThumbExtension", "generateThumbnail: ", )
+        Log.e("GenerateThumbExtension", "generateThumbnail: ")
         null
     }
 }

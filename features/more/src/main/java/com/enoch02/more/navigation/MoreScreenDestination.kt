@@ -2,14 +2,14 @@ package com.enoch02.more.navigation
 
 sealed class MoreScreenDestination(val route: String) {
 
-    object More : MoreScreenDestination("more_screen")
-    object PomoTimer : MoreScreenDestination("pomo_timer_screen")
-    object CustomTags : MoreScreenDestination("custom_tags_screen")
-    object Wishlist : MoreScreenDestination("wishlist_screen")
-    object Settings : MoreScreenDestination("settings_screen")
-    object BackupRestore : MoreScreenDestination("backup_restore_screen")
-    object About : MoreScreenDestination("about_app_screen")
-    object Scanner: MoreScreenDestination("file_scanner_screen")
+    data object More : MoreScreenDestination("more_screen")
+    data object PomoTimer : MoreScreenDestination("pomo_timer_screen")
+    data object CustomTags : MoreScreenDestination("custom_tags_screen")
+    data object Wishlist : MoreScreenDestination("wishlist_screen")
+    data object Settings : MoreScreenDestination("settings_screen")
+    data object BackupRestore : MoreScreenDestination("backup_restore_screen")
+    data object About : MoreScreenDestination("about_app_screen")
+    data object Scanner: MoreScreenDestination("file_scanner_screen")
 
     fun withArgs(vararg args: String): String {
         return buildString {

@@ -4,5 +4,6 @@ enum class ReaderFilter(val value: String) {
     READING("Reading"),
     FAVORITES("Favorites"),
     COMPLETED("Completed"),
-    ALL("Books and documents")
+    ALL("Books and documents"),
+    NO_FILE("Has no file")
 }

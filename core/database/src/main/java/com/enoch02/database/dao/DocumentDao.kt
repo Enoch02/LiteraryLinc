@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface DocumentDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDocuments(book: List<LLDocument>): List<Long>
 
     @Query(value = "SELECT * FROM documents WHERE id = :id")

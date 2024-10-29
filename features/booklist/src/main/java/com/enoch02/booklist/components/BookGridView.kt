@@ -28,7 +28,6 @@ import coil.compose.AsyncImage
 import com.enoch02.booklist.R
 import com.enoch02.database.model.Book
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun BookGridView(
     books: List<Book>,
@@ -81,7 +80,6 @@ internal fun BookGridView(
  * Most [Book] properties are not used. Might remove it.
  * Implement onHold for deleting and multi-selection.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BookGridItem(
     modifier: Modifier,
