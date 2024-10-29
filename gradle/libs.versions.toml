@@ -34,6 +34,7 @@ uiTextGoogleFonts = "1.7.4"
 agp = "8.1.4"
 junitKtx = "1.2.1"
 roomTesting = "2.6.1"
+agpVersion = "8.1.4"
 
 
 [libraries]
@@ -83,3 +84,4 @@ androidx-room-testing = { group = "androidx.room", name = "room-testing", versio
 [plugins]
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agpVersion" }

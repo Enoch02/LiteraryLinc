@@ -143,10 +143,10 @@ class LLDocumentActivity : ComponentActivity() {
 
                         ModalNavigationDrawer(
                             drawerState = drawerState,
-                            /*gesturesEnabled = false,*/
+                            gesturesEnabled = viewModel.hasOutline,
                             drawerContent = {
                                 TableOfContentSheet(
-                                    chapterPage = viewModel.getChapterStart(),
+                                    chapterPage = /*viewModel.getChapterStart()*/pagerState.currentPage,
                                     outline = viewModel.flatOutline,
                                     onItemSelected = { page ->
                                         coroutineScope.launch {
@@ -279,10 +279,20 @@ class LLDocumentActivity : ComponentActivity() {
                 val listState = rememberLazyListState()
                 val state = rememberScrollAreaState(listState)
 
-                LaunchedEffect(
+                /*LaunchedEffect(
                     key1 = chapterPage,
                     block = {
                         listState.scrollToItem(selected)
+                    }
+                )*/
+                LaunchedEffect(
+                    key1 = chapterPage,
+                    block = {
+                        val offset = 5
+
+                        if (selected - offset > 0 && selected < outline.size) {
+                            listState.animateScrollToItem(selected - 5)
+                        }
                     }
                 )
 
@@ -297,7 +307,7 @@ class LLDocumentActivity : ComponentActivity() {
                                     itemContent = { index ->
                                         val item = outline[index]
                                         val backgroundColor = if (index == selected) {
-                                            Color.Blue.copy(alpha = 0.3f) // Tint for selected item
+                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) // Tint for selected item
                                         } else {
                                             Color.Transparent // Default background
                                         }
@@ -307,7 +317,7 @@ class LLDocumentActivity : ComponentActivity() {
                                                 Text(
                                                     text = item.title,
                                                     fontWeight = if (!item.title.startsWith(" ")) FontWeight.Bold else FontWeight.Normal,
-                                                    textAlign = TextAlign.Start
+                                                    modifier = Modifier.align(Alignment.TopStart)
                                                 )
                                             },
                                             trailingContent = { Text(text = "${item.page + 1}") },

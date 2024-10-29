@@ -250,6 +250,8 @@ class LLReaderViewModel @Inject constructor(
                     flattenOutlineNodes(outline, "")
                     hasOutline = true
                 }
+
+                flatOutline.sortBy { it.page }
             } catch (e: Exception) {
                 Log.e(TAG, "loadOutline: $docTitle has no outline")
             }
@@ -301,8 +303,6 @@ class LLReaderViewModel @Inject constructor(
                 return 0 // chapter starts at page 0
             }
         }
-
-        Log.e(TAG, "getChapterStart: $chapterStart")
 
         return chapterStart
     }

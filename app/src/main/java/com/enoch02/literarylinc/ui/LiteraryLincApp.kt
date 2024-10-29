@@ -261,6 +261,7 @@ fun LiteraryLincApp(navController: NavController) {
                                             currentReaderListSorting = picked
                                         }
                                     )
+
                                     ReaderListScreen(
                                         modifier = Modifier.padding(paddingValues),
                                         sorting = currentReaderListSorting,

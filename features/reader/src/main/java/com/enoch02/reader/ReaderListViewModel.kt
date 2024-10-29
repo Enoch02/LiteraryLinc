@@ -3,6 +3,10 @@ package com.enoch02.reader
 import android.content.Context
 import android.os.Build
 import android.widget.Toast
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
@@ -34,6 +38,8 @@ class ReaderListViewModel @Inject constructor(
 ) :
     ViewModel() {
     val covers = bookCoverRepository.latestCoverPath
+    var isLoading by mutableStateOf(true)
+    val documents = mutableStateListOf<LLDocument>()
 
     /**
      * Retrieve (if any) documents from the database
@@ -42,7 +48,7 @@ class ReaderListViewModel @Inject constructor(
      * @param filter  what type of documents should be returned?
      * @return a list of the documents in a flow
      * */
-    fun getDocuments(
+    /*fun getDocuments(
         context: Context,
         sorting: ReaderSorting,
         filter: ReaderFilter
@@ -97,7 +103,7 @@ class ReaderListViewModel @Inject constructor(
         return when (sorting) {
             ReaderSorting.NAME -> {
                 filteredDocuments.map {
-                    it.sortedWith { a, b -> a.name.naturalCompare(b.name) }
+                    it.sortedWith { a, b -> a.name.lowercase().naturalCompare(b.name.lowercase()) }
                 }
             }
 
@@ -118,6 +124,47 @@ class ReaderListViewModel @Inject constructor(
                     it.sortedBy { document -> document.type }
                 }
             }
+        }
+    }*/
+
+    fun getDocuments(context: Context, sorting: ReaderSorting, filter: ReaderFilter) {
+        viewModelScope.launch(Dispatchers.IO) {
+            isLoading = true
+            val docs = documentDao.getDocumentsNonFlow()
+                .filter { filterPredicate(context, filter, it) }
+                .sortedWith(sortingComparator(sorting))
+
+            documents.clear()
+            documents.addAll(docs)
+            isLoading = false
+        }
+    }
+
+    private fun filterPredicate(
+        context: Context,
+        filter: ReaderFilter,
+        document: LLDocument
+    ): Boolean {
+        return when (filter) {
+            ReaderFilter.READING -> document.currentPage > 0 && document.currentPage < document.pages && !document.isRead && document.existsAsFile(
+                context
+            )
+
+            ReaderFilter.FAVORITES -> document.isFavorite && document.existsAsFile(context)
+            ReaderFilter.COMPLETED -> document.isRead && document.existsAsFile(context)
+            ReaderFilter.ALL -> document.existsAsFile(context)
+            ReaderFilter.NO_FILE -> !document.existsAsFile(context)
+        }
+    }
+
+    private fun sortingComparator(sorting: ReaderSorting): Comparator<LLDocument> {
+        return when (sorting) {
+            ReaderSorting.NAME -> compareBy<LLDocument> { it.name.naturalCompare(it.name) }
+                .thenComparator { a, b -> String.CASE_INSENSITIVE_ORDER.compare(a.name, b.name) }
+
+            ReaderSorting.LAST_READ -> compareByDescending(LLDocument::lastRead)
+            ReaderSorting.SIZE -> compareByDescending(LLDocument::sizeInMb)
+            ReaderSorting.FORMAT -> compareBy(LLDocument::type)
         }
     }
 
