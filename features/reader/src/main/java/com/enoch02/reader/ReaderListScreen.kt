@@ -51,7 +51,7 @@ fun ReaderListScreen(
     val context = LocalContext.current
     val listState = rememberLazyListState()
     val state = rememberScrollAreaState(listState)
-    val documents by viewModel.getDocuments(sorting, filter)
+    val documents by viewModel.getDocuments(context, sorting, filter)
         .collectAsState(initial = emptyList())
     val covers by viewModel.covers.collectAsState(initial = emptyMap())
 
@@ -82,6 +82,10 @@ fun ReaderListScreen(
                                 Text(text = stringResource(R.string.scan_for_new_docs))
                             }
                         )
+                    }
+
+                    ReaderFilter.NO_FILE -> {
+                        Text(text = stringResource(R.string.no_doc_found))
                     }
                 }
             }
