@@ -14,6 +14,7 @@ import com.enoch02.database.model.LLDocument
 import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.ReaderSorting
 import com.enoch02.database.model.deleteDocument
+import com.enoch02.database.model.existsAsFile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -42,34 +43,50 @@ class ReaderViewModel @Inject constructor(
      * @param filter  what type of documents should be returned?
      * @return a list of the documents in a flow
      * */
-    fun getDocuments(sorting: ReaderSorting, filter: ReaderFilter): Flow<List<LLDocument>> {
-        val filteredDocuments = filterDocument(filter)
+    fun getDocuments(
+        context: Context,
+        sorting: ReaderSorting,
+        filter: ReaderFilter
+    ): Flow<List<LLDocument>> {
+        val filteredDocuments = filterDocument(context, filter)
 
         return sortDocument(sorting, filteredDocuments)
     }
 
-    private fun filterDocument(filter: ReaderFilter): Flow<List<LLDocument>> {
+    private fun filterDocument(context: Context, filter: ReaderFilter): Flow<List<LLDocument>> {
         return when (filter) {
             ReaderFilter.READING -> {
                 documentDao.getDocuments().map { documents ->
-                    documents.filter { it.currentPage > 0 && it.currentPage < it.pages && !it.isRead }
+                    documents.filter {
+                        it.currentPage > 0 && it.currentPage < it.pages && !it.isRead && it.existsAsFile(
+                            context
+                        )
+                    }
                 }
             }
 
             ReaderFilter.FAVORITES -> {
                 documentDao.getDocuments().map { documents ->
-                    documents.filter { it.isFavorite }
+                    documents.filter { it.isFavorite && it.existsAsFile(context) }
                 }
             }
 
             ReaderFilter.COMPLETED -> {
                 documentDao.getDocuments().map { documents ->
-                    documents.filter { it.isRead }
+                    documents.filter { it.isRead && it.existsAsFile(context) }
                 }
             }
 
             ReaderFilter.ALL -> {
-                documentDao.getDocuments()
+                documentDao.getDocuments().map { documents ->
+                    documents.filter { it.existsAsFile(context) }
+                }
+            }
+
+            ReaderFilter.NO_FILE -> {
+                documentDao.getDocuments().map { documents ->
+                    documents.filter { !it.existsAsFile(context) }
+                }
             }
         }
     }

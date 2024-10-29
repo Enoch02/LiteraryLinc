@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
@@ -14,6 +15,9 @@ import com.enoch02.database.model.LLDocument
 import com.enoch02.more.file_scan.TAG
 import java.io.InputStream
 import java.security.MessageDigest
+import java.time.Instant
+import java.util.Calendar
+import java.util.Date
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -51,7 +55,8 @@ fun listDocsInDirectory(
 
     val files = documentFile
         .listFiles()
-        .filter { df -> !scanned.contains(df.uri) }
+        .filterNot { df -> scanned.contains(df.uri) && df.exists() }
+
     if (files.isEmpty()) {
         return foundFiles // Early exit if no files
     }
@@ -74,7 +79,7 @@ fun listDocsInDirectory(
                     pages = metadata?.pages ?: 0,
                     currentPage = metadata?.currentPage ?: 0,
                     sizeInMb = metadata?.sizeInMb ?: 0.0,
-                    lastRead = null,
+                    lastRead = getCurrentDate(),
                     type = fileName.substringAfterLast(".").uppercase()
                 )
             )
@@ -133,7 +138,7 @@ private fun getDocumentMetadata(context: Context, uri: Uri): DocumentMetadata? {
         return DocumentMetadata(
             author = core.author,
             title = core.title,
-            sizeInMb = max(roundToTwoDecimalPlaces(fileSizeInMb), fileSizeInMb),
+            sizeInMb = roundToTwoDecimalPlaces(fileSizeInMb),
             pages = core.countPages(),
             currentPage = max(core.currentPage, 0)
         )
@@ -187,4 +192,12 @@ fun DocumentFile.getDocumentFileMd5(contentResolver: ContentResolver): String? {
         e.printStackTrace()
     }
     return null
+}
+
+private fun getCurrentDate(): Date {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        Date.from(Instant.now())
+    } else {
+        Calendar.getInstance().time
+    }
 }

@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.automirrored.rounded.ReadMore
 import androidx.compose.material.icons.rounded.DoneAll
+import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
@@ -54,6 +55,10 @@ fun ReaderListDrawerSheet(
 
                                         ReaderFilter.ALL -> {
                                             Icons.AutoMirrored.Rounded.MenuBook
+                                        }
+
+                                        ReaderFilter.NO_FILE -> {
+                                            Icons.Rounded.ErrorOutline
                                         }
                                     },
                                     contentDescription = null

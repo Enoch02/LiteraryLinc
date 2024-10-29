@@ -52,71 +52,20 @@ class FileScanWorker @AssistedInject constructor(
                 )
             }.flatten()
 
-            // do nothing
-            if (db.isNotEmpty() && dir.isNotEmpty() && db.size == dir.size) {
-                Log.d(TAG, "doWork: Doing nothing")
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        applicationContext,
-                        "No new files have been found",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            // items have been deleted
-            if (db.size > dir.size) {
-                removeDocsFromDb(applicationContext)
-            }
-
-            // items have been added
-            if (dir.size > db.size) {
-                addDocsToDb(applicationContext, dir)
-            }
-
-            saveFoundDocsCount(applicationContext, db.size)
+            addDocsToDb(dir)
+            cleanUp()
             notificationManager.cancel(PROGRESS_NOTIFICATION_ID)
             Result.success()
         }
     }
 
-    private fun saveFoundDocsCount(context: Context, size: Int) {
-        val sharedPreferences = context.getSharedPreferences(APP_PREFS_KEY, Context.MODE_PRIVATE)
-        with(sharedPreferences.edit()) {
-            putInt(DOCUMENT_COUNT_KEY, size)
-            apply()
-        }
+    private suspend fun addDocsToDb(dir: List<LLDocument>) {
+        documentDao.insertDocuments(dir)
     }
 
-    //TODO: clean up cover files
-    //TODO: show how many docs are removed in the UI
-    private suspend fun removeDocsFromDb(context: Context) {
-        val documents = documentDao.getDocumentsNonFlow()
-        var removedCount = 0
+    //TODO: remove unused covers here
+    private suspend fun cleanUp() {
 
-        documents.forEach { document ->
-            if (!document.existsAsFile(context)) {
-                documentDao.deleteDocument(document.contentUri.toString())
-                removedCount += 1
-            }
-        }
-
-        withContext(Dispatchers.Main) {
-            if (removedCount > 0) {
-                makeStatusNotification(message = "$removedCount documents removed", context)
-            }
-        }
-    }
-
-    private suspend fun addDocsToDb(context: Context, dir: List<LLDocument>) {
-        val result = documentDao.insertDocuments(dir)
-
-        withContext(Dispatchers.Main) {
-            makeStatusNotification(
-                message = "${result.count { it != -1L }} new documents added",
-                context
-            )
-        }
     }
 }
 

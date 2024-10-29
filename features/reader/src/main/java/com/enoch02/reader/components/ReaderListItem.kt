@@ -53,6 +53,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.enoch02.database.model.LLDocument
+import com.enoch02.database.model.existsAsFile
 import com.enoch02.reader.R
 import java.time.Instant
 import java.util.Calendar
@@ -83,6 +84,9 @@ fun ReaderListItem(
     }
     var confirmationDialogText by remember {
         mutableIntStateOf(R.string.blank)
+    }
+    var showWarningDialog by remember {
+        mutableStateOf(false)
     }
 
     ListItem(
@@ -303,34 +307,52 @@ fun ReaderListItem(
                     }
                 )
             }
-
-            ConfirmationDialog(
-                showConfirmationDialog = showConfirmationDialog,
-                onDismiss = {
-                    showConfirmationDialog = false
-                },
-                onConfirm = {
-                    when (confirmationDialogText) {
-                        R.string.document_removal_warning -> {
-                            onRemoveFromBookList()
-                        }
-
-                        R.string.document_deletion_warning -> {
-                            onDeleteDocument()
-                        }
-                    }
-
-                    showConfirmationDialog = false
-                },
-                title = stringResource(R.string.warning),
-                text = stringResource(confirmationDialogText)
-            )
         },
         modifier = modifier
             .height(IntrinsicSize.Min)
             .clickable {
-                onClick()
+                if (document.existsAsFile(context)) {
+                    onClick()
+                } else {
+                    showWarningDialog = true
+                }
             }
+    )
+
+    if (showWarningDialog) {
+        AlertDialog(
+            onDismissRequest = { showWarningDialog = false },
+            title = { Text("Warning") },
+            text = { Text(text = stringResource(R.string.document_missing_warning)) },
+            confirmButton = {
+                TextButton(
+                    content = { Text(text = stringResource(R.string.ok)) },
+                    onClick = { showWarningDialog = false }
+                )
+            }
+        )
+    }
+
+    ConfirmationDialog(
+        showConfirmationDialog = showConfirmationDialog,
+        onDismiss = {
+            showConfirmationDialog = false
+        },
+        onConfirm = {
+            when (confirmationDialogText) {
+                R.string.document_removal_warning -> {
+                    onRemoveFromBookList()
+                }
+
+                R.string.document_deletion_warning -> {
+                    onDeleteDocument()
+                }
+            }
+
+            showConfirmationDialog = false
+        },
+        title = stringResource(R.string.warning),
+        text = stringResource(confirmationDialogText)
     )
 }
 
