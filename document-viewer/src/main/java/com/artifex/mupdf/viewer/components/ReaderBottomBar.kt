@@ -30,7 +30,7 @@ fun ReaderBottomBar(
     visible: Boolean,
     currentPage: Int,
     pageCount: Int,
-    onPageChange: (Float) -> Unit
+    onPageChange: (Int) -> Unit
 ) {
     AnimatedVisibility(
         modifier = modifier,
@@ -54,8 +54,10 @@ fun ReaderBottomBar(
             var isDragging by remember { mutableStateOf(false) }
 
             // Sync sliderPosition with currentPage
-            LaunchedEffect(currentPage, isDragging) {
-                sliderPosition = currentPage.toFloat()
+            LaunchedEffect(currentPage) {
+                if (!isDragging) {
+                    sliderPosition = currentPage.toFloat()
+                }
             }
 
             BottomAppBar(
@@ -66,26 +68,22 @@ fun ReaderBottomBar(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.Center,
                                 content = {
-                                    if (isDragging) {
-                                        Text("${sliderPosition.toInt()}")
-                                    } else {
-                                        Text("${currentPage + 1}")
-                                    }
+                                    Text(if (isDragging) "${sliderPosition.toInt() + 1}" else "${currentPage + 1}")
                                     Text("/$pageCount")
                                 }
                             )
 
                             Slider(
                                 value = sliderPosition,
-                                valueRange = 1f..pageCount.toFloat(),
-                                steps = pageCount,
+                                valueRange = 0f..(pageCount - 1).toFloat(),
+                                steps = pageCount - 1,
                                 onValueChange = {
                                     isDragging = true
                                     sliderPosition = it
                                 },
                                 onValueChangeFinished = {
                                     isDragging = false
-                                    onPageChange(sliderPosition)
+                                    onPageChange(sliderPosition.toInt())
                                 },
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )

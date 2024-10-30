@@ -53,8 +53,6 @@ fun ReaderListScreen(
     onScanForDocs: () -> Unit
 ) {
     val context = LocalContext.current
-    val listState = rememberLazyListState()
-    val scrollAreaState = rememberScrollAreaState(listState)
     val arrangedDocs by viewModel.documentsState.collectAsStateWithLifecycle()
     val covers by viewModel.covers.collectAsState(initial = emptyMap())
 
@@ -109,9 +107,8 @@ fun ReaderListScreen(
                     }
                 )
             } else {
-                LaunchedEffect(scrollAreaState, listState) {
-                    listState.scrollToItem(0)
-                }
+                val listState = rememberLazyListState()
+                val scrollAreaState = rememberScrollAreaState(listState)
 
                 ScrollArea(
                     state = scrollAreaState,
@@ -143,6 +140,7 @@ fun ReaderListScreen(
                                                         }
 
                                                 context.startActivity(intent)
+                                                listState.requestScrollToItem(0)
                                             },
                                             onAddToFavoritesClicked = {
                                                 viewModel.toggleFavoriteStatus(document)

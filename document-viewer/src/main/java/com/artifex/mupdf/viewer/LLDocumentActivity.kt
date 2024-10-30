@@ -251,7 +251,7 @@ class LLDocumentActivity : ComponentActivity() {
                                                 pageCount = pageCount,
                                                 onPageChange = { newPageIndex ->
                                                     coroutineScope.launch {
-                                                        pagerState.scrollToPage(newPageIndex.toInt())
+                                                        pagerState.scrollToPage(newPageIndex)
                                                     }
                                                 }
                                             )

@@ -43,7 +43,6 @@ import java.time.Instant
 import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
-import kotlin.math.max
 
 private const val TAG = "LL"
 
@@ -56,7 +55,7 @@ class LLReaderViewModel @Inject constructor(
 
     var contentState by mutableStateOf(ContentState.LOADING)
     var document by mutableStateOf<Document?>(null)
-    var currentPage by mutableIntStateOf(1)
+    var currentPage by mutableIntStateOf(0)
     val pages = mutableStateListOf<Page>()
     var hasOutline by mutableStateOf(false)
     val flatOutline = mutableStateListOf<Item>()
@@ -231,9 +230,14 @@ class LLReaderViewModel @Inject constructor(
 
             if (book != null) {
                 currentPage = if (doc.autoTrackable) {
-                    max(doc.currentPage, book.pagesRead)
+                    book.pagesRead
                 } else {
                     doc.currentPage
+                }
+
+                // synchronize currentPage with zero indexing expected by the pager
+                if (currentPage > 0) {
+                    currentPage--
                 }
             }
         }
@@ -349,6 +353,12 @@ class LLReaderViewModel @Inject constructor(
     private fun updateBookListEntry(document: LLDocument) {
         viewModelScope.launch(Dispatchers.IO) {
             val book = bookDao.getBookByMd5(document.id)
+            val isComplete = (document.currentPage + 1) == document.pages
+            val completionDate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Instant.now().toEpochMilli()
+            } else {
+                Calendar.getInstance().time.time
+            }
 
             book?.let { theBook ->
                 if (theBook.pagesRead <= document.currentPage) {
@@ -357,7 +367,12 @@ class LLReaderViewModel @Inject constructor(
                             pageCount = document.pages,
                             pagesRead = document.currentPage,
                             coverImageName = if (theBook.coverImageName.isNullOrEmpty()) document.cover else theBook.coverImageName,
-                            status = if (document.pages == document.currentPage) Book.status[1] else Book.status[0]
+                            status = if (document.pages == document.currentPage) Book.status[1] else Book.status[0],
+                            dateCompleted = if (isComplete && theBook.dateCompleted == null) {
+                                completionDate
+                            } else {
+                                theBook.dateCompleted
+                            }
                         )
                     )
                 }
