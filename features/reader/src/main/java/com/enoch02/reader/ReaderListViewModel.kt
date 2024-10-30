@@ -42,7 +42,7 @@ class ReaderListViewModel @Inject constructor(
     val covers = bookCoverRepository.latestCoverPath
 
     var isLoading by mutableStateOf(true)
-    val documents = mutableStateListOf<LLDocument>()
+    var documents by mutableStateOf(emptyList<LLDocument>())
 
     // FIXME: this is the best solution i could come up with for now that updates those properties ASAP
     val document2 = documentDao.getDocuments()
@@ -63,8 +63,7 @@ class ReaderListViewModel @Inject constructor(
                 .fastFilter { filterPredicate(applicationContext, filter, it) }
                 .sortedWith(sortingComparator(sorting))
 
-            documents.clear()
-            documents.addAll(docs)
+            documents = docs
             isLoading = false
         }
     }
@@ -79,9 +78,9 @@ class ReaderListViewModel @Inject constructor(
                 context
             )
 
-            ReaderFilter.FAVORITES -> document.isFavorite && document.existsAsFile(context)
-            ReaderFilter.COMPLETED -> document.isRead && document.existsAsFile(context)
-            ReaderFilter.ALL -> document.existsAsFile(context)
+            ReaderFilter.FAVORITES -> document.isFavorite
+            ReaderFilter.COMPLETED -> document.isRead
+            ReaderFilter.ALL -> true
             ReaderFilter.NO_FILE -> !document.existsAsFile(context)
         }
     }
