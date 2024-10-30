@@ -3,10 +3,6 @@ package com.enoch02.reader
 import android.content.Context
 import android.os.Build
 import android.widget.Toast
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.util.fastFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,8 +17,16 @@ import com.enoch02.database.model.deleteDocument
 import com.enoch02.database.model.existsAsFile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -40,12 +44,19 @@ class ReaderListViewModel @Inject constructor(
 ) :
     ViewModel() {
     val covers = bookCoverRepository.latestCoverPath
+    private val documents = documentDao.getDocuments()
+    private val _sorting = MutableStateFlow(ReaderSorting.LAST_READ)
+    private val _filter = MutableStateFlow(ReaderFilter.ALL)
 
-    var isLoading by mutableStateOf(true)
-    var documents by mutableStateOf(emptyList<LLDocument>())
-
-    // FIXME: this is the best solution i could come up with for now that updates those properties ASAP
-    val document2 = documentDao.getDocuments()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val documentsState: StateFlow<DocumentsState> = combine(_sorting, _filter) { sorting, filter ->
+        getDocuments(sorting, filter)
+    }.flatMapLatest { it }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000), // 5 second timeout
+            initialValue = DocumentsState.Loading
+        )
 
 
     /**
@@ -55,17 +66,27 @@ class ReaderListViewModel @Inject constructor(
      * @param filter  what type of documents should be returned?
      * @return a list of the documents in a flow
      * */
-    fun getDocuments(sorting: ReaderSorting, filter: ReaderFilter) {
-        viewModelScope.launch(Dispatchers.IO) {
-            isLoading = true
-            val docs = document2
-                .first()
-                .fastFilter { filterPredicate(applicationContext, filter, it) }
-                .sortedWith(sortingComparator(sorting))
+    private fun getDocuments(sorting: ReaderSorting, filter: ReaderFilter): Flow<DocumentsState> {
+        return flow {
+            emit(DocumentsState.Loading)
+            documents.collect { documents ->
+                emit(
+                    DocumentsState.Loaded(
+                        documents
+                            .fastFilter { filterPredicate(applicationContext, filter, it) }
+                            .sortedWith(sortingComparator(sorting))
+                    )
+                )
+            }
+        }.flowOn(Dispatchers.IO)
+    }
 
-            documents = docs
-            isLoading = false
-        }
+    fun updateSorting(sorting: ReaderSorting) {
+        _sorting.value = sorting
+    }
+
+    fun updateFilter(filter: ReaderFilter) {
+        _filter.value = filter
     }
 
     private fun filterPredicate(
@@ -87,9 +108,7 @@ class ReaderListViewModel @Inject constructor(
 
     private fun sortingComparator(sorting: ReaderSorting): Comparator<LLDocument> {
         return when (sorting) {
-            ReaderSorting.NAME -> compareBy<LLDocument> { it.name.naturalCompare(it.name) }
-                .thenComparator { a, b -> String.CASE_INSENSITIVE_ORDER.compare(a.name, b.name) }
-
+            ReaderSorting.NAME -> Comparator { a, b -> a.name.naturalCompare(b.name) }
             ReaderSorting.LAST_READ -> compareByDescending(LLDocument::lastRead)
             ReaderSorting.SIZE -> compareByDescending(LLDocument::sizeInMb)
             ReaderSorting.FORMAT -> compareBy(LLDocument::type)
@@ -220,6 +239,11 @@ class ReaderListViewModel @Inject constructor(
     }
 }
 
+sealed class DocumentsState {
+    data object Loading : DocumentsState()
+    data class Loaded(val documents: List<LLDocument>) : DocumentsState()
+}
+
 /**
  * Compare strings the way God intended, "Item 2" should come before "Item 12"
  *
@@ -228,8 +252,8 @@ class ReaderListViewModel @Inject constructor(
  * */
 fun String.naturalCompare(other: String): Int {
     val splitPattern = Regex("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)")
-    val thisParts = this.split(splitPattern)
-    val otherParts = other.split(splitPattern)
+    val thisParts = this.lowercase().split(splitPattern)
+    val otherParts = other.lowercase().split(splitPattern)
 
     val minLength = min(thisParts.size, otherParts.size)
 

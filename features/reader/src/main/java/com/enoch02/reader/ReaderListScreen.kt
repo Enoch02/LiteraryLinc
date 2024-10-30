@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.artifex.mupdf.viewer.LLDocumentActivity
 import com.composables.core.ScrollArea
 import com.composables.core.Thumb
@@ -53,25 +54,17 @@ fun ReaderListScreen(
 ) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
-    val state = rememberScrollAreaState(listState)
-    val arrangedDocs = viewModel.documents
-    // gives instant access to favorites, read status,...
-    val docs = viewModel.document2.collectAsState(emptyList()).value
+    val scrollAreaState = rememberScrollAreaState(listState)
+    val arrangedDocs by viewModel.documentsState.collectAsStateWithLifecycle()
     val covers by viewModel.covers.collectAsState(initial = emptyMap())
-    val isLoading = viewModel.isLoading
 
     LaunchedEffect(sorting, filter) {
-        viewModel.getDocuments(sorting, filter)
-        listState.requestScrollToItem(0)
+        viewModel.updateFilter(filter)
+        viewModel.updateSorting(sorting)
     }
 
-    LaunchedEffect(arrangedDocs, sorting, filter) {
-
-    }
-
-
-    when {
-        isLoading -> {
+    when (val docList = arrangedDocs) {
+        is DocumentsState.Loading -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
@@ -79,145 +72,151 @@ fun ReaderListScreen(
             )
         }
 
-        arrangedDocs.isEmpty() -> {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                content = {
-                    when (filter) {
-                        ReaderFilter.READING -> {
-                            Text(text = stringResource(R.string.nothing_to_continue))
-                        }
+        is DocumentsState.Loaded -> {
+            if (docList.documents.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    content = {
+                        when (filter) {
+                            ReaderFilter.READING -> {
+                                Text(text = stringResource(R.string.nothing_to_continue))
+                            }
 
-                        ReaderFilter.FAVORITES -> {
-                            Text(text = stringResource(R.string.no_favorite_docs))
-                        }
+                            ReaderFilter.FAVORITES -> {
+                                Text(text = stringResource(R.string.no_favorite_docs))
+                            }
 
-                        ReaderFilter.COMPLETED -> {
-                            Text(text = stringResource(R.string.no_completed_docs))
-                        }
+                            ReaderFilter.COMPLETED -> {
+                                Text(text = stringResource(R.string.no_completed_docs))
+                            }
 
-                        ReaderFilter.ALL -> {
-                            Text(text = stringResource(R.string.no_doc_found))
-                            Button(
-                                onClick = onScanForDocs,
-                                content = {
-                                    Text(text = stringResource(R.string.scan_for_new_docs))
-                                }
-                            )
-                        }
+                            ReaderFilter.ALL -> {
+                                Text(text = stringResource(R.string.no_doc_found))
+                                Button(
+                                    onClick = onScanForDocs,
+                                    content = {
+                                        Text(text = stringResource(R.string.scan_for_new_docs))
+                                    }
+                                )
+                            }
 
-                        ReaderFilter.NO_FILE -> {
-                            Text(text = stringResource(R.string.no_doc_found))
+                            ReaderFilter.NO_FILE -> {
+                                Text(text = stringResource(R.string.no_doc_found))
+                            }
                         }
                     }
+                )
+            } else {
+                LaunchedEffect(scrollAreaState, listState) {
+                    listState.scrollToItem(0)
                 }
-            )
-        }
 
-        else -> {
-            ScrollArea(
-                state = state,
-                modifier = modifier,
-                content = {
-                    LazyColumn(
-                        state = listState,
-                        content = {
-                            items(
-                                items = arrangedDocs,
-                                key = { item -> item.id },
-                                itemContent = { item ->
-                                    val document = docs.find { item.id == it.id } ?: item
-                                    val inBookList by viewModel.isDocumentInBookList(document.id)
-                                        .collectAsState(false)
+                ScrollArea(
+                    state = scrollAreaState,
+                    modifier = modifier,
+                    content = {
+                        LazyColumn(
+                            state = listState,
+                            content = {
+                                items(
+                                    items = docList.documents,
+                                    key = { item -> item.id },
+                                    itemContent = { document ->
+                                        val inBookList by viewModel.isDocumentInBookList(document.id)
+                                            .collectAsState(false)
 
-                                    ReaderListItem(
-                                        document = document,
-                                        documentInBookList = inBookList,
-                                        cover = covers[document.cover],
-                                        onClick = {
-                                            viewModel.createBookListEntry(document)
+                                        ReaderListItem(
+                                            document = document,
+                                            documentInBookList = inBookList,
+                                            cover = covers[document.cover],
+                                            onClick = {
+                                                viewModel.createBookListEntry(document)
 
-                                            val intent =
-                                                Intent(context, LLDocumentActivity::class.java)
-                                                    .apply {
-                                                        action = Intent.ACTION_VIEW
-                                                        data = document.contentUri
-                                                        putExtra("id", document.id)
-                                                    }
+                                                val intent =
+                                                    Intent(context, LLDocumentActivity::class.java)
+                                                        .apply {
+                                                            action = Intent.ACTION_VIEW
+                                                            data = document.contentUri
+                                                            putExtra("id", document.id)
+                                                        }
 
-                                            context.startActivity(intent)
-                                        },
-                                        onAddToFavoritesClicked = {
-                                            viewModel.toggleFavoriteStatus(document)
-                                        },
-                                        onMarkAsReadClicked = {
-                                            viewModel.toggleDocumentReadStatus(document)
-                                        },
-                                        onAddToBookList = {
-                                            viewModel.createBookListEntry(document)
-                                        },
-                                        onRemoveFromBookList = {
-                                            viewModel.removeBookListEntry(document.id)
-                                        },
-                                        onToggleAutoTracking = {
-                                            viewModel.toggleDocumentAutoTracking(document)
-                                        },
-                                        onShare = {
-                                            val intent = Intent().apply {
-                                                action = Intent.ACTION_SEND
-                                                putExtra(Intent.EXTRA_STREAM, document.contentUri)
-                                                type = document.contentUri?.let { uri ->
-                                                    context.contentResolver.getType(
-                                                        uri
+                                                context.startActivity(intent)
+                                            },
+                                            onAddToFavoritesClicked = {
+                                                viewModel.toggleFavoriteStatus(document)
+                                            },
+                                            onMarkAsReadClicked = {
+                                                viewModel.toggleDocumentReadStatus(document)
+                                            },
+                                            onAddToBookList = {
+                                                viewModel.createBookListEntry(document)
+                                            },
+                                            onRemoveFromBookList = {
+                                                viewModel.removeBookListEntry(document.id)
+                                            },
+                                            onToggleAutoTracking = {
+                                                viewModel.toggleDocumentAutoTracking(document)
+                                            },
+                                            onShare = {
+                                                val intent = Intent().apply {
+                                                    action = Intent.ACTION_SEND
+                                                    putExtra(
+                                                        Intent.EXTRA_STREAM,
+                                                        document.contentUri
                                                     )
+                                                    type = document.contentUri?.let { uri ->
+                                                        context.contentResolver.getType(
+                                                            uri
+                                                        )
+                                                    }
                                                 }
-                                            }
 
-                                            context.startActivity(
-                                                Intent.createChooser(
-                                                    intent,
-                                                    context.getString(
-                                                        R.string.chooser_title
+                                                context.startActivity(
+                                                    Intent.createChooser(
+                                                        intent,
+                                                        context.getString(
+                                                            R.string.chooser_title
+                                                        )
                                                     )
                                                 )
-                                            )
-                                        },
-                                        onDeleteDocument = {
-                                            viewModel.deleteDocument(document = document)
+                                            },
+                                            onDeleteDocument = {
+                                                viewModel.deleteDocument(document = document)
+                                            }
+                                        )
+
+                                        if (docList.documents.indexOf(document) != docList.documents.lastIndex) {
+                                            HorizontalDivider()
                                         }
-                                    )
-
-                                    if (arrangedDocs.indexOf(document) != arrangedDocs.lastIndex) {
-                                        HorizontalDivider()
                                     }
-                                }
-                            )
-                        },
-                        modifier = Modifier.fillMaxSize()
-                    )
-
-                    VerticalScrollbar(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .fillMaxHeight()
-                            .width(8.dp),
-                        thumb = {
-                            Thumb(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(Color.LightGray),
-                                thumbVisibility = ThumbVisibility.HideWhileIdle(
-                                    enter = fadeIn(),
-                                    exit = fadeOut(),
-                                    hideDelay = 0.5.seconds
                                 )
-                            )
-                        }
-                    )
-                }
-            )
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+
+                        VerticalScrollbar(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .fillMaxHeight()
+                                .width(8.dp),
+                            thumb = {
+                                Thumb(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(Color.LightGray),
+                                    thumbVisibility = ThumbVisibility.HideWhileIdle(
+                                        enter = fadeIn(),
+                                        exit = fadeOut(),
+                                        hideDelay = 0.5.seconds
+                                    )
+                                )
+                            }
+                        )
+                    }
+                )
+            }
         }
     }
 }

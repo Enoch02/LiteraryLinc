@@ -322,11 +322,12 @@ class LLReaderViewModel @Inject constructor(
                             Calendar.getInstance().time
                         }
 
+                    // adding 1 because the pager and lib are zero indexed
                     val modifiedDocument = doc.copy(
                         pages = documentPageCount,
-                        currentPage = currentPage,
+                        currentPage = currentPage + 1,
                         lastRead = lastRead,
-                        isRead = currentPage == documentPageCount
+                        isRead = (currentPage + 1) == documentPageCount
                     )
 
                     documentDao.updateDocument(modifiedDocument)

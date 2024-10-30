@@ -77,7 +77,7 @@ fun listDocsInDirectory(
                     name = documentName.toString(),
                     author = metadata?.author ?: "",
                     pages = metadata?.pages ?: 0,
-                    currentPage = metadata?.currentPage ?: 0,
+                    currentPage = 0,
                     sizeInMb = metadata?.sizeInMb ?: 0.0,
                     lastRead = getCurrentDate(),
                     type = fileName.substringAfterLast(".").uppercase()
@@ -136,7 +136,8 @@ private fun getDocumentMetadata(context: Context, uri: Uri): DocumentMetadata? {
             context.contentResolver,
             uri,
             fileSize
-        ), mimeType)
+        ), mimeType
+    )
     val fileSizeInMb = if (fileSize > 0L) fileSize.toDouble() / (1024 * 1024) else 0.0
 
     if (core != null) {
