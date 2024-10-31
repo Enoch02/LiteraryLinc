@@ -18,10 +18,14 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import com.enoch02.literarylinc.navigation.LiteraryLincNavHost
 import com.enoch02.resources.theme.LiteraryLincTheme
-import com.enoch02.more.settings.SettingViewModel
+import com.enoch02.settings.SettingsRepository
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -29,10 +33,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val viewModel: SettingViewModel = hiltViewModel()
-            val alwaysDark by viewModel.getBooleanPreference(key = viewModel.darkModeKey)
+            val viewModel: InitViewModel = hiltViewModel()
+            val alwaysDark by viewModel.getBooleanPreference(key = SettingsRepository.PreferenceType.DARK_MODE)
                 .collectAsState(initial = null)
-            val dynamicColor by viewModel.getBooleanPreference(key = viewModel.dynamicColorKey)
+            val dynamicColor by viewModel.getBooleanPreference(key = SettingsRepository.PreferenceType.DYNAMIC_COLOR)
                 .collectAsState(initial = null)
 
             if (alwaysDark != null && dynamicColor != null) {
@@ -77,5 +81,13 @@ class MainActivity : ComponentActivity() {
                 }
             )
         }
+    }
+}
+
+@HiltViewModel
+class InitViewModel @Inject constructor(private val settingsRepository: SettingsRepository) :
+    ViewModel() {
+    fun getBooleanPreference(key: SettingsRepository.PreferenceType): Flow<Boolean> {
+        return settingsRepository.getBooleanPreference(key)
     }
 }

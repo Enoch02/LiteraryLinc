@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -29,10 +28,12 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -61,6 +62,7 @@ import com.composables.core.Thumb
 import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.enoch02.resources.theme.LiteraryLincTheme
+import com.enoch02.settings.SettingsRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -72,35 +74,43 @@ class LLDocumentActivity : ComponentActivity() {
         val intent = intent
 
         setContent {
-            /*val viewModel: SettingViewModel = hiltViewModel()
-            val alwaysDark by viewModel.getBooleanPreference(key = viewModel.darkModeKey)
+            val viewModel: LLReaderViewModel = hiltViewModel()
+            val dynamicColor by viewModel.getBooleanPreference(key = SettingsRepository.PreferenceType.DYNAMIC_COLOR)
                 .collectAsState(initial = null)
-            val dynamicColor by viewModel.getBooleanPreference(key = viewModel.dynamicColorKey)
-                .collectAsState(initial = null)*/
 
-            LiteraryLincTheme(
-                alwaysDark = false,
-                dynamicColor = false,
-                content = {
-                    if (Intent.ACTION_VIEW == intent.action) {
-                        val uri = intent.data
-                        val mimeType = getIntent().type
-                        val documentId = intent.getStringExtra("id")
+            if (Intent.ACTION_VIEW == intent.action) {
+                val uri = intent.data
+                val mimeType = getIntent().type
+                val documentId = intent.getStringExtra("id")
 
+                LiteraryLincTheme(
+                    alwaysDark = true,
+                    dynamicColor = dynamicColor ?: false,
+                    content = {
                         if (uri == null) {
                             Text("Cannot open Document")
                         } else {
-                            ReaderView(uri = uri, mimeType = mimeType, documentId = documentId)
+                            Surface(
+                                modifier = Modifier.fillMaxSize(),
+                                content = {
+                                    ReaderView(
+                                        uri = uri,
+                                        mimeType = mimeType,
+                                        documentId = documentId,
+                                        viewModel = viewModel
+                                    )
+                                }
+                            )
                         }
                     }
-                }
-            )
+                )
+            }
         }
     }
 
     @Composable
     fun ReaderView(
-        viewModel: LLReaderViewModel = hiltViewModel(),
+        viewModel: LLReaderViewModel,
         uri: Uri,
         mimeType: String?,
         documentId: String?

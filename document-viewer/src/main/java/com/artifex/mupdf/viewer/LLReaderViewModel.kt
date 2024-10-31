@@ -29,6 +29,7 @@ import com.enoch02.database.dao.BookDao
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.LLDocument
+import com.enoch02.settings.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -49,7 +50,8 @@ private const val TAG = "LL"
 @HiltViewModel
 class LLReaderViewModel @Inject constructor(
     private val bookDao: BookDao,
-    private val documentDao: DocumentDao
+    private val documentDao: DocumentDao,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
     private val bitmapManager = BitmapManager.getInstance()
 
@@ -379,6 +381,10 @@ class LLReaderViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun getBooleanPreference(key: SettingsRepository.PreferenceType): Flow<Boolean> {
+        return settingsRepository.getBooleanPreference(key)
     }
 
     override fun onCleared() {

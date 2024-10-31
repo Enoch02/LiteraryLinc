@@ -24,7 +24,7 @@ class BitmapManager private constructor() {
         bitmapCache = object : LruCache<String, Bitmap>(cacheSize) {
             override fun sizeOf(key: String, bitmap: Bitmap): Int {
                 // Size in kilobytes
-                Log.e(tag, "sizeOf: $key is ${bitmap.allocationByteCount / 1024} KB")
+                Log.d(tag, "sizeOf: $key is ${bitmap.allocationByteCount / 1024} KB")
                 return bitmap.allocationByteCount / 1024
             }
 

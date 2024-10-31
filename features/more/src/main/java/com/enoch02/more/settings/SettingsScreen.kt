@@ -22,15 +22,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.enoch02.more.R
 import com.enoch02.more.components.SwitchSettingItem
+import com.enoch02.settings.SettingsRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = hiltViewModel()) {
-    val alwaysDark by viewModel.getBooleanPreference(key = viewModel.darkModeKey)
+    val alwaysDark by viewModel.getBooleanPreference(key = SettingsRepository.PreferenceType.DARK_MODE)
         .collectAsState(initial = false)
-    val dynamicColors by viewModel.getBooleanPreference(key = viewModel.dynamicColorKey)
+    val dynamicColors by viewModel.getBooleanPreference(key = SettingsRepository.PreferenceType.DYNAMIC_COLOR)
         .collectAsState(initial = false)
-    val showConfirmDialog by viewModel.getBooleanPreference(key = viewModel.confirmDialogKey)
+    val showConfirmDialog by viewModel.getBooleanPreference(key = SettingsRepository.PreferenceType.CONFIRM_DIALOGS)
         .collectAsState(initial = false)
 
     Scaffold(
@@ -65,7 +66,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                             checked = alwaysDark,
                                             onCheckChanged = {
                                                 viewModel.switchBooleanPreference(
-                                                    key = viewModel.darkModeKey,
+                                                    key = SettingsRepository.PreferenceType.DARK_MODE,
                                                     newValue = it
                                                 )
                                             }
@@ -78,7 +79,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                                 checked = dynamicColors,
                                                 onCheckChanged = {
                                                     viewModel.switchBooleanPreference(
-                                                        key = viewModel.dynamicColorKey,
+                                                        key = SettingsRepository.PreferenceType.DYNAMIC_COLOR,
                                                         newValue = it
                                                     )
                                                 }
@@ -104,7 +105,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                             checked = showConfirmDialog,
                                             onCheckChanged = {
                                                 viewModel.switchBooleanPreference(
-                                                    key = viewModel.confirmDialogKey,
+                                                    key = SettingsRepository.PreferenceType.CONFIRM_DIALOGS,
                                                     newValue = it
                                                 )
                                             }
