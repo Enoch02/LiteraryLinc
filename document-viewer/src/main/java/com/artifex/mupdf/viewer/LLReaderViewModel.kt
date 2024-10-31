@@ -61,6 +61,7 @@ class LLReaderViewModel @Inject constructor(
     val pages = mutableStateListOf<Page>()
     var hasOutline by mutableStateOf(false)
     val flatOutline = mutableStateListOf<Item>()
+    var searchQuery by mutableStateOf("")
 
     var docTitle by mutableStateOf("")
     var docKey = ""
@@ -381,6 +382,10 @@ class LLReaderViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun startSearch() {
+        Log.e(TAG, "startSearch: i should be searching for $searchQuery", )
     }
 
     fun getBooleanPreference(key: SettingsRepository.PreferenceType): Flow<Boolean> {

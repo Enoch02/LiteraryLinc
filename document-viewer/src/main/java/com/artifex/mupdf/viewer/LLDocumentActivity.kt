@@ -253,8 +253,12 @@ class LLDocumentActivity : ComponentActivity() {
                                             onLink = {
                                                 toast.show()
                                             },
+                                            searchQuery = viewModel.searchQuery,
                                             onSearch = {
-                                                toast.show()
+                                                viewModel.startSearch()
+                                            },
+                                            onSearchQueryChange = { newQuery ->
+                                                viewModel.searchQuery = newQuery
                                             },
                                             hasOutline = viewModel.hasOutline,
                                             onOutline = {
