@@ -11,6 +11,7 @@ version = '1.24.9a'
 
 dependencies {
     implementation project(":core:database")
+    implementation project(":core:resources")
 
     implementation libs.androidx.appcompat
     implementation libs.androidx.core.ktx

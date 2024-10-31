@@ -1,11 +1,11 @@
-package com.enoch02.literarylinc.ui.theme
+package com.enoch02.resources.theme
 
+/*
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontFamily
 
 import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.text.googlefonts.Font
-import com.enoch02.literarylinc.R
 
 val provider = GoogleFont.Provider(
     providerAuthority = "com.google.android.gms.fonts",
@@ -48,3 +48,4 @@ val AppTypography = Typography(
     labelSmall = baseline.labelSmall.copy(fontFamily = bodyFontFamily),
 )
 
+*/

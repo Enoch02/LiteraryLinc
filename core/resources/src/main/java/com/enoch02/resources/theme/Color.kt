@@ -1,4 +1,4 @@
-package com.enoch02.literarylinc.ui.theme
+package com.enoch02.resources.theme
 import androidx.compose.ui.graphics.Color
 
 val primaryLight = Color(0xFF06677F)

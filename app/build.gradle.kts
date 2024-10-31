@@ -67,6 +67,7 @@ dependencies {
     implementation(project(":features:reader"))
     implementation(project(":core:database"))
     implementation(project(":core:settings"))
+    implementation(project(":core:resources"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

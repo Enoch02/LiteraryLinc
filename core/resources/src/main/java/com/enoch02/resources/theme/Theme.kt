@@ -1,4 +1,4 @@
-package com.enoch02.literarylinc.ui.theme
+package com.enoch02.resources.theme
 
 import android.app.Activity
 import android.os.Build

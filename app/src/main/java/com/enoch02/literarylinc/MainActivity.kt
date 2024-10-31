@@ -19,7 +19,7 @@ import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.enoch02.literarylinc.navigation.LiteraryLincNavHost
-import com.enoch02.literarylinc.ui.theme.LiteraryLincTheme
+import com.enoch02.resources.theme.LiteraryLincTheme
 import com.enoch02.more.settings.SettingViewModel
 import dagger.hilt.android.AndroidEntryPoint
 

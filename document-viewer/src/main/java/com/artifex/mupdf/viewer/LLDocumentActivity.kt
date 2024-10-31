@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -59,6 +60,7 @@ import com.composables.core.ScrollArea
 import com.composables.core.Thumb
 import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
+import com.enoch02.resources.theme.LiteraryLincTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -70,20 +72,29 @@ class LLDocumentActivity : ComponentActivity() {
         val intent = intent
 
         setContent {
-            //TODO: use shared module for the theme
-            MaterialTheme {
-                if (Intent.ACTION_VIEW == intent.action) {
-                    val uri = intent.data
-                    val mimeType = getIntent().type
-                    val documentId = intent.getStringExtra("id")
+            /*val viewModel: SettingViewModel = hiltViewModel()
+            val alwaysDark by viewModel.getBooleanPreference(key = viewModel.darkModeKey)
+                .collectAsState(initial = null)
+            val dynamicColor by viewModel.getBooleanPreference(key = viewModel.dynamicColorKey)
+                .collectAsState(initial = null)*/
 
-                    if (uri == null) {
-                        Text("Cannot open Document")
-                    } else {
-                        ReaderView(uri = uri, mimeType = mimeType, documentId = documentId)
+            LiteraryLincTheme(
+                alwaysDark = false,
+                dynamicColor = false,
+                content = {
+                    if (Intent.ACTION_VIEW == intent.action) {
+                        val uri = intent.data
+                        val mimeType = getIntent().type
+                        val documentId = intent.getStringExtra("id")
+
+                        if (uri == null) {
+                            Text("Cannot open Document")
+                        } else {
+                            ReaderView(uri = uri, mimeType = mimeType, documentId = documentId)
+                        }
                     }
                 }
-            }
+            )
         }
     }
 
