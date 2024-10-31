@@ -8,6 +8,7 @@ import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 
 class BitmapManager private constructor() {
+    private val tag = "LLBitmapManager"
     private val trackedBitmaps = mutableSetOf<WeakReference<Bitmap>>()
     private val bitmapCache: LruCache<String, Bitmap>
 
@@ -16,11 +17,14 @@ class BitmapManager private constructor() {
         val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
         Log.d("BitmapManager", "Max Memory: ${maxMemory / 1024} MB")
         // Use 1/8th of the available memory for this cache
-        val cacheSize = maxMemory / 8
+        /*val cacheSize = maxMemory / 8*/
+        // Use 1/4th of the available memory for this cache
+        val cacheSize = maxMemory / 4
 
         bitmapCache = object : LruCache<String, Bitmap>(cacheSize) {
             override fun sizeOf(key: String, bitmap: Bitmap): Int {
                 // Size in kilobytes
+                Log.e(tag, "sizeOf: $key is ${bitmap.allocationByteCount / 1024} KB")
                 return bitmap.allocationByteCount / 1024
             }
 
@@ -32,6 +36,7 @@ class BitmapManager private constructor() {
             ) {
                 if (evicted && !oldValue.isRecycled) {
                     oldValue.recycle()
+                    Log.d(tag, "entryRemoved: $key")
                 }
             }
         }

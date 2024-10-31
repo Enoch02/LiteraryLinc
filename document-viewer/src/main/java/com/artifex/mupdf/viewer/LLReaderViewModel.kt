@@ -183,12 +183,13 @@ class LLReaderViewModel @Inject constructor(
         if (document != null) {
             val cachedBitmap = bitmapManager.getCachedBitmap(pageKey)
 
-            if (cachedBitmap != null) {
+            if (cachedBitmap != null && !cachedBitmap.isRecycled) {
                 Log.i(TAG, "getPageBitmap: using cached bitmap!")
                 emit(cachedBitmap)
 
             } else {
                 Log.i(TAG, "getPageBitmap: page not in cache")
+                bitmapManager.releaseBitmap(cachedBitmap)
                 try {
                     val page: Page = pages[index]
                     val bounds = page.bounds
