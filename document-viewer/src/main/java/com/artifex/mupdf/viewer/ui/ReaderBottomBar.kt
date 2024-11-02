@@ -1,4 +1,4 @@
-package com.artifex.mupdf.viewer.components
+package com.artifex.mupdf.viewer.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing

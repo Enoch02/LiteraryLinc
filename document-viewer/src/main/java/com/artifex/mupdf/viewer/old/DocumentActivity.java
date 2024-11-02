@@ -1,7 +1,6 @@
 package com.artifex.mupdf.viewer.old;
 
 import com.artifex.mupdf.fitz.SeekableInputStream;
-import com.artifex.mupdf.viewer.LLOutlineActivity;
 import com.artifex.mupdf.viewer.R;
 import com.artifex.mupdf.viewer.shared.Item;
 

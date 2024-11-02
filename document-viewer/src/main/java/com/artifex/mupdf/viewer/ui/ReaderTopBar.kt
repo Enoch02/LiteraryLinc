@@ -1,4 +1,4 @@
-package com.artifex.mupdf.viewer.components
+package com.artifex.mupdf.viewer.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -20,7 +20,6 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
@@ -49,6 +48,8 @@ fun ReaderTopBar(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
+    onNextSearchResult: () -> Unit,
+    onPreviousSearchResult: () -> Unit,
     onLink: () -> Unit,
     hasOutline: Boolean,
     onOutline: () -> Unit
@@ -84,8 +85,12 @@ fun ReaderTopBar(
                                 onQueryChange = { newQuery ->
                                     onSearchQueryChange(newQuery)
                                 },
-                                onNextItem = {},
-                                onPrevItem = {},
+                                onNextItem = {
+                                    onNextSearchResult()
+                                },
+                                onPrevItem = {
+                                    onPreviousSearchResult()
+                                },
                                 onSearch = {
                                     onSearch()
                                 },
@@ -220,6 +225,8 @@ private fun Preview() {
         documentTitle = "Hello, World",
         onLink = {},
         onSearch = {},
+        onNextSearchResult = {},
+        onPreviousSearchResult = {},
         hasOutline = true,
         onOutline = {},
         searchQuery = "",

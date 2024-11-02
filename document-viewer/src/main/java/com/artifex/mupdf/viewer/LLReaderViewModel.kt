@@ -9,6 +9,7 @@ import android.os.Build
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -20,9 +21,8 @@ import com.artifex.mupdf.fitz.Matrix
 import com.artifex.mupdf.fitz.Outline
 import com.artifex.mupdf.fitz.Page
 import com.artifex.mupdf.fitz.android.AndroidDrawDevice
-import com.artifex.mupdf.viewer.components.BitmapManager
-import com.artifex.mupdf.viewer.components.ContentState
-import com.artifex.mupdf.viewer.components.cleanup
+import com.artifex.mupdf.viewer.model.ContentState
+import com.artifex.mupdf.viewer.model.SearchResult
 import com.artifex.mupdf.viewer.old.ContentInputStream
 import com.artifex.mupdf.viewer.shared.Item
 import com.enoch02.database.dao.BookDao
@@ -62,12 +62,14 @@ class LLReaderViewModel @Inject constructor(
     var hasOutline by mutableStateOf(false)
     val flatOutline = mutableStateListOf<Item>()
     var searchQuery by mutableStateOf("")
+    var searchResults by mutableStateOf(emptyList<SearchResult>())
+    var hasSearchResults by mutableStateOf(false)
 
     var docTitle by mutableStateOf("")
     var docKey = ""
     var size: Long = -1
 
-    private var scale = 2f
+    var scale by mutableFloatStateOf(2f)
     private var documentPageCount = 0
     private var documentId: String? = null
 
@@ -385,11 +387,67 @@ class LLReaderViewModel @Inject constructor(
     }
 
     fun startSearch() {
-        Log.e(TAG, "startSearch: i should be searching for $searchQuery", )
+        val results = mutableListOf<SearchResult>()
+
+        pages.forEachIndexed { pageNum, page ->
+            val hits = page.search(searchQuery)
+
+            hits.forEach { quads ->
+                results.add(
+                    SearchResult(
+                        pageNumber = pageNum,
+                        text = searchQuery,
+                        quads = quads
+                    )
+                )
+            }
+        }
+
+        if (results.isNotEmpty()) {
+            hasSearchResults = true
+        }
+
+        searchResults = results
+        Log.i(TAG, "startSearch: $results")
+    }
+
+    fun moveToNextSearchResult(): Int? {
+        try {
+            val current = searchResults.first { it.pageNumber > currentPage }
+            Log.e(TAG, "moveToNextSearchResult next index: ${current.pageNumber}")
+
+            return current.pageNumber
+        } catch (e: Exception) {
+            Log.e(TAG, "moveToNextSearchResult: ${e.message}")
+            return null
+        }
+    }
+
+    fun moveToPreviousSearchResult(): Int? {
+        try {
+            val current = searchResults.last { it.pageNumber < currentPage }
+            Log.e(TAG, "moveToNextSearchResult next index: ${current.pageNumber}")
+
+            return current.pageNumber
+        } catch (e: Exception) {
+            Log.e(TAG, "moveToNextSearchResult: ${e.message}")
+            return null
+        }
     }
 
     fun getBooleanPreference(key: SettingsRepository.PreferenceType): Flow<Boolean> {
         return settingsRepository.getBooleanPreference(key)
+    }
+
+    /**
+     * Get the bounds for the page at the specified [index].
+     *
+     * @return Pair<width, height>
+     * */
+    fun getPageBounds(index: Int): Pair<Int, Int> {
+        val page = pages[index]
+
+        return Pair(page.bounds.x1.toInt(), page.bounds.y1.toInt())
     }
 
     override fun onCleared() {
