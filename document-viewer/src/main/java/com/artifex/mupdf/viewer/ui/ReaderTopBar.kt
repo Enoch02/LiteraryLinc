@@ -6,6 +6,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
@@ -32,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -50,6 +53,7 @@ fun ReaderTopBar(
     onSearch: () -> Unit,
     onNextSearchResult: () -> Unit,
     onPreviousSearchResult: () -> Unit,
+    searchInProgress: Boolean,
     onLink: () -> Unit,
     hasOutline: Boolean,
     onOutline: () -> Unit
@@ -80,24 +84,30 @@ fun ReaderTopBar(
                 content = {
                     when (it) {
                         true -> {
-                            SearchTextField(
-                                query = searchQuery,
-                                onQueryChange = { newQuery ->
-                                    onSearchQueryChange(newQuery)
-                                },
-                                onNextItem = {
-                                    onNextSearchResult()
-                                },
-                                onPrevItem = {
-                                    onPreviousSearchResult()
-                                },
-                                onSearch = {
-                                    onSearch()
-                                },
-                                onCloseSearch = {
-                                    isSearching = false
+                            Column(content = {
+                                if (searchInProgress) {
+                                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                                 }
-                            )
+
+                                SearchTextField(
+                                    query = searchQuery,
+                                    onQueryChange = { newQuery ->
+                                        onSearchQueryChange(newQuery)
+                                    },
+                                    onNextItem = {
+                                        onNextSearchResult()
+                                    },
+                                    onPrevItem = {
+                                        onPreviousSearchResult()
+                                    },
+                                    onSearch = {
+                                        onSearch()
+                                    },
+                                    onCloseSearch = {
+                                        isSearching = false
+                                    }
+                                )
+                            })
                         }
 
                         false -> {
@@ -164,6 +174,7 @@ fun SearchTextField(
     onPrevItem: () -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
@@ -175,7 +186,12 @@ fun SearchTextField(
         value = query,
         onValueChange = { onQueryChange(it) },
         maxLines = 1,
-        keyboardActions = KeyboardActions(onSearch = { onSearch() }),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                onSearch()
+                keyboardController?.hide()
+            }
+        ),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
             imeAction = ImeAction.Search
@@ -230,6 +246,7 @@ private fun Preview() {
         hasOutline = true,
         onOutline = {},
         searchQuery = "",
-        onSearchQueryChange = {}
+        onSearchQueryChange = {},
+        searchInProgress = true
     )
 }

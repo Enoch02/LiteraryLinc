@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -22,6 +23,7 @@ import com.artifex.mupdf.fitz.Outline
 import com.artifex.mupdf.fitz.Page
 import com.artifex.mupdf.fitz.android.AndroidDrawDevice
 import com.artifex.mupdf.viewer.model.ContentState
+import com.artifex.mupdf.viewer.model.LinkItem
 import com.artifex.mupdf.viewer.model.SearchResult
 import com.artifex.mupdf.viewer.old.ContentInputStream
 import com.artifex.mupdf.viewer.shared.Item
@@ -32,6 +34,7 @@ import com.enoch02.database.model.LLDocument
 import com.enoch02.settings.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -64,12 +67,14 @@ class LLReaderViewModel @Inject constructor(
     var searchQuery by mutableStateOf("")
     var searchResults by mutableStateOf(emptyList<SearchResult>())
     var hasSearchResults by mutableStateOf(false)
+    var searchInProgress by mutableStateOf(false)
+    var documentLinks by mutableStateOf(emptyList<LinkItem>())
 
     var docTitle by mutableStateOf("")
-    var docKey = ""
+    private var docKey = ""
     var size: Long = -1
 
-    var scale by mutableFloatStateOf(2f)
+    private var scale by mutableFloatStateOf(2f)  // make configurable?
     private var documentPageCount = 0
     private var documentId: String? = null
 
@@ -283,40 +288,6 @@ class LLReaderViewModel @Inject constructor(
         }
     }
 
-    fun getChapterStart(): Int {
-        var chapterStart = -1
-
-        if (document != null) {
-            if (document!!.isPDF) {
-                for (item in flatOutline) {
-                    val page = document!!.resolveLink(item.uri).page
-
-                    if (page <= currentPage) {
-                        chapterStart = page
-                    } else {
-                        break
-                    }
-                }
-            } else {
-                val location = document!!.locationFromPageNumber(currentPage)
-                var testPage = currentPage
-
-                // Search backwards until we find a different chapter or reach page 0
-                while (testPage > 0) {
-                    val prevLocation = document!!.locationFromPageNumber(testPage - 1)
-                    if (prevLocation.chapter != location.chapter) {
-                        return testPage
-                    }
-                    testPage--
-                }
-
-                return 0 // chapter starts at page 0
-            }
-        }
-
-        return chapterStart
-    }
-
     /**
      * Update stored document info
      */
@@ -386,39 +357,50 @@ class LLReaderViewModel @Inject constructor(
         }
     }
 
-    fun startSearch() {
+    /**
+     * Initiate searching the document for a query text
+     *
+     * @param noResultAction what to do when no query match is found
+     * */
+    fun startSearch(noResultAction: () -> Unit) {
         val results = mutableListOf<SearchResult>()
+        searchResults = emptyList()
+        searchInProgress = true
 
-        pages.forEachIndexed { pageNum, page ->
-            val hits = page.search(searchQuery)
+        viewModelScope.launch(Dispatchers.IO) {
+            pages.forEachIndexed { pageNum, page ->
+                val hits = page.search(searchQuery)
 
-            hits.forEach { quads ->
-                results.add(
-                    SearchResult(
-                        pageNumber = pageNum,
-                        text = searchQuery,
-                        quads = quads
+                hits.forEach { quads ->
+                    results.add(
+                        SearchResult(
+                            pageNumber = pageNum,
+                            text = searchQuery,
+                            quads = quads
+                        )
                     )
-                )
+                }
             }
-        }
 
-        if (results.isNotEmpty()) {
-            hasSearchResults = true
-        }
+            if (results.isNotEmpty()) {
+                hasSearchResults = true
+            } else {
+                withContext(Dispatchers.Main) {
+                    noResultAction()
+                }
+            }
 
-        searchResults = results
-        Log.i(TAG, "startSearch: $results")
+            searchResults = results
+            searchInProgress = false
+        }
     }
 
     fun moveToNextSearchResult(): Int? {
         try {
             val current = searchResults.first { it.pageNumber > currentPage }
-            Log.e(TAG, "moveToNextSearchResult next index: ${current.pageNumber}")
 
             return current.pageNumber
         } catch (e: Exception) {
-            Log.e(TAG, "moveToNextSearchResult: ${e.message}")
             return null
         }
     }
@@ -426,11 +408,9 @@ class LLReaderViewModel @Inject constructor(
     fun moveToPreviousSearchResult(): Int? {
         try {
             val current = searchResults.last { it.pageNumber < currentPage }
-            Log.e(TAG, "moveToNextSearchResult next index: ${current.pageNumber}")
 
             return current.pageNumber
         } catch (e: Exception) {
-            Log.e(TAG, "moveToNextSearchResult: ${e.message}")
             return null
         }
     }
@@ -448,6 +428,25 @@ class LLReaderViewModel @Inject constructor(
         val page = pages[index]
 
         return Pair(page.bounds.x1.toInt(), page.bounds.y1.toInt())
+    }
+
+    fun getLinks() {
+        val result = mutableListOf<LinkItem>()
+
+        if (document != null) {
+            pages.forEachIndexed { pageNum, page ->
+                result.add(
+                    LinkItem(
+                        page = pageNum,
+                        links = page.links
+                    )
+                )
+            }
+        }
+
+        documentLinks = result
+
+        Log.e(TAG, "getLinks: $result")
     }
 
     override fun onCleared() {

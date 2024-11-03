@@ -142,6 +142,7 @@ fun ReaderView(
                                 content = {
                                     HorizontalPager(
                                         state = pagerState,
+                                        beyondViewportPageCount = 2,
                                         pageContent = { index ->
                                             var pageBitmap by remember {
                                                 mutableStateOf<Bitmap?>(
@@ -258,7 +259,15 @@ fun ReaderView(
                                         },
                                         searchQuery = viewModel.searchQuery,
                                         onSearch = {
-                                            viewModel.startSearch()
+                                            viewModel.startSearch(
+                                                noResultAction = {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "No match has been found",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            )
                                         },
                                         onSearchQueryChange = { newQuery ->
                                             viewModel.searchQuery = newQuery
@@ -275,6 +284,7 @@ fun ReaderView(
                                                     ?.let { pagerState.scrollToPage(it) }
                                             }
                                         },
+                                        searchInProgress = viewModel.searchInProgress,
                                         hasOutline = viewModel.hasOutline,
                                         onOutline = {
                                             coroutineScope.launch {
