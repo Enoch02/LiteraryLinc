@@ -12,7 +12,6 @@ import com.artifex.mupdf.fitz.Rect;
 import com.artifex.mupdf.fitz.RectI;
 import com.artifex.mupdf.fitz.SeekableInputStream;
 import com.artifex.mupdf.fitz.android.AndroidDrawDevice;
-import com.artifex.mupdf.viewer.LLOutlineActivity;
 import com.artifex.mupdf.viewer.shared.Item;
 
 import android.graphics.Bitmap;

@@ -1,7 +1,9 @@
 package com.artifex.mupdf.viewer.ui
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.FileUriExposedException
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Canvas
@@ -41,8 +43,10 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -52,7 +56,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
-import com.artifex.mupdf.fitz.Document
+import com.artifex.mupdf.fitz.Link
 import com.artifex.mupdf.viewer.LLReaderViewModel
 import com.artifex.mupdf.viewer.model.ContentState
 import com.artifex.mupdf.viewer.model.SearchResult
@@ -83,237 +87,281 @@ fun ReaderView(
 
     AnimatedContent(
         targetState = viewModel.contentState,
-        label = "",
-        content = { state ->
-            when (state) {
-                ContentState.LOADING -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                        content = {
-                            CircularProgressIndicator()
-                        }
-                    )
+        label = ""
+    ) { state ->
+        when (state) {
+            ContentState.LOADING -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                    content = {
+                        CircularProgressIndicator()
+                    }
+                )
+            }
+
+            ContentState.NOT_LOADING -> {
+                val coroutineScope = rememberCoroutineScope()
+                var showBars by rememberSaveable {
+                    mutableStateOf(true)
+                }
+                val pageCount = viewModel.pages.size
+                val pagerState = rememberPagerState(
+                    pageCount = { pageCount },
+                    initialPage = viewModel.currentPage
+                )
+                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+                val searchResults = viewModel.searchResults
+                val links = viewModel.documentLinks
+
+                LaunchedEffect(pagerState) {
+                    // Collect the current page index whenever it changes
+                    snapshotFlow { pagerState.currentPage }.collectLatest { currentPage ->
+                        viewModel.currentPage = currentPage
+                        viewModel.updateDocumentData()
+                    }
                 }
 
-                ContentState.NOT_LOADING -> {
-                    val coroutineScope = rememberCoroutineScope()
-                    var showBars by rememberSaveable {
-                        mutableStateOf(true)
-                    }
-                    val pageCount = viewModel.pages.size
-                    val pagerState = rememberPagerState(
-                        pageCount = { pageCount },
-                        initialPage = viewModel.currentPage
-                    )
-                    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-                    val searchResults = viewModel.searchResults
-
-                    LaunchedEffect(pagerState) {
-                        // Collect the current page index whenever it changes
-                        snapshotFlow { pagerState.currentPage }.collectLatest { currentPage ->
-                            viewModel.currentPage = currentPage
-                            viewModel.updateDocumentData()
-                        }
-                    }
-
-                    ModalNavigationDrawer(
-                        drawerState = drawerState,
-                        gesturesEnabled = viewModel.hasOutline,
-                        drawerContent = {
-                            TableOfContentSheet(
-                                chapterPage = pagerState.currentPage,
-                                outline = viewModel.flatOutline,
-                                onItemSelected = { page ->
-                                    coroutineScope.launch {
-                                        pagerState.scrollToPage(page)
-                                        drawerState.close()
-                                    }
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    gesturesEnabled = viewModel.hasOutline,
+                    drawerContent = {
+                        TableOfContentSheet(
+                            chapterPage = pagerState.currentPage,
+                            outline = viewModel.flatOutline,
+                            onItemSelected = { page ->
+                                coroutineScope.launch {
+                                    pagerState.scrollToPage(page)
+                                    drawerState.close()
                                 }
-                            )
-                        },
-                        content = {
+                            }
+                        )
+                    }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.background)
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        HorizontalPager(
+                            state = pagerState,
+                            beyondViewportPageCount = 2
+                        ) { index ->
+                            var pageBitmap by remember {
+                                mutableStateOf<Bitmap?>(
+                                    null
+                                )
+                            }
+                            var imageSize by remember {
+                                mutableStateOf<IntSize?>(
+                                    null
+                                )
+                            }
+
+                            LaunchedEffect(index) {
+                                viewModel.getPageBitmap(index)
+                                    .collect { bitmap ->
+                                        pageBitmap = bitmap
+                                    }
+                            }
+
                             Box(
-                                modifier = Modifier
-                                    .background(MaterialTheme.colorScheme.background)
-                                    .fillMaxSize(),
-                                contentAlignment = Alignment.Center,
-                                content = {
-                                    HorizontalPager(
-                                        state = pagerState,
-                                        beyondViewportPageCount = 2,
-                                        pageContent = { index ->
-                                            var pageBitmap by remember {
-                                                mutableStateOf<Bitmap?>(
-                                                    null
-                                                )
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (pageBitmap != null) {
+                                    SubcomposeAsyncImage(
+                                        model = pageBitmap,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .onGloballyPositioned { coordinates ->
+                                                imageSize = coordinates.size
                                             }
-                                            var imageSize by remember {
-                                                mutableStateOf<IntSize?>(
-                                                    null
-                                                )
-                                            }
+                                            .pointerInput(Unit) {
+                                                detectTapGestures { offset ->
+                                                    // Get the total size of the composable
+                                                    val size = this.size
+                                                    val width = size.width
+                                                    val height = size.height
 
-                                            LaunchedEffect(index) {
-                                                viewModel.getPageBitmap(index)
-                                                    .collect { bitmap ->
-                                                        pageBitmap = bitmap
+                                                    // Define center region (middle third of the screen)
+                                                    val horizontalThird =
+                                                        width / 3
+                                                    val verticalThird =
+                                                        height / 3
+
+                                                    // Check if tap is in center region
+                                                    val isInCenterX =
+                                                        offset.x >= horizontalThird && offset.x <= horizontalThird * 2
+                                                    val isInCenterY =
+                                                        offset.y >= verticalThird && offset.y <= verticalThird * 2
+
+                                                    if (isInCenterX && isInCenterY) {
+                                                        showBars = !showBars
                                                     }
+                                                }
                                             }
+                                    ) {
+                                        val painterState = painter.state
+                                        val pageBounds =
+                                            viewModel.getPageBounds(index)
 
-                                            Box(
-                                                modifier = Modifier.fillMaxSize(),
-                                                contentAlignment = Alignment.Center,
-                                                content = {
-                                                    if (pageBitmap != null) {
-                                                        SubcomposeAsyncImage(
-                                                            model = pageBitmap,
-                                                            contentDescription = null,
-                                                            modifier = Modifier
-                                                                .onGloballyPositioned { coordinates ->
-                                                                    imageSize = coordinates.size
-                                                                }
-                                                                .pointerInput(Unit) {
-                                                                    detectTapGestures { offset ->
-                                                                        // Get the total size of the composable
-                                                                        val size = this.size
-                                                                        val width = size.width
-                                                                        val height = size.height
+                                        if (painterState is AsyncImagePainter.State.Success) {
+                                            Image(
+                                                painter = painterState.painter,
+                                                contentDescription = null,
+                                                contentScale = ContentScale.Fit,
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                        }
 
-                                                                        // Define center region (middle third of the screen)
-                                                                        val horizontalThird =
-                                                                            width / 3
-                                                                        val verticalThird =
-                                                                            height / 3
+                                        if (viewModel.showSearchResults) {
+                                            imageSize?.let { size ->
+                                                val pageSize = IntSize(
+                                                    width = pageBounds.first,
+                                                    height = pageBounds.second
+                                                )
 
-                                                                        // Check if tap is in center region
-                                                                        val isInCenterX =
-                                                                            offset.x >= horizontalThird && offset.x <= horizontalThird * 2
-                                                                        val isInCenterY =
-                                                                            offset.y >= verticalThird && offset.y <= verticalThird * 2
+                                                SearchHighlights(
+                                                    searchResults = searchResults.filter { it.pageNumber == index },
+                                                    originalPageSize = pageSize,
+                                                    containerSize = size,
+                                                    highlightColor = Color.Yellow.copy(
+                                                        alpha = 0.7f
+                                                    )
+                                                )
+                                            }
+                                        }
 
-                                                                        if (isInCenterX && isInCenterY) {
-                                                                            showBars = !showBars
-                                                                        }
-                                                                    }
-                                                                },
-                                                            content = {
-                                                                val painterState = painter.state
+                                        if (viewModel.showLinks) {
+                                            val pageLinks =
+                                                links.find { it.page == index }
 
-                                                                if (painterState is AsyncImagePainter.State.Success) {
-                                                                    Image(
-                                                                        painter = painterState.painter,
-                                                                        contentDescription = null,
-                                                                        contentScale = ContentScale.Fit,
-                                                                        modifier = Modifier.fillMaxSize()
+                                            imageSize?.let { size ->
+                                                pageLinks?.links?.let {
+                                                    DocumentLinkOverlay(
+                                                        links = it,
+                                                        originalPageSize = IntSize(
+                                                            width = pageBounds.first,
+                                                            height = pageBounds.second
+                                                        ),
+                                                        containerSize = size,
+                                                        onLinkClick = { link ->
+                                                            if (link.isExternal) {
+                                                                val intent =
+                                                                    Intent(
+                                                                        Intent.ACTION_VIEW,
+                                                                        Uri.parse(link.uri)
                                                                     )
-                                                                }
 
-                                                                if (viewModel.hasSearchResults) {
-                                                                    imageSize?.let { size ->
-                                                                        val pageBounds =
-                                                                            viewModel.getPageBounds(
-                                                                                index
-                                                                            )
-                                                                        val pageSize = IntSize(
-                                                                            width = pageBounds.first,
-                                                                            height = pageBounds.second
+                                                                try {
+                                                                    context.startActivity(intent)
+                                                                } catch (x: FileUriExposedException) {
+                                                                    Toast.makeText(
+                                                                        context,
+                                                                        "Android does not allow following file:// link: " + link.uri,
+                                                                        Toast.LENGTH_LONG
+                                                                    ).show()
+                                                                } catch (x: Throwable) {
+                                                                    Toast.makeText(
+                                                                        context,
+                                                                        x.message,
+                                                                        Toast.LENGTH_LONG
+                                                                    ).show()
+                                                                }
+                                                            } else {
+                                                                coroutineScope.launch {
+                                                                    val pageNum =
+                                                                        viewModel.getPageIndexFromLink(
+                                                                            link
                                                                         )
 
-                                                                        SearchHighlights(
-                                                                            searchResults = searchResults.filter { it.pageNumber == index },
-                                                                            originalPageSize = pageSize,
-                                                                            containerSize = size,
-                                                                            highlightColor = Color.Yellow.copy(
-                                                                                alpha = 0.7f
-                                                                            )
+                                                                    pageNum?.let { num ->
+                                                                        pagerState.scrollToPage(
+                                                                            num
                                                                         )
                                                                     }
                                                                 }
                                                             }
-                                                        )
-                                                    } else {
-                                                        CircularProgressIndicator()
-                                                    }
+                                                        }
+                                                    )
                                                 }
-                                            )
+                                            }
                                         }
-                                    )
+                                    }
+                                } else {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                        }
 
-                                    val toast =
+                        ReaderTopBar(
+                            modifier = Modifier.align(Alignment.TopCenter),
+                            visible = showBars,
+                            documentTitle = viewModel.getDocumentTitle(),
+                            showLinks = viewModel.showLinks,
+                            onLink = {
+                                viewModel.toggleShowLinks()
+                            },
+                            searchQuery = viewModel.searchQuery,
+                            onSearch = {
+                                viewModel.startSearch(
+                                    noResultAction = {
                                         Toast.makeText(
                                             context,
-                                            "Coming soon!",
+                                            "No match has been found",
                                             Toast.LENGTH_SHORT
-                                        )
+                                        ).show()
+                                    }
+                                )
+                            },
+                            onSearchQueryChange = { newQuery ->
+                                viewModel.searchQuery = newQuery
+                            },
+                            onPreviousSearchResult = {
+                                coroutineScope.launch {
+                                    viewModel.moveToPreviousSearchResult()
+                                        ?.let { pagerState.scrollToPage(it) }
+                                }
+                            },
+                            onNextSearchResult = {
+                                coroutineScope.launch {
+                                    viewModel.moveToNextSearchResult()
+                                        ?.let { pagerState.scrollToPage(it) }
+                                }
+                            },
+                            onHideResults = {
+                                viewModel.showSearchResults = false
+                            },
+                            searchInProgress = viewModel.searchInProgress,
+                            hasOutline = viewModel.hasOutline,
+                            onOutline = {
+                                coroutineScope.launch {
+                                    drawerState.open()
+                                }
+                            }
+                        )
 
-                                    //TODO: add a loading indicator for when search results are not ready
-                                    ReaderTopBar(
-                                        modifier = Modifier.align(Alignment.TopCenter),
-                                        visible = showBars,
-                                        documentTitle = viewModel.document?.getMetaData(Document.META_INFO_TITLE)
-                                            ?: viewModel.docTitle,
-                                        onLink = {
-                                            toast.show()
-                                        },
-                                        searchQuery = viewModel.searchQuery,
-                                        onSearch = {
-                                            viewModel.startSearch(
-                                                noResultAction = {
-                                                    Toast.makeText(
-                                                        context,
-                                                        "No match has been found",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                }
-                                            )
-                                        },
-                                        onSearchQueryChange = { newQuery ->
-                                            viewModel.searchQuery = newQuery
-                                        },
-                                        onPreviousSearchResult = {
-                                            coroutineScope.launch {
-                                                viewModel.moveToPreviousSearchResult()
-                                                    ?.let { pagerState.scrollToPage(it) }
-                                            }
-                                        },
-                                        onNextSearchResult = {
-                                            coroutineScope.launch {
-                                                viewModel.moveToNextSearchResult()
-                                                    ?.let { pagerState.scrollToPage(it) }
-                                            }
-                                        },
-                                        searchInProgress = viewModel.searchInProgress,
-                                        hasOutline = viewModel.hasOutline,
-                                        onOutline = {
-                                            coroutineScope.launch {
-                                                drawerState.open()
-                                            }
-                                        }
-                                    )
-
-                                    if (pageCount > 0) {
-                                        ReaderBottomBar(
-                                            modifier = Modifier.align(Alignment.BottomCenter),
-                                            visible = showBars,
-                                            currentPage = viewModel.currentPage,
-                                            pageCount = pageCount,
-                                            onPageChange = { newPageIndex ->
-                                                coroutineScope.launch {
-                                                    pagerState.scrollToPage(newPageIndex)
-                                                }
-                                            }
-                                        )
+                        if (pageCount > 0) {
+                            ReaderBottomBar(
+                                modifier = Modifier.align(Alignment.BottomCenter),
+                                visible = showBars,
+                                currentPage = viewModel.currentPage,
+                                pageCount = pageCount,
+                                onPageChange = { newPageIndex ->
+                                    coroutineScope.launch {
+                                        pagerState.scrollToPage(newPageIndex)
                                     }
                                 }
                             )
                         }
-                    )
+                    }
                 }
             }
         }
-    )
+    }
 }
 
 @Composable
@@ -376,6 +424,119 @@ private fun SearchHighlights(
             }
         }
     )
+}
+
+@Composable
+fun DocumentLinkOverlay(
+    links: Array<Link>,
+    originalPageSize: IntSize,
+    containerSize: IntSize,
+    linkColor: Color = Color(0x220000FF),
+    onLinkClick: (Link) -> Unit
+) {
+    // Remember calculated link areas to avoid recalculation on each tap
+    val linkAreas = remember(links, containerSize, originalPageSize) {
+        calculateLinkAreas(links, originalPageSize, containerSize)
+    }
+
+    Canvas(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(links) {
+                detectTapGestures { offset ->
+                    // Find which link was clicked
+                    linkAreas.forEach { (link, rect) ->
+                        if (rect.contains(offset)) {
+                            onLinkClick(link)
+                            return@detectTapGestures
+                        }
+                    }
+                }
+            },
+        onDraw = {
+            val containerAspect = containerSize.width.toFloat() / containerSize.height
+            val pageAspect = originalPageSize.width.toFloat() / originalPageSize.height
+
+            val (renderWidth, renderHeight, xOffset, yOffset) = if (containerAspect > pageAspect) {
+                val height = containerSize.height.toFloat()
+                val width = height * pageAspect
+                val xOffset = (containerSize.width - width) / 2f
+                listOf(width, height, xOffset, 0f)
+            } else {
+                val width = containerSize.width.toFloat()
+                val height = width / pageAspect
+                val yOffset = (containerSize.height - height) / 2f
+                listOf(width, height, 0f, yOffset)
+            }
+
+            val scaleX = renderWidth / originalPageSize.width
+            val scaleY = renderHeight / originalPageSize.height
+
+            links.forEach { link ->
+                val bounds = link.bounds
+                val path = Path().apply {
+                    moveTo(
+                        bounds.x0 * scaleX + xOffset,
+                        bounds.y0 * scaleY + yOffset
+                    )
+                    lineTo(
+                        bounds.x1 * scaleX + xOffset,
+                        bounds.y0 * scaleY + yOffset
+                    )
+                    lineTo(
+                        bounds.x1 * scaleX + xOffset,
+                        bounds.y1 * scaleY + yOffset
+                    )
+                    lineTo(
+                        bounds.x0 * scaleX + xOffset,
+                        bounds.y1 * scaleY + yOffset
+                    )
+                    close()
+                }
+
+                drawPath(
+                    path = path,
+                    color = linkColor,
+                    style = Stroke(width = 1.5f)
+                )
+            }
+        }
+    )
+}
+
+private fun calculateLinkAreas(
+    links: Array<Link>,
+    originalPageSize: IntSize,
+    containerSize: IntSize
+): List<Pair<Link, Rect>> {
+    val containerAspect = containerSize.width.toFloat() / containerSize.height
+    val pageAspect = originalPageSize.width.toFloat() / originalPageSize.height
+
+    val (renderWidth, renderHeight, xOffset, yOffset) = if (containerAspect > pageAspect) {
+        val height = containerSize.height.toFloat()
+        val width = height * pageAspect
+        val xOffset = (containerSize.width - width) / 2f
+        listOf(width, height, xOffset, 0f)
+    } else {
+        val width = containerSize.width.toFloat()
+        val height = width / pageAspect
+        val yOffset = (containerSize.height - height) / 2f
+        listOf(width, height, 0f, yOffset)
+    }
+
+    val scaleX = renderWidth / originalPageSize.width
+    val scaleY = renderHeight / originalPageSize.height
+
+    return links.map { link ->
+        val bounds = link.bounds
+        val rect = Rect(
+            left = bounds.x0 * scaleX + xOffset,
+            top = bounds.y0 * scaleY + yOffset,
+            right = bounds.x1 * scaleX + xOffset,
+            bottom = bounds.y1 * scaleY + yOffset
+        )
+        link to rect
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -18,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.artifex.mupdf.fitz.Document
+import com.artifex.mupdf.fitz.Link
 import com.artifex.mupdf.fitz.Matrix
 import com.artifex.mupdf.fitz.Outline
 import com.artifex.mupdf.fitz.Page
@@ -34,7 +34,6 @@ import com.enoch02.database.model.LLDocument
 import com.enoch02.settings.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -66,11 +65,12 @@ class LLReaderViewModel @Inject constructor(
     val flatOutline = mutableStateListOf<Item>()
     var searchQuery by mutableStateOf("")
     var searchResults by mutableStateOf(emptyList<SearchResult>())
-    var hasSearchResults by mutableStateOf(false)
+    var showSearchResults by mutableStateOf(false)
     var searchInProgress by mutableStateOf(false)
     var documentLinks by mutableStateOf(emptyList<LinkItem>())
+    var showLinks by mutableStateOf(true)
 
-    var docTitle by mutableStateOf("")
+    private var docTitle by mutableStateOf("")
     private var docKey = ""
     var size: Long = -1
 
@@ -80,6 +80,7 @@ class LLReaderViewModel @Inject constructor(
 
     private val pageRunLock = Any()
     private val updateJobMutex = Mutex()
+    private val documentAccessLock = Any()
 
     fun initDocument(context: Context, uri: Uri, mimeType: String?, id: String?) {
         var cursor: Cursor? = null
@@ -166,6 +167,7 @@ class LLReaderViewModel @Inject constructor(
                 getCurrentPage()
                 loadOutline()
                 loadPages()
+                getDocumentLinks()
                 contentState = ContentState.NOT_LOADING
             } catch (_: Exception) {
                 // catch exceptions that occurs when user closes the screen
@@ -288,6 +290,17 @@ class LLReaderViewModel @Inject constructor(
         }
     }
 
+    fun getDocumentTitle(): String {
+        var title: String
+
+        synchronized(documentAccessLock) {
+            title = document?.getMetaData(Document.META_INFO_TITLE)
+                ?: docTitle
+        }
+
+        return title
+    }
+
     /**
      * Update stored document info
      */
@@ -383,7 +396,7 @@ class LLReaderViewModel @Inject constructor(
             }
 
             if (results.isNotEmpty()) {
-                hasSearchResults = true
+                showSearchResults = true
             } else {
                 withContext(Dispatchers.Main) {
                     noResultAction()
@@ -430,23 +443,43 @@ class LLReaderViewModel @Inject constructor(
         return Pair(page.bounds.x1.toInt(), page.bounds.y1.toInt())
     }
 
-    fun getLinks() {
+    private fun getDocumentLinks() {
         val result = mutableListOf<LinkItem>()
 
-        if (document != null) {
-            pages.forEachIndexed { pageNum, page ->
-                result.add(
-                    LinkItem(
-                        page = pageNum,
-                        links = page.links
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                pages.forEachIndexed { pageNum, page ->
+                    result.add(
+                        LinkItem(
+                            page = pageNum,
+                            links = page.links
+                        )
                     )
-                )
+                }
+
+                if (result.isNotEmpty()) {
+                    documentLinks = result
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e(TAG, "getDocumentLinks: ${e.message}")
             }
         }
+    }
 
-        documentLinks = result
+    fun toggleShowLinks() {
+        showLinks = !showLinks
+    }
 
-        Log.e(TAG, "getLinks: $result")
+    fun getPageIndexFromLink(link: Link): Int? {
+        try {
+            synchronized(documentAccessLock) {
+                return document!!.pageNumberFromLocation(document!!.resolveLink(link))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "navigateTo: ${e.message}")
+            return null
+        }
     }
 
     override fun onCleared() {

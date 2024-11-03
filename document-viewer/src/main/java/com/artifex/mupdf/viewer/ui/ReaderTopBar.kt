@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.Link
+import androidx.compose.material.icons.rounded.LinkOff
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -51,9 +52,11 @@ fun ReaderTopBar(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
+    onHideResults: () -> Unit,
     onNextSearchResult: () -> Unit,
     onPreviousSearchResult: () -> Unit,
     searchInProgress: Boolean,
+    showLinks: Boolean,
     onLink: () -> Unit,
     hasOutline: Boolean,
     onOutline: () -> Unit
@@ -105,6 +108,7 @@ fun ReaderTopBar(
                                     },
                                     onCloseSearch = {
                                         isSearching = false
+                                        onHideResults()
                                     }
                                 )
                             })
@@ -122,8 +126,14 @@ fun ReaderTopBar(
                                 actions = {
                                     IconButton(
                                         content = {
+                                            val icon = if (showLinks) {
+                                                Icons.Rounded.LinkOff
+                                            } else {
+                                                Icons.Rounded.Link
+                                            }
+
                                             Icon(
-                                                imageVector = Icons.Rounded.Link,
+                                                imageVector = icon,
                                                 contentDescription = null
                                             )
                                         },
@@ -247,6 +257,10 @@ private fun Preview() {
         onOutline = {},
         searchQuery = "",
         onSearchQueryChange = {},
-        searchInProgress = true
+        searchInProgress = true,
+        onHideResults = {
+
+        },
+        showLinks = true
     )
 }

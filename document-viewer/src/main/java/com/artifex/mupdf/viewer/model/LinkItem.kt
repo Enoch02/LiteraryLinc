@@ -4,7 +4,7 @@ import com.artifex.mupdf.fitz.Link
 
 data class LinkItem(
     val page: Int,
-    val links: Array<Link>
+    val links: Array<Link>?
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
