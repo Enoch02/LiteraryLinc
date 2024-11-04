@@ -1,4 +1,4 @@
-package com.artifex.mupdf.viewer
+package com.enoch02.viewer
 
 import android.content.Intent
 import android.os.Bundle
@@ -21,7 +21,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.artifex.mupdf.viewer.ui.ReaderView
+import com.artifex.mupdf.viewer.R
+import com.enoch02.viewer.ui.ReaderView
 import com.enoch02.resources.theme.LiteraryLincTheme
 import com.enoch02.settings.SettingsRepository
 import dagger.hilt.android.AndroidEntryPoint

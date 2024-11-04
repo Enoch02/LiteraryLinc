@@ -6,7 +6,7 @@ apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 apply plugin: 'com.google.devtools.ksp'
 apply plugin: 'dagger.hilt.android.plugin'
 
-group = 'com.artifex.mupdf'
+group = 'com.enoch02'
 version = '1.24.9a'
 
 dependencies {

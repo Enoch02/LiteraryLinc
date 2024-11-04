@@ -1,4 +1,4 @@
-package com.artifex.mupdf.viewer
+package com.enoch02.viewer
 
 import android.graphics.Bitmap
 import android.util.Log

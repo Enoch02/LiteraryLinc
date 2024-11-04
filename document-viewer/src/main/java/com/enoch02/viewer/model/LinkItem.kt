@@ -1,4 +1,4 @@
-package com.artifex.mupdf.viewer.model
+package com.enoch02.viewer.model
 
 import com.artifex.mupdf.fitz.Link
 

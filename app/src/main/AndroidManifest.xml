@@ -26,7 +26,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.artifex.mupdf.viewer.LLDocumentActivity" />
+        <activity android:name="com.enoch02.viewer.LLDocumentActivity" />
         <activity android:name="com.artifex.mupdf.viewer.LLOutlineActivity" />
         <provider
             android:name="androidx.startup.InitializationProvider"

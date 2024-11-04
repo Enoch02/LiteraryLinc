@@ -1,4 +1,4 @@
-package com.artifex.mupdf.viewer
+package com.enoch02.viewer
 
 import android.content.ContentResolver
 import android.content.Context
@@ -23,11 +23,10 @@ import com.artifex.mupdf.fitz.Matrix
 import com.artifex.mupdf.fitz.Outline
 import com.artifex.mupdf.fitz.Page
 import com.artifex.mupdf.fitz.android.AndroidDrawDevice
-import com.artifex.mupdf.viewer.model.ContentState
-import com.artifex.mupdf.viewer.model.LinkItem
-import com.artifex.mupdf.viewer.model.SearchResult
-import com.artifex.mupdf.viewer.old.ContentInputStream
-import com.artifex.mupdf.viewer.shared.Item
+import com.enoch02.viewer.model.ContentState
+import com.enoch02.viewer.model.LinkItem
+import com.enoch02.viewer.model.SearchResult
+import com.enoch02.viewer.model.Item
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.model.Book

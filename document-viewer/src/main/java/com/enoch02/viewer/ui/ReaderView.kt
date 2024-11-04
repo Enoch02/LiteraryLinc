@@ -1,4 +1,4 @@
-package com.artifex.mupdf.viewer.ui
+package com.enoch02.viewer.ui
 
 import android.content.Intent
 import android.graphics.Bitmap
@@ -57,10 +57,10 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import com.artifex.mupdf.fitz.Link
-import com.artifex.mupdf.viewer.LLReaderViewModel
-import com.artifex.mupdf.viewer.model.ContentState
-import com.artifex.mupdf.viewer.model.SearchResult
-import com.artifex.mupdf.viewer.shared.Item
+import com.enoch02.viewer.LLReaderViewModel
+import com.enoch02.viewer.model.ContentState
+import com.enoch02.viewer.model.SearchResult
+import com.enoch02.viewer.model.Item
 import com.composables.core.ScrollArea
 import com.composables.core.Thumb
 import com.composables.core.VerticalScrollbar

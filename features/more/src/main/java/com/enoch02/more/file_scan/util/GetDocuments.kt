@@ -9,8 +9,8 @@ import android.provider.OpenableColumns
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.artifex.mupdf.fitz.SeekableInputStream
-import com.artifex.mupdf.viewer.old.ContentInputStream
-import com.artifex.mupdf.viewer.old.MuPDFCore
+import com.enoch02.viewer.ContentInputStream
+import com.enoch02.viewer.MuPDFCore
 import com.enoch02.database.model.LLDocument
 import com.enoch02.more.file_scan.TAG
 import java.io.InputStream
