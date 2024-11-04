@@ -47,7 +47,8 @@ class CSVManager(
                         "Type",
                         "Cover Image[Base64]",
                         "Notes",
-                        "Status"
+                        "Status",
+                        "Linked file md5"
                     )
                 )
 
@@ -74,7 +75,8 @@ class CSVManager(
                         it.type,
                         encodedImage,
                         it.notes,
-                        it.status
+                        it.status,
+                        it.documentMd5
                     )
 
                     writeRow(row)
@@ -117,7 +119,8 @@ class CSVManager(
                                     name = row[0]
                                 ),
                                 notes = row[12],
-                                status = row[13]
+                                status = row[13],
+                                documentMd5 = row[14]
                             )
 
                             bookDao.insertBook(book)
