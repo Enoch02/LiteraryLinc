@@ -68,7 +68,7 @@ class LLReaderViewModel @Inject constructor(
     var showSearchResults by mutableStateOf(false)
     var searchInProgress by mutableStateOf(false)
     var documentLinks by mutableStateOf(emptyList<LinkItem>())
-    var showLinks by mutableStateOf(true)
+    var showLinks by mutableStateOf(false)
 
     private var docTitle by mutableStateOf("")
     private var docKey = ""
