@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -69,6 +70,9 @@ class LLReaderViewModel @Inject constructor(
     var searchInProgress by mutableStateOf(false)
     var documentLinks by mutableStateOf(emptyList<LinkItem>())
     var showLinks by mutableStateOf(false)
+
+    var requiresPassword by mutableStateOf(false)
+    var password by mutableStateOf("")
 
     private var docTitle by mutableStateOf("")
     private var docKey = ""
@@ -163,15 +167,20 @@ class LLReaderViewModel @Inject constructor(
                     )
                 }
 
-                documentPageCount = document!!.countPages()
-                getCurrentPage()
-                loadOutline()
-                loadPages()
-                getDocumentLinks()
-                contentState = ContentState.NOT_LOADING
-            } catch (_: Exception) {
+                if (document!!.needsPassword()) {
+                    requiresPassword = true
+                } else {
+                    documentPageCount = document!!.countPages()
+                    getCurrentPage()
+                    loadOutline()
+                    loadPages()
+                    getDocumentLinks()
+                    contentState = ContentState.NOT_LOADING
+                }
+            } catch (e: Exception) {
                 // catch exceptions that occurs when user closes the screen
                 // before a document loads
+                Log.e(TAG, "openDocument: ${e.message}")
             }
         }
     }
@@ -299,6 +308,24 @@ class LLReaderViewModel @Inject constructor(
         }
 
         return title
+    }
+
+    fun authenticate(context: Context) {
+        if (document?.authenticatePassword(password) == true) {
+            viewModelScope.launch(Dispatchers.IO) {
+                documentPageCount = document!!.countPages()
+                getCurrentPage()
+                loadOutline()
+                loadPages()
+                getDocumentLinks()
+
+                contentState = ContentState.NOT_LOADING
+            }
+
+            requiresPassword = false
+        } else {
+            Toast.makeText(context, "Incorrect password", Toast.LENGTH_SHORT).show()
+        }
     }
 
     /**

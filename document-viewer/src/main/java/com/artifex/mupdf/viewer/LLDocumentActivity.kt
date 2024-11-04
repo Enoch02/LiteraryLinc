@@ -6,12 +6,20 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.artifex.mupdf.viewer.ui.ReaderView
 import com.enoch02.resources.theme.LiteraryLincTheme
@@ -57,6 +65,45 @@ class LLDocumentActivity : ComponentActivity() {
                                         documentId = documentId,
                                         viewModel = viewModel
                                     )
+
+                                    if (viewModel.requiresPassword) {
+                                        AlertDialog(
+                                            title = {
+                                                Text(stringResource(R.string.password_required))
+                                            },
+                                            text = {
+                                                OutlinedTextField(
+                                                    value = viewModel.password,
+                                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                                                    visualTransformation = PasswordVisualTransformation(),
+                                                    onValueChange = {
+                                                        viewModel.password = it
+                                                    }
+                                                )
+                                            },
+                                            confirmButton = {
+                                                TextButton(
+                                                    onClick = {
+                                                        viewModel.authenticate(this@LLDocumentActivity)
+                                                    },
+                                                    content = {
+                                                        Text(stringResource(R.string.ok))
+                                                    }
+                                                )
+                                            },
+                                            dismissButton = {
+                                                TextButton(
+                                                    onClick = {
+                                                        finish()
+                                                    },
+                                                    content = {
+                                                        Text(stringResource(R.string.cancel))
+                                                    }
+                                                )
+                                            },
+                                            onDismissRequest = {}
+                                        )
+                                    }
                                 }
                             )
                         }
