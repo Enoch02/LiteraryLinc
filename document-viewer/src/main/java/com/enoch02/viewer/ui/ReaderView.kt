@@ -11,6 +11,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -33,6 +36,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,10 +47,13 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -57,14 +64,14 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import com.artifex.mupdf.fitz.Link
-import com.enoch02.viewer.LLReaderViewModel
-import com.enoch02.viewer.model.ContentState
-import com.enoch02.viewer.model.SearchResult
-import com.enoch02.viewer.model.Item
 import com.composables.core.ScrollArea
 import com.composables.core.Thumb
 import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
+import com.enoch02.viewer.LLReaderViewModel
+import com.enoch02.viewer.model.ContentState
+import com.enoch02.viewer.model.Item
+import com.enoch02.viewer.model.SearchResult
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -145,6 +152,8 @@ fun ReaderView(
                             .fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
+                        var pageScale by remember { mutableFloatStateOf(1f) }
+
                         HorizontalPager(
                             state = pagerState,
                             beyondViewportPageCount = 2
@@ -168,7 +177,9 @@ fun ReaderView(
                             }
 
                             Box(
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clipToBounds(),
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (pageBitmap != null) {
@@ -179,24 +190,42 @@ fun ReaderView(
                                             .onGloballyPositioned { coordinates ->
                                                 imageSize = coordinates.size
                                             }
+                                            .graphicsLayer(
+                                                scaleX = pageScale,
+                                                scaleY = pageScale,
+                                                // Add transformOrigin to fix the zooming position
+                                                transformOrigin = TransformOrigin(0.5f, 0.5f)
+                                            )
                                             .pointerInput(Unit) {
-                                                detectTapGestures { offset ->
-                                                    // Get the total size of the composable
+                                                awaitEachGesture {
+                                                    // Wait for first touch
+                                                    awaitFirstDown(requireUnconsumed = false)
+                                                    do {
+                                                        val event = awaitPointerEvent()
+                                                        if (event.changes.size >= 2) {
+                                                            val zoomChange = event.calculateZoom()
+                                                            pageScale =
+                                                                (pageScale * zoomChange).coerceIn(1f..3f)
+
+                                                            // Consume the events when we're handling multi-touch
+                                                            event.changes.forEach { it.consume() }
+                                                        }
+                                                    } while (event.changes.any { it.pressed })
+                                                }
+                                            }
+                                            .pointerInput(Unit) {
+                                                detectTapGestures { tapOffset ->
                                                     val size = this.size
                                                     val width = size.width
                                                     val height = size.height
 
-                                                    // Define center region (middle third of the screen)
-                                                    val horizontalThird =
-                                                        width / 3
-                                                    val verticalThird =
-                                                        height / 3
+                                                    val horizontalThird = width / 3
+                                                    val verticalThird = height / 3
 
-                                                    // Check if tap is in center region
                                                     val isInCenterX =
-                                                        offset.x >= horizontalThird && offset.x <= horizontalThird * 2
+                                                        tapOffset.x >= horizontalThird && tapOffset.x <= horizontalThird * 2
                                                     val isInCenterY =
-                                                        offset.y >= verticalThird && offset.y <= verticalThird * 2
+                                                        tapOffset.y >= verticalThird && tapOffset.y <= verticalThird * 2
 
                                                     if (isInCenterX && isInCenterY) {
                                                         showBars = !showBars
