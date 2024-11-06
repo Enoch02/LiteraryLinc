@@ -140,7 +140,6 @@ fun ReaderListScreen(
                                                         }
 
                                                 context.startActivity(intent)
-                                                listState.requestScrollToItem(0)
                                             },
                                             onAddToFavoritesClicked = {
                                                 viewModel.toggleFavoriteStatus(document)
