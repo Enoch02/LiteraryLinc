@@ -80,7 +80,8 @@ fun listDocsInDirectory(
                     currentPage = 0,
                     sizeInMb = metadata?.sizeInMb ?: 0.0,
                     lastRead = getCurrentDate(),
-                    type = fileName.substringAfterLast(".").uppercase()
+                    type = fileName.substringAfterLast(".").uppercase(),
+                    autoTrackable = file.type != "application/vnd.comicbook+zip"
                 )
             )
         } else if (file.isDirectory) {
