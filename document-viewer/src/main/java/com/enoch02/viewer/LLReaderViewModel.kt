@@ -244,23 +244,15 @@ class LLReaderViewModel @Inject constructor(
         val doc = documentId?.let { documentDao.getDocument(it) }
         val book = documentId?.let { bookDao.getBookByMd5(it) }
 
-        if (doc != null) {
-            if (docTitle.isEmpty()) {
-                docTitle = doc.name
-            }
+        currentPage = if (doc?.autoTrackable == true) {
+            book?.pagesRead ?: 0
+        } else {
+            doc?.currentPage ?: 0
+        }
 
-            if (book != null) {
-                currentPage = if (doc.autoTrackable) {
-                    book.pagesRead
-                } else {
-                    doc.currentPage
-                }
-
-                // synchronize currentPage with zero indexing expected by the pager
-                if (currentPage > 0) {
-                    currentPage--
-                }
-            }
+        // synchronize currentPage with zero indexing expected by the pager
+        if (currentPage > 0) {
+            currentPage--
         }
     }
 
