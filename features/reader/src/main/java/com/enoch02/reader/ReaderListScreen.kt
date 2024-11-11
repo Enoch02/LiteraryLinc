@@ -5,9 +5,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
@@ -15,24 +13,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.enoch02.viewer.LLDocumentActivity
 import com.composables.core.ScrollArea
 import com.composables.core.Thumb
 import com.composables.core.ThumbVisibility
@@ -40,7 +35,10 @@ import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.ReaderSorting
+import com.enoch02.reader.components.NoDocumentView
 import com.enoch02.reader.components.ReaderListItem
+import com.enoch02.viewer.LLDocumentActivity
+import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -55,6 +53,7 @@ fun ReaderListScreen(
     val context = LocalContext.current
     val arrangedDocs by viewModel.documentsState.collectAsStateWithLifecycle()
     val covers by viewModel.covers.collectAsState(initial = emptyMap())
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(sorting, filter) {
         viewModel.updateFilter(filter)
@@ -72,39 +71,9 @@ fun ReaderListScreen(
 
         is DocumentsState.Loaded -> {
             if (docList.documents.isEmpty()) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    content = {
-                        when (filter) {
-                            ReaderFilter.READING -> {
-                                Text(text = stringResource(R.string.nothing_to_continue))
-                            }
-
-                            ReaderFilter.FAVORITES -> {
-                                Text(text = stringResource(R.string.no_favorite_docs))
-                            }
-
-                            ReaderFilter.COMPLETED -> {
-                                Text(text = stringResource(R.string.no_completed_docs))
-                            }
-
-                            ReaderFilter.ALL -> {
-                                Text(text = stringResource(R.string.no_doc_found))
-                                Button(
-                                    onClick = onScanForDocs,
-                                    content = {
-                                        Text(text = stringResource(R.string.scan_for_new_docs))
-                                    }
-                                )
-                            }
-
-                            ReaderFilter.NO_FILE -> {
-                                Text(text = stringResource(R.string.no_doc_found))
-                            }
-                        }
-                    }
+                NoDocumentView(
+                    filter = filter,
+                    onScanForDocs = onScanForDocs
                 )
             } else {
                 val listState = rememberLazyListState()
@@ -129,6 +98,9 @@ fun ReaderListScreen(
                                             documentInBookList = inBookList,
                                             cover = covers[document.cover],
                                             onClick = {
+                                                scope.launch {
+                                                    listState.animateScrollToItem(0)
+                                                }
                                                 viewModel.createBookListEntry(document)
 
                                                 val intent =
@@ -138,9 +110,7 @@ fun ReaderListScreen(
                                                             data = document.contentUri
                                                             putExtra("id", document.id)
                                                         }
-
                                                 context.startActivity(intent)
-                                                listState.requestScrollToItem(0)
                                             },
                                             onAddToFavoritesClicked = {
                                                 viewModel.toggleFavoriteStatus(document)

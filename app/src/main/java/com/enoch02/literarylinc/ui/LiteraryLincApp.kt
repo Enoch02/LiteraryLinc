@@ -216,13 +216,13 @@ fun LiteraryLincApp(navController: NavController) {
                     }
                 },
                 content = { paddingValues ->
+                    RequestNotificationPermission()
+
                     Crossfade(
                         targetState = currentScreen,
                         content = {
                             when (it) {
                                 TopLevelDestination.BOOK_LIST -> {
-                                    RequestNotificationPermission()
-
                                     BookListSortOptionsAlert(
                                         showBookListSortOptions = showBookListSortOptions,
                                         currentBookListSorting = currentBookListSorting,

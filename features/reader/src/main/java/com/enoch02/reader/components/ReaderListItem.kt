@@ -307,7 +307,7 @@ fun ReaderListItem(
         modifier = modifier
             .height(IntrinsicSize.Min)
             .clickable {
-                    onClick()
+                onClick()
             }
     )
 
