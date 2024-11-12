@@ -1,6 +1,7 @@
 package com.enoch02.settings
 
 import android.content.Context
+import androidx.compose.ui.input.key.Key
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -34,6 +35,7 @@ class SettingsRepository(private val context: Context) {
         val darkModeKey = booleanPreferencesKey("dark_mode")
         val dynamicColorKey = booleanPreferencesKey("dynamic_color")
         val confirmDialogKey = booleanPreferencesKey("confirm_dialogs")
+        val volumeButtonPagingKey = booleanPreferencesKey("volume_btn_paging")
     }
 
     // Map enum to preference keys
@@ -42,12 +44,14 @@ class SettingsRepository(private val context: Context) {
             PreferenceType.DARK_MODE -> Keys.darkModeKey
             PreferenceType.DYNAMIC_COLOR -> Keys.dynamicColorKey
             PreferenceType.CONFIRM_DIALOGS -> Keys.confirmDialogKey
+            PreferenceType.VOLUME_BTN_PAGING -> Keys.volumeButtonPagingKey
         }
     }
 
     enum class PreferenceType {
         DARK_MODE,
         DYNAMIC_COLOR,
-        CONFIRM_DIALOGS
+        CONFIRM_DIALOGS,
+        VOLUME_BTN_PAGING
     }
 }

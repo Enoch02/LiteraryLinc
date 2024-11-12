@@ -1,9 +1,16 @@
 package com.enoch02.viewer.ui
 
+import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.FileUriExposedException
+import android.util.Log
+import android.view.KeyEvent
+import android.view.View
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Canvas
@@ -34,7 +41,9 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -58,9 +67,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.core.view.ViewCompat
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import com.artifex.mupdf.fitz.Link
@@ -68,6 +79,7 @@ import com.composables.core.ScrollArea
 import com.composables.core.Thumb
 import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
+import com.enoch02.settings.SettingsRepository
 import com.enoch02.viewer.LLReaderViewModel
 import com.enoch02.viewer.model.ContentState
 import com.enoch02.viewer.model.Item
@@ -83,6 +95,9 @@ fun ReaderView(
     documentId: String?
 ) {
     val context = LocalContext.current
+    val volumePaging by viewModel.getBooleanPreference(SettingsRepository.PreferenceType.VOLUME_BTN_PAGING)
+        .collectAsState(initial = false)
+
     LaunchedEffect(Unit) {
         viewModel.initDocument(
             context = context,
@@ -128,6 +143,25 @@ fun ReaderView(
                         viewModel.currentPage = currentPage
                         viewModel.updateDocumentData()
                     }
+                }
+
+                if (volumePaging) {
+                    VolumeButtonDetector(
+                        onVolumeUp = {
+                            coroutineScope.launch {
+                                if (viewModel.currentPage < pageCount) {
+                                    pagerState.scrollToPage(viewModel.currentPage + 1)
+                                }
+                            }
+                        },
+                        onVolumeDown = {
+                            coroutineScope.launch {
+                                if (viewModel.currentPage > 1) {
+                                    pagerState.scrollToPage(viewModel.currentPage - 1)
+                                }
+                            }
+                        }
+                    )
                 }
 
                 ModalNavigationDrawer(
@@ -642,4 +676,52 @@ fun TableOfContentSheet(chapterPage: Int, outline: List<Item>, onItemSelected: (
             )
         }
     )
+}
+
+@Composable
+fun VolumeButtonDetector(
+    onVolumeUp: () -> Unit = {},
+    onVolumeDown: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    val view = LocalView.current
+
+    var volumeUpPressed = false
+    var volumeDownPressed = false
+
+    DisposableEffect(context) {
+        val keyEventDispatcher = ViewCompat.OnUnhandledKeyEventListenerCompat { _, event ->
+            when (event.keyCode) {
+                KeyEvent.KEYCODE_VOLUME_UP -> {
+                    if (event.action == KeyEvent.ACTION_DOWN && !volumeUpPressed) {
+                        onVolumeUp()
+                        volumeUpPressed = true
+                    } else if (event.action == KeyEvent.ACTION_UP) {
+                        volumeUpPressed = false
+                    }
+                    true
+                }
+
+                KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                    if (event.action == KeyEvent.ACTION_DOWN && !volumeDownPressed) {
+                        onVolumeDown()
+                        volumeDownPressed = true
+                    } else if (event.action == KeyEvent.ACTION_UP) {
+                        volumeDownPressed = false
+                    }
+                    true
+                }
+
+                else -> {
+                    false
+                }
+            }
+        }
+
+        ViewCompat.addOnUnhandledKeyEventListener(view, keyEventDispatcher)
+
+        onDispose {
+            ViewCompat.removeOnUnhandledKeyEventListener(view, keyEventDispatcher)
+        }
+    }
 }

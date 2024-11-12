@@ -503,9 +503,5 @@ class LLReaderViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         document?.destroy()
-
-        viewModelScope.launch {
-            bitmapManager.cleanup()
-        }
     }
 }

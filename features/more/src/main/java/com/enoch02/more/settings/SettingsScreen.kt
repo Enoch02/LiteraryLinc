@@ -33,6 +33,8 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
         .collectAsState(initial = false)
     val showConfirmDialog by viewModel.getBooleanPreference(key = SettingsRepository.PreferenceType.CONFIRM_DIALOGS)
         .collectAsState(initial = false)
+    val volumeButtonPaging by viewModel.getBooleanPreference(key = SettingsRepository.PreferenceType.VOLUME_BTN_PAGING)
+        .collectAsState(initial = false)
 
     Scaffold(
         topBar = {
@@ -106,6 +108,17 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                             onCheckChanged = {
                                                 viewModel.switchBooleanPreference(
                                                     key = SettingsRepository.PreferenceType.CONFIRM_DIALOGS,
+                                                    newValue = it
+                                                )
+                                            }
+                                        )
+
+                                        SwitchSettingItem(
+                                            label = "Use volume buttons to change pages",
+                                            checked = volumeButtonPaging,
+                                            onCheckChanged = {
+                                                viewModel.switchBooleanPreference(
+                                                    key = SettingsRepository.PreferenceType.VOLUME_BTN_PAGING,
                                                     newValue = it
                                                 )
                                             }
