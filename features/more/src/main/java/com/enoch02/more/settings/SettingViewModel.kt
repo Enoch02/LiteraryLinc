@@ -12,13 +12,23 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingViewModel @Inject constructor(private val settingsRepository: SettingsRepository) :
     ViewModel() {
-    fun switchBooleanPreference(key: SettingsRepository.PreferenceType, newValue: Boolean) {
+    fun switchBooleanPreference(key: SettingsRepository.BooleanPreferenceType, newValue: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepository.switchBooleanPreference(key, newValue)
         }
     }
 
-    fun getBooleanPreference(key: SettingsRepository.PreferenceType): Flow<Boolean> {
+    fun getBooleanPreference(key: SettingsRepository.BooleanPreferenceType): Flow<Boolean> {
         return settingsRepository.getBooleanPreference(key)
+    }
+
+    fun changeFloatPreference(key: SettingsRepository.FloatPreferenceType, newValue: Float) {
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsRepository.changeFloatPreference(key, newValue)
+        }
+    }
+
+    fun getFloatPreference(key: SettingsRepository.FloatPreferenceType): Flow<Float> {
+        return settingsRepository.getFloatPreference(key)
     }
 }

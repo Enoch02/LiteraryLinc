@@ -35,8 +35,10 @@ import com.enoch02.settings.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -77,7 +79,7 @@ class LLReaderViewModel @Inject constructor(
     private var docKey = ""
     var size: Long = -1
 
-    private var scale by mutableFloatStateOf(2f)  // make configurable?
+    private var documentScale by mutableFloatStateOf(1f)  // make configurable?
     private var documentPageCount = 0
     private var documentId: String? = null
 
@@ -89,8 +91,11 @@ class LLReaderViewModel @Inject constructor(
         var cursor: Cursor? = null
 
         docKey = uri.toString()
-        scale = context.resources.displayMetrics.density
         documentId = id
+
+        viewModelScope.launch(Dispatchers.IO) {
+            getDocumentScale(context)
+        }
 
         try {
             cursor = context.contentResolver.query(uri, null, null, null, null)
@@ -214,10 +219,10 @@ class LLReaderViewModel @Inject constructor(
                     val page: Page = pages[index]
                     val bounds = page.bounds
                     val ctm = Matrix()
-                    ctm.scale(scale)
+                    ctm.scale(documentScale)
                     val bitmap = Bitmap.createBitmap(
-                        (bounds.x1 * scale).toInt(),
-                        (bounds.y1 * scale).toInt(),
+                        (bounds.x1 * documentScale).toInt(),
+                        (bounds.y1 * documentScale).toInt(),
                         Bitmap.Config.ARGB_8888
                     )
                     val device = AndroidDrawDevice(bitmap)
@@ -253,6 +258,17 @@ class LLReaderViewModel @Inject constructor(
         // synchronize currentPage with zero indexing expected by the pager
         if (currentPage > 0) {
             currentPage--
+        }
+    }
+
+    private suspend fun getDocumentScale(context: Context) {
+        val savedScale = getFloatPreference(SettingsRepository.FloatPreferenceType.DOC_PAGE_SCALE)
+            .firstOrNull()
+
+        documentScale = if (savedScale == 0f) {
+            context.resources.displayMetrics.density
+        } else {
+            savedScale ?: context.resources.displayMetrics.density
         }
     }
 
@@ -446,8 +462,12 @@ class LLReaderViewModel @Inject constructor(
         }
     }
 
-    fun getBooleanPreference(key: SettingsRepository.PreferenceType): Flow<Boolean> {
+    fun getBooleanPreference(key: SettingsRepository.BooleanPreferenceType): Flow<Boolean> {
         return settingsRepository.getBooleanPreference(key)
+    }
+
+    fun getFloatPreference(key: SettingsRepository.FloatPreferenceType): Flow<Float> {
+        return settingsRepository.getFloatPreference(key)
     }
 
     /**

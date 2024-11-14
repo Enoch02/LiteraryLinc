@@ -34,9 +34,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val viewModel: InitViewModel = hiltViewModel()
-            val alwaysDark by viewModel.getBooleanPreference(key = SettingsRepository.PreferenceType.DARK_MODE)
+            val alwaysDark by viewModel.getBooleanPreference(key = SettingsRepository.BooleanPreferenceType.DARK_MODE)
                 .collectAsState(initial = null)
-            val dynamicColor by viewModel.getBooleanPreference(key = SettingsRepository.PreferenceType.DYNAMIC_COLOR)
+            val dynamicColor by viewModel.getBooleanPreference(key = SettingsRepository.BooleanPreferenceType.DYNAMIC_COLOR)
                 .collectAsState(initial = null)
 
             if (alwaysDark != null && dynamicColor != null) {
@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
 @HiltViewModel
 class InitViewModel @Inject constructor(private val settingsRepository: SettingsRepository) :
     ViewModel() {
-    fun getBooleanPreference(key: SettingsRepository.PreferenceType): Flow<Boolean> {
+    fun getBooleanPreference(key: SettingsRepository.BooleanPreferenceType): Flow<Boolean> {
         return settingsRepository.getBooleanPreference(key)
     }
 }

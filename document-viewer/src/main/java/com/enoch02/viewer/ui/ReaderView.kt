@@ -1,16 +1,10 @@
 package com.enoch02.viewer.ui
 
-import android.app.Activity
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.FileUriExposedException
-import android.util.Log
 import android.view.KeyEvent
-import android.view.View
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Canvas
@@ -95,7 +89,7 @@ fun ReaderView(
     documentId: String?
 ) {
     val context = LocalContext.current
-    val volumePaging by viewModel.getBooleanPreference(SettingsRepository.PreferenceType.VOLUME_BTN_PAGING)
+    val volumePaging by viewModel.getBooleanPreference(SettingsRepository.BooleanPreferenceType.VOLUME_BTN_PAGING)
         .collectAsState(initial = false)
 
     LaunchedEffect(Unit) {

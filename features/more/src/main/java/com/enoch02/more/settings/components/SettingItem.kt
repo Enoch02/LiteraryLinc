@@ -1,4 +1,4 @@
-package com.enoch02.more.components
+package com.enoch02.more.settings.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.ListItem
@@ -33,6 +33,6 @@ fun SwitchSettingItem(
         modifier = Modifier.clickable {
             onCheckChanged(!checked)
         },
-        tonalElevation = 30.dp
+        tonalElevation = 10.dp
     )
 }

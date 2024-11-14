@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
 	<application>
 		<activity
 			android:name="com.enoch02.viewer.LLDocumentActivity"
@@ -23,11 +24,6 @@
 				<!-- list application/octet-stream to catch the ones android doesn't recognize -->
 				<data android:mimeType="application/octet-stream" />
 			</intent-filter>
-		</activity>
-		<activity
-			android:name=".LLOutlineActivity"
-			android:configChanges="orientation|screenSize|keyboardHidden"
-			>
 		</activity>
 	</application>
 </manifest>
