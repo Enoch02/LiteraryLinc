@@ -85,6 +85,7 @@ fun AddBookScreen(
     var totalVolumes by rememberSaveable { mutableStateOf("0") }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(R.string.add_a_new_book_text)) },

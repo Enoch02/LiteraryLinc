@@ -22,7 +22,7 @@ import com.enoch02.database.model.ReaderFilter
 
 @Composable
 fun ReaderListDrawerSheet(
-    selectedFilter: ReaderFilter,
+    selectedFilter: ReaderFilter?,
     onFilterSelected: (ReaderFilter) -> Unit
 ) {
     val readerFilter = ReaderFilter.entries.toTypedArray()

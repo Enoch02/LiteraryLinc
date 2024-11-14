@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -47,6 +48,23 @@ class SettingsRepository(private val context: Context) {
         return flow
     }
 
+    suspend fun changeIntPreference(preference: IntPreferenceType, newValue: Int) {
+        val key = getKeyForIntPreference(preference)
+
+        context.dataStore.edit { settings ->
+            settings[key] = newValue
+        }
+    }
+
+    fun getIntPreference(preference: IntPreferenceType): Flow<Int> {
+        val key = getKeyForIntPreference(preference)
+        val flow: Flow<Int> =
+            context.dataStore.data.map { preferences ->
+                preferences[key] ?: 0
+            }
+        return flow
+    }
+
     // Private keys to restrict access
     private object Keys {
         val darkModeKey = booleanPreferencesKey("dark_mode")
@@ -54,6 +72,7 @@ class SettingsRepository(private val context: Context) {
         val confirmDialogKey = booleanPreferencesKey("confirm_dialogs")
         val volumeButtonPagingKey = booleanPreferencesKey("volume_btn_paging")
         val documentScaleKey = floatPreferencesKey("document_scale")
+        val currentReaderFilterKey = intPreferencesKey("current_reader_filter")
     }
 
     // Map enum to preference keys
@@ -72,6 +91,12 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
+    private fun getKeyForIntPreference(preference: IntPreferenceType): Preferences.Key<Int> {
+        return when (preference) {
+            IntPreferenceType.CURRENT_READER_FILTER -> Keys.currentReaderFilterKey
+        }
+    }
+
     enum class BooleanPreferenceType {
         DARK_MODE,
         DYNAMIC_COLOR,
@@ -81,5 +106,9 @@ class SettingsRepository(private val context: Context) {
 
     enum class FloatPreferenceType {
         DOC_PAGE_SCALE
+    }
+
+    enum class IntPreferenceType {
+        CURRENT_READER_FILTER
     }
 }

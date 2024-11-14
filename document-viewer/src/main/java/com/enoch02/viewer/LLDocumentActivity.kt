@@ -31,7 +31,6 @@ class LLDocumentActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val intent = intent
-
         setContent {
             val viewModel: LLReaderViewModel = hiltViewModel()
             val dynamicColor by viewModel.getBooleanPreference(key = SettingsRepository.BooleanPreferenceType.DYNAMIC_COLOR)

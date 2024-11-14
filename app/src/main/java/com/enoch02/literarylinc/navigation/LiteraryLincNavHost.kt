@@ -1,9 +1,7 @@
 package com.enoch02.literarylinc.navigation
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -35,7 +33,7 @@ fun LiteraryLincNavHost(navController: NavHostController = rememberNavController
             composable(Screen.AddBook.route) {
                 AddBookScreen(
                     navController = navController,
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier
                 )
             }
 

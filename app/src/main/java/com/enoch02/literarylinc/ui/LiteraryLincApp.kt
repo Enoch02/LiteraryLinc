@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.rounded.ListAlt
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Analytics
 import androidx.compose.material.icons.rounded.MoreHoriz
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -23,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -31,10 +33,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.enoch02.booklist.BookViewScreen
 import com.enoch02.booklist.components.BookViewMode
-import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.ReaderSorting
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
@@ -57,7 +59,7 @@ import com.enoch02.stats.StatsScreen
 import kotlinx.coroutines.launch
 
 @Composable
-fun LiteraryLincApp(navController: NavController) {
+fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hiltViewModel()) {
     val scope = rememberCoroutineScope()
     var currentScreen by rememberSaveable { mutableStateOf(TopLevelDestination.READER) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -72,7 +74,9 @@ fun LiteraryLincApp(navController: NavController) {
     var currentReaderListSorting by rememberSaveable { mutableStateOf(ReaderSorting.LAST_READ) }
     var showReaderListSortOptions by rememberSaveable { mutableStateOf(false) }
     // TODO: persist last used value using datastore
-    var currentReaderListFilter by rememberSaveable { mutableStateOf(ReaderFilter.ALL) }
+    //var currentReaderListFilter by rememberSaveable { mutableStateOf(ReaderFilter.ALL) }
+    val currentReaderListFilter by viewModel.getCurrentReaderFilter()
+        .collectAsState(initial = null)
 
     var enableDrawerGestures by rememberSaveable { mutableStateOf(true) }
 
@@ -102,7 +106,7 @@ fun LiteraryLincApp(navController: NavController) {
                     ReaderListDrawerSheet(
                         selectedFilter = currentReaderListFilter,
                         onFilterSelected = { selected ->
-                            currentReaderListFilter = selected
+                            viewModel.changeReaderFilter(selected)
                             scope.launch { drawerState.close() }
                         }
                     )
@@ -143,19 +147,21 @@ fun LiteraryLincApp(navController: NavController) {
                         }
 
                         TopLevelDestination.READER -> {
-                            ReaderTopAppBar(
-                                readerFilter = currentReaderListFilter,
-                                onShowSorting = { showReaderListSortOptions = true },
-                                onChangeDrawerState = {
-                                    scope.launch {
-                                        if (drawerState.isClosed) {
-                                            drawerState.open()
-                                        } else {
-                                            drawerState.close()
+                            currentReaderListFilter?.let {
+                                ReaderTopAppBar(
+                                    readerFilter = it,
+                                    onShowSorting = { showReaderListSortOptions = true },
+                                    onChangeDrawerState = {
+                                        scope.launch {
+                                            if (drawerState.isClosed) {
+                                                drawerState.open()
+                                            } else {
+                                                drawerState.close()
+                                            }
                                         }
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
 
                         TopLevelDestination.STATS -> {
@@ -262,14 +268,22 @@ fun LiteraryLincApp(navController: NavController) {
                                         }
                                     )
 
-                                    ReaderListScreen(
-                                        modifier = Modifier.padding(paddingValues),
-                                        sorting = currentReaderListSorting,
-                                        filter = currentReaderListFilter,
-                                        onScanForDocs = {
-                                            navController.navigate(MoreScreenDestination.Scanner.route)
+                                    when (currentReaderListFilter) {
+                                        null -> {
+                                            CircularProgressIndicator()
                                         }
-                                    )
+
+                                        else -> {
+                                            ReaderListScreen(
+                                                modifier = Modifier.padding(paddingValues),
+                                                sorting = currentReaderListSorting,
+                                                filter = currentReaderListFilter!!,
+                                                onScanForDocs = {
+                                                    navController.navigate(MoreScreenDestination.Scanner.route)
+                                                }
+                                            )
+                                        }
+                                    }
                                 }
 
                                 TopLevelDestination.STATS -> {
