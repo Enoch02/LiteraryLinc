@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.enoch02.more.R
+import com.enoch02.more.settings.components.RenderMethodSelector
 import com.enoch02.more.settings.components.ScaleSelector
 import com.enoch02.more.settings.components.SwitchSettingItem
 import com.enoch02.settings.SettingsRepository
@@ -28,16 +29,18 @@ import com.enoch02.settings.SettingsRepository
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = hiltViewModel()) {
-    val alwaysDark by viewModel.getBooleanPreference(key = SettingsRepository.BooleanPreferenceType.DARK_MODE)
+    val alwaysDark by viewModel.getPreference(key = SettingsRepository.BooleanPreferenceType.DARK_MODE)
         .collectAsState(initial = false)
-    val dynamicColors by viewModel.getBooleanPreference(key = SettingsRepository.BooleanPreferenceType.DYNAMIC_COLOR)
+    val dynamicColors by viewModel.getPreference(key = SettingsRepository.BooleanPreferenceType.DYNAMIC_COLOR)
         .collectAsState(initial = false)
-    val showConfirmDialog by viewModel.getBooleanPreference(key = SettingsRepository.BooleanPreferenceType.CONFIRM_DIALOGS)
+    val showConfirmDialog by viewModel.getPreference(key = SettingsRepository.BooleanPreferenceType.CONFIRM_DIALOGS)
         .collectAsState(initial = false)
-    val volumeButtonPaging by viewModel.getBooleanPreference(key = SettingsRepository.BooleanPreferenceType.VOLUME_BTN_PAGING)
+    val volumeButtonPaging by viewModel.getPreference(key = SettingsRepository.BooleanPreferenceType.VOLUME_BTN_PAGING)
         .collectAsState(initial = false)
-    val documentScale by viewModel.getFloatPreference(SettingsRepository.FloatPreferenceType.DOC_PAGE_SCALE)
+    val documentScale by viewModel.getPreference(SettingsRepository.FloatPreferenceType.DOC_PAGE_SCALE)
         .collectAsState(initial = 0f)
+    val renderMethod by viewModel.getPreference(SettingsRepository.IntPreferenceType.PAGE_RENDER_METHOD)
+        .collectAsState(initial = 0)
 
     Scaffold(
         topBar = {
@@ -70,7 +73,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                             description = stringResource(R.string.always_dark_mode_desc),
                                             checked = alwaysDark,
                                             onCheckChanged = {
-                                                viewModel.switchBooleanPreference(
+                                                viewModel.switchPreference(
                                                     key = SettingsRepository.BooleanPreferenceType.DARK_MODE,
                                                     newValue = it
                                                 )
@@ -83,7 +86,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                                 description = stringResource(R.string.toggle_dynamic_colors_desc),
                                                 checked = dynamicColors,
                                                 onCheckChanged = {
-                                                    viewModel.switchBooleanPreference(
+                                                    viewModel.switchPreference(
                                                         key = SettingsRepository.BooleanPreferenceType.DYNAMIC_COLOR,
                                                         newValue = it
                                                     )
@@ -93,9 +96,16 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                         }
 
                                         ScaleSelector(selectedScale = documentScale) { scale ->
-                                            viewModel.changeFloatPreference(
+                                            viewModel.switchPreference(
                                                 SettingsRepository.FloatPreferenceType.DOC_PAGE_SCALE,
                                                 scale
+                                            )
+                                        }
+
+                                        RenderMethodSelector(selectedMethod = renderMethod) { method ->
+                                            viewModel.switchPreference(
+                                                SettingsRepository.IntPreferenceType.PAGE_RENDER_METHOD,
+                                                method
                                             )
                                         }
                                     }
@@ -116,7 +126,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                             label = "Show confirmation before deletion",
                                             checked = showConfirmDialog,
                                             onCheckChanged = {
-                                                viewModel.switchBooleanPreference(
+                                                viewModel.switchPreference(
                                                     key = SettingsRepository.BooleanPreferenceType.CONFIRM_DIALOGS,
                                                     newValue = it
                                                 )
@@ -127,7 +137,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                             label = "Use volume buttons to change pages",
                                             checked = volumeButtonPaging,
                                             onCheckChanged = {
-                                                viewModel.switchBooleanPreference(
+                                                viewModel.switchPreference(
                                                     key = SettingsRepository.BooleanPreferenceType.VOLUME_BTN_PAGING,
                                                     newValue = it
                                                 )

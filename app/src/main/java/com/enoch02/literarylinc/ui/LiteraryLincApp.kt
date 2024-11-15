@@ -73,10 +73,9 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
     // reader list
     var currentReaderListSorting by rememberSaveable { mutableStateOf(ReaderSorting.LAST_READ) }
     var showReaderListSortOptions by rememberSaveable { mutableStateOf(false) }
-    // TODO: persist last used value using datastore
-    //var currentReaderListFilter by rememberSaveable { mutableStateOf(ReaderFilter.ALL) }
     val currentReaderListFilter by viewModel.getCurrentReaderFilter()
         .collectAsState(initial = null)
+    var isSearchingInReaderList by rememberSaveable { mutableStateOf(false) }
 
     var enableDrawerGestures by rememberSaveable { mutableStateOf(true) }
 
@@ -150,6 +149,7 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                             currentReaderListFilter?.let {
                                 ReaderTopAppBar(
                                     readerFilter = it,
+                                    onSearch = { isSearchingInReaderList = true },
                                     onShowSorting = { showReaderListSortOptions = true },
                                     onChangeDrawerState = {
                                         scope.launch {
@@ -278,8 +278,12 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                                 modifier = Modifier.padding(paddingValues),
                                                 sorting = currentReaderListSorting,
                                                 filter = currentReaderListFilter!!,
+                                                isSearching = isSearchingInReaderList,
                                                 onScanForDocs = {
                                                     navController.navigate(MoreScreenDestination.Scanner.route)
+                                                },
+                                                onDismissSearching = {
+                                                    isSearchingInReaderList = false
                                                 }
                                             )
                                         }

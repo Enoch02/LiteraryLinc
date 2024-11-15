@@ -37,6 +37,7 @@ import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.ReaderSorting
 import com.enoch02.reader.components.NoDocumentView
 import com.enoch02.reader.components.ReaderListItem
+import com.enoch02.reader.components.ReaderSearchBottomSheet
 import com.enoch02.viewer.LLDocumentActivity
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
@@ -48,7 +49,9 @@ fun ReaderListScreen(
     viewModel: ReaderListViewModel = hiltViewModel(),
     sorting: ReaderSorting,
     filter: ReaderFilter,
-    onScanForDocs: () -> Unit
+    isSearching: Boolean,
+    onScanForDocs: () -> Unit,
+    onDismissSearching: () -> Unit
 ) {
     val context = LocalContext.current
     val arrangedDocs by viewModel.documentsState.collectAsStateWithLifecycle()
@@ -182,6 +185,14 @@ fun ReaderListScreen(
                                 )
                             }
                         )
+                    }
+                )
+
+                ReaderSearchBottomSheet(
+                    visible = isSearching,
+                    onDismiss = { onDismissSearching() },
+                    onSearch = { _ ->
+                        emptyList()
                     }
                 )
             }

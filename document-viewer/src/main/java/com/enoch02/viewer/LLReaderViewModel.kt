@@ -10,7 +10,6 @@ import android.provider.OpenableColumns
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -23,27 +22,28 @@ import com.artifex.mupdf.fitz.Matrix
 import com.artifex.mupdf.fitz.Outline
 import com.artifex.mupdf.fitz.Page
 import com.artifex.mupdf.fitz.android.AndroidDrawDevice
-import com.enoch02.viewer.model.ContentState
-import com.enoch02.viewer.model.LinkItem
-import com.enoch02.viewer.model.SearchResult
-import com.enoch02.viewer.model.Item
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.LLDocument
 import com.enoch02.settings.SettingsRepository
+import com.enoch02.viewer.model.ContentState
+import com.enoch02.viewer.model.Item
+import com.enoch02.viewer.model.LinkItem
+import com.enoch02.viewer.model.SearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import java.nio.ByteBuffer
 import java.time.Instant
 import java.util.Calendar
 import java.util.Date
@@ -77,11 +77,12 @@ class LLReaderViewModel @Inject constructor(
 
     private var docTitle by mutableStateOf("")
     private var docKey = ""
-    var size: Long = -1
+    private var size: Long = -1
 
-    private var documentScale by mutableFloatStateOf(1f)  // make configurable?
+    private var documentScale = 2f
     private var documentPageCount = 0
     private var documentId: String? = null
+    private var renderMethod = 0
 
     private val pageRunLock = Any()
     private val updateJobMutex = Mutex()
@@ -94,6 +95,7 @@ class LLReaderViewModel @Inject constructor(
         documentId = id
 
         viewModelScope.launch(Dispatchers.IO) {
+            getRenderMethod()
             getDocumentScale(context)
         }
 
@@ -202,7 +204,28 @@ class LLReaderViewModel @Inject constructor(
         }
     }
 
-    fun getPageBitmap(index: Int): Flow<Bitmap?> = flow {
+    fun getPageBitmap(index: Int): Flow<Bitmap?> {
+        Log.i(TAG, "getPageBitmap: method $renderMethod")
+        return when (renderMethod) {
+            0 -> {
+                getPageBitmap1(index)
+            }
+
+            1 -> {
+                getPageBitmap2(index)
+            }
+
+            2 -> {
+                getPageBitmap3(index)
+            }
+
+            else -> {
+                getPageBitmap3(index)
+            }
+        }
+    }
+
+    private fun getPageBitmap1(index: Int): Flow<Bitmap?> = flow {
         val pageKey = "${docTitle}-$index"
         Log.d(TAG, "getPageBitmap: loading page $pageKey")
         if (document != null) {
@@ -245,6 +268,119 @@ class LLReaderViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
+    private fun getPageBitmap2(index: Int): Flow<Bitmap?> = flow {
+        val pageKey = "${docTitle}-$index"
+        Log.d(TAG, "getPageBitmap: loading page $pageKey")
+        if (document != null) {
+            val cachedBitmap = bitmapManager.getCachedBitmap(pageKey)
+
+            if (cachedBitmap != null && !cachedBitmap.isRecycled) {
+                Log.i(TAG, "getPageBitmap: using cached bitmap!")
+                emit(cachedBitmap)
+            } else {
+                Log.i(TAG, "getPageBitmap: page not in cache")
+                bitmapManager.releaseBitmap(cachedBitmap)
+                try {
+                    val page: Page = pages[index]
+                    val bounds = page.bounds
+
+                    // Only apply supersampling when scale is greater than 2
+                    val effectiveScale = if (documentScale > 2f) {
+                        // Render at 1.5x the target size for scales > 2
+                        val overscaleFactor = 1.5f
+                        documentScale * overscaleFactor
+                    } else {
+                        documentScale
+                    }
+
+                    val ctm = Matrix()
+                    ctm.scale(effectiveScale)
+
+                    val tempBitmap = Bitmap.createBitmap(
+                        (bounds.x1 * effectiveScale).toInt(),
+                        (bounds.y1 * effectiveScale).toInt(),
+                        Bitmap.Config.ARGB_8888
+                    )
+
+                    val device = AndroidDrawDevice(tempBitmap)
+                    synchronized(pageRunLock) {
+                        page.run(device, ctm, null)
+                    }
+                    device.close()
+
+                    val finalBitmap = if (documentScale > 2f) {
+                        // Scale down only if we overscaled
+                        Bitmap.createScaledBitmap(
+                            tempBitmap,
+                            (bounds.x1 * documentScale).toInt(),
+                            (bounds.y1 * documentScale).toInt(),
+                            true
+                        ).also {
+                            tempBitmap.recycle()
+                        }
+                    } else {
+                        tempBitmap
+                    }
+
+                    bitmapManager.cacheBitmap(pageKey, finalBitmap)
+                    emit(finalBitmap)
+                } catch (e: Exception) {
+                    Log.e(TAG, "getPageBitmap at index $index: ${e.message}")
+                    e.printStackTrace()
+                    emit(null)
+                }
+            }
+        } else {
+            emit(null)
+        }
+    }.flowOn(Dispatchers.IO)
+
+    private fun getPageBitmap3(index: Int): Flow<Bitmap?> = flow {
+        val pageKey = "${docTitle}-$index"
+        Log.d(TAG, "getPageBitmap: loading page $pageKey")
+        if (document != null) {
+            val cachedBitmap = bitmapManager.getCachedBitmap(pageKey)
+
+            if (cachedBitmap != null && !cachedBitmap.isRecycled) {
+                Log.i(TAG, "getPageBitmap: using cached bitmap!")
+                emit(cachedBitmap)
+            } else {
+                Log.i(TAG, "getPageBitmap: page not in cache")
+                bitmapManager.releaseBitmap(cachedBitmap)
+                try {
+                    val page: Page = pages[index]
+
+                    // Use the matrix for scaling
+                    val ctm = Matrix()
+                    ctm.scale(documentScale)
+
+                    // Try using toPixmap directly instead of AndroidDrawDevice
+                    val colorSpace = com.artifex.mupdf.fitz.ColorSpace.DeviceRGB
+                    val pixmap = page.toPixmap(ctm, colorSpace, true, true)
+
+                    // Convert Pixmap to Bitmap
+                    val bitmap = Bitmap.createBitmap(
+                        pixmap.width,
+                        pixmap.height,
+                        Bitmap.Config.ARGB_8888
+                    )
+                    bitmap.copyPixelsFromBuffer(ByteBuffer.wrap(pixmap.samples))
+
+                    pixmap.destroy() // Clean up the pixmap
+
+                    bitmapManager.cacheBitmap(pageKey, bitmap)
+                    emit(bitmap)
+                } catch (e: Exception) {
+                    Log.e(TAG, "getPageBitmap at index $index: ${e.message}")
+                    e.printStackTrace()
+                    emit(null)
+                }
+            }
+        } else {
+            emit(null)
+        }
+    }.flowOn(Dispatchers.IO)
+
     private suspend fun getCurrentPage() {
         val doc = documentId?.let { documentDao.getDocument(it) }
         val book = documentId?.let { bookDao.getBookByMd5(it) }
@@ -262,7 +398,7 @@ class LLReaderViewModel @Inject constructor(
     }
 
     private suspend fun getDocumentScale(context: Context) {
-        val savedScale = getFloatPreference(SettingsRepository.FloatPreferenceType.DOC_PAGE_SCALE)
+        val savedScale = getPreference(SettingsRepository.FloatPreferenceType.DOC_PAGE_SCALE)
             .firstOrNull()
 
         documentScale = if (savedScale == 0f) {
@@ -270,6 +406,11 @@ class LLReaderViewModel @Inject constructor(
         } else {
             savedScale ?: context.resources.displayMetrics.density
         }
+    }
+
+    private suspend fun getRenderMethod() {
+        renderMethod = getPreference(SettingsRepository.IntPreferenceType.PAGE_RENDER_METHOD)
+            .first()
     }
 
     private suspend fun loadOutline() {
@@ -462,12 +603,16 @@ class LLReaderViewModel @Inject constructor(
         }
     }
 
-    fun getBooleanPreference(key: SettingsRepository.BooleanPreferenceType): Flow<Boolean> {
-        return settingsRepository.getBooleanPreference(key)
+    fun getPreference(key: SettingsRepository.BooleanPreferenceType): Flow<Boolean> {
+        return settingsRepository.getPreference(key)
     }
 
-    fun getFloatPreference(key: SettingsRepository.FloatPreferenceType): Flow<Float> {
-        return settingsRepository.getFloatPreference(key)
+    private fun getPreference(key: SettingsRepository.FloatPreferenceType): Flow<Float> {
+        return settingsRepository.getPreference(key)
+    }
+
+    private fun getPreference(key: SettingsRepository.IntPreferenceType): Flow<Int> {
+        return settingsRepository.getPreference(key)
     }
 
     /**

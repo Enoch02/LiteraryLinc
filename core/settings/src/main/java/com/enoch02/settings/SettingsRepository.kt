@@ -14,16 +14,16 @@ import kotlinx.coroutines.flow.map
 class SettingsRepository(private val context: Context) {
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-    suspend fun switchBooleanPreference(preference: BooleanPreferenceType, newValue: Boolean) {
-        val key = getKeyForBooleanPreference(preference)
+    suspend fun switchPreference(preference: BooleanPreferenceType, newValue: Boolean) {
+        val key = getKeyForPreference(preference)
 
         context.dataStore.edit { settings ->
             settings[key] = newValue
         }
     }
 
-    fun getBooleanPreference(preference: BooleanPreferenceType): Flow<Boolean> {
-        val key = getKeyForBooleanPreference(preference)
+    fun getPreference(preference: BooleanPreferenceType): Flow<Boolean> {
+        val key = getKeyForPreference(preference)
         val flow: Flow<Boolean> =
             context.dataStore.data.map { preferences ->
                 preferences[key] ?: false
@@ -31,16 +31,16 @@ class SettingsRepository(private val context: Context) {
         return flow
     }
 
-    suspend fun changeFloatPreference(preference: FloatPreferenceType, newValue: Float) {
-        val key = getKeyForFloatPreference(preference)
+    suspend fun switchPreference(preference: FloatPreferenceType, newValue: Float) {
+        val key = getKeyForPreference(preference)
 
         context.dataStore.edit { settings ->
             settings[key] = newValue
         }
     }
 
-    fun getFloatPreference(preference: FloatPreferenceType): Flow<Float> {
-        val key = getKeyForFloatPreference(preference)
+    fun getPreference(preference: FloatPreferenceType): Flow<Float> {
+        val key = getKeyForPreference(preference)
         val flow: Flow<Float> =
             context.dataStore.data.map { preferences ->
                 preferences[key] ?: 0f
@@ -48,16 +48,16 @@ class SettingsRepository(private val context: Context) {
         return flow
     }
 
-    suspend fun changeIntPreference(preference: IntPreferenceType, newValue: Int) {
-        val key = getKeyForIntPreference(preference)
+    suspend fun switchPreference(preference: IntPreferenceType, newValue: Int) {
+        val key = getKeyForPreference(preference)
 
         context.dataStore.edit { settings ->
             settings[key] = newValue
         }
     }
 
-    fun getIntPreference(preference: IntPreferenceType): Flow<Int> {
-        val key = getKeyForIntPreference(preference)
+    fun getPreference(preference: IntPreferenceType): Flow<Int> {
+        val key = getKeyForPreference(preference)
         val flow: Flow<Int> =
             context.dataStore.data.map { preferences ->
                 preferences[key] ?: 0
@@ -73,10 +73,11 @@ class SettingsRepository(private val context: Context) {
         val volumeButtonPagingKey = booleanPreferencesKey("volume_btn_paging")
         val documentScaleKey = floatPreferencesKey("document_scale")
         val currentReaderFilterKey = intPreferencesKey("current_reader_filter")
+        val pageRenderMethodKey = intPreferencesKey("render_method")
     }
 
     // Map enum to preference keys
-    private fun getKeyForBooleanPreference(preference: BooleanPreferenceType): Preferences.Key<Boolean> {
+    private fun getKeyForPreference(preference: BooleanPreferenceType): Preferences.Key<Boolean> {
         return when (preference) {
             BooleanPreferenceType.DARK_MODE -> Keys.darkModeKey
             BooleanPreferenceType.DYNAMIC_COLOR -> Keys.dynamicColorKey
@@ -85,15 +86,16 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    private fun getKeyForFloatPreference(preference: FloatPreferenceType): Preferences.Key<Float> {
+    private fun getKeyForPreference(preference: FloatPreferenceType): Preferences.Key<Float> {
         return when (preference) {
             FloatPreferenceType.DOC_PAGE_SCALE -> Keys.documentScaleKey
         }
     }
 
-    private fun getKeyForIntPreference(preference: IntPreferenceType): Preferences.Key<Int> {
+    private fun getKeyForPreference(preference: IntPreferenceType): Preferences.Key<Int> {
         return when (preference) {
             IntPreferenceType.CURRENT_READER_FILTER -> Keys.currentReaderFilterKey
+            IntPreferenceType.PAGE_RENDER_METHOD -> Keys.pageRenderMethodKey
         }
     }
 
@@ -109,6 +111,7 @@ class SettingsRepository(private val context: Context) {
     }
 
     enum class IntPreferenceType {
-        CURRENT_READER_FILTER
+        CURRENT_READER_FILTER,
+        PAGE_RENDER_METHOD
     }
 }

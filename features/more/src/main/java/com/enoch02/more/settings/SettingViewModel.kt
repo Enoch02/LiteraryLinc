@@ -12,23 +12,33 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingViewModel @Inject constructor(private val settingsRepository: SettingsRepository) :
     ViewModel() {
-    fun switchBooleanPreference(key: SettingsRepository.BooleanPreferenceType, newValue: Boolean) {
+    fun switchPreference(key: SettingsRepository.BooleanPreferenceType, newValue: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            settingsRepository.switchBooleanPreference(key, newValue)
+            settingsRepository.switchPreference(key, newValue)
         }
     }
 
-    fun getBooleanPreference(key: SettingsRepository.BooleanPreferenceType): Flow<Boolean> {
-        return settingsRepository.getBooleanPreference(key)
+    fun getPreference(key: SettingsRepository.BooleanPreferenceType): Flow<Boolean> {
+        return settingsRepository.getPreference(key)
     }
 
-    fun changeFloatPreference(key: SettingsRepository.FloatPreferenceType, newValue: Float) {
+    fun switchPreference(key: SettingsRepository.FloatPreferenceType, newValue: Float) {
         viewModelScope.launch(Dispatchers.IO) {
-            settingsRepository.changeFloatPreference(key, newValue)
+            settingsRepository.switchPreference(key, newValue)
         }
     }
 
-    fun getFloatPreference(key: SettingsRepository.FloatPreferenceType): Flow<Float> {
-        return settingsRepository.getFloatPreference(key)
+    fun getPreference(key: SettingsRepository.FloatPreferenceType): Flow<Float> {
+        return settingsRepository.getPreference(key)
+    }
+
+    fun switchPreference(key: SettingsRepository.IntPreferenceType, newValue: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsRepository.switchPreference(key, newValue)
+        }
+    }
+
+    fun getPreference(key: SettingsRepository.IntPreferenceType): Flow<Int> {
+        return settingsRepository.getPreference(key)
     }
 }

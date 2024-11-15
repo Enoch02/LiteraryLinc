@@ -33,7 +33,7 @@ class LLDocumentActivity : ComponentActivity() {
         val intent = intent
         setContent {
             val viewModel: LLReaderViewModel = hiltViewModel()
-            val dynamicColor by viewModel.getBooleanPreference(key = SettingsRepository.BooleanPreferenceType.DYNAMIC_COLOR)
+            val dynamicColor by viewModel.getPreference(key = SettingsRepository.BooleanPreferenceType.DYNAMIC_COLOR)
                 .collectAsState(initial = null)
 
             DisposableEffect(Unit) {

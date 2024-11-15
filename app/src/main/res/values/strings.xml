@@ -12,6 +12,7 @@
     <string name="navigate_back_desc">Navigate Back</string>
     <string name="barcode_scanner_desc">Open Barcode Scanner</string>
     <string name="your_library_label">Your Library</string>
+    <string name="search_desc">Search</string>
     <string name="sort_desc">Sort book list</string>
     <string name="sorting_options_text">Sorting Options</string>
     <string name="search_history_desc">View search history</string>

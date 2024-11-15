@@ -53,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -89,7 +90,7 @@ fun ReaderView(
     documentId: String?
 ) {
     val context = LocalContext.current
-    val volumePaging by viewModel.getBooleanPreference(SettingsRepository.BooleanPreferenceType.VOLUME_BTN_PAGING)
+    val volumePaging by viewModel.getPreference(SettingsRepository.BooleanPreferenceType.VOLUME_BTN_PAGING)
         .collectAsState(initial = false)
 
     LaunchedEffect(Unit) {
@@ -211,6 +212,7 @@ fun ReaderView(
                                     SubcomposeAsyncImage(
                                         model = pageBitmap,
                                         contentDescription = null,
+                                        filterQuality = FilterQuality.High,
                                         modifier = Modifier
                                             .onGloballyPositioned { coordinates ->
                                                 imageSize = coordinates.size
@@ -218,7 +220,6 @@ fun ReaderView(
                                             .graphicsLayer(
                                                 scaleX = pageScale,
                                                 scaleY = pageScale,
-                                                // Add transformOrigin to fix the zooming position
                                                 transformOrigin = TransformOrigin(0.5f, 0.5f)
                                             )
                                             .pointerInput(Unit) {
@@ -267,7 +268,8 @@ fun ReaderView(
                                                 painter = painterState.painter,
                                                 contentDescription = null,
                                                 contentScale = ContentScale.Fit,
-                                                modifier = Modifier.fillMaxSize()
+                                                modifier = Modifier
+                                                    .background(Color.White)
                                             )
                                         }
 

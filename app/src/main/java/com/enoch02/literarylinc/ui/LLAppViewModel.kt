@@ -16,12 +16,12 @@ class LLAppViewModel @Inject constructor(private val settingsRepository: Setting
     ViewModel() {
     private fun changeIntPreference(key: SettingsRepository.IntPreferenceType, newValue: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            settingsRepository.changeIntPreference(key, newValue)
+            settingsRepository.switchPreference(key, newValue)
         }
     }
 
     private fun getIntPreference(key: SettingsRepository.IntPreferenceType): Flow<Int> {
-        return settingsRepository.getIntPreference(key)
+        return settingsRepository.getPreference(key)
     }
 
     fun getCurrentReaderFilter(): Flow<ReaderFilter> {

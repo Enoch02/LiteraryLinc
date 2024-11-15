@@ -86,6 +86,6 @@ class MainActivity : ComponentActivity() {
 class InitViewModel @Inject constructor(private val settingsRepository: SettingsRepository) :
     ViewModel() {
     fun getBooleanPreference(key: SettingsRepository.BooleanPreferenceType): Flow<Boolean> {
-        return settingsRepository.getBooleanPreference(key)
+        return settingsRepository.getPreference(key)
     }
 }
