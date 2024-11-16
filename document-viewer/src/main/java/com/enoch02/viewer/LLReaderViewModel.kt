@@ -26,6 +26,7 @@ import com.enoch02.database.dao.BookDao
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.LLDocument
+import com.enoch02.resources.BitmapManager
 import com.enoch02.settings.SettingsRepository
 import com.enoch02.viewer.model.ContentState
 import com.enoch02.viewer.model.Item
@@ -55,10 +56,9 @@ private const val TAG = "LL"
 class LLReaderViewModel @Inject constructor(
     private val bookDao: BookDao,
     private val documentDao: DocumentDao,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val bitmapManager: BitmapManager
 ) : ViewModel() {
-    private val bitmapManager = BitmapManager.getInstance()
-
     var contentState by mutableStateOf(ContentState.LOADING)
     var document by mutableStateOf<Document?>(null)
     var currentPage by mutableIntStateOf(0)

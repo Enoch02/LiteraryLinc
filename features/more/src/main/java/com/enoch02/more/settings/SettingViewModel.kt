@@ -2,6 +2,8 @@ package com.enoch02.more.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.enoch02.resources.BitmapManager
+import com.enoch02.resources.cleanup
 import com.enoch02.settings.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -10,7 +12,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingViewModel @Inject constructor(private val settingsRepository: SettingsRepository) :
+class SettingViewModel @Inject constructor(
+    private val settingsRepository: SettingsRepository,
+    private val bitmapManager: BitmapManager
+) :
     ViewModel() {
     fun switchPreference(key: SettingsRepository.BooleanPreferenceType, newValue: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -40,5 +45,11 @@ class SettingViewModel @Inject constructor(private val settingsRepository: Setti
 
     fun getPreference(key: SettingsRepository.IntPreferenceType): Flow<Int> {
         return settingsRepository.getPreference(key)
+    }
+
+    fun cleanUpOldBitmaps() {
+        viewModelScope.launch(Dispatchers.IO) {
+            bitmapManager.cleanup()
+        }
     }
 }

@@ -100,6 +100,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                                 SettingsRepository.FloatPreferenceType.DOC_PAGE_SCALE,
                                                 scale
                                             )
+                                            viewModel.cleanUpOldBitmaps()
                                         }
 
                                         RenderMethodSelector(selectedMethod = renderMethod) { method ->
@@ -107,6 +108,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                                 SettingsRepository.IntPreferenceType.PAGE_RENDER_METHOD,
                                                 method
                                             )
+                                            viewModel.cleanUpOldBitmaps()
                                         }
                                     }
                                 )

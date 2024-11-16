@@ -1,4 +1,4 @@
-package com.enoch02.viewer
+package com.enoch02.resources
 
 import android.graphics.Bitmap
 import android.util.Log
@@ -18,8 +18,7 @@ class BitmapManager private constructor() {
         Log.d("BitmapManager", "Max Memory: ${maxMemory / 1024} MB")
         // Use 1/8th of the available memory for this cache
         /*val cacheSize = maxMemory / 8*/
-        // Use 1/4th of the available memory for this cache
-        val cacheSize = maxMemory / 4
+        val cacheSize = maxMemory / 2
 
         bitmapCache = object : LruCache<String, Bitmap>(cacheSize) {
             override fun sizeOf(key: String, bitmap: Bitmap): Int {
