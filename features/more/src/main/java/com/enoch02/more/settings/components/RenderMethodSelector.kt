@@ -29,7 +29,7 @@ fun RenderMethodSelector(
 
     ListItem(
         headlineContent = {
-            Text("Document render scale")
+            Text("Document render method")
         },
         supportingContent = {
             Text("Selected method: ${names[selectedMethod]}")
