@@ -183,7 +183,7 @@ fun ReaderView(
                     ) {
                         var pageScale by remember { mutableFloatStateOf(1f) }
 
-                        HorizontalPager(state = pagerState) { index ->
+                        HorizontalPager(state = pagerState, beyondViewportPageCount = 1) { index ->
                             var pageBitmap by remember {
                                 mutableStateOf<Bitmap?>(
                                     null

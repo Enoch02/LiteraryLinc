@@ -356,7 +356,9 @@ class LLReaderViewModel @Inject constructor(
 
                     // Try using toPixmap directly instead of AndroidDrawDevice
                     val colorSpace = com.artifex.mupdf.fitz.ColorSpace.DeviceRGB
-                    val pixmap = page.toPixmap(ctm, colorSpace, true, true)
+                    val pixmap = synchronized(pageRunLock) {
+                        page.toPixmap(ctm, colorSpace, true, true)
+                    }
 
                     // Convert Pixmap to Bitmap
                     val bitmap = Bitmap.createBitmap(

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,9 +17,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.composables.core.ScrollArea
-import com.composables.core.ScrollAreaState
 import com.composables.core.Thumb
 import com.composables.core.ThumbVisibility
 import com.composables.core.VerticalScrollbar
@@ -62,9 +64,10 @@ fun ReaderListScreen(
     val listState = rememberLazyListState()
     val scrollAreaState = rememberScrollAreaState(listState)
     val coroutineScope = rememberCoroutineScope()
+    var scrollToTheTippyTop by rememberSaveable { mutableStateOf(false) }
 
     val listItemClicked = { document: LLDocument ->
-        coroutineScope.launch { listState.animateScrollToItem(0) }
+        scrollToTheTippyTop = true
         viewModel.createBookListEntry(document)
 
         val intent =
@@ -101,8 +104,20 @@ fun ReaderListScreen(
     }
 
     LaunchedEffect(sorting, filter) {
+        scrollToTheTippyTop = true
         viewModel.updateFilter(filter)
         viewModel.updateSorting(sorting)
+    }
+
+    SideEffect {
+        if (scrollToTheTippyTop) {
+            coroutineScope.launch {
+                listState.scrollToItem(0)
+                if (listState.firstVisibleItemIndex == 0) {
+                    scrollToTheTippyTop = false
+                }
+            }
+        }
     }
 
     when (val docList = arrangedDocs) {
