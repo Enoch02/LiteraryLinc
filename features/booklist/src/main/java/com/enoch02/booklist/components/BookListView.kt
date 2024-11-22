@@ -78,7 +78,6 @@ internal fun BookListView(
     onLinkDocument: (documentId: String, book: Book) -> Unit,
     modifier: Modifier
 ) {
-    val state = rememberScrollAreaState(listState)
     var showDocumentModal by remember { mutableStateOf(false) }
     var currentlyLinking: Book? by remember { mutableStateOf(null) }
 
@@ -94,6 +93,8 @@ internal fun BookListView(
             }
         )
     } else {
+        val state = rememberScrollAreaState(listState)
+
         ScrollArea(
             state = state,
             modifier = modifier,
