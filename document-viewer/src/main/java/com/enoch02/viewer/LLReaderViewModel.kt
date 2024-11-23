@@ -84,15 +84,20 @@ class LLReaderViewModel @Inject constructor(
     private var documentId: String? = null
     private var renderMethod = 0
 
-    private val pageRunLock = Any()
+    private val pageLock = Any()
     private val updateJobMutex = Mutex()
     private val documentAccessLock = Any()
+
+    private var deviceWidth = 0
+    var deviceDpi = 0
 
     fun initDocument(context: Context, uri: Uri, mimeType: String?, id: String?) {
         var cursor: Cursor? = null
 
         docKey = uri.toString()
         documentId = id
+        deviceWidth = context.resources.displayMetrics.widthPixels
+        deviceDpi = context.resources.displayMetrics.densityDpi
 
         viewModelScope.launch(Dispatchers.IO) {
             getRenderMethod()
@@ -204,11 +209,12 @@ class LLReaderViewModel @Inject constructor(
         }
     }
 
-    fun getPageBitmap(index: Int): Flow<Bitmap?> {
+    //TODO: remove method 2 and 3 as they are not necessary anymore
+    fun getPageBitmap(index: Int, zoom: Float/*, w: Int, h: Int*/): Flow<Bitmap?> {
         Log.i(TAG, "getPageBitmap: method $renderMethod")
         return when (renderMethod) {
             0 -> {
-                getPageBitmap1(index)
+                getPageBitmap1(index, zoom)
             }
 
             1 -> {
@@ -225,8 +231,8 @@ class LLReaderViewModel @Inject constructor(
         }
     }
 
-    private fun getPageBitmap1(index: Int): Flow<Bitmap?> = flow {
-        val pageKey = "${docTitle}-$index"
+    private fun getPageBitmap1(index: Int, zoom: Float): Flow<Bitmap?> = flow {
+        val pageKey = "${docTitle}-$index$zoom"
         Log.d(TAG, "getPageBitmap: loading page $pageKey")
         if (document != null) {
             val cachedBitmap = bitmapManager.getCachedBitmap(pageKey)
@@ -240,20 +246,11 @@ class LLReaderViewModel @Inject constructor(
                 bitmapManager.releaseBitmap(cachedBitmap)
                 try {
                     val page: Page = pages[index]
-                    val bounds = page.bounds
-                    val ctm = Matrix()
-                    ctm.scale(documentScale)
-                    val bitmap = Bitmap.createBitmap(
-                        (bounds.x1 * documentScale).toInt(),
-                        (bounds.y1 * documentScale).toInt(),
-                        Bitmap.Config.ARGB_8888
-                    )
-                    val device = AndroidDrawDevice(bitmap)
-
-                    synchronized(pageRunLock) {
-                        page.run(device, ctm, null)
+                    val ctm = AndroidDrawDevice.fitPageWidth(page, deviceWidth)
+                    if (zoom != 1f) {
+                        ctm.scale(zoom)
                     }
-                    device.close()
+                    val bitmap = synchronized(pageLock) { AndroidDrawDevice.drawPage(page, ctm) }
                     bitmapManager.cacheBitmap(pageKey, bitmap)
 
                     emit(bitmap)
@@ -303,7 +300,7 @@ class LLReaderViewModel @Inject constructor(
                     )
 
                     val device = AndroidDrawDevice(tempBitmap)
-                    synchronized(pageRunLock) {
+                    synchronized(pageLock) {
                         page.run(device, ctm, null)
                     }
                     device.close()
@@ -356,7 +353,7 @@ class LLReaderViewModel @Inject constructor(
 
                     // Try using toPixmap directly instead of AndroidDrawDevice
                     val colorSpace = com.artifex.mupdf.fitz.ColorSpace.DeviceRGB
-                    val pixmap = synchronized(pageRunLock) {
+                    val pixmap = synchronized(pageLock) {
                         page.toPixmap(ctm, colorSpace, true, true)
                     }
 

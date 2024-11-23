@@ -37,6 +37,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -51,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
@@ -79,6 +81,7 @@ import com.enoch02.viewer.LLReaderViewModel
 import com.enoch02.viewer.model.ContentState
 import com.enoch02.viewer.model.Item
 import com.enoch02.viewer.model.SearchResult
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -181,22 +184,22 @@ fun ReaderView(
                             .fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        var pageScale by remember { mutableFloatStateOf(1f) }
-
                         HorizontalPager(state = pagerState, beyondViewportPageCount = 1) { index ->
                             var pageBitmap by remember {
                                 mutableStateOf<Bitmap?>(
                                     null
                                 )
                             }
-                            var imageSize by remember {
-                                mutableStateOf<IntSize?>(
-                                    null
+                            var pageContainerSize by remember {
+                                mutableStateOf(
+                                    IntSize.Zero
                                 )
                             }
+                            var pageZoom by remember { mutableFloatStateOf(1f) }
+                            val debouncedZoom by rememberDebouncedState(pageZoom)
 
-                            LaunchedEffect(index) {
-                                viewModel.getPageBitmap(index)
+                            LaunchedEffect(index, debouncedZoom) {
+                                viewModel.getPageBitmap(index, debouncedZoom)
                                     .collect { bitmap ->
                                         pageBitmap = bitmap
                                     }
@@ -215,12 +218,12 @@ fun ReaderView(
                                         filterQuality = FilterQuality.High,
                                         modifier = Modifier
                                             .onGloballyPositioned { coordinates ->
-                                                imageSize = coordinates.size
+                                                pageContainerSize = coordinates.size
                                             }
                                             .graphicsLayer(
-                                                scaleX = pageScale,
-                                                scaleY = pageScale,
-                                                transformOrigin = TransformOrigin(0.5f, 0.5f)
+                                                scaleX = pageZoom,
+                                                scaleY = pageZoom,
+                                                transformOrigin = TransformOrigin(0.5f, 0.5f),
                                             )
                                             .pointerInput(Unit) {
                                                 awaitEachGesture {
@@ -230,8 +233,8 @@ fun ReaderView(
                                                         val event = awaitPointerEvent()
                                                         if (event.changes.size >= 2) {
                                                             val zoomChange = event.calculateZoom()
-                                                            pageScale =
-                                                                (pageScale * zoomChange).coerceIn(1f..3f)
+                                                            pageZoom =
+                                                                (pageZoom * zoomChange).coerceIn(1f..3f)
 
                                                             // Consume the events when we're handling multi-touch
                                                             event.changes.forEach { it.consume() }
@@ -274,7 +277,7 @@ fun ReaderView(
                                         }
 
                                         if (viewModel.showSearchResults) {
-                                            imageSize?.let { size ->
+                                            pageContainerSize.let { size ->
                                                 val pageSize = IntSize(
                                                     width = pageBounds.first,
                                                     height = pageBounds.second
@@ -295,7 +298,7 @@ fun ReaderView(
                                             val pageLinks =
                                                 links.find { it.page == index }
 
-                                            imageSize?.let { size ->
+                                            pageContainerSize.let { size ->
                                                 pageLinks?.links?.let {
                                                     DocumentLinkOverlay(
                                                         links = it,
@@ -720,4 +723,19 @@ fun VolumeButtonDetector(
             ViewCompat.removeOnUnhandledKeyEventListener(view, keyEventDispatcher)
         }
     }
+}
+
+@Composable
+fun rememberDebouncedState(
+    value: Float,
+    delayMillis: Long = 300L
+): State<Float> {
+    val debouncedValue = remember { mutableFloatStateOf(value) }
+
+    LaunchedEffect(value) {
+        delay(delayMillis)
+        debouncedValue.floatValue = value
+    }
+
+    return debouncedValue
 }
