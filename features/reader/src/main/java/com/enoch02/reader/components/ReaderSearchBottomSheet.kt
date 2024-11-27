@@ -87,12 +87,21 @@ fun ReaderSearchBottomSheet(
                                 )
                             },
                             trailingIcon = {
-                                IconButton(onClick = { onDismiss() }) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Close,
-                                        contentDescription = null
-                                    )
-                                }
+                                IconButton(
+                                    onClick = {
+                                        if (query.isBlank()) {
+                                            onDismiss()
+                                        } else {
+                                            query = ""
+                                        }
+                                    },
+                                    content = {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Close,
+                                            contentDescription = null
+                                        )
+                                    }
+                                )
                             },
                         )
                     },
