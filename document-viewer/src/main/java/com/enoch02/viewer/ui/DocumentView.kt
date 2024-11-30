@@ -1,7 +1,6 @@
 package com.enoch02.viewer.ui
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.FileUriExposedException
 import android.view.KeyEvent
@@ -12,9 +11,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -39,6 +35,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -52,14 +49,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -77,17 +71,22 @@ import com.composables.core.Thumb
 import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.enoch02.settings.SettingsRepository
-import com.enoch02.viewer.LLReaderViewModel
+import com.enoch02.viewer.LLDocumentViewModel
 import com.enoch02.viewer.model.ContentState
 import com.enoch02.viewer.model.Item
 import com.enoch02.viewer.model.SearchResult
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import me.saket.telephoto.zoomable.ZoomSpec
+import me.saket.telephoto.zoomable.rememberZoomableState
+import me.saket.telephoto.zoomable.zoomable
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Composable
-fun ReaderView(
-    viewModel: LLReaderViewModel,
+fun DocumentView(
+    viewModel: LLDocumentViewModel,
     uri: Uri,
     mimeType: String?,
     documentId: String?
@@ -184,25 +183,31 @@ fun ReaderView(
                             .fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
+                        val zoomState = rememberZoomableState(
+                            zoomSpec = ZoomSpec(maxZoomFactor = 3f)
+                        )
+
                         HorizontalPager(state = pagerState, beyondViewportPageCount = 1) { index ->
-                            var pageBitmap by remember {
-                                mutableStateOf<Bitmap?>(
-                                    null
-                                )
-                            }
                             var pageContainerSize by remember {
                                 mutableStateOf(
                                     IntSize.Zero
                                 )
                             }
-                            var pageZoom by remember { mutableFloatStateOf(1f) }
+                            val pageZoom by remember {
+                                derivedStateOf {
+                                    scaleZoom(
+                                        zoomState.zoomFraction ?: 0f
+                                    )
+                                }
+                            }
                             val debouncedZoom by rememberDebouncedState(pageZoom)
+                            val pageBitmap by viewModel.getPageBitmap(index, debouncedZoom)
+                                .collectAsState(null)
 
                             LaunchedEffect(index, debouncedZoom) {
-                                viewModel.getPageBitmap(index, debouncedZoom)
-                                    .collect { bitmap ->
-                                        pageBitmap = bitmap
-                                    }
+                                if (debouncedZoom > 1) {
+                                    showBars = false
+                                }
                             }
 
                             Box(
@@ -219,28 +224,6 @@ fun ReaderView(
                                         modifier = Modifier
                                             .onGloballyPositioned { coordinates ->
                                                 pageContainerSize = coordinates.size
-                                            }
-                                            .graphicsLayer(
-                                                scaleX = pageZoom,
-                                                scaleY = pageZoom,
-                                                transformOrigin = TransformOrigin(0.5f, 0.5f),
-                                            )
-                                            .pointerInput(Unit) {
-                                                awaitEachGesture {
-                                                    // Wait for first touch
-                                                    awaitFirstDown(requireUnconsumed = false)
-                                                    do {
-                                                        val event = awaitPointerEvent()
-                                                        if (event.changes.size >= 2) {
-                                                            val zoomChange = event.calculateZoom()
-                                                            pageZoom =
-                                                                (pageZoom * zoomChange).coerceIn(1f..3f)
-
-                                                            // Consume the events when we're handling multi-touch
-                                                            event.changes.forEach { it.consume() }
-                                                        }
-                                                    } while (event.changes.any { it.pressed })
-                                                }
                                             }
                                             .pointerInput(Unit) {
                                                 detectTapGestures { tapOffset ->
@@ -273,7 +256,11 @@ fun ReaderView(
                                                 contentScale = ContentScale.Fit,
                                                 modifier = Modifier
                                                     .background(Color.White)
+                                                    .zoomable(zoomState)
+                                                    .fillMaxSize()
                                             )
+                                        } else if (painterState is AsyncImagePainter.State.Loading) {
+                                            CircularProgressIndicator()
                                         }
 
                                         if (viewModel.showSearchResults) {
@@ -356,7 +343,7 @@ fun ReaderView(
                             }
                         }
 
-                        ReaderTopBar(
+                        ViewerTopBar(
                             modifier = Modifier.align(Alignment.TopCenter),
                             visible = showBars,
                             documentTitle = viewModel.getDocumentTitle(),
@@ -404,7 +391,7 @@ fun ReaderView(
                         )
 
                         if (pageCount > 0) {
-                            ReaderBottomBar(
+                            ViewerBottomBar(
                                 modifier = Modifier.align(Alignment.BottomCenter),
                                 visible = showBars,
                                 currentPage = viewModel.currentPage,
@@ -738,4 +725,17 @@ fun rememberDebouncedState(
     }
 
     return debouncedValue
+}
+
+fun scaleZoom(
+    value: Float,
+    oldMin: Float = 0.0f,
+    oldMax: Float = 1.0f,
+    newMin: Float = 1.0f,
+    newMax: Float = 3.0f
+): Float {
+    val scaled = ((value - oldMin) / (oldMax - oldMin)) * (newMax - newMin) + newMin
+    val rounded = BigDecimal(scaled.toDouble()).setScale(2, RoundingMode.HALF_EVEN)
+
+    return rounded.toFloat()
 }

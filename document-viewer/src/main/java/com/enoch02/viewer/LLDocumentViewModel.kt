@@ -53,7 +53,7 @@ import javax.inject.Inject
 private const val TAG = "LL"
 
 @HiltViewModel
-class LLReaderViewModel @Inject constructor(
+class LLDocumentViewModel @Inject constructor(
     private val bookDao: BookDao,
     private val documentDao: DocumentDao,
     private val settingsRepository: SettingsRepository,
@@ -89,7 +89,6 @@ class LLReaderViewModel @Inject constructor(
     private val documentAccessLock = Any()
 
     private var deviceWidth = 0
-    var deviceDpi = 0
 
     fun initDocument(context: Context, uri: Uri, mimeType: String?, id: String?) {
         var cursor: Cursor? = null
@@ -97,7 +96,6 @@ class LLReaderViewModel @Inject constructor(
         docKey = uri.toString()
         documentId = id
         deviceWidth = context.resources.displayMetrics.widthPixels
-        deviceDpi = context.resources.displayMetrics.densityDpi
 
         viewModelScope.launch(Dispatchers.IO) {
             getRenderMethod()
@@ -211,7 +209,6 @@ class LLReaderViewModel @Inject constructor(
 
     //TODO: remove method 2 and 3 as they are not necessary anymore
     fun getPageBitmap(index: Int, zoom: Float/*, w: Int, h: Int*/): Flow<Bitmap?> {
-        Log.i(TAG, "getPageBitmap: method $renderMethod")
         return when (renderMethod) {
             0 -> {
                 getPageBitmap1(index, zoom)
@@ -232,7 +229,7 @@ class LLReaderViewModel @Inject constructor(
     }
 
     private fun getPageBitmap1(index: Int, zoom: Float): Flow<Bitmap?> = flow {
-        val pageKey = "${docTitle}-$index$zoom"
+        val pageKey = "${docTitle}-$index-z=$zoom"
         Log.d(TAG, "getPageBitmap: loading page $pageKey")
         if (document != null) {
             val cachedBitmap = bitmapManager.getCachedBitmap(pageKey)
@@ -365,7 +362,7 @@ class LLReaderViewModel @Inject constructor(
                     )
                     bitmap.copyPixelsFromBuffer(ByteBuffer.wrap(pixmap.samples))
 
-                    pixmap.destroy() // Clean up the pixmap
+                    pixmap.destroy()
 
                     bitmapManager.cacheBitmap(pageKey, bitmap)
                     emit(bitmap)

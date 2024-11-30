@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.enoch02.database.model.LLDocument
 import kotlinx.coroutines.flow.Flow
@@ -35,7 +34,7 @@ import kotlinx.coroutines.flow.emptyFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReaderSearchBottomSheet(
+fun ViewerSearchBottomSheet(
     visible: Boolean,
     onDismiss: () -> Unit,
     onSearch: (String) -> Flow<List<LLDocument>>,

@@ -25,7 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ReaderBottomBar(
+fun ViewerBottomBar(
     modifier: Modifier,
     visible: Boolean,
     currentPage: Int,
@@ -98,7 +98,7 @@ fun ReaderBottomBar(
 @Preview(showBackground = true)
 @Composable
 private fun Preview() {
-    ReaderBottomBar(
+    ViewerBottomBar(
         modifier = Modifier,
         visible = true,
         currentPage = 50,

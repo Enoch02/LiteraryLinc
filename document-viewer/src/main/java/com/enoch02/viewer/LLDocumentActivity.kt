@@ -23,7 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.artifex.mupdf.viewer.R
 import com.enoch02.resources.theme.LiteraryLincTheme
 import com.enoch02.settings.SettingsRepository
-import com.enoch02.viewer.ui.ReaderView
+import com.enoch02.viewer.ui.DocumentView
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -32,7 +32,7 @@ class LLDocumentActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val intent = intent
         setContent {
-            val viewModel: LLReaderViewModel = hiltViewModel()
+            val viewModel: LLDocumentViewModel = hiltViewModel()
             val dynamicColor by viewModel.getPreference(key = SettingsRepository.BooleanPreferenceType.DYNAMIC_COLOR)
                 .collectAsState(initial = null)
 
@@ -58,7 +58,7 @@ class LLDocumentActivity : ComponentActivity() {
                             Surface(
                                 modifier = Modifier.fillMaxSize(),
                                 content = {
-                                    ReaderView(
+                                    DocumentView(
                                         uri = uri,
                                         mimeType = mimeType,
                                         documentId = documentId,
