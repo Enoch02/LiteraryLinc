@@ -255,45 +255,43 @@ fun EditBookScreen(
                                 .padding(vertical = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             content = {
-                                val types = Book.types.values.toList()
+                                FormIntField(
+                                    label = stringResource(R.string.pages_read_label),
+                                    value = pagesRead,
+                                    onValueChange = { pagesRead = it },
+                                    modifier = Modifier.weight(0.45f)
+                                )
+                                Spacer(
+                                    modifier = Modifier
+                                        .width(4.dp)
+                                        .weight(0.1f)
+                                )
+                                FormIntField(
+                                    label = stringResource(R.string.page_count_label),
+                                    value = pageCount,
+                                    onValueChange = { pageCount = it },
+                                    modifier = Modifier.weight(0.45f)
+                                )
 
-                                if (type == types[0] || type == types[2] || type == types[4]) {
-                                    FormIntField(
-                                        label = stringResource(R.string.pages_read_label),
-                                        value = pagesRead,
-                                        onValueChange = { pagesRead = it },
-                                        modifier = Modifier.weight(0.45f)
-                                    )
-                                    Spacer(
-                                        modifier = Modifier
-                                            .width(4.dp)
-                                            .weight(0.1f)
-                                    )
-                                    FormIntField(
-                                        label = stringResource(R.string.page_count_label),
-                                        value = pageCount,
-                                        onValueChange = { pageCount = it },
-                                        modifier = Modifier.weight(0.45f)
-                                    )
-                                } else {
-                                    FormIntField(
-                                        label = stringResource(R.string.volumes_read_label),
-                                        value = volumesRead,
-                                        onValueChange = { volumesRead = it },
-                                        modifier = Modifier.weight(0.45f)
-                                    )
-                                    Spacer(
-                                        modifier = Modifier
-                                            .width(4.dp)
-                                            .weight(0.1f)
-                                    )
-                                    FormIntField(
-                                        label = stringResource(R.string.total_volumes_label),
-                                        value = totalVolumes,
-                                        onValueChange = { totalVolumes = it },
-                                        modifier = Modifier.weight(0.45f)
-                                    )
-                                }
+                                //INFO: disabling this aspect of manga and comic tracking for now
+                                // till i come up with a better solution
+                                /*FormIntField(
+                                    label = stringResource(R.string.volumes_read_label),
+                                    value = volumesRead,
+                                    onValueChange = { volumesRead = it },
+                                    modifier = Modifier.weight(0.45f)
+                                )
+                                Spacer(
+                                    modifier = Modifier
+                                        .width(4.dp)
+                                        .weight(0.1f)
+                                )
+                                FormIntField(
+                                    label = stringResource(R.string.total_volumes_label),
+                                    value = totalVolumes,
+                                    onValueChange = { totalVolumes = it },
+                                    modifier = Modifier.weight(0.45f)
+                                )*/
                             }
                         )
                     }
