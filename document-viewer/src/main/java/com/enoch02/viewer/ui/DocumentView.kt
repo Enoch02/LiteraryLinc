@@ -204,8 +204,8 @@ fun DocumentView(
                             val pageBitmap by viewModel.getPageBitmap(index, debouncedZoom)
                                 .collectAsState(null)
 
-                            LaunchedEffect(index, debouncedZoom) {
-                                if (debouncedZoom > 1) {
+                            LaunchedEffect(debouncedZoom) {
+                                if (debouncedZoom > 1 && showBars) {
                                     showBars = false
                                 }
                             }
@@ -225,25 +225,6 @@ fun DocumentView(
                                             .onGloballyPositioned { coordinates ->
                                                 pageContainerSize = coordinates.size
                                             }
-                                            .pointerInput(Unit) {
-                                                detectTapGestures { tapOffset ->
-                                                    val size = this.size
-                                                    val width = size.width
-                                                    val height = size.height
-
-                                                    val horizontalThird = width / 3
-                                                    val verticalThird = height / 3
-
-                                                    val isInCenterX =
-                                                        tapOffset.x >= horizontalThird && tapOffset.x <= horizontalThird * 2
-                                                    val isInCenterY =
-                                                        tapOffset.y >= verticalThird && tapOffset.y <= verticalThird * 2
-
-                                                    if (isInCenterX && isInCenterY) {
-                                                        showBars = !showBars
-                                                    }
-                                                }
-                                            }
                                     ) {
                                         val painterState = painter.state
                                         val pageBounds =
@@ -256,7 +237,10 @@ fun DocumentView(
                                                 contentScale = ContentScale.Fit,
                                                 modifier = Modifier
                                                     .background(Color.White)
-                                                    .zoomable(zoomState)
+                                                    .zoomable(
+                                                        zoomState,
+                                                        onClick = { showBars = !showBars }
+                                                    )
                                                     .fillMaxSize()
                                             )
                                         } else if (painterState is AsyncImagePainter.State.Loading) {
