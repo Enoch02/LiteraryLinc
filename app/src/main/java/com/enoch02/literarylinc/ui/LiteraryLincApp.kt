@@ -3,8 +3,6 @@ package com.enoch02.literarylinc.ui
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.automirrored.rounded.ListAlt
@@ -247,8 +245,6 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                         sorting = currentBookListSorting,
                                         statusFilter = statusFilter,
                                         listViewMode = bookViewMode,
-                                        listState = rememberLazyListState(),
-                                        gridState = rememberLazyGridState(),
                                         onItemClick = { id ->
                                             navController.navigate(Screen.BookDetail.withArgs(id.toString()))
                                         }

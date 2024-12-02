@@ -1,6 +1,5 @@
 package com.enoch02.booklist.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,10 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +30,6 @@ import com.enoch02.database.model.Book
 internal fun BookGridView(
     books: List<Book>,
     covers: Map<String, String?>,
-    gridState: LazyGridState,
     onItemClick: (Int) -> Unit,
     onItemDelete: (Int) -> Unit,
     modifier: Modifier
@@ -53,7 +50,7 @@ internal fun BookGridView(
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 113.dp),
             verticalArrangement = Arrangement.Top,
-            state = gridState,
+            state = rememberLazyGridState(),
             content = {
                 items(
                     count = books.size,
@@ -61,7 +58,8 @@ internal fun BookGridView(
                         val book = books[index]
 
                         BookGridItem(
-                            modifier = Modifier.animateItem()
+                            modifier = Modifier
+                                .animateItem()
                                 .padding(horizontal = 4.dp, vertical = 8.dp),
                             book = book,
                             coverPath = covers[book.coverImageName],
