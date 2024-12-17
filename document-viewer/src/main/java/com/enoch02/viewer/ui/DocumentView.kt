@@ -384,6 +384,13 @@ fun DocumentView(
                                     coroutineScope.launch {
                                         pagerState.scrollToPage(newPageIndex)
                                     }
+                                },
+                                visitedPages = viewModel.visitedPages,
+                                onPageJump = { pageIndex ->
+                                    viewModel.pushToHistory(pageIndex)
+                                },
+                                onPopFromHistory = {
+                                    viewModel.popFromHistory()
                                 }
                             )
                         }

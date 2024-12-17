@@ -74,6 +74,8 @@ class LLDocumentViewModel @Inject constructor(
 
     var requiresPassword by mutableStateOf(false)
     var password by mutableStateOf("")
+    private val _visitedPages = mutableStateOf<List<Int>>(emptyList()) // Stack as a list
+    val visitedPages by _visitedPages
 
     private var docTitle by mutableStateOf("")
     private var docKey = ""
@@ -381,11 +383,7 @@ class LLDocumentViewModel @Inject constructor(
         val doc = documentId?.let { documentDao.getDocument(it) }
         val book = documentId?.let { bookDao.getBookByMd5(it) }
 
-        currentPage = if (doc?.autoTrackable == true) {
-            book?.pagesRead ?: 0
-        } else {
-            doc?.currentPage ?: 0
-        }
+        currentPage = doc?.currentPage ?: book?.pagesRead ?: 0
 
         // synchronize currentPage with zero indexing expected by the pager
         if (currentPage > 0) {
@@ -661,8 +659,25 @@ class LLDocumentViewModel @Inject constructor(
         }
     }
 
+    fun pushToHistory(value: Int) {
+        _visitedPages.value += value
+    }
+
+    fun popFromHistory(): Result<Int> {
+        if (_visitedPages.value.isNotEmpty()) {
+            val last = _visitedPages.value.last()
+            _visitedPages.value = _visitedPages.value.dropLast(1)
+
+            return Result.success(last)
+        }
+
+        return Result.failure(EmptyHistoryException())
+    }
+
     override fun onCleared() {
         super.onCleared()
         document?.destroy()
     }
 }
+
+class EmptyHistoryException : Exception()
