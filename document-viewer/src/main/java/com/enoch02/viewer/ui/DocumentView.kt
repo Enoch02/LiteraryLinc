@@ -225,6 +225,10 @@ fun DocumentView(
                                             .onGloballyPositioned { coordinates ->
                                                 pageContainerSize = coordinates.size
                                             }
+                                            .zoomable(
+                                                zoomState,
+                                                onClick = { showBars = !showBars }
+                                            )
                                     ) {
                                         val painterState = painter.state
                                         val pageBounds =
@@ -237,10 +241,6 @@ fun DocumentView(
                                                 contentScale = ContentScale.Fit,
                                                 modifier = Modifier
                                                     .background(Color.White)
-                                                    .zoomable(
-                                                        zoomState,
-                                                        onClick = { showBars = !showBars }
-                                                    )
                                                     .fillMaxSize()
                                             )
                                         } else if (painterState is AsyncImagePainter.State.Loading) {
@@ -316,6 +316,9 @@ fun DocumentView(
                                                                     }
                                                                 }
                                                             }
+                                                        },
+                                                        onNonLinkClick = {
+                                                            showBars = !showBars
                                                         }
                                                     )
                                                 }
@@ -470,7 +473,8 @@ fun DocumentLinkOverlay(
     originalPageSize: IntSize,
     containerSize: IntSize,
     linkColor: Color = Color(0x220000FF),
-    onLinkClick: (Link) -> Unit
+    onLinkClick: (Link) -> Unit,
+    onNonLinkClick: () -> Unit
 ) {
     // Remember calculated link areas to avoid recalculation on each tap
     val linkAreas = remember(links, containerSize, originalPageSize) {
@@ -487,6 +491,8 @@ fun DocumentLinkOverlay(
                         if (rect.contains(offset)) {
                             onLinkClick(link)
                             return@detectTapGestures
+                        } else {
+                            onNonLinkClick()
                         }
                     }
                 }
