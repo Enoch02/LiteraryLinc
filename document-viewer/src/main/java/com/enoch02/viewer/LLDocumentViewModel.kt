@@ -43,6 +43,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.time.Instant
@@ -50,7 +51,7 @@ import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 
-private const val TAG = "LL"
+private const val TAG = "LLDocumentView"
 
 @HiltViewModel
 class LLDocumentViewModel @Inject constructor(
@@ -191,6 +192,7 @@ class LLDocumentViewModel @Inject constructor(
             } catch (e: Exception) {
                 // catch exceptions that occurs when user closes the screen
                 // before a document loads
+                contentState = ContentState.DOCUMENT_NOT_FOUND
                 Log.e(TAG, "openDocument: ${e.message}")
             }
         }

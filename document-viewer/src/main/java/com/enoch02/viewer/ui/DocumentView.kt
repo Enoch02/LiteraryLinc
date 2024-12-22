@@ -12,7 +12,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
@@ -21,14 +23,19 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -59,13 +66,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import com.artifex.mupdf.fitz.Link
+import com.artifex.mupdf.viewer.R
 import com.composables.core.ScrollArea
 import com.composables.core.Thumb
 import com.composables.core.VerticalScrollbar
@@ -89,7 +99,8 @@ fun DocumentView(
     viewModel: LLDocumentViewModel,
     uri: Uri,
     mimeType: String?,
-    documentId: String?
+    documentId: String?,
+    closeViewAction: () -> Unit
 ) {
     val context = LocalContext.current
     val volumePaging by viewModel.getPreference(SettingsRepository.BooleanPreferenceType.VOLUME_BTN_PAGING)
@@ -400,6 +411,29 @@ fun DocumentView(
                         }
                     }
                 }
+            }
+
+            ContentState.DOCUMENT_NOT_FOUND -> {
+                AlertDialog(
+                    onDismissRequest = {},
+                    icon = {
+                        Icon(Icons.Default.Warning, contentDescription = "Warning")
+                    },
+                    title = {
+                        Text(text = stringResource(R.string.missing_doc_title))
+                    },
+                    text = {
+                        Text(
+                            stringResource(R.string.missing_doc_msg),
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { closeViewAction() }) {
+                            Text("Close")
+                        }
+                    }
+                )
             }
         }
     }

@@ -62,7 +62,11 @@ class LLDocumentActivity : ComponentActivity() {
                                         uri = uri,
                                         mimeType = mimeType,
                                         documentId = documentId,
-                                        viewModel = viewModel
+                                        viewModel = viewModel,
+                                        closeViewAction = {
+                                            //TODO: remove missing doc entry from the db?
+                                            finish()
+                                        }
                                     )
 
                                     if (viewModel.requiresPassword) {
