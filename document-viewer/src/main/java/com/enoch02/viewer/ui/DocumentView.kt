@@ -302,6 +302,7 @@ fun DocumentView(
                                                                     ).show()
                                                                 }
                                                             } else {
+                                                                viewModel.pushToHistory(viewModel.currentPage)
                                                                 coroutineScope.launch {
                                                                     val pageNum =
                                                                         viewModel.getPageIndexFromLink(
