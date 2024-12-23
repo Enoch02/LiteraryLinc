@@ -8,4 +8,5 @@ plugins {
     id("com.google.dagger.hilt.android") version "2.52" apply false
     alias(libs.plugins.org.jetbrains.kotlin.android) apply false
     alias(libs.plugins.compose.compiler) apply false
+    id("com.mikepenz.aboutlibraries.plugin") version "11.3.0-rc02" apply false
 }

@@ -5,12 +5,13 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("dagger.hilt.android.plugin")
+    id ("com.mikepenz.aboutlibraries.plugin")
     alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "com.enoch02.literarylinc"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.enoch02.literarylinc"
