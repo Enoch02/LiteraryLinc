@@ -17,9 +17,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,10 +37,12 @@ import com.composables.core.Thumb
 import com.composables.core.ThumbVisibility
 import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
+import com.enoch02.database.model.LLDocument
 import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.ReaderSorting
 import com.enoch02.reader.components.NoDocumentView
 import com.enoch02.reader.components.ReaderListItem
+import com.enoch02.reader.components.ViewerSearchBottomSheet
 import com.enoch02.viewer.LLDocumentActivity
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
@@ -48,16 +54,70 @@ fun ReaderListScreen(
     viewModel: ReaderListViewModel = hiltViewModel(),
     sorting: ReaderSorting,
     filter: ReaderFilter,
-    onScanForDocs: () -> Unit
+    isSearching: Boolean,
+    onScanForDocs: () -> Unit,
+    onDismissSearching: () -> Unit
 ) {
     val context = LocalContext.current
     val arrangedDocs by viewModel.documentsState.collectAsStateWithLifecycle()
     val covers by viewModel.covers.collectAsState(initial = emptyMap())
-    val scope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
+    val scrollAreaState = rememberScrollAreaState(listState)
+    val coroutineScope = rememberCoroutineScope()
+    var scrollToTheTippyTop by rememberSaveable { mutableStateOf(false) }
+
+    val listItemClicked = { document: LLDocument ->
+        scrollToTheTippyTop = true
+        viewModel.createBookListEntry(document)
+
+        val intent =
+            Intent(context, LLDocumentActivity::class.java)
+                .apply {
+                    action = Intent.ACTION_VIEW
+                    data = document.contentUri
+                    putExtra("id", document.id)
+                }
+        context.startActivity(intent)
+    }
+    val shareDocument = { document: LLDocument ->
+        val intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(
+                Intent.EXTRA_STREAM,
+                document.contentUri
+            )
+            type = document.contentUri?.let { uri ->
+                context.contentResolver.getType(
+                    uri
+                )
+            }
+        }
+
+        context.startActivity(
+            Intent.createChooser(
+                intent,
+                context.getString(
+                    R.string.chooser_title
+                )
+            )
+        )
+    }
 
     LaunchedEffect(sorting, filter) {
+        scrollToTheTippyTop = true
         viewModel.updateFilter(filter)
         viewModel.updateSorting(sorting)
+    }
+
+    SideEffect {
+        if (scrollToTheTippyTop) {
+            coroutineScope.launch {
+                listState.scrollToItem(0)
+                if (listState.firstVisibleItemIndex == 0) {
+                    scrollToTheTippyTop = false
+                }
+            }
+        }
     }
 
     when (val docList = arrangedDocs) {
@@ -76,9 +136,6 @@ fun ReaderListScreen(
                     onScanForDocs = onScanForDocs
                 )
             } else {
-                val listState = rememberLazyListState()
-                val scrollAreaState = rememberScrollAreaState(listState)
-
                 ScrollArea(
                     state = scrollAreaState,
                     modifier = modifier,
@@ -98,19 +155,7 @@ fun ReaderListScreen(
                                             documentInBookList = inBookList,
                                             cover = covers[document.cover],
                                             onClick = {
-                                                scope.launch {
-                                                    listState.animateScrollToItem(0)
-                                                }
-                                                viewModel.createBookListEntry(document)
-
-                                                val intent =
-                                                    Intent(context, LLDocumentActivity::class.java)
-                                                        .apply {
-                                                            action = Intent.ACTION_VIEW
-                                                            data = document.contentUri
-                                                            putExtra("id", document.id)
-                                                        }
-                                                context.startActivity(intent)
+                                                listItemClicked(document)
                                             },
                                             onAddToFavoritesClicked = {
                                                 viewModel.toggleFavoriteStatus(document)
@@ -128,27 +173,7 @@ fun ReaderListScreen(
                                                 viewModel.toggleDocumentAutoTracking(document)
                                             },
                                             onShare = {
-                                                val intent = Intent().apply {
-                                                    action = Intent.ACTION_SEND
-                                                    putExtra(
-                                                        Intent.EXTRA_STREAM,
-                                                        document.contentUri
-                                                    )
-                                                    type = document.contentUri?.let { uri ->
-                                                        context.contentResolver.getType(
-                                                            uri
-                                                        )
-                                                    }
-                                                }
-
-                                                context.startActivity(
-                                                    Intent.createChooser(
-                                                        intent,
-                                                        context.getString(
-                                                            R.string.chooser_title
-                                                        )
-                                                    )
-                                                )
+                                                shareDocument(document)
                                             },
                                             onDeleteDocument = {
                                                 viewModel.deleteDocument(document = document)
@@ -183,6 +208,24 @@ fun ReaderListScreen(
                             }
                         )
                     }
+                )
+
+                ViewerSearchBottomSheet(
+                    visible = isSearching,
+                    onDismiss = { onDismissSearching() },
+                    onSearch = { query ->
+                        viewModel.searchFor(query)
+                    },
+                    covers = covers,
+                    isDocumentInBookList = { id -> viewModel.isDocumentInBookList(id) },
+                    onItemClick = { listItemClicked(it) },
+                    onAddToFavoritesClicked = { viewModel.toggleFavoriteStatus(it) },
+                    onMarkAsReadClicked = { viewModel.toggleDocumentReadStatus(it) },
+                    onAddToBookList = { viewModel.createBookListEntry(it) },
+                    onRemoveFromBookList = { viewModel.removeBookListEntry(it) },
+                    onToggleAutoTracking = { viewModel.toggleDocumentAutoTracking(it) },
+                    onDeleteDocument = { viewModel.deleteDocument(it) },
+                    onShare = { shareDocument(it) }
                 )
             }
         }

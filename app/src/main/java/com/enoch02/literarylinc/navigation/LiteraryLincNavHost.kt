@@ -1,9 +1,7 @@
 package com.enoch02.literarylinc.navigation
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -17,6 +15,7 @@ import com.enoch02.modifybook.AddBookScreen
 import com.enoch02.modifybook.EditBookScreen
 import com.enoch02.more.MoreScreen
 import com.enoch02.more.about.AboutScreen
+import com.enoch02.more.about.LicensesScreen
 import com.enoch02.more.backup_restore.BackupRestoreScreen
 import com.enoch02.more.file_scan.FileScanScreen
 import com.enoch02.more.navigation.MoreScreenDestination
@@ -35,7 +34,7 @@ fun LiteraryLincNavHost(navController: NavHostController = rememberNavController
             composable(Screen.AddBook.route) {
                 AddBookScreen(
                     navController = navController,
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier
                 )
             }
 
@@ -95,6 +94,10 @@ fun LiteraryLincNavHost(navController: NavHostController = rememberNavController
 
                 composable(route = MoreScreenDestination.Scanner.route) {
                     FileScanScreen(navController = navController)
+                }
+
+                composable(route = MoreScreenDestination.Licenses.route) {
+                    LicensesScreen(navController = navController)
                 }
             }
         }

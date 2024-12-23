@@ -33,6 +33,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.enoch02.more.R
+import com.enoch02.more.navigation.MoreScreenDestination
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -118,7 +119,7 @@ fun AboutScreen(navController: NavController) {
                                             Text(text = stringResource(R.string.open_source_licenses_label))
                                         },
                                         modifier = Modifier.clickable {
-                                            /*TODO*/
+                                            navController.navigate(MoreScreenDestination.Licenses.route)
                                         },
                                         tonalElevation = 30.dp
                                     )
@@ -163,7 +164,7 @@ private fun getAppVersion(context: Context): Pair<String, Int> {
                 context.packageName,
                 0
             )
-        versionName = packageInfo.versionName
+        versionName = packageInfo.versionName.toString()
         versionCode =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 packageInfo.longVersionCode.toInt()

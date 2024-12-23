@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -31,12 +30,11 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             val viewModel: InitViewModel = hiltViewModel()
-            val alwaysDark by viewModel.getBooleanPreference(key = SettingsRepository.PreferenceType.DARK_MODE)
+            val alwaysDark by viewModel.getBooleanPreference(key = SettingsRepository.BooleanPreferenceType.DARK_MODE)
                 .collectAsState(initial = null)
-            val dynamicColor by viewModel.getBooleanPreference(key = SettingsRepository.PreferenceType.DYNAMIC_COLOR)
+            val dynamicColor by viewModel.getBooleanPreference(key = SettingsRepository.BooleanPreferenceType.DYNAMIC_COLOR)
                 .collectAsState(initial = null)
 
             if (alwaysDark != null && dynamicColor != null) {
@@ -87,7 +85,7 @@ class MainActivity : ComponentActivity() {
 @HiltViewModel
 class InitViewModel @Inject constructor(private val settingsRepository: SettingsRepository) :
     ViewModel() {
-    fun getBooleanPreference(key: SettingsRepository.PreferenceType): Flow<Boolean> {
-        return settingsRepository.getBooleanPreference(key)
+    fun getBooleanPreference(key: SettingsRepository.BooleanPreferenceType): Flow<Boolean> {
+        return settingsRepository.getPreference(key)
     }
 }

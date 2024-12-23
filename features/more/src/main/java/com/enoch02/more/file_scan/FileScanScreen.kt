@@ -45,11 +45,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.enoch02.more.R
-import com.enoch02.more.components.SwitchSettingItem
+import com.enoch02.more.settings.components.SwitchSettingItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = hiltViewModel()) {
+    val tonalElevation = 10.dp
     // TODO: save using settingsViewModel
     var autoStartScans by rememberSaveable {
         mutableStateOf(false)
@@ -158,7 +159,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                         }
                                                     )
                                                 },
-                                                tonalElevation = 30.dp,
+                                                tonalElevation = tonalElevation,
                                             )
 
                                             ListItem(
@@ -171,7 +172,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                         contentDescription = stringResource(R.string.start_scan)
                                                     )
                                                 },
-                                                tonalElevation = 30.dp,
+                                                tonalElevation = tonalElevation,
                                                 modifier = Modifier.clickable {
                                                     viewModel.loadDocuments(
                                                         context,
@@ -194,7 +195,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                         contentDescription = stringResource(R.string.reload_covers_desc)
                                                     )
                                                 },
-                                                tonalElevation = 30.dp,
+                                                tonalElevation = tonalElevation,
                                                 modifier = Modifier.clickable {
                                                     viewModel.rescanCovers(
                                                         context,
@@ -229,7 +230,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                         Text(text = stringResource(R.string.no_dir_picked_msg))
                                                     }
                                                 },
-                                                tonalElevation = 30.dp,
+                                                tonalElevation = tonalElevation,
                                                 modifier = Modifier.clickable {
                                                     directoryPickerLauncher.launch(intent)
                                                 }
@@ -247,7 +248,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                         )
                                                     )
                                                 },
-                                                tonalElevation = 30.dp,
+                                                tonalElevation = tonalElevation,
                                                 modifier = Modifier.clickable {
                                                     otherDirectoryPickerLauncher.launch(intent)
                                                 }
@@ -257,7 +258,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                 headlineContent = {
                                                     Text(text = stringResource(R.string.remove_other_directories))
                                                 },
-                                                tonalElevation = 30.dp,
+                                                tonalElevation = tonalElevation,
                                                 modifier = Modifier.clickable {
                                                     showRemovalDialog = true
                                                 }

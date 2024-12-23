@@ -12,7 +12,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -22,9 +21,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.artifex.mupdf.viewer.R
-import com.enoch02.viewer.ui.ReaderView
 import com.enoch02.resources.theme.LiteraryLincTheme
 import com.enoch02.settings.SettingsRepository
+import com.enoch02.viewer.ui.DocumentView
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -32,10 +31,9 @@ class LLDocumentActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val intent = intent
-
         setContent {
-            val viewModel: LLReaderViewModel = hiltViewModel()
-            val dynamicColor by viewModel.getBooleanPreference(key = SettingsRepository.PreferenceType.DYNAMIC_COLOR)
+            val viewModel: LLDocumentViewModel = hiltViewModel()
+            val dynamicColor by viewModel.getPreference(key = SettingsRepository.BooleanPreferenceType.DYNAMIC_COLOR)
                 .collectAsState(initial = null)
 
             DisposableEffect(Unit) {
@@ -60,11 +58,15 @@ class LLDocumentActivity : ComponentActivity() {
                             Surface(
                                 modifier = Modifier.fillMaxSize(),
                                 content = {
-                                    ReaderView(
+                                    DocumentView(
                                         uri = uri,
                                         mimeType = mimeType,
                                         documentId = documentId,
-                                        viewModel = viewModel
+                                        viewModel = viewModel,
+                                        closeViewAction = {
+                                            //TODO: remove missing doc entry from the db?
+                                            finish()
+                                        }
                                     )
 
                                     if (viewModel.requiresPassword) {

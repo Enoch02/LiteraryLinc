@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
@@ -71,14 +72,12 @@ internal fun BookListView(
     books: List<Book>,
     covers: Map<String, String?>,
     documents: List<LLDocument>,
-    listState: LazyListState,
     onItemClick: (id: Int) -> Unit,
     onItemDelete: (id: Int) -> Unit,
     onUnlinkDocument: (book: Book) -> Unit,
     onLinkDocument: (documentId: String, book: Book) -> Unit,
     modifier: Modifier
 ) {
-    val state = rememberScrollAreaState(listState)
     var showDocumentModal by remember { mutableStateOf(false) }
     var currentlyLinking: Book? by remember { mutableStateOf(null) }
 
@@ -94,6 +93,9 @@ internal fun BookListView(
             }
         )
     } else {
+        val listState1 = rememberLazyListState()
+        val state = rememberScrollAreaState(listState1)
+
         ScrollArea(
             state = state,
             modifier = modifier,
@@ -121,7 +123,7 @@ internal fun BookListView(
                             }
                         )
                     },
-                    state = listState,
+                    state = listState1,
                     modifier = Modifier.fillMaxSize()
                 )
 

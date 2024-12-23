@@ -1,9 +1,9 @@
 package com.enoch02.viewer.ui
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.FileUriExposedException
+import android.view.KeyEvent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Canvas
@@ -11,11 +11,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
@@ -24,17 +23,26 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -50,39 +58,54 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.core.view.ViewCompat
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import com.artifex.mupdf.fitz.Link
+import com.artifex.mupdf.viewer.R
 import com.composables.core.ScrollArea
 import com.composables.core.Thumb
 import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
-import com.enoch02.viewer.LLReaderViewModel
+import com.enoch02.settings.SettingsRepository
+import com.enoch02.viewer.LLDocumentViewModel
 import com.enoch02.viewer.model.ContentState
 import com.enoch02.viewer.model.Item
 import com.enoch02.viewer.model.SearchResult
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import me.saket.telephoto.zoomable.ZoomSpec
+import me.saket.telephoto.zoomable.rememberZoomableState
+import me.saket.telephoto.zoomable.zoomable
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Composable
-fun ReaderView(
-    viewModel: LLReaderViewModel,
+fun DocumentView(
+    viewModel: LLDocumentViewModel,
     uri: Uri,
     mimeType: String?,
-    documentId: String?
+    documentId: String?,
+    closeViewAction: () -> Unit
 ) {
     val context = LocalContext.current
+    val volumePaging by viewModel.getPreference(SettingsRepository.BooleanPreferenceType.VOLUME_BTN_PAGING)
+        .collectAsState(initial = false)
+
     LaunchedEffect(Unit) {
         viewModel.initDocument(
             context = context,
@@ -130,6 +153,25 @@ fun ReaderView(
                     }
                 }
 
+                if (volumePaging) {
+                    VolumeButtonDetector(
+                        onVolumeUp = {
+                            coroutineScope.launch {
+                                if (viewModel.currentPage < pageCount) {
+                                    pagerState.scrollToPage(viewModel.currentPage + 1)
+                                }
+                            }
+                        },
+                        onVolumeDown = {
+                            coroutineScope.launch {
+                                if (viewModel.currentPage > 1) {
+                                    pagerState.scrollToPage(viewModel.currentPage - 1)
+                                }
+                            }
+                        }
+                    )
+                }
+
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     gesturesEnabled = viewModel.hasOutline,
@@ -152,25 +194,31 @@ fun ReaderView(
                             .fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        var pageScale by remember { mutableFloatStateOf(1f) }
+                        val zoomState = rememberZoomableState(
+                            zoomSpec = ZoomSpec(maxZoomFactor = 3f)
+                        )
 
-                        HorizontalPager(state = pagerState) { index ->
-                            var pageBitmap by remember {
-                                mutableStateOf<Bitmap?>(
-                                    null
+                        HorizontalPager(state = pagerState, beyondViewportPageCount = 1) { index ->
+                            var pageContainerSize by remember {
+                                mutableStateOf(
+                                    IntSize.Zero
                                 )
                             }
-                            var imageSize by remember {
-                                mutableStateOf<IntSize?>(
-                                    null
-                                )
+                            val pageZoom by remember {
+                                derivedStateOf {
+                                    scaleZoom(
+                                        zoomState.zoomFraction ?: 0f
+                                    )
+                                }
                             }
+                            val debouncedZoom by rememberDebouncedState(pageZoom)
+                            val pageBitmap by viewModel.getPageBitmap(index, debouncedZoom)
+                                .collectAsState(null)
 
-                            LaunchedEffect(index) {
-                                viewModel.getPageBitmap(index)
-                                    .collect { bitmap ->
-                                        pageBitmap = bitmap
-                                    }
+                            LaunchedEffect(debouncedZoom) {
+                                if (debouncedZoom > 1 && showBars) {
+                                    showBars = false
+                                }
                             }
 
                             Box(
@@ -183,52 +231,15 @@ fun ReaderView(
                                     SubcomposeAsyncImage(
                                         model = pageBitmap,
                                         contentDescription = null,
+                                        filterQuality = FilterQuality.High,
                                         modifier = Modifier
                                             .onGloballyPositioned { coordinates ->
-                                                imageSize = coordinates.size
+                                                pageContainerSize = coordinates.size
                                             }
-                                            .graphicsLayer(
-                                                scaleX = pageScale,
-                                                scaleY = pageScale,
-                                                // Add transformOrigin to fix the zooming position
-                                                transformOrigin = TransformOrigin(0.5f, 0.5f)
+                                            .zoomable(
+                                                zoomState,
+                                                onClick = { showBars = !showBars }
                                             )
-                                            .pointerInput(Unit) {
-                                                awaitEachGesture {
-                                                    // Wait for first touch
-                                                    awaitFirstDown(requireUnconsumed = false)
-                                                    do {
-                                                        val event = awaitPointerEvent()
-                                                        if (event.changes.size >= 2) {
-                                                            val zoomChange = event.calculateZoom()
-                                                            pageScale =
-                                                                (pageScale * zoomChange).coerceIn(1f..3f)
-
-                                                            // Consume the events when we're handling multi-touch
-                                                            event.changes.forEach { it.consume() }
-                                                        }
-                                                    } while (event.changes.any { it.pressed })
-                                                }
-                                            }
-                                            .pointerInput(Unit) {
-                                                detectTapGestures { tapOffset ->
-                                                    val size = this.size
-                                                    val width = size.width
-                                                    val height = size.height
-
-                                                    val horizontalThird = width / 3
-                                                    val verticalThird = height / 3
-
-                                                    val isInCenterX =
-                                                        tapOffset.x >= horizontalThird && tapOffset.x <= horizontalThird * 2
-                                                    val isInCenterY =
-                                                        tapOffset.y >= verticalThird && tapOffset.y <= verticalThird * 2
-
-                                                    if (isInCenterX && isInCenterY) {
-                                                        showBars = !showBars
-                                                    }
-                                                }
-                                            }
                                     ) {
                                         val painterState = painter.state
                                         val pageBounds =
@@ -239,12 +250,16 @@ fun ReaderView(
                                                 painter = painterState.painter,
                                                 contentDescription = null,
                                                 contentScale = ContentScale.Fit,
-                                                modifier = Modifier.fillMaxSize()
+                                                modifier = Modifier
+                                                    .background(Color.White)
+                                                    .fillMaxSize()
                                             )
+                                        } else if (painterState is AsyncImagePainter.State.Loading) {
+                                            CircularProgressIndicator()
                                         }
 
                                         if (viewModel.showSearchResults) {
-                                            imageSize?.let { size ->
+                                            pageContainerSize.let { size ->
                                                 val pageSize = IntSize(
                                                     width = pageBounds.first,
                                                     height = pageBounds.second
@@ -265,7 +280,7 @@ fun ReaderView(
                                             val pageLinks =
                                                 links.find { it.page == index }
 
-                                            imageSize?.let { size ->
+                                            pageContainerSize.let { size ->
                                                 pageLinks?.links?.let {
                                                     DocumentLinkOverlay(
                                                         links = it,
@@ -298,6 +313,7 @@ fun ReaderView(
                                                                     ).show()
                                                                 }
                                                             } else {
+                                                                viewModel.pushToHistory(viewModel.currentPage)
                                                                 coroutineScope.launch {
                                                                     val pageNum =
                                                                         viewModel.getPageIndexFromLink(
@@ -311,6 +327,9 @@ fun ReaderView(
                                                                     }
                                                                 }
                                                             }
+                                                        },
+                                                        onNonLinkClick = {
+                                                            showBars = !showBars
                                                         }
                                                     )
                                                 }
@@ -323,7 +342,7 @@ fun ReaderView(
                             }
                         }
 
-                        ReaderTopBar(
+                        ViewerTopBar(
                             modifier = Modifier.align(Alignment.TopCenter),
                             visible = showBars,
                             documentTitle = viewModel.getDocumentTitle(),
@@ -371,7 +390,7 @@ fun ReaderView(
                         )
 
                         if (pageCount > 0) {
-                            ReaderBottomBar(
+                            ViewerBottomBar(
                                 modifier = Modifier.align(Alignment.BottomCenter),
                                 visible = showBars,
                                 currentPage = viewModel.currentPage,
@@ -380,11 +399,41 @@ fun ReaderView(
                                     coroutineScope.launch {
                                         pagerState.scrollToPage(newPageIndex)
                                     }
+                                },
+                                visitedPages = viewModel.visitedPages,
+                                onPageJump = { pageIndex ->
+                                    viewModel.pushToHistory(pageIndex)
+                                },
+                                onPopFromHistory = {
+                                    viewModel.popFromHistory()
                                 }
                             )
                         }
                     }
                 }
+            }
+
+            ContentState.DOCUMENT_NOT_FOUND -> {
+                AlertDialog(
+                    onDismissRequest = {},
+                    icon = {
+                        Icon(Icons.Default.Warning, contentDescription = "Warning")
+                    },
+                    title = {
+                        Text(text = stringResource(R.string.missing_doc_title))
+                    },
+                    text = {
+                        Text(
+                            stringResource(R.string.missing_doc_msg),
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { closeViewAction() }) {
+                            Text("Close")
+                        }
+                    }
+                )
             }
         }
     }
@@ -458,7 +507,8 @@ fun DocumentLinkOverlay(
     originalPageSize: IntSize,
     containerSize: IntSize,
     linkColor: Color = Color(0x220000FF),
-    onLinkClick: (Link) -> Unit
+    onLinkClick: (Link) -> Unit,
+    onNonLinkClick: () -> Unit
 ) {
     // Remember calculated link areas to avoid recalculation on each tap
     val linkAreas = remember(links, containerSize, originalPageSize) {
@@ -475,6 +525,8 @@ fun DocumentLinkOverlay(
                         if (rect.contains(offset)) {
                             onLinkClick(link)
                             return@detectTapGestures
+                        } else {
+                            onNonLinkClick()
                         }
                     }
                 }
@@ -642,4 +694,80 @@ fun TableOfContentSheet(chapterPage: Int, outline: List<Item>, onItemSelected: (
             )
         }
     )
+}
+
+@Composable
+fun VolumeButtonDetector(
+    onVolumeUp: () -> Unit = {},
+    onVolumeDown: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    val view = LocalView.current
+
+    var volumeUpPressed = false
+    var volumeDownPressed = false
+
+    DisposableEffect(context) {
+        val keyEventDispatcher = ViewCompat.OnUnhandledKeyEventListenerCompat { _, event ->
+            when (event.keyCode) {
+                KeyEvent.KEYCODE_VOLUME_UP -> {
+                    if (event.action == KeyEvent.ACTION_DOWN && !volumeUpPressed) {
+                        onVolumeUp()
+                        volumeUpPressed = true
+                    } else if (event.action == KeyEvent.ACTION_UP) {
+                        volumeUpPressed = false
+                    }
+                    true
+                }
+
+                KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                    if (event.action == KeyEvent.ACTION_DOWN && !volumeDownPressed) {
+                        onVolumeDown()
+                        volumeDownPressed = true
+                    } else if (event.action == KeyEvent.ACTION_UP) {
+                        volumeDownPressed = false
+                    }
+                    true
+                }
+
+                else -> {
+                    false
+                }
+            }
+        }
+
+        ViewCompat.addOnUnhandledKeyEventListener(view, keyEventDispatcher)
+
+        onDispose {
+            ViewCompat.removeOnUnhandledKeyEventListener(view, keyEventDispatcher)
+        }
+    }
+}
+
+@Composable
+fun rememberDebouncedState(
+    value: Float,
+    delayMillis: Long = 300L
+): State<Float> {
+    val debouncedValue = remember { mutableFloatStateOf(value) }
+
+    LaunchedEffect(value) {
+        delay(delayMillis)
+        debouncedValue.floatValue = value
+    }
+
+    return debouncedValue
+}
+
+fun scaleZoom(
+    value: Float,
+    oldMin: Float = 0.0f,
+    oldMax: Float = 1.0f,
+    newMin: Float = 1.0f,
+    newMax: Float = 3.0f
+): Float {
+    val scaled = ((value - oldMin) / (oldMax - oldMin)) * (newMax - newMin) + newMin
+    val rounded = BigDecimal(scaled.toDouble()).setScale(2, RoundingMode.HALF_EVEN)
+
+    return rounded.toFloat()
 }

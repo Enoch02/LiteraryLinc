@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.enoch02.more"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -45,6 +45,7 @@ dependencies {
     implementation(project(":core:settings"))
     implementation(project(":core:database"))
     implementation(project(":core:coverfile"))
+    implementation(project(":core:resources"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -76,6 +77,7 @@ dependencies {
     implementation(libs.slf4j.android)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.hilt.work)
+    implementation( libs.aboutlibraries.compose.m3)
 }
 
 java {

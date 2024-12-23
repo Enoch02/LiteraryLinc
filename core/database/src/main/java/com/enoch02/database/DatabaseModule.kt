@@ -25,15 +25,6 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun providesSearchHistoryDatabase(@ApplicationContext context: Context): SearchHistoryDatabase =
-        Room.databaseBuilder(
-            context,
-            SearchHistoryDatabase::class.java,
-            "search-history-db"
-        ).build()
-
-    @Provides
-    @Singleton
     fun providesDocumentsDatabase(@ApplicationContext context: Context): DocumentDatabase =
         Room.databaseBuilder(
             context,

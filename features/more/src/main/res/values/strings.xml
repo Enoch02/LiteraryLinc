@@ -38,4 +38,5 @@
     <string name="always_dark_mode_desc">Dark mode is always on</string>
     <string name="dynamic_colors_label">Dynamic Colors</string>
     <string name="toggle_dynamic_colors_desc">Toggle dynamic colors</string>
+    <string name="licenses">Licenses</string>
 </resources>

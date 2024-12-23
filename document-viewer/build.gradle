@@ -12,6 +12,7 @@ version = '1.24.9a'
 dependencies {
     implementation project(":core:database")
     implementation project(":core:resources")
+    implementation project(':core:settings')
 
     implementation libs.androidx.appcompat
     implementation libs.androidx.core.ktx
@@ -30,9 +31,10 @@ dependencies {
 
     implementation libs.hilt.android
     implementation libs.androidx.hilt.navigation.compose
-    implementation project(':core:settings')
     ksp libs.androidx.hilt.compiler
     ksp libs.hilt.android.compiler
+
+    implementation libs.zoomable
 
     debugImplementation libs.androidx.ui.tooling
     debugImplementation libs.androidx.ui.test.manifest

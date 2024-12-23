@@ -3,6 +3,8 @@ package com.enoch02.reader
 import android.content.Context
 import android.os.Build
 import android.widget.Toast
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.util.fastFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,6 +28,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -47,6 +50,8 @@ class ReaderListViewModel @Inject constructor(
     private val documents = documentDao.getDocuments()
     private val _sorting = MutableStateFlow(ReaderSorting.LAST_READ)
     private val _filter = MutableStateFlow(ReaderFilter.ALL)
+    private val _selectedDocs = mutableStateListOf<LLDocument>()
+    val selectedDocs = _selectedDocs
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val documentsState: StateFlow<DocumentsState> = combine(_sorting, _filter) { sorting, filter ->
@@ -234,6 +239,15 @@ class ReaderListViewModel @Inject constructor(
                     )
                         .show()
                 }
+            }
+        }
+    }
+
+    fun searchFor(text: String): Flow<List<LLDocument>> {
+        return documents.map { documents ->
+            documents.filter {
+                it.name.contains(text, ignoreCase = true) ||
+                        it.author.contains(text, ignoreCase = true)
             }
         }
     }

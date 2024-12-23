@@ -3,8 +3,6 @@ package com.enoch02.booklist
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ScrollableTabRow
@@ -32,8 +30,6 @@ fun BookViewScreen(
     sorting: Sorting,
     statusFilter: StatusFilter,
     listViewMode: BookViewMode,
-    listState: LazyListState,
-    gridState: LazyGridState,
     onItemClick: (Int) -> Unit,
     viewModel: BookListViewModel = hiltViewModel()
 ) {
@@ -82,7 +78,6 @@ fun BookViewScreen(
                                 covers = covers,
                                 documents = documents,
                                 onItemClick = onItemClick,
-                                listState = listState,
                                 onItemDelete = { id ->
                                     viewModel.deleteBook(id)
                                 },
@@ -100,7 +95,6 @@ fun BookViewScreen(
                             BookGridView(
                                 books = books,
                                 covers = covers,
-                                gridState = gridState,
                                 onItemClick = onItemClick,
                                 onItemDelete = { id -> viewModel.deleteBook(id) },
                                 modifier = Modifier

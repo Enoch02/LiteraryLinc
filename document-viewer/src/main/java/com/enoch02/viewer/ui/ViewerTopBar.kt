@@ -45,7 +45,7 @@ import com.artifex.mupdf.viewer.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReaderTopBar(
+fun ViewerTopBar(
     visible: Boolean,
     modifier: Modifier = Modifier,
     documentTitle: String,
@@ -246,7 +246,7 @@ fun SearchTextField(
 @Preview
 @Composable
 private fun Preview() {
-    ReaderTopBar(
+    ViewerTopBar(
         visible = true,
         documentTitle = "Hello, World",
         onLink = {},
