@@ -2,7 +2,6 @@ package com.enoch02.reader
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.util.fastFilter
 import androidx.lifecycle.ViewModel
@@ -24,7 +23,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -243,7 +241,10 @@ class ReaderListViewModel @Inject constructor(
 
     fun searchFor(text: String): Flow<List<LLDocument>> {
         return documents.map { documents ->
-            documents.filter { it.name.contains(text, ignoreCase = true) }
+            documents.filter {
+                it.name.contains(text, ignoreCase = true) ||
+                        it.author.contains(text, ignoreCase = true)
+            }
         }
     }
 }

@@ -24,11 +24,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import com.enoch02.database.model.LLDocument
+import com.enoch02.reader.R
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
@@ -49,11 +51,11 @@ fun ViewerSearchBottomSheet(
     onDeleteDocument: (document: LLDocument) -> Unit,
     onShare: (document: LLDocument) -> Unit
 ) {
-    var query by remember { mutableStateOf("") }
-    var searchResults: Flow<List<LLDocument>> by remember { mutableStateOf(emptyFlow()) }
-    val items by searchResults.collectAsState(emptyList())
-
     if (visible) {
+        var query by remember { mutableStateOf("") }
+        var searchResults: Flow<List<LLDocument>> by remember { mutableStateOf(emptyFlow()) }
+        val items by searchResults.collectAsState(emptyList())
+
         ModalBottomSheet(
             onDismissRequest = onDismiss,
         ) {
@@ -78,7 +80,7 @@ fun ViewerSearchBottomSheet(
                             onExpandedChange = {},
                             modifier = Modifier,
                             enabled = true,
-                            placeholder = { Text("Book Title") },
+                            placeholder = { Text(stringResource(R.string.search_input_placholder)) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Rounded.Search,

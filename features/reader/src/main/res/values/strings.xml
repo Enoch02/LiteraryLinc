@@ -21,4 +21,5 @@
     <string name="blank" />
     <string name="document_missing_warning">This document\'s file is missing</string>
     <string name="ok">OK</string>
+    <string name="search_input_placholder">Book Title or Author</string>
 </resources>
