@@ -1,4 +1,4 @@
-package com.enoch02.viewer.ui
+package com.enoch02.viewer.components
 
 import android.content.Intent
 import android.net.Uri
@@ -12,9 +12,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
@@ -105,6 +103,7 @@ fun DocumentView(
     val context = LocalContext.current
     val volumePaging by viewModel.getPreference(SettingsRepository.BooleanPreferenceType.VOLUME_BTN_PAGING)
         .collectAsState(initial = false)
+    var showDocumentInfo by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.initDocument(
@@ -386,6 +385,9 @@ fun DocumentView(
                                 coroutineScope.launch {
                                     drawerState.open()
                                 }
+                            },
+                            onViewDocInfo = {
+                                showDocumentInfo = true
                             }
                         )
 
@@ -437,6 +439,12 @@ fun DocumentView(
             }
         }
     }
+
+    DocumentInfoDialog(
+        info = viewModel.documentInfo,
+        visible = showDocumentInfo,
+        onDismiss = { showDocumentInfo = false }
+    )
 }
 
 @Composable

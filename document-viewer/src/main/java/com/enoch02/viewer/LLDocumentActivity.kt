@@ -23,7 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.artifex.mupdf.viewer.R
 import com.enoch02.resources.theme.LiteraryLincTheme
 import com.enoch02.settings.SettingsRepository
-import com.enoch02.viewer.ui.DocumentView
+import com.enoch02.viewer.components.DocumentView
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

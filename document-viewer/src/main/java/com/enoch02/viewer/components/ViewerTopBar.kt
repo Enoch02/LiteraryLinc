@@ -1,4 +1,4 @@
-package com.enoch02.viewer.ui
+package com.enoch02.viewer.components
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
 import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.rounded.Cancel
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.LinkOff
 import androidx.compose.material.icons.rounded.Search
@@ -59,7 +60,8 @@ fun ViewerTopBar(
     showLinks: Boolean,
     onLink: () -> Unit,
     hasOutline: Boolean,
-    onOutline: () -> Unit
+    onOutline: () -> Unit,
+    onViewDocInfo: () -> Unit
 ) {
     var isSearching by remember { mutableStateOf(false) }
 
@@ -163,6 +165,16 @@ fun ViewerTopBar(
                                             onClick = onOutline
                                         )
                                     }
+
+                                    IconButton(
+                                        content = {
+                                            Icon(
+                                                imageVector = Icons.Rounded.Info,
+                                                contentDescription = null
+                                            )
+                                        },
+                                        onClick = onViewDocInfo
+                                    )
                                 }
                             )
                         }
@@ -261,6 +273,7 @@ private fun Preview() {
         onHideResults = {
 
         },
-        showLinks = true
+        showLinks = true,
+        onViewDocInfo = {}
     )
 }
