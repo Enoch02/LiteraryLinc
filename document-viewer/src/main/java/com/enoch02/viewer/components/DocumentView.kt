@@ -157,14 +157,14 @@ fun DocumentView(
                         onVolumeUp = {
                             coroutineScope.launch {
                                 if (viewModel.currentPage < pageCount) {
-                                    pagerState.scrollToPage(viewModel.currentPage + 1)
+                                    pagerState.animateScrollToPage(viewModel.currentPage + 1)
                                 }
                             }
                         },
                         onVolumeDown = {
                             coroutineScope.launch {
                                 if (viewModel.currentPage > 1) {
-                                    pagerState.scrollToPage(viewModel.currentPage - 1)
+                                    pagerState.animateScrollToPage(viewModel.currentPage - 1)
                                 }
                             }
                         }
