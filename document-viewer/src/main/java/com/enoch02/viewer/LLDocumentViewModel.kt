@@ -77,6 +77,8 @@ class LLDocumentViewModel @Inject constructor(
     var password by mutableStateOf("")
     private val _visitedPages = mutableStateOf<List<Int>>(emptyList()) // Stack as a list
     val visitedPages by _visitedPages
+    private var _documentInfo = mutableStateOf(DocumentInfo())
+    val documentInfo by _documentInfo
 
     private var docTitle by mutableStateOf("")
     private var docKey = ""
@@ -187,6 +189,17 @@ class LLDocumentViewModel @Inject constructor(
                     loadOutline()
                     loadPages()
                     getDocumentLinks()
+                    _documentInfo.value = DocumentInfo(
+                        document!!.getMetaData(Document.META_INFO_TITLE),
+                        document!!.getMetaData(Document.META_INFO_AUTHOR),
+                        document!!.getMetaData(Document.META_INFO_SUBJECT),
+                        document!!.getMetaData(Document.META_INFO_CREATIONDATE),
+                        document!!.getMetaData(Document.META_INFO_MODIFICATIONDATE),
+                        document!!.getMetaData(Document.META_INFO_CREATOR),
+                        document!!.getMetaData(Document.META_INFO_PRODUCER),
+                        document!!.getMetaData(Document.META_INFO_KEYWORDS),
+                        document!!.getMetaData(Document.META_ENCRYPTION),
+                    )
                     contentState = ContentState.NOT_LOADING
                 }
             } catch (e: Exception) {
@@ -683,3 +696,15 @@ class LLDocumentViewModel @Inject constructor(
 }
 
 class EmptyHistoryException : Exception()
+
+data class DocumentInfo(
+    val title: String = "",
+    val author: String = "",
+    val subject: String = "",
+    val creationDate: String = "",
+    val modDate: String = "",
+    val creator: String = "",
+    val producer: String = "",
+    val keywords: String = "",
+    val encryption: String = "",
+)

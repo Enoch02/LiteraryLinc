@@ -1,4 +1,4 @@
-package com.enoch02.viewer.ui
+package com.enoch02.viewer.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
