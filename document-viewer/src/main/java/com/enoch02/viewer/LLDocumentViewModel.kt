@@ -43,7 +43,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.time.Instant
@@ -79,6 +78,8 @@ class LLDocumentViewModel @Inject constructor(
     val visitedPages by _visitedPages
     private var _documentInfo = mutableStateOf(DocumentInfo())
     val documentInfo by _documentInfo
+    private var _showRereadDialog = mutableStateOf(false)
+    val showRereadDialog by _showRereadDialog
 
     private var docTitle by mutableStateOf("")
     private var docKey = ""
@@ -201,6 +202,8 @@ class LLDocumentViewModel @Inject constructor(
                         document!!.getMetaData(Document.META_ENCRYPTION),
                     )
                     contentState = ContentState.NOT_LOADING
+
+                    hasBookBeenCompleted()
                 }
             } catch (e: Exception) {
                 // catch exceptions that occurs when user closes the screen
@@ -477,6 +480,8 @@ class LLDocumentViewModel @Inject constructor(
                 getDocumentLinks()
 
                 contentState = ContentState.NOT_LOADING
+
+                hasBookBeenCompleted()
             }
 
             requiresPassword = false
@@ -488,31 +493,29 @@ class LLDocumentViewModel @Inject constructor(
     /**
      * Update stored document info
      */
-    fun updateDocumentData() {
-        viewModelScope.launch(Dispatchers.IO) {
-            updateJobMutex.withLock {
-                val doc = documentId?.let { documentDao.getDocument(it) }
-                if (doc != null) {
-                    val lastRead =
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            Date.from(Instant.now())
-                        } else {
-                            Calendar.getInstance().time
-                        }
-
-                    // adding 1 because the pager and lib are zero indexed
-                    val modifiedDocument = doc.copy(
-                        pages = documentPageCount,
-                        currentPage = currentPage + 1,
-                        lastRead = lastRead,
-                        isRead = (currentPage + 1) == documentPageCount
-                    )
-
-                    documentDao.updateDocument(modifiedDocument)
-
-                    if (doc.autoTrackable) {
-                        updateBookListEntry(modifiedDocument)
+    suspend fun updateDocumentData() {
+        updateJobMutex.withLock {
+            val doc = documentId?.let { documentDao.getDocument(it) }
+            if (doc != null) {
+                val lastRead =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        Date.from(Instant.now())
+                    } else {
+                        Calendar.getInstance().time
                     }
+
+                // adding 1 because the pager and lib are zero indexed
+                val modifiedDocument = doc.copy(
+                    pages = documentPageCount,
+                    currentPage = currentPage + 1,
+                    lastRead = lastRead,
+                    isRead = (currentPage + 1) == documentPageCount
+                )
+
+                documentDao.updateDocument(modifiedDocument)
+
+                if (doc.autoTrackable) {
+                    updateBookListEntry(modifiedDocument)
                 }
             }
         }
@@ -524,32 +527,31 @@ class LLDocumentViewModel @Inject constructor(
      *
      * @param document the md5 of the document
      * */
-    private fun updateBookListEntry(document: LLDocument) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val book = bookDao.getBookByMd5(document.id)
-            val isComplete = (document.currentPage + 1) == document.pages
-            val completionDate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Instant.now().toEpochMilli()
-            } else {
-                Calendar.getInstance().time.time
-            }
+    private suspend fun updateBookListEntry(document: LLDocument) {
+        val book = bookDao.getBookByMd5(document.id)
+        val isComplete = document.currentPage == document.pages
+        val completionDate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Instant.now().toEpochMilli()
+        } else {
+            Calendar.getInstance().time.time
+        }
 
-            book?.let { theBook ->
-                if (theBook.pagesRead <= document.currentPage) {
-                    bookDao.updateBook(
-                        theBook.copy(
-                            pageCount = document.pages,
-                            pagesRead = document.currentPage,
-                            coverImageName = if (theBook.coverImageName.isNullOrEmpty()) document.cover else theBook.coverImageName,
-                            status = if (document.pages == document.currentPage) Book.status[1] else Book.status[0],
-                            dateCompleted = if (isComplete && theBook.dateCompleted == null) {
-                                completionDate
-                            } else {
-                                theBook.dateCompleted
-                            }
-                        )
+        book?.let { theBook ->
+            if (theBook.pagesRead <= document.currentPage) {
+                bookDao.updateBook(
+                    theBook.copy(
+                        pageCount = document.pages,
+                        pagesRead = document.currentPage,
+                        coverImageName = if (theBook.coverImageName.isNullOrEmpty()) document.cover else theBook.coverImageName,
+                        status = if (document.pages == document.currentPage) Book.status[1] else theBook.status,
+                        dateCompleted = if (isComplete && theBook.dateCompleted == null) {
+                            completionDate
+                        } else {
+                            theBook.dateCompleted
+                        },
+                        timesReread = if (isComplete && theBook.status == Book.status[4]) theBook.timesReread + 1 else theBook.timesReread
                     )
-                }
+                )
             }
         }
     }
@@ -687,6 +689,37 @@ class LLDocumentViewModel @Inject constructor(
         }
 
         return Result.failure(EmptyHistoryException())
+    }
+
+    private fun hasBookBeenCompleted() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val book = documentId?.let { bookDao.getBookByMd5(it) }
+
+            if (book == null) {
+                _showRereadDialog.value = false
+            } else {
+                _showRereadDialog.value = book.status == Book.status[1]
+            }
+        }
+    }
+
+    fun closeRereadDialog() {
+        _showRereadDialog.value = false
+    }
+
+    suspend fun rereadBook() {
+        val book = documentId?.let { bookDao.getBookByMd5(it) }
+        book?.let { theBook ->
+            bookDao.updateBook(
+                theBook.copy(
+                    status = Book.status[4],
+                    pagesRead = 0
+                )
+            )
+            currentPage = 0
+
+            _showRereadDialog.value = false
+        }
     }
 
     override fun onCleared() {

@@ -5,7 +5,8 @@ enum class StatusFilter {
     READING,
     COMPLETED,
     ON_HOLD,
-    PLANNING;
+    PLANNING,
+    REREADING;
 
     fun stringify(): String {
         return this.name.lowercase().replaceFirstChar { c -> c.uppercase() }.replace("_", " ")

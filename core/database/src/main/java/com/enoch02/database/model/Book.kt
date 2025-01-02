@@ -3,7 +3,6 @@ package com.enoch02.database.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-
 @Entity(tableName = "books")
 data class Book(
     @PrimaryKey(autoGenerate = true)
@@ -27,6 +26,7 @@ data class Book(
     val documentMd5: String? = null
 ) {
     companion object {
+        //TODO: convert to data objects?
         val types = mapOf(
             0 to "All",
             1 to "Non-Fiction",
@@ -35,7 +35,7 @@ data class Book(
             4 to "Comic",
             5 to "Manga"
         )
-        val status = listOf("Reading", "Completed", "On Hold", "Planning")
+        val status = listOf("Reading", "Completed", "On Hold", "Planning", "Rereading")
 
         fun createBook(
             id: Int? = null,
