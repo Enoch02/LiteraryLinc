@@ -36,11 +36,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 }
 
@@ -52,7 +52,8 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(project(":core:coverfile"))
     implementation(libs.androidx.documentfile)
-    implementation(libs.androidx.room.testing)
+    //implementation(libs.androidx.room.testing)
+    //implementation(libs.core.ktx)
     annotationProcessor(libs.androidx.room.compiler)
     ksp(libs.androidx.room.compiler)
 
@@ -60,8 +61,15 @@ dependencies {
     ksp(libs.hilt.android.compiler)
 
     testImplementation(libs.junit)
+    testImplementation(libs.androidx.junit.ktx)
+    testImplementation(libs.androidx.core.testing)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.core.testing)
+    androidTestImplementation(libs.androidx.room.testing)
+    androidTestImplementation("androidx.test:runner:1.6.1")
+    androidTestImplementation("androidx.test:rules:1.6.1")
 
     implementation(libs.kotlin.csv.jvm)
     implementation(kotlin("reflect"))

@@ -36,8 +36,10 @@ uiTextGoogleFonts = "1.7.4"
 agp = "8.1.4"
 junitKtx = "1.2.1"
 roomTesting = "2.6.1"
-agpVersion = "8.1.4"
+agpVersion = "8.7.2"
 zoomable = "0.14.0"
+coreKtxVersion = "1.6.1"
+coreTesting = "2.2.0"
 
 
 [libraries]
@@ -86,6 +88,8 @@ androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text
 androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
 androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "roomTesting" }
 zoomable = { module = "me.saket.telephoto:zoomable", version.ref = "zoomable" }
+core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtxVersion" }
+androidx-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "coreTesting" }
 
 [plugins]
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
