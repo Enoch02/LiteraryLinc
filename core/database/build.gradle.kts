@@ -68,8 +68,8 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.core.testing)
     androidTestImplementation(libs.androidx.room.testing)
-    androidTestImplementation("androidx.test:runner:1.6.1")
-    androidTestImplementation("androidx.test:rules:1.6.1")
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.androidx.rules)
 
     implementation(libs.kotlin.csv.jvm)
     implementation(kotlin("reflect"))

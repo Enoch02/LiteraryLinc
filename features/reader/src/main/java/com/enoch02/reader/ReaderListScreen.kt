@@ -42,7 +42,7 @@ import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.ReaderSorting
 import com.enoch02.reader.components.NoDocumentView
 import com.enoch02.reader.components.ReaderListItem
-import com.enoch02.reader.components.ViewerSearchBottomSheet
+import com.enoch02.reader.components.ReaderSearchBottomSheet
 import com.enoch02.viewer.LLDocumentActivity
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
@@ -210,7 +210,7 @@ fun ReaderListScreen(
                     }
                 )
 
-                ViewerSearchBottomSheet(
+                ReaderSearchBottomSheet(
                     visible = isSearching,
                     onDismiss = { onDismissSearching() },
                     onSearch = { query ->
