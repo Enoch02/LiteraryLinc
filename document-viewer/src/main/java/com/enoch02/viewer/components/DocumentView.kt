@@ -3,8 +3,10 @@ package com.enoch02.viewer.components
 import android.content.Intent
 import android.net.Uri
 import android.os.FileUriExposedException
+import android.util.Log
 import android.view.KeyEvent
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -24,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
@@ -83,6 +86,8 @@ import com.enoch02.viewer.LLDocumentViewModel
 import com.enoch02.viewer.model.ContentState
 import com.enoch02.viewer.model.Item
 import com.enoch02.viewer.model.SearchResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -101,6 +106,7 @@ fun DocumentView(
     closeViewAction: () -> Unit
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val volumePaging by viewModel.getPreference(SettingsRepository.BooleanPreferenceType.VOLUME_BTN_PAGING)
         .collectAsState(initial = false)
     var showDocumentInfo by remember { mutableStateOf(false) }
@@ -112,6 +118,13 @@ fun DocumentView(
             mimeType = mimeType,
             id = documentId
         )
+    }
+
+    BackHandler {
+        coroutineScope.launch {
+            viewModel.updateDocumentData()
+            closeViewAction()
+        }
     }
 
     AnimatedContent(
@@ -131,7 +144,6 @@ fun DocumentView(
             }
 
             ContentState.NOT_LOADING -> {
-                val coroutineScope = rememberCoroutineScope()
                 var showBars by rememberSaveable {
                     mutableStateOf(true)
                 }
@@ -412,6 +424,46 @@ fun DocumentView(
                             )
                         }
                     }
+                }
+
+                if (viewModel.showRereadDialog) {
+                    AlertDialog(
+                        title = {
+                            Text(stringResource(R.string.info))
+                        },
+                        text = {
+                            Text(
+                                stringResource(R.string.reread_book_msg),
+                                textAlign = TextAlign.Justify
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        viewModel.rereadBook()
+                                        pagerState.scrollToPage(viewModel.currentPage)
+                                    }
+                                },
+                                content = {
+                                    Text("Yes")
+                                }
+                            )
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    viewModel.closeRereadDialog()
+                                },
+                                content = {
+                                    Text("No")
+                                }
+                            )
+                        },
+                        onDismissRequest = {
+                            viewModel.closeRereadDialog()
+                        }
+                    )
                 }
             }
 

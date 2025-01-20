@@ -44,6 +44,10 @@ fun BookListTopAppBar(
                     StatusFilter.PLANNING -> {
                         StatusFilter.PLANNING.stringify()
                     }
+
+                    StatusFilter.REREADING -> {
+                        StatusFilter.REREADING.stringify()
+                    }
                 }
             )
         },

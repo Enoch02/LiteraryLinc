@@ -36,7 +36,7 @@ import kotlinx.coroutines.flow.emptyFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ViewerSearchBottomSheet(
+fun ReaderSearchBottomSheet(
     visible: Boolean,
     onDismiss: () -> Unit,
     onSearch: (String) -> Flow<List<LLDocument>>,

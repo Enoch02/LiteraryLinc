@@ -9,6 +9,7 @@ import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.automirrored.rounded.ReadMore
 import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.PauseCircle
+import androidx.compose.material.icons.rounded.RestartAlt
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
@@ -58,6 +59,10 @@ fun BookListDrawerSheet(
 
                                         StatusFilter.PLANNING -> {
                                             Icons.Rounded.Schedule
+                                        }
+
+                                        StatusFilter.REREADING -> {
+                                            Icons.Rounded.RestartAlt
                                         }
                                     },
                                     contentDescription = null

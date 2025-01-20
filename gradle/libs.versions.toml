@@ -21,10 +21,13 @@ kotlinxCoroutinesAndroid = "1.8.1"
 lifecycleRuntimeKtx = "2.8.6"
 material = "1.12.0"
 materialIconsExtended = "1.7.4"
+mockkAndroid = "1.13.16"
 navigationCompose = "2.8.3"
 roomCompiler = "2.6.1"
 roomKtx = "2.6.1"
 roomRuntime = "2.6.1"
+runner = "1.6.1"
+rules = "1.6.1"
 runtimeLivedata = "1.7.4"
 slf4jAndroid = "1.7.36"
 materialAndroid = "1.7.6"
@@ -38,6 +41,8 @@ junitKtx = "1.2.1"
 roomTesting = "2.6.1"
 agpVersion = "8.7.3"
 zoomable = "0.14.0"
+coreKtxVersion = "1.6.1"
+coreTesting = "2.2.0"
 
 
 [libraries]
@@ -62,6 +67,8 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+androidx-rules = { module = "androidx.test:rules", version.ref = "rules" }
+androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
 androidx-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata", version.ref = "runtimeLivedata" }
 androidx-ui = { module = "androidx.compose.ui:ui" }
 androidx-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
@@ -77,6 +84,7 @@ junit = { module = "junit:junit", version.ref = "junit" }
 kotlin-csv-jvm = { module = "com.github.doyaaaaaken:kotlin-csv-jvm", version.ref = "kotlinCsvJvm" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
+mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockkAndroid" }
 slf4j-android = { module = "org.slf4j:slf4j-android", version.ref = "slf4jAndroid" }
 androidx-material-android = { group = "androidx.compose.material", name = "material-android", version.ref = "materialAndroid" }
 androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
@@ -86,6 +94,8 @@ androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text
 androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
 androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "roomTesting" }
 zoomable = { module = "me.saket.telephoto:zoomable", version.ref = "zoomable" }
+core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtxVersion" }
+androidx-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "coreTesting" }
 
 [plugins]
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
