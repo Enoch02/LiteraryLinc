@@ -3,27 +3,37 @@ package com.enoch02.database.export_and_import.csv
 import android.app.Application
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.model.Book
 import com.enoch02.database.util.Base64Functions
 import com.enoch02.database.util.formatEpochAsString
 import com.enoch02.database.util.getEpochFromString
-import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import com.opencsv.CSVWriter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import com.opencsv.bean.CsvBindByName
+import com.opencsv.bean.CsvToBeanBuilder
+import com.opencsv.enums.CSVReaderNullFieldIndicator
+import com.opencsv.exceptions.CsvException
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 
+private const val TAG = "CSVManager"
 
-//TODO: Figure out how to run this in the background even when the app is closed.
+//TODO: test how it handles malformed csv files
 class CSVManager(
     private val application: Application,
     private val bookDao: BookDao,
     private val bookCoverRepository: BookCoverRepository
 ) {
-
-    //TODO: add error handling and return Result object
     suspend fun export(uri: Uri) {
         val contentResolver = application.contentResolver
         val outputStream = contentResolver.openOutputStream(uri)
@@ -31,107 +41,196 @@ class CSVManager(
         val covers = bookCoverRepository.latestCoverPath
 
         if (outputStream != null) {
-            csvWriter().openAsync(outputStream) {
-                writeRow(
-                    listOf(
-                        "Title",
-                        "Author",
-                        "Pages Read",
-                        "Page Count",
-                        "Date Started",
-                        "Date Completed",
-                        "Times Reread",
-                        "Personal Rating",
-                        "ISBN",
-                        "Genre",
-                        "Type",
-                        "Cover Image[Base64]",
-                        "Notes",
-                        "Status",
-                        "Linked file md5"
-                    )
+            val writer = OutputStreamWriter(outputStream)
+            val csvWriter = CSVWriter(writer)
+
+            val header = arrayOf(
+                "Title",
+                "Author",
+                "Pages Read",
+                "Page Count",
+                "Date Started",
+                "Date Completed",
+                "Times Reread",
+                "Personal Rating",
+                "ISBN",
+                "Genre",
+                "Type",
+                "Cover Image[Base64]",
+                "Notes",
+                "Status",
+                "Linked file md5"
+            )
+
+            csvWriter.writeNext(header)
+            books.forEach {
+                val coverImagePath = covers.first()[it.coverImageName]
+                val encodedImageResult = Base64Functions.encode(coverImagePath.toString())
+                var encodedImage = ""
+
+                encodedImageResult.onSuccess { encodedStr ->
+                    encodedImage = encodedStr
+                }
+
+                val row = arrayOf(
+                    it.title,
+                    it.author,
+                    it.pagesRead.toString(),
+                    it.pageCount.toString(),
+                    formatEpochAsString(it.dateStarted),
+                    formatEpochAsString(it.dateCompleted),
+                    it.timesReread.toString(),
+                    it.personalRating.toString(),
+                    it.isbn,
+                    it.genre,
+                    it.type,
+                    encodedImage,
+                    it.notes,
+                    it.status,
+                    it.documentMd5
                 )
 
-                books.forEach {
-                    val coverImagePath = covers.first()[it.coverImageName]
-                    val encodedImageResult = Base64Functions.encode(coverImagePath.toString())
-                    var encodedImage = ""
-
-                    encodedImageResult.onSuccess { encodedStr ->
-                        encodedImage = encodedStr
-                    }
-
-                    val row = listOf(
-                        it.title,
-                        it.author,
-                        it.pagesRead,
-                        it.pageCount,
-                        formatEpochAsString(it.dateStarted),
-                        formatEpochAsString(it.dateCompleted),
-                        it.timesReread,
-                        it.personalRating,
-                        it.isbn,
-                        it.genre,
-                        it.type,
-                        encodedImage,
-                        it.notes,
-                        it.status,
-                        it.documentMd5
-                    )
-
-                    writeRow(row)
-                }
+                csvWriter.writeNext(row)
+                Log.d(TAG, "export: ${it.title} exported")
             }
+
+            csvWriter.flush()
+            csvWriter.close()
         }
     }
 
-    suspend fun import(uri: Uri): Result<Unit> = withContext(Dispatchers.IO) {
-        val contentResolver = application.contentResolver
-        val csvFileStream = contentResolver.openInputStream(uri)
+    fun import(uri: Uri): Result<Unit> {
+        try {
+            val inputStream = application.contentResolver.openInputStream(uri)
+            inputStream?.use { stream ->
+                val reader = BufferedReader(InputStreamReader(stream))
+                val csvBean = CsvToBeanBuilder<CSVRestoreObject>(reader)
+                    .withType(CSVRestoreObject::class.java)
+                    .withFieldAsNull(CSVReaderNullFieldIndicator.BOTH)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .withThrowExceptions(false)
+                    .build()
+                val iterator = csvBean.iterator()
 
-        if (csvFileStream != null) {
-            try {
-                csvReader().openAsync(csvFileStream) {
-                    readAllAsSequence().forEachIndexed { index, row ->
-                        if (index != 0) {
-                            val encodedImage = row[11]
-                            val decodedImageResult = Base64Functions.decode(encodedImage)
-                            var decodedImage: Bitmap? = null
+                runBlocking {
+                    val jobs = mutableListOf<Deferred<Unit>>()
 
-                            decodedImageResult.onSuccess { bitmap ->
-                                decodedImage = bitmap
+                    while (iterator.hasNext()) {
+                        val row = iterator.next()
+
+                        try {
+
+
+                            // Launch a coroutine to process the row
+                            val job = async(Dispatchers.IO) {
+                                processRow(row)
                             }
 
-                            val book = Book(
-                                title = row[0],
-                                author = row[1],
-                                pagesRead = row[2].toInt(),
-                                pageCount = row[3].toInt(),
-                                dateStarted = getEpochFromString(row[4]),
-                                dateCompleted = getEpochFromString(row[5]),
-                                timesReread = row[6].toInt(),
-                                personalRating = row[7].toInt(),
-                                isbn = row[8],
-                                genre = row[9],
-                                type = row[10],
-                                coverImageName = bookCoverRepository.copyCoverFrom(
-                                    bitmap = decodedImage,
-                                    name = row[0]
-                                ),
-                                notes = row[12],
-                                status = row[13],
-                                documentMd5 = row[14]
-                            )
-
-                            bookDao.insertBook(book)
+                            jobs.add(job)
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error while processing row: ${e.message}")
                         }
                     }
+
+                    // Wait for all jobs to complete
+                    jobs.awaitAll()
                 }
-            } catch (e: Exception) {
-                return@withContext Result.failure(e)
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return Result.failure(e)
         }
 
-        return@withContext Result.success(Unit)
+        return Result.success(Unit)
+    }
+
+    private suspend fun processRow(restoreObj: CSVRestoreObject) {
+        Log.d(TAG, "newImport: Restoring ${restoreObj.title}")
+
+        if (!bookDao.doesBookTitleExist(restoreObj.title).first()) {
+            val decodedImageResult = restoreObj.coverImageMd5?.let {
+                Base64Functions.decode(
+                    it
+                )
+            }
+            var decodedImage: Bitmap? = null
+
+            decodedImageResult?.onSuccess { bitmap ->
+                decodedImage = bitmap
+            }
+
+            bookDao.insertBook(
+                Book(
+                    title = restoreObj.title,
+                    author = restoreObj.author,
+                    pagesRead = restoreObj.pagesRead,
+                    pageCount = restoreObj.pageCount,
+                    dateStarted = getEpochFromString(restoreObj.dateStarted ?: ""),
+                    dateCompleted = getEpochFromString(restoreObj.dateCompleted ?: ""),
+                    timesReread = restoreObj.timesReread,
+                    personalRating = restoreObj.personalRating,
+                    isbn = restoreObj.isbn,
+                    genre = restoreObj.genre,
+                    type = restoreObj.type,
+                    coverImageName = bookCoverRepository.copyCoverFrom(
+                        bitmap = decodedImage,
+                        name = restoreObj.title
+                    ),
+                    notes = restoreObj.notes,
+                    status = restoreObj.status,
+                    documentMd5 = restoreObj.documentMd5
+                )
+            )
+        } else {
+            Log.i(TAG, "processRow: skipping ${restoreObj.title}, title already in db")
+        }
     }
 }
+
+
+data class CSVRestoreObject(
+    @CsvBindByName(column = "Title", required = true)
+    val title: String = "",
+
+    @CsvBindByName(column = "Author")
+    val author: String = "",
+
+    @CsvBindByName(column = "Pages Read")
+    val pagesRead: Int = 0,
+
+    @CsvBindByName(column = "Page Count")
+    val pageCount: Int = 0,
+
+    @CsvBindByName(column = "Date Started")
+    val dateStarted: String? = null,
+
+    @CsvBindByName(column = "Date Completed")
+    val dateCompleted: String? = null,
+
+    @CsvBindByName(column = "Times Reread")
+    val timesReread: Int = 0,
+
+    @CsvBindByName(column = "Personal Rating")
+    val personalRating: Int = 0,
+
+    @CsvBindByName(column = "ISBN")
+    val isbn: String = "",
+
+    @CsvBindByName(column = "Genre")
+    val genre: String = "",
+
+    @CsvBindByName(column = "Type")
+    val type: String = "",
+
+    @CsvBindByName(column = "Cover Image[Base64]")
+    val coverImageMd5: String? = null,
+
+    @CsvBindByName(column = "Notes")
+    val notes: String = "",
+
+    @CsvBindByName(column = "Status")
+    val status: String = "",
+
+    @CsvBindByName(column = "Linked file md5")
+    val documentMd5: String? = null
+)

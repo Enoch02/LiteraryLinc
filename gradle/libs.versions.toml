@@ -23,6 +23,7 @@ material = "1.12.0"
 materialIconsExtended = "1.7.4"
 mockkAndroid = "1.13.16"
 navigationCompose = "2.8.3"
+opencsv = "5.10"
 roomCompiler = "2.6.1"
 roomKtx = "2.6.1"
 roomRuntime = "2.6.1"
@@ -81,10 +82,9 @@ core = { module = "com.composables:core", version.ref = "core" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "daggerVersion" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
 junit = { module = "junit:junit", version.ref = "junit" }
-kotlin-csv-jvm = { module = "com.github.doyaaaaaken:kotlin-csv-jvm", version.ref = "kotlinCsvJvm" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
-mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockkAndroid" }
+opencsv = { module = "com.opencsv:opencsv", version.ref = "opencsv" }
 slf4j-android = { module = "org.slf4j:slf4j-android", version.ref = "slf4jAndroid" }
 androidx-material-android = { group = "androidx.compose.material", name = "material-android", version.ref = "materialAndroid" }
 androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }

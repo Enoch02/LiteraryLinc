@@ -65,6 +65,37 @@ fun makeStatusNotification(message: String, context: Context) {
     NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, builder.build())
 }
 
+fun createIndeterminateProgressNotification(
+    context: Context,
+    title: String,
+    message: String = "Please wait..."
+) {
+    val builder = NotificationCompat.Builder(context, PROGRESS_CHANNEL_ID)
+        .setContentTitle(title)
+        .setContentText(message)
+        .setSmallIcon(R.drawable.ic_android_black_24dp) //TODO
+        .setProgress(0, 0, true)
+        .setOngoing(true)
+
+    if (ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
+        //TODO: redirect to settings page
+        // TODO: Consider calling
+        //    ActivityCompat#requestPermissions
+        // here to request the missing permissions, and then overriding
+        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+        //                                          int[] grantResults)
+        // to handle the case where the user grants the permission. See the documentation
+        // for ActivityCompat#requestPermissions for more details.
+        return
+    }
+
+    NotificationManagerCompat.from(context).notify(PROGRESS_NOTIFICATION_ID, builder.build())
+}
+
 fun createProgressNotificationChannel(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val channelId = PROGRESS_CHANNEL_ID
