@@ -3,7 +3,6 @@ package com.enoch02.viewer.components
 import android.content.Intent
 import android.net.Uri
 import android.os.FileUriExposedException
-import android.util.Log
 import android.view.KeyEvent
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -26,7 +25,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
@@ -86,8 +84,6 @@ import com.enoch02.viewer.LLDocumentViewModel
 import com.enoch02.viewer.model.ContentState
 import com.enoch02.viewer.model.Item
 import com.enoch02.viewer.model.SearchResult
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

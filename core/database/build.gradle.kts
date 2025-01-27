@@ -71,7 +71,7 @@ dependencies {
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.androidx.rules)
 
-    implementation(libs.kotlin.csv.jvm)
+    implementation(libs.opencsv)
     implementation(kotlin("reflect"))
 }
 
