@@ -115,7 +115,6 @@ class BookCoverRepository(private val context: Context) {
 
     suspend fun cleanUp(idsToDelete: List<String>) {
         latestCoverPath.first().forEach { cover ->
-            Log.e(TAG, "cleanUp: comparing ${cover.key} with something from $idsToDelete", )
             if (idsToDelete.contains(cover.key)) {
                 val file = File(coverFolder, cover.key)
                 file.delete()

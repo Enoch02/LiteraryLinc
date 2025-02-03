@@ -49,6 +49,7 @@ class CoverScanWorker @AssistedInject constructor(
                     )
                         .onSuccess { name ->
                             documentDao.updateDocument(document.copy(cover = name))
+                            bitmap.recycle()
 
                             Log.d(TAG, "getCovers: cover created for ${document.name}")
                         }
