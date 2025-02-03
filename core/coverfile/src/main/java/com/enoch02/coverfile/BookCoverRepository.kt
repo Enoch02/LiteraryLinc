@@ -11,6 +11,7 @@ import id.zelory.compressor.constraint.destination
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
@@ -109,6 +110,17 @@ class BookCoverRepository(private val context: Context) {
         files?.forEach { file ->
             file.delete()
             Log.d(TAG, "${file.name} deleted!")
+        }
+    }
+
+    suspend fun cleanUp(idsToDelete: List<String>) {
+        latestCoverPath.first().forEach { cover ->
+            Log.e(TAG, "cleanUp: comparing ${cover.key} with something from $idsToDelete", )
+            if (idsToDelete.contains(cover.key)) {
+                val file = File(coverFolder, cover.key)
+                file.delete()
+                Log.d(TAG, "cleanUp: ${cover.key} deleted")
+            }
         }
     }
 

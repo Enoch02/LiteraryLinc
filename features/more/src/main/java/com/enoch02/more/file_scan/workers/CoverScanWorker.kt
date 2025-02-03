@@ -12,6 +12,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.DocumentDao
+import com.enoch02.database.model.existsAsFile
 import com.enoch02.more.R
 import com.enoch02.more.file_scan.PROGRESS_CHANNEL_ID
 import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_ID
@@ -66,6 +67,19 @@ class CoverScanWorker @AssistedInject constructor(
             }
         }
 
+        val missingFiles = documents
+            .filterNot { document -> document.existsAsFile(applicationContext) }
+
+
+        if (missingFiles.isNotEmpty()) {
+            bookCoverRepository.cleanUp(missingFiles.map { it.id })
+            // remove db entries for missing files
+            missingFiles.forEach { document ->
+                documentDao.deleteDocument(document.contentUri.toString())
+            }
+        } else {
+            Log.i(TAG, "doWork: No unused cover to cleanup")
+        }
         sendFinalProgressNotification(applicationContext)
 
         return Result.success()
