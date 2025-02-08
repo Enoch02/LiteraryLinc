@@ -39,6 +39,7 @@ android {
 
 dependencies {
     implementation(project(":core:database"))
+    implementation(project(":core:resources"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -60,6 +61,8 @@ dependencies {
     implementation (libs.androidx.hilt.navigation.compose)
     ksp (libs.androidx.hilt.compiler)
     ksp(libs.hilt.android.compiler)
+
+    implementation(libs.androidx.material.icons.extended)
 }
 
 
