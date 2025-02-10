@@ -30,39 +30,43 @@ fun ProgressForms(
     Column {
         val types = Book.types.values.toList()
 
-        AnimatedVisibility(
-            visible = type == types[0] || type == types[2] || type == types[4],
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             content = {
-                Row(
+                FormIntField(
+                    label = stringResource(R.string.pages_read_label),
+                    value = pagesRead,
+                    onValueChange = onPagesReadChange,
+                    modifier = Modifier.weight(0.45f)
+                )
+                Spacer(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    content = {
-                        FormIntField(
-                            label = stringResource(R.string.pages_read_label),
-                            value = pagesRead,
-                            onValueChange = onPagesReadChange,
-                            modifier = Modifier.weight(0.45f)
-                        )
-                        Spacer(
-                            modifier = Modifier
-                                .width(4.dp)
-                                .weight(0.1f)
-                        )
-                        FormIntField(
-                            label = stringResource(R.string.page_count_label),
-                            value = pageCount,
-                            onValueChange = onPageCountChange,
-                            modifier = Modifier.weight(0.45f)
-                        )
-                    }
+                        .width(4.dp)
+                        .weight(0.1f)
+                )
+                FormIntField(
+                    label = stringResource(R.string.page_count_label),
+                    value = pageCount,
+                    onValueChange = onPageCountChange,
+                    modifier = Modifier.weight(0.45f)
                 )
             }
         )
 
+//        AnimatedVisibility(
+//            visible = type == types[0] || type == types[2] || type == types[4],
+//            content = {
+//
+//            }
+//        )
+
+        //TODO: fix? or remove
         AnimatedVisibility(
-            visible = type == types[1] || type == types[2] || type == types[3],
+//            visible = type == types[1] || type == types[2] || type == types[3],
+            visible = false,
             content = {
                 Row(
                     modifier = Modifier
