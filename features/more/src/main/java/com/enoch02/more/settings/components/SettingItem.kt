@@ -13,7 +13,7 @@ fun SwitchSettingItem(
     label: String,
     description: String = "",
     checked: Boolean,
-    onCheckChanged: (Boolean) -> Unit
+    onCheckChanged: (Boolean) -> Unit,
 ) {
     ListItem(
         headlineContent = {

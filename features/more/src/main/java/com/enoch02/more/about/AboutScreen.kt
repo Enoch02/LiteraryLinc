@@ -87,13 +87,6 @@ fun AboutScreen(navController: NavController) {
                                                         appVersionText
                                                     )
                                                 })
-                                                Toast
-                                                    .makeText(
-                                                        context,
-                                                        context.getString(R.string.version_copied),
-                                                        Toast.LENGTH_SHORT
-                                                    )
-                                                    .show()
                                             },
                                         tonalElevation = 30.dp
                                     )
@@ -101,6 +94,9 @@ fun AboutScreen(navController: NavController) {
                                     ListItem(
                                         headlineContent = {
                                             Text(text = stringResource(R.string.check_for_updates_label))
+                                        },
+                                        supportingContent = {
+                                            Text(stringResource(R.string.check_for_updates_desc))
                                         },
                                         modifier = Modifier.clickable {
                                             /*TODO: open the releases page for now*/
@@ -118,6 +114,9 @@ fun AboutScreen(navController: NavController) {
                                         headlineContent = {
                                             Text(text = stringResource(R.string.open_source_licenses_label))
                                         },
+                                        supportingContent = {
+                                            Text(stringResource(R.string.open_source_licenses_desc))
+                                        },
                                         modifier = Modifier.clickable {
                                             navController.navigate(MoreScreenDestination.Licenses.route)
                                         },
@@ -127,6 +126,9 @@ fun AboutScreen(navController: NavController) {
                                     ListItem(
                                         headlineContent = {
                                             Text(text = stringResource(R.string.visit_repo_label))
+                                        },
+                                        supportingContent = {
+                                            Text(stringResource(R.string.visit_repo_desc))
                                         },
                                         modifier = Modifier.clickable {
                                             context.startActivity(

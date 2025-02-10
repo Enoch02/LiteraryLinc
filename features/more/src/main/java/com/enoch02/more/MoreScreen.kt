@@ -21,60 +21,15 @@ import com.enoch02.more.navigation.MoreScreenDestination
 fun MoreScreen(navController: NavController, modifier: Modifier) {
     LazyColumn(
         content = {
-            //TODO: or not TODO
-            /*item {
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.round_timer_24),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(R.string.timer_text)) },
-                    modifier = Modifier.clickable {
-                        //TODO
-                    }
-                )
-            }
-
-            item {
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.round_label_24),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(R.string.custom_tags_text)) },
-                    modifier = Modifier.clickable {
-                        //TODO
-                    }
-                )
-            }
-
-            item {
-                ListItem(
-                    leadingContent = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.round_star_24),
-                            contentDescription = null
-                        )
-                    },
-                    headlineContent = { Text(stringResource(R.string.wishlist_text)) },
-                    modifier = Modifier.clickable {
-                        //TODO
-                    }
-                )
-            }
-
-            item { Divider() }*/
-
             item {
                 ListItem(
                     leadingContent = {
                         Icon(imageVector = Icons.Rounded.Search, contentDescription = null)
                     },
                     headlineContent = { Text(text = stringResource(R.string.file_scan_text)) },
+                    supportingContent = {
+                        Text(stringResource(R.string.file_scan_desc))
+                    },
                     modifier = Modifier.clickable { navController.navigate(MoreScreenDestination.Scanner.route) }
                 )
             }
@@ -88,6 +43,9 @@ fun MoreScreen(navController: NavController, modifier: Modifier) {
                         )
                     },
                     headlineContent = { Text(stringResource(R.string.settings_text)) },
+                    supportingContent = {
+                        Text(stringResource(R.string.settings_desc))
+                    },
                     modifier = Modifier.clickable { navController.navigate(MoreScreenDestination.Settings.route) }
                 )
             }
@@ -101,6 +59,9 @@ fun MoreScreen(navController: NavController, modifier: Modifier) {
                         )
                     },
                     headlineContent = { Text(stringResource(R.string.bckup_res_text)) },
+                    supportingContent = {
+                        Text(stringResource(R.string.bckup_res_desc))
+                    },
                     modifier = Modifier.clickable {
                         navController.navigate(MoreScreenDestination.BackupRestore.route)
                     }
@@ -116,6 +77,9 @@ fun MoreScreen(navController: NavController, modifier: Modifier) {
                         )
                     },
                     headlineContent = { Text(stringResource(R.string.about_text)) },
+                    supportingContent = {
+                        Text(stringResource(R.string.about_desc))
+                    },
                     modifier = Modifier.clickable {
                         navController.navigate(MoreScreenDestination.About.route)
                     }

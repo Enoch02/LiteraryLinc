@@ -9,15 +9,23 @@ import android.provider.OpenableColumns
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.artifex.mupdf.fitz.SeekableInputStream
+import com.enoch02.database.dao.DocumentDao
 import com.enoch02.viewer.ContentInputStream
 import com.enoch02.viewer.MuPDFCore
 import com.enoch02.database.model.LLDocument
 import com.enoch02.more.file_scan.TAG
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
 import java.io.InputStream
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.Calendar
 import java.util.Date
+import java.util.concurrent.Executors
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -40,17 +48,16 @@ val allowedTypes = arrayOf(
  * @param directoryUri The Uri of the directory to scan.
  * @return a list of [LLDocument]
  */
-fun listDocsInDirectory(
+suspend fun addDocumentsToDb(
     context: Context,
     directoryUri: Uri,
-    scanned: List<Uri?>
-): List<LLDocument> {
-    val foundFiles = mutableListOf<LLDocument>()
-
+    scanned: List<Uri?>,
+    dao: DocumentDao
+) {
     val documentFile = DocumentFile.fromTreeUri(context, directoryUri)
     if (documentFile == null || !documentFile.isDirectory) {
         Log.e("DocumentFile", "Invalid directory URI or not a directory.")
-        return foundFiles // Early exit if invalid
+        return
     }
 
     val files = documentFile
@@ -58,39 +65,46 @@ fun listDocsInDirectory(
         .filterNot { df -> scanned.contains(df.uri) && df.exists() }
 
     if (files.isEmpty()) {
-        return foundFiles // Early exit if no files
+        return
     }
+    val jobs = mutableListOf<Deferred<Unit>>()
+    val limitedDispatcher = Executors.newFixedThreadPool(10).asCoroutineDispatcher()
+    val scope = CoroutineScope(limitedDispatcher)
 
     for (file in files) {
         if (file.isFile && allowedTypes.contains(file.type)) {
-            val fileUri = file.uri
-            val fileName = file.name ?: "Unknown"
-            val nameWithoutExtension = fileName.substringBeforeLast(".")
-            val metadata = getDocumentMetadata(context, fileUri)
-            val documentName =
-                if (metadata?.title.isNullOrEmpty()) nameWithoutExtension else metadata?.title
+            val job = scope.async {
+                val fileUri = file.uri
+                val fileName = file.name ?: "Unknown"
+                val nameWithoutExtension = fileName.substringBeforeLast(".")
+                val metadata = getDocumentMetadata(context, fileUri)
+                val documentName =
+                    if (metadata?.title.isNullOrEmpty()) nameWithoutExtension else metadata?.title
 
-            foundFiles.add(
-                LLDocument(
-                    id = file.getDocumentFileMd5(context.contentResolver).toString(),
-                    contentUri = fileUri,
-                    name = documentName.toString(),
-                    author = metadata?.author ?: "",
-                    pages = metadata?.pages ?: 0,
-                    currentPage = 0,
-                    sizeInMb = metadata?.sizeInMb ?: 0.0,
-                    lastRead = getCurrentDate(),
-                    type = fileName.substringAfterLast(".").uppercase(),
-                    autoTrackable = file.type != "application/vnd.comicbook+zip"
+                dao.insertDocument(
+                    LLDocument(
+                        id = file.getDocumentFileMd5(context.contentResolver).toString(),
+                        contentUri = fileUri,
+                        name = documentName.toString(),
+                        author = metadata?.author ?: "",
+                        pages = metadata?.pages ?: 0,
+                        currentPage = 0,
+                        sizeInMb = metadata?.sizeInMb ?: 0.0,
+                        lastRead = getCurrentDate(),
+                        type = fileName.substringAfterLast(".").uppercase(),
+                        autoTrackable = file.type != "application/vnd.comicbook+zip"
+                    )
                 )
-            )
+            }
+
+            jobs.add(job)
         } else if (file.isDirectory) {
             // Recursive call for subdirectories
-            foundFiles.addAll(listDocsInDirectory(context, file.uri, scanned))
+            addDocumentsToDb(context, file.uri, scanned, dao)
         }
     }
 
-    return foundFiles
+    jobs.awaitAll()
 }
 
 data class DocumentMetadata(

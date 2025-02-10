@@ -1,6 +1,5 @@
 package com.enoch02.reader.components
 
-import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.compose.foundation.clickable

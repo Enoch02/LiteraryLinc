@@ -105,8 +105,8 @@ fun BackupRestoreScreen(
                                 Card(
                                     content = {
                                         ListItem(
-                                            headlineContent = { Text(text = "Create CSV backup") },
-                                            supportingContent = { Text(text = "Backup entries in a CSV file. Cover Images are not backed up") },
+                                            headlineContent = { Text(text = stringResource(R.string.create_csv_bkup)) },
+                                            supportingContent = { Text(text = stringResource(R.string.create_csv_bkup_desc)) },
                                             modifier = Modifier.clickable {
                                                 createFileLauncher.launch(
                                                     createFileIntent
@@ -118,8 +118,8 @@ fun BackupRestoreScreen(
                                         HorizontalDivider()
 
                                         ListItem(
-                                            headlineContent = { Text(text = "Restore CSV backup") },
-                                            supportingContent = { Text(text = "Restore backup from a CSV file") },
+                                            headlineContent = { Text(text = stringResource(R.string.restore_csv_bkup)) },
+                                            supportingContent = { Text(text = stringResource(R.string.restore_csv_bkup_desc)) },
                                             modifier = Modifier.clickable {
                                                 openFileLauncher.launch("*/*")
                                             },

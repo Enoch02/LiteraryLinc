@@ -124,8 +124,10 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                             headlineContent = {
                                 Card(
                                     content = {
+                                        //TODO: not yet implemented
                                         SwitchSettingItem(
-                                            label = "Show confirmation before deletion",
+                                            label = stringResource(R.string.show_confirmation_dialogs),
+                                            description = stringResource(R.string.show_confirmation_dialogs_desc),
                                             checked = showConfirmDialog,
                                             onCheckChanged = {
                                                 viewModel.switchPreference(
@@ -136,7 +138,8 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                         )
 
                                         SwitchSettingItem(
-                                            label = "Use volume buttons to change pages",
+                                            label = stringResource(R.string.volume_paging),
+                                            description = stringResource(R.string.volume_paging_desc),
                                             checked = volumeButtonPaging,
                                             onCheckChanged = {
                                                 viewModel.switchPreference(

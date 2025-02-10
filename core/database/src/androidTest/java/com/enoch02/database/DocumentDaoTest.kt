@@ -51,7 +51,25 @@ class DocumentDaoTest {
             lastRead = Date.from(Instant.now()),
             type = "PDF"
         )
-        documentDao.insertDocuments(listOf(document))
+        documentDao.insertDocuments(listOf(document, document.copy(id = "2")))
+
+        val retrievedDocument = documentDao.getDocument("1")
+        val documents = documentDao.getDocuments().first()
+        assertNotNull(retrievedDocument)
+        assertEquals("Sample Doc", retrievedDocument?.name)
+        assertEquals(documents.size, 2)
+    }
+
+    @Test
+    fun insertDocument_insertAndRetrieveDocument() = runBlocking {
+        val document = LLDocument(
+            id = "1",
+            contentUri = Uri.EMPTY,
+            name = "Sample Doc",
+            lastRead = Date.from(Instant.now()),
+            type = "PDF"
+        )
+        documentDao.insertDocument(document)
 
         val retrievedDocument = documentDao.getDocument("1")
         assertNotNull(retrievedDocument)
