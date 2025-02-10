@@ -142,6 +142,7 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                         Card {
                                             SwitchSettingItem(
                                                 label = stringResource(R.string.autostart_scans),
+                                                description = stringResource(R.string.autostart_scans_desc),
                                                 checked = autoStartScans,
                                                 onCheckChanged = {
                                                     autoStartScans = it
@@ -154,10 +155,13 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                         horizontalArrangement = Arrangement.SpaceBetween,
                                                         modifier = Modifier.fillMaxWidth(),
                                                         content = {
-                                                            Text(text = "Total documents: ")
+                                                            Text(text = stringResource(R.string.total_documents))
                                                             Text(text = totalDocuments.toString())
                                                         }
                                                     )
+                                                },
+                                                supportingContent = {
+                                                    Text(stringResource(R.string.total_documents_desc))
                                                 },
                                                 tonalElevation = tonalElevation,
                                             )
@@ -165,6 +169,9 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                             ListItem(
                                                 headlineContent = {
                                                     Text(text = stringResource(R.string.start_scan))
+                                                },
+                                                supportingContent = {
+                                                    Text(stringResource(R.string.start_scan_desc))
                                                 },
                                                 trailingContent = {
                                                     Icon(
@@ -257,6 +264,9 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                             ListItem(
                                                 headlineContent = {
                                                     Text(text = stringResource(R.string.remove_other_directories))
+                                                },
+                                                supportingContent = {
+                                                    Text(stringResource(R.string.remove_other_directories_desc))
                                                 },
                                                 tonalElevation = tonalElevation,
                                                 modifier = Modifier.clickable {
