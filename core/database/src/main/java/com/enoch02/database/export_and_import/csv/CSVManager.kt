@@ -145,7 +145,7 @@ class CSVManager(
     }
 
     private suspend fun processRow(restoreObj: CSVRestoreObject) {
-        Log.d(TAG, "newImport: Restoring ${restoreObj.title}")
+        Log.d(TAG, "import: Restoring ${restoreObj.title}")
 
         if (!bookDao.doesBookTitleExist(restoreObj.title).first()) {
             val decodedImageResult = restoreObj.coverImageMd5?.let {
