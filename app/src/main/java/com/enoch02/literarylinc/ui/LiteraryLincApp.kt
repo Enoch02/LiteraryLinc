@@ -53,7 +53,7 @@ import com.enoch02.literarylinc.ui.components.drawersheets.ReaderListDrawerSheet
 import com.enoch02.more.MoreScreen
 import com.enoch02.more.navigation.MoreScreenDestination
 import com.enoch02.reader.ReaderListScreen
-import com.enoch02.stats.StatsScreen
+import com.enoch02.stats.stats.StatsScreen
 import kotlinx.coroutines.launch
 
 @Composable

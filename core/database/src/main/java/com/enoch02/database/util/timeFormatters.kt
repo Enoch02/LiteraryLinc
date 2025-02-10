@@ -2,12 +2,16 @@ package com.enoch02.database.util
 
 import android.icu.text.SimpleDateFormat
 import android.os.Build
+import android.util.Log
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
+
+private const val TAG = "TimeFormatters"
 
 fun formatEpochAsString(date: Long?): String {
     return when {
@@ -31,15 +35,15 @@ fun formatEpochAsString(date: Long?): String {
     }
 }
 
-//TODO: This might run into issues when restoring from a device with a different android version
 fun getEpochFromString(dateString: String): Long? {
     try {
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
                 val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
-                val localDateTime = LocalDateTime.parse(dateString, formatter)
+                val localDate = LocalDate.parse(dateString, formatter)
+                // Convert LocalDate to LocalDateTime by setting time to start of day
+                val localDateTime = localDate.atStartOfDay()
                 val instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant()
-
 
                 return instant.toEpochMilli()
             }
@@ -48,7 +52,7 @@ fun getEpochFromString(dateString: String): Long? {
                 val formatter = SimpleDateFormat("dd MMM yyyy", Locale.ROOT)
                 val date = formatter.parse(dateString)
 
-                return date.time
+                return date?.time
             }
 
             else -> {
@@ -57,6 +61,7 @@ fun getEpochFromString(dateString: String): Long? {
         }
 
     } catch (e: Exception) {
+        Log.e(TAG, "getEpochFromString: ${e.message}")
         return null
     }
 }
