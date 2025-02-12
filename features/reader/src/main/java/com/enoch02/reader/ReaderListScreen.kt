@@ -218,7 +218,10 @@ fun ReaderListScreen(
                     },
                     covers = covers,
                     isDocumentInBookList = { id -> viewModel.isDocumentInBookList(id) },
-                    onItemClick = { listItemClicked(it) },
+                    onItemClick = {
+                        onDismissSearching()
+                        listItemClicked(it)
+                    },
                     onAddToFavoritesClicked = { viewModel.toggleFavoriteStatus(it) },
                     onMarkAsReadClicked = { viewModel.toggleDocumentReadStatus(it) },
                     onAddToBookList = { viewModel.createBookListEntry(it) },
