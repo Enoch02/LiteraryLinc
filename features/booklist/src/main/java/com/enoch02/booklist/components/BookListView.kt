@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.LinkOff
 import androidx.compose.material3.AlertDialog
@@ -74,6 +75,7 @@ internal fun BookListView(
     documents: List<LLDocument>,
     onItemClick: (id: Int) -> Unit,
     onItemDelete: (id: Int) -> Unit,
+    onItemEdit: (id: Int) -> Unit,
     onUnlinkDocument: (book: Book) -> Unit,
     onLinkDocument: (documentId: String, book: Book) -> Unit,
     modifier: Modifier
@@ -115,6 +117,7 @@ internal fun BookListView(
                                     onClick = { book.id?.let { onItemClick(it) } },
                                     onDelete = { book.id?.let { it1 -> onItemDelete(it1) } },
                                     onUnlinkDocument = { theBook -> onUnlinkDocument(theBook) },
+                                    onEdit = { book.id?.let { onItemEdit(it) } },
                                     onLinkDocument = {
                                         currentlyLinking = book
                                         showDocumentModal = true
@@ -169,6 +172,7 @@ private fun BookListItem(
     coverPath: String?,
     onClick: () -> Unit,
     onDelete: () -> Unit,
+    onEdit: () -> Unit,
     onUnlinkDocument: (book: Book) -> Unit,
     onLinkDocument: () -> Unit
 ) {
@@ -256,23 +260,35 @@ private fun BookListItem(
                     }
                 )
 
+                //TODO: move to book detail screen!
+                /* OutlinedIconButton(
+                     onClick = {
+                         if (book.documentMd5.isNullOrEmpty()) {
+                             onLinkDocument()
+                         } else {
+                             showUnlinkWarningDialog = true
+                         }
+                     },
+                     shape = RoundedCornerShape(8.dp),
+                     content = {
+                         Icon(
+                             imageVector = if (book.documentMd5.isNullOrEmpty()) {
+                                 Icons.Rounded.Link
+                             } else {
+                                 Icons.Rounded.LinkOff
+                             },
+                             contentDescription = stringResource(R.string.unlink_document)
+                         )
+                     },
+                 )*/
+
                 OutlinedIconButton(
-                    onClick = {
-                        if (book.documentMd5.isNullOrEmpty()) {
-                            onLinkDocument()
-                        } else {
-                            showUnlinkWarningDialog = true
-                        }
-                    },
+                    onClick = onEdit,
                     shape = RoundedCornerShape(8.dp),
                     content = {
                         Icon(
-                            imageVector = if (book.documentMd5.isNullOrEmpty()) {
-                                Icons.Rounded.Link
-                            } else {
-                                Icons.Rounded.LinkOff
-                            },
-                            contentDescription = stringResource(R.string.unlink_document)
+                            imageVector = Icons.Rounded.Edit,
+                            contentDescription = "Edit the entry for ${book.title}"
                         )
                     },
                 )
@@ -410,6 +426,7 @@ private fun Preview() {
             coverPath = null,
             onClick = {},
             onDelete = {},
+            onEdit = {},
             onUnlinkDocument = {},
             onLinkDocument = {}
         )
@@ -420,12 +437,13 @@ private fun Preview() {
                 title = "hello, world!",
                 author = "you",
                 documentMd5 = "",
-                pagesRead = 10,
+                pagesRead = 100,
                 pageCount = 100
             ),
             coverPath = null,
             onClick = {},
             onDelete = {},
+            onEdit = {},
             onUnlinkDocument = {},
             onLinkDocument = {}
         )

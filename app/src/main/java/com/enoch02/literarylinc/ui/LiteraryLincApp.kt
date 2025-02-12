@@ -33,7 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.enoch02.booklist.BookViewScreen
+import com.enoch02.booklist.BookListScreen
 import com.enoch02.booklist.components.BookViewMode
 import com.enoch02.database.model.ReaderSorting
 import com.enoch02.database.model.Sorting
@@ -239,7 +239,7 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                         }
                                     )
 
-                                    BookViewScreen(
+                                    BookListScreen(
                                         modifier = Modifier.padding(paddingValues),
                                         scope = scope,
                                         sorting = currentBookListSorting,
@@ -247,6 +247,9 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                         listViewMode = bookViewMode,
                                         onItemClick = { id ->
                                             navController.navigate(Screen.BookDetail.withArgs(id.toString()))
+                                        },
+                                        onItemEdit = { id ->
+                                            navController.navigate(Screen.EditBook.withArgs(id.toString()))
                                         }
                                     )
                                 }

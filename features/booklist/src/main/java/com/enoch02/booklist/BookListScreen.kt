@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.enoch02.booklist.components.BookGridView
 import com.enoch02.booklist.components.BookListView
 import com.enoch02.booklist.components.BookViewMode
@@ -24,13 +25,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun BookViewScreen(
+fun BookListScreen(
     modifier: Modifier,
     scope: CoroutineScope,
     sorting: Sorting,
     statusFilter: StatusFilter,
     listViewMode: BookViewMode,
     onItemClick: (Int) -> Unit,
+    onItemEdit: (Int) -> Unit,
     viewModel: BookListViewModel = hiltViewModel()
 ) {
     val tabLabels = Book.types.values
@@ -81,6 +83,7 @@ fun BookViewScreen(
                                 onItemDelete = { id ->
                                     viewModel.deleteBook(id)
                                 },
+                                onItemEdit = onItemEdit,
                                 onUnlinkDocument = { theBook ->
                                     viewModel.unlinkDocumentFromBook(theBook)
                                 },
