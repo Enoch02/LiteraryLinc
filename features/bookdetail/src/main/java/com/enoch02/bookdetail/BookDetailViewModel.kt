@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BookDetailViewModel @Inject constructor(
     private val bookDao: BookDao,
-    private val documentDao: DocumentDao,
+    documentDao: DocumentDao,
     bookCoverRepository: BookCoverRepository
 ) : ViewModel() {
     private val covers = bookCoverRepository.latestCoverPath

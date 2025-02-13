@@ -70,7 +70,6 @@ fun BookListScreen(
                         .collectAsState(initial = emptyList()).value
                     val covers = viewModel.getCovers()
                         .collectAsState(initial = emptyMap()).value
-                    val documents = viewModel.documents.collectAsState(emptyList()).value
 
                     when (listViewMode) {
                         BookViewMode.LIST_VIEW -> {

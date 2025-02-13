@@ -1,6 +1,5 @@
 package com.enoch02.bookdetail
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,7 +44,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -56,7 +54,6 @@ import coil.compose.AsyncImage
 import com.enoch02.bookdetail.components.BookInfoText
 import com.enoch02.bookdetail.components.DocumentsBottomSheet
 import com.enoch02.bookdetail.components.WarningDialog
-import com.enoch02.database.model.Book
 import com.enoch02.database.util.formatEpochAsString
 
 @OptIn(ExperimentalMaterial3Api::class)
