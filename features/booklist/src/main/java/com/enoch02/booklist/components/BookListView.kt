@@ -11,28 +11,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Link
-import androidx.compose.material.icons.rounded.LinkOff
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -64,25 +55,18 @@ import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.enoch02.booklist.R
 import com.enoch02.database.model.Book
-import com.enoch02.database.model.LLDocument
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun BookListView(
+fun BookListView(
     books: List<Book>,
     covers: Map<String, String?>,
-    documents: List<LLDocument>,
     onItemClick: (id: Int) -> Unit,
     onItemDelete: (id: Int) -> Unit,
     onItemEdit: (id: Int) -> Unit,
-    onUnlinkDocument: (book: Book) -> Unit,
-    onLinkDocument: (documentId: String, book: Book) -> Unit,
     modifier: Modifier
 ) {
-    var showDocumentModal by remember { mutableStateOf(false) }
-    var currentlyLinking: Book? by remember { mutableStateOf(null) }
-
     if (books.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -116,12 +100,7 @@ internal fun BookListView(
                                     coverPath = covers[book.coverImageName],
                                     onClick = { book.id?.let { onItemClick(it) } },
                                     onDelete = { book.id?.let { it1 -> onItemDelete(it1) } },
-                                    onUnlinkDocument = { theBook -> onUnlinkDocument(theBook) },
-                                    onEdit = { book.id?.let { onItemEdit(it) } },
-                                    onLinkDocument = {
-                                        currentlyLinking = book
-                                        showDocumentModal = true
-                                    }
+                                    onEdit = { book.id?.let { onItemEdit(it) } }
                                 )
                             }
                         )
@@ -150,18 +129,6 @@ internal fun BookListView(
                 )
             }
         )
-
-        BookListBottomSheet(
-            showSheet = showDocumentModal,
-            documents = documents,
-            covers = covers,
-            onDismiss = { showDocumentModal = false },
-            onDocumentSelected = { document ->
-                showDocumentModal = false
-                currentlyLinking?.let { onLinkDocument(document, it) }
-                currentlyLinking = null
-            }
-        )
     }
 }
 
@@ -172,15 +139,12 @@ private fun BookListItem(
     coverPath: String?,
     onClick: () -> Unit,
     onDelete: () -> Unit,
-    onEdit: () -> Unit,
-    onUnlinkDocument: (book: Book) -> Unit,
-    onLinkDocument: () -> Unit
+    onEdit: () -> Unit
 ) {
     var currentProgress by rememberSaveable { mutableFloatStateOf(0f) }
     val showEmptyProgress by remember { derivedStateOf { book.pagesRead == 0 && book.pageCount == 0 } }
     var isComplete by remember { mutableStateOf(false) }
     var showWarningDialog by rememberSaveable { mutableStateOf(false) }
-    var showUnlinkWarningDialog by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(book) {
         if (book.pagesRead != 0 && book.pageCount != 0) {
@@ -260,28 +224,6 @@ private fun BookListItem(
                     }
                 )
 
-                //TODO: move to book detail screen!
-                /* OutlinedIconButton(
-                     onClick = {
-                         if (book.documentMd5.isNullOrEmpty()) {
-                             onLinkDocument()
-                         } else {
-                             showUnlinkWarningDialog = true
-                         }
-                     },
-                     shape = RoundedCornerShape(8.dp),
-                     content = {
-                         Icon(
-                             imageVector = if (book.documentMd5.isNullOrEmpty()) {
-                                 Icons.Rounded.Link
-                             } else {
-                                 Icons.Rounded.LinkOff
-                             },
-                             contentDescription = stringResource(R.string.unlink_document)
-                         )
-                     },
-                 )*/
-
                 OutlinedIconButton(
                     onClick = onEdit,
                     shape = RoundedCornerShape(8.dp),
@@ -307,19 +249,6 @@ private fun BookListItem(
                 showWarningDialog = false
             },
             message = stringResource(R.string.delete_entry_warning)
-        )
-    }
-
-    if (showUnlinkWarningDialog) {
-        ItemWarningDialog(
-            onConfirm = {
-                onUnlinkDocument(book)
-                showUnlinkWarningDialog = false
-            },
-            onDismiss = {
-                showUnlinkWarningDialog = false
-            },
-            message = stringResource(R.string.unlink_entry_warning)
         )
     }
 }
@@ -360,56 +289,6 @@ private fun ItemWarningDialog(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun BookListBottomSheet(
-    showSheet: Boolean,
-    documents: List<LLDocument>,
-    covers: Map<String, String?>,
-    onDismiss: () -> Unit,
-    onDocumentSelected: (documentId: String) -> Unit
-) {
-    if (showSheet) {
-        ModalBottomSheet(
-            onDismissRequest = onDismiss,
-            content = {
-                Card(
-                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
-                    content = {
-                        LazyColumn(
-                            content = {
-                                items(
-                                    items = documents,
-                                    itemContent = { document ->
-                                        ListItem(
-                                            leadingContent = {
-                                                AsyncImage(
-                                                    model = covers[document.cover],
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(50.dp)
-                                                )
-                                            },
-                                            headlineContent = {
-                                                Text(text = document.name)
-                                            },
-                                            modifier = Modifier.clickable {
-                                                onDocumentSelected(document.id)
-                                            }
-                                        )
-
-                                        if (documents.indexOf(document) != documents.lastIndex) {
-                                            HorizontalDivider()
-                                        }
-                                    }
-                                )
-                            }
-                        )
-                    })
-            }
-        )
-    }
-}
-
 @Preview
 @Composable
 private fun Preview() {
@@ -426,9 +305,7 @@ private fun Preview() {
             coverPath = null,
             onClick = {},
             onDelete = {},
-            onEdit = {},
-            onUnlinkDocument = {},
-            onLinkDocument = {}
+            onEdit = {}
         )
 
         BookListItem(
@@ -443,9 +320,7 @@ private fun Preview() {
             coverPath = null,
             onClick = {},
             onDelete = {},
-            onEdit = {},
-            onUnlinkDocument = {},
-            onLinkDocument = {}
+            onEdit = {}
         )
     }
 }

@@ -1,5 +1,6 @@
 package com.enoch02.bookdetail
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,8 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Link
+import androidx.compose.material.icons.rounded.LinkOff
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +35,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,6 +54,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.enoch02.bookdetail.components.BookInfoText
+import com.enoch02.bookdetail.components.DocumentsBottomSheet
+import com.enoch02.bookdetail.components.WarningDialog
 import com.enoch02.database.model.Book
 import com.enoch02.database.util.formatEpochAsString
 
@@ -60,20 +67,18 @@ fun BookDetailScreen(
     editScreenRoute: () -> String,
     viewModel: BookDetailViewModel = hiltViewModel()
 ) {
-    var book by remember { mutableStateOf(Book()) }
-    var coverPath: String? by rememberSaveable { mutableStateOf(null) }
+    val book = viewModel.book
+    val coverPath = viewModel.coverPath
     var showBookDetails by rememberSaveable { mutableStateOf(false) }
     var showWarningDialog by rememberSaveable {
         mutableStateOf(false)
     }
+    var showUnlinkWarningDialog by rememberSaveable { mutableStateOf(false) }
+    var showDocumentSelectionModal by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = Unit) {
-        book = viewModel.getBook(id)
-        if (!book.coverImageName.isNullOrEmpty()) {
-            coverPath = viewModel.getCover(book.coverImageName!!)
-        }
+        viewModel.getBookInfo(id)
     }
-
 
     Scaffold(
         topBar = {
@@ -128,6 +133,31 @@ fun BookDetailScreen(
                             }
                         )
                     }
+
+                    IconButton(
+                        onClick = {
+                            if (book.documentMd5.isNullOrEmpty()) {
+                                showDocumentSelectionModal = true
+                            } else {
+                                showUnlinkWarningDialog = true
+                            }
+                        },
+                        content = {
+                            Icon(
+                                imageVector = if (book.documentMd5.isNullOrEmpty()) {
+                                    Icons.Rounded.Link
+                                } else {
+                                    Icons.Rounded.LinkOff
+                                },
+                                contentDescription = if (book.documentMd5.isNullOrEmpty()) {
+                                    stringResource(R.string.link_document)
+                                } else {
+                                    stringResource(R.string.unlink_document)
+                                },
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        },
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
             )
@@ -194,8 +224,14 @@ fun BookDetailScreen(
                                             label = "Rating",
                                             value = "${book.personalRating}/10"
                                         )
-                                        BookInfo(label = stringResource(R.string.status), value = book.status)
-                                        BookInfo(label = stringResource(R.string.pages), value = "${book.pageCount}")
+                                        BookInfo(
+                                            label = stringResource(R.string.status),
+                                            value = book.status
+                                        )
+                                        BookInfo(
+                                            label = stringResource(R.string.pages),
+                                            value = "${book.pageCount}"
+                                        )
                                     }
                                 )
 
@@ -326,6 +362,35 @@ fun BookDetailScreen(
                     },
                     text = {
                         Text(text = stringResource(R.string.delete_entry_warning))
+                    }
+                )
+            }
+
+            if (showUnlinkWarningDialog) {
+                WarningDialog(
+                    onConfirm = {
+                        viewModel.unlinkDocumentFromBook(book)
+                        showUnlinkWarningDialog = false
+                    },
+                    onDismiss = {
+                        showUnlinkWarningDialog = false
+                    },
+                    message = stringResource(R.string.unlink_entry_warning)
+                )
+            }
+
+            if (showDocumentSelectionModal) {
+                val covers = viewModel.getCovers()
+                    .collectAsState(initial = emptyMap()).value
+                val documents = viewModel.documents.collectAsState(emptyList()).value
+
+                DocumentsBottomSheet(
+                    documents = documents,
+                    covers = covers,
+                    onDismiss = { showDocumentSelectionModal = false },
+                    onDocumentSelected = { documentId ->
+                        showDocumentSelectionModal = false
+                        viewModel.linkDocumentToBook(book, documentId)
                     }
                 )
             }

@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.enoch02.booklist.components.BookGridView
 import com.enoch02.booklist.components.BookListView
 import com.enoch02.booklist.components.BookViewMode
@@ -78,18 +77,11 @@ fun BookListScreen(
                             BookListView(
                                 books = books,
                                 covers = covers,
-                                documents = documents,
                                 onItemClick = onItemClick,
                                 onItemDelete = { id ->
                                     viewModel.deleteBook(id)
                                 },
                                 onItemEdit = onItemEdit,
-                                onUnlinkDocument = { theBook ->
-                                    viewModel.unlinkDocumentFromBook(theBook)
-                                },
-                                onLinkDocument = { document, book ->
-                                    viewModel.linkDocumentToBook(book, document)
-                                },
                                 modifier = Modifier
                             )
                         }
