@@ -31,7 +31,7 @@ class SettingsRepository(private val context: Context) {
         return flow
     }
 
-    suspend fun switchPreference(preference: FloatPreferenceType, newValue: Float) {
+    /*suspend fun switchPreference(preference: FloatPreferenceType, newValue: Float) {
         val key = getKeyForPreference(preference)
 
         context.dataStore.edit { settings ->
@@ -46,7 +46,7 @@ class SettingsRepository(private val context: Context) {
                 preferences[key] ?: 0f
             }
         return flow
-    }
+    }*/
 
     suspend fun switchPreference(preference: IntPreferenceType, newValue: Int) {
         val key = getKeyForPreference(preference)
@@ -71,9 +71,7 @@ class SettingsRepository(private val context: Context) {
         val dynamicColorKey = booleanPreferencesKey("dynamic_color")
         val confirmDialogKey = booleanPreferencesKey("confirm_dialogs")
         val volumeButtonPagingKey = booleanPreferencesKey("volume_btn_paging")
-        val documentScaleKey = floatPreferencesKey("document_scale")
         val currentReaderFilterKey = intPreferencesKey("current_reader_filter")
-        val pageRenderMethodKey = intPreferencesKey("render_method")
     }
 
     // Map enum to preference keys
@@ -86,16 +84,15 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    private fun getKeyForPreference(preference: FloatPreferenceType): Preferences.Key<Float> {
+    /*private fun getKeyForPreference(preference: FloatPreferenceType): Preferences.Key<Float> {
         return when (preference) {
-            FloatPreferenceType.DOC_PAGE_SCALE -> Keys.documentScaleKey
+
         }
-    }
+    }*/
 
     private fun getKeyForPreference(preference: IntPreferenceType): Preferences.Key<Int> {
         return when (preference) {
             IntPreferenceType.CURRENT_READER_FILTER -> Keys.currentReaderFilterKey
-            IntPreferenceType.PAGE_RENDER_METHOD -> Keys.pageRenderMethodKey
         }
     }
 
@@ -106,12 +103,7 @@ class SettingsRepository(private val context: Context) {
         VOLUME_BTN_PAGING
     }
 
-    enum class FloatPreferenceType {
-        DOC_PAGE_SCALE
-    }
-
     enum class IntPreferenceType {
         CURRENT_READER_FILTER,
-        PAGE_RENDER_METHOD
     }
 }
