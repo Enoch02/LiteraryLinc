@@ -27,16 +27,6 @@ class SettingViewModel @Inject constructor(
         return settingsRepository.getPreference(key)
     }
 
-    fun switchPreference(key: SettingsRepository.FloatPreferenceType, newValue: Float) {
-        viewModelScope.launch(Dispatchers.IO) {
-            settingsRepository.switchPreference(key, newValue)
-        }
-    }
-
-    fun getPreference(key: SettingsRepository.FloatPreferenceType): Flow<Float> {
-        return settingsRepository.getPreference(key)
-    }
-
     fun switchPreference(key: SettingsRepository.IntPreferenceType, newValue: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             settingsRepository.switchPreference(key, newValue)

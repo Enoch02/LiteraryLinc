@@ -24,13 +24,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun BookViewScreen(
+fun BookListScreen(
     modifier: Modifier,
     scope: CoroutineScope,
     sorting: Sorting,
     statusFilter: StatusFilter,
     listViewMode: BookViewMode,
     onItemClick: (Int) -> Unit,
+    onItemEdit: (Int) -> Unit,
     viewModel: BookListViewModel = hiltViewModel()
 ) {
     val tabLabels = Book.types.values
@@ -69,24 +70,17 @@ fun BookViewScreen(
                         .collectAsState(initial = emptyList()).value
                     val covers = viewModel.getCovers()
                         .collectAsState(initial = emptyMap()).value
-                    val documents = viewModel.documents.collectAsState(emptyList()).value
 
                     when (listViewMode) {
                         BookViewMode.LIST_VIEW -> {
                             BookListView(
                                 books = books,
                                 covers = covers,
-                                documents = documents,
                                 onItemClick = onItemClick,
                                 onItemDelete = { id ->
                                     viewModel.deleteBook(id)
                                 },
-                                onUnlinkDocument = { theBook ->
-                                    viewModel.unlinkDocumentFromBook(theBook)
-                                },
-                                onLinkDocument = { document, book ->
-                                    viewModel.linkDocumentToBook(book, document)
-                                },
+                                onItemEdit = onItemEdit,
                                 modifier = Modifier
                             )
                         }

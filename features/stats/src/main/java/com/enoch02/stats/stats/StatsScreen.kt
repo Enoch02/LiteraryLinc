@@ -1,5 +1,6 @@
 package com.enoch02.stats.stats
 
+import android.content.pm.ApplicationInfo
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -34,18 +36,22 @@ fun StatsScreen(
     modifier: Modifier,
     viewModel: StatsScreenViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         content = {
-            Column(modifier = Modifier.weight(0.1f)) {
-                Text(
-                    text = "🔥 10-Day Reading Streak",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                ReadingProgressView(modifier = Modifier)
+            if (0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) {
+                Column(modifier = Modifier.weight(0.1f)) {
+                    Text(
+                        text = "🔥 10-Day Reading Streak",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    ReadingProgressView(modifier = Modifier)
+                }
             }
 
             LazyVerticalGrid(

@@ -21,8 +21,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.enoch02.more.R
-import com.enoch02.more.settings.components.RenderMethodSelector
-import com.enoch02.more.settings.components.ScaleSelector
 import com.enoch02.more.settings.components.SwitchSettingItem
 import com.enoch02.settings.SettingsRepository
 
@@ -37,10 +35,6 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
         .collectAsState(initial = false)
     val volumeButtonPaging by viewModel.getPreference(key = SettingsRepository.BooleanPreferenceType.VOLUME_BTN_PAGING)
         .collectAsState(initial = false)
-    val documentScale by viewModel.getPreference(SettingsRepository.FloatPreferenceType.DOC_PAGE_SCALE)
-        .collectAsState(initial = 0f)
-    val renderMethod by viewModel.getPreference(SettingsRepository.IntPreferenceType.PAGE_RENDER_METHOD)
-        .collectAsState(initial = 0)
 
     Scaffold(
         topBar = {
@@ -92,23 +86,6 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                                     )
                                                 }
                                             )
-
-                                        }
-
-                                        ScaleSelector(selectedScale = documentScale) { scale ->
-                                            viewModel.switchPreference(
-                                                SettingsRepository.FloatPreferenceType.DOC_PAGE_SCALE,
-                                                scale
-                                            )
-                                            viewModel.cleanUpOldBitmaps()
-                                        }
-
-                                        RenderMethodSelector(selectedMethod = renderMethod) { method ->
-                                            viewModel.switchPreference(
-                                                SettingsRepository.IntPreferenceType.PAGE_RENDER_METHOD,
-                                                method
-                                            )
-                                            viewModel.cleanUpOldBitmaps()
                                         }
                                     }
                                 )

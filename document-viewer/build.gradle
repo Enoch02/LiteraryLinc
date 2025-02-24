@@ -34,7 +34,8 @@ dependencies {
     ksp libs.androidx.hilt.compiler
     ksp libs.hilt.android.compiler
 
-    implementation libs.zoomable
+    implementation libs.zoomable //TODO: remove
+    implementation "me.saket.telephoto:zoomable-image-coil:0.15.0"
 
     debugImplementation libs.androidx.ui.tooling
     debugImplementation libs.androidx.ui.test.manifest

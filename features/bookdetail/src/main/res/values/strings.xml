@@ -18,4 +18,8 @@
     <string name="additional_notes">Additional Notes</string>
     <string name="status">Status</string>
     <string name="pages">Pages</string>
+    <string name="unlink_document">Unlink document from entry</string>
+    <string name="unlink_entry_warning">Do you want to unlink this entry from its document?</string>
+    <string name="warning">Warning</string>
+    <string name="link_document">Link Document</string>
 </resources>

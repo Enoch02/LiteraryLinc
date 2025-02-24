@@ -87,16 +87,4 @@ class BookListViewModel @Inject constructor(
     fun deleteBook(id: Int) {
         viewModelScope.launch(Dispatchers.IO) { bookDao.deleteBook(id) }
     }
-
-    fun unlinkDocumentFromBook(book: Book) {
-        viewModelScope.launch(Dispatchers.IO) {
-            bookDao.updateBook(book.copy(documentMd5 = null))
-        }
-    }
-
-    fun linkDocumentToBook(book: Book, documentMd5: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            bookDao.updateBook(book.copy(documentMd5 = documentMd5))
-        }
-    }
 }

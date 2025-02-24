@@ -9,7 +9,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -57,7 +56,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
@@ -71,8 +69,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
-import coil.compose.AsyncImagePainter
-import coil.compose.SubcomposeAsyncImage
 import com.artifex.mupdf.fitz.Link
 import com.artifex.mupdf.viewer.R
 import com.composables.core.ScrollArea
@@ -88,8 +84,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.ZoomSpec
+import me.saket.telephoto.zoomable.coil.ZoomableAsyncImage
+import me.saket.telephoto.zoomable.rememberZoomableImageState
 import me.saket.telephoto.zoomable.rememberZoomableState
-import me.saket.telephoto.zoomable.zoomable
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -204,6 +201,7 @@ fun DocumentView(
                         val zoomState = rememberZoomableState(
                             zoomSpec = ZoomSpec(maxZoomFactor = 3f)
                         )
+                        val imageZoomState = rememberZoomableImageState(zoomState)
 
                         HorizontalPager(state = pagerState, beyondViewportPageCount = 1) { index ->
                             var pageContainerSize by remember {
@@ -222,12 +220,6 @@ fun DocumentView(
                             val pageBitmap by viewModel.getPageBitmap(index, debouncedZoom)
                                 .collectAsState(null)
 
-                            LaunchedEffect(debouncedZoom) {
-                                if (debouncedZoom > 1 && showBars) {
-                                    showBars = false
-                                }
-                            }
-
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -235,111 +227,101 @@ fun DocumentView(
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (pageBitmap != null) {
-                                    SubcomposeAsyncImage(
+                                    val pageBounds = viewModel.getPageBounds(index)
+
+                                    ZoomableAsyncImage(
                                         model = pageBitmap,
                                         contentDescription = null,
-                                        filterQuality = FilterQuality.High,
+                                        contentScale = ContentScale.Fit,
+                                        state = imageZoomState,
                                         modifier = Modifier
+                                            .background(MaterialTheme.colorScheme.background)
+                                            .fillMaxSize()
                                             .onGloballyPositioned { coordinates ->
                                                 pageContainerSize = coordinates.size
-                                            }
-                                            .zoomable(
-                                                zoomState,
-                                                onClick = { showBars = !showBars }
-                                            )
-                                    ) {
-                                        val painterState = painter.state
-                                        val pageBounds =
-                                            viewModel.getPageBounds(index)
-
-                                        if (painterState is AsyncImagePainter.State.Success) {
-                                            Image(
-                                                painter = painterState.painter,
-                                                contentDescription = null,
-                                                contentScale = ContentScale.Fit,
-                                                modifier = Modifier
-                                                    .background(Color.White)
-                                                    .fillMaxSize()
-                                            )
-                                        } else if (painterState is AsyncImagePainter.State.Loading) {
-                                            CircularProgressIndicator()
+                                            },
+                                        onLongClick = {
+                                            //TODO: can I initiate text selection from here😅?
+                                        },
+                                        onClick = {
+                                            showBars = !showBars
                                         }
+                                    )
 
-                                        if (viewModel.showSearchResults) {
-                                            pageContainerSize.let { size ->
-                                                val pageSize = IntSize(
-                                                    width = pageBounds.first,
-                                                    height = pageBounds.second
+                                    if (viewModel.showSearchResults) {
+                                        pageContainerSize.let { size ->
+                                            val pageSize = IntSize(
+                                                width = pageBounds.first,
+                                                height = pageBounds.second
+                                            )
+
+                                            SearchHighlights(
+                                                searchResults = searchResults.filter { it.pageNumber == index },
+                                                originalPageSize = pageSize,
+                                                containerSize = size,
+                                                highlightColor = Color.Yellow.copy(
+                                                    alpha = 0.7f
                                                 )
+                                            )
+                                        }
+                                    }
 
-                                                SearchHighlights(
-                                                    searchResults = searchResults.filter { it.pageNumber == index },
-                                                    originalPageSize = pageSize,
+                                    if (viewModel.showLinks) {
+                                        val pageLinks =
+                                            links.find { it.page == index }
+
+                                        pageContainerSize.let { size ->
+                                            pageLinks?.links?.let {
+                                                DocumentLinkOverlay(
+                                                    links = it,
+                                                    originalPageSize = IntSize(
+                                                        width = pageBounds.first,
+                                                        height = pageBounds.second
+                                                    ),
                                                     containerSize = size,
-                                                    highlightColor = Color.Yellow.copy(
-                                                        alpha = 0.7f
-                                                    )
-                                                )
-                                            }
-                                        }
+                                                    onLinkClick = { link ->
+                                                        if (link.isExternal) {
+                                                            val intent =
+                                                                Intent(
+                                                                    Intent.ACTION_VIEW,
+                                                                    Uri.parse(link.uri)
+                                                                )
 
-                                        if (viewModel.showLinks) {
-                                            val pageLinks =
-                                                links.find { it.page == index }
-
-                                            pageContainerSize.let { size ->
-                                                pageLinks?.links?.let {
-                                                    DocumentLinkOverlay(
-                                                        links = it,
-                                                        originalPageSize = IntSize(
-                                                            width = pageBounds.first,
-                                                            height = pageBounds.second
-                                                        ),
-                                                        containerSize = size,
-                                                        onLinkClick = { link ->
-                                                            if (link.isExternal) {
-                                                                val intent =
-                                                                    Intent(
-                                                                        Intent.ACTION_VIEW,
-                                                                        Uri.parse(link.uri)
+                                                            try {
+                                                                context.startActivity(intent)
+                                                            } catch (x: FileUriExposedException) {
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    "Android does not allow following file:// link: " + link.uri,
+                                                                    Toast.LENGTH_LONG
+                                                                ).show()
+                                                            } catch (x: Throwable) {
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    x.message,
+                                                                    Toast.LENGTH_LONG
+                                                                ).show()
+                                                            }
+                                                        } else {
+                                                            viewModel.pushToHistory(viewModel.currentPage)
+                                                            coroutineScope.launch {
+                                                                val pageNum =
+                                                                    viewModel.getPageIndexFromLink(
+                                                                        link
                                                                     )
 
-                                                                try {
-                                                                    context.startActivity(intent)
-                                                                } catch (x: FileUriExposedException) {
-                                                                    Toast.makeText(
-                                                                        context,
-                                                                        "Android does not allow following file:// link: " + link.uri,
-                                                                        Toast.LENGTH_LONG
-                                                                    ).show()
-                                                                } catch (x: Throwable) {
-                                                                    Toast.makeText(
-                                                                        context,
-                                                                        x.message,
-                                                                        Toast.LENGTH_LONG
-                                                                    ).show()
-                                                                }
-                                                            } else {
-                                                                viewModel.pushToHistory(viewModel.currentPage)
-                                                                coroutineScope.launch {
-                                                                    val pageNum =
-                                                                        viewModel.getPageIndexFromLink(
-                                                                            link
-                                                                        )
-
-                                                                    pageNum?.let { num ->
-                                                                        pagerState.scrollToPage(
-                                                                            num
-                                                                        )
-                                                                    }
+                                                                pageNum?.let { num ->
+                                                                    pagerState.scrollToPage(
+                                                                        num
+                                                                    )
                                                                 }
                                                             }
-                                                        },
-                                                        onNonLinkClick = {
-                                                            showBars = !showBars
                                                         }
-                                                    )
-                                                }
+                                                    },
+                                                    onNonLinkClick = {
+                                                        showBars = !showBars
+                                                    }
+                                                )
                                             }
                                         }
                                     }
