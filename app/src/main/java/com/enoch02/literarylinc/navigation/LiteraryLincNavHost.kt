@@ -1,5 +1,11 @@
 package com.enoch02.literarylinc.navigation
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -26,6 +32,15 @@ fun LiteraryLincNavHost(navController: NavHostController = rememberNavController
     NavHost(
         navController = navController,
         startDestination = Screen.LiteraryLincApp.route,
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(400)
+            )
+        },
+        exitTransition = {
+            ExitTransition.None
+        },
         builder = {
             composable(Screen.LiteraryLincApp.route) {
                 LiteraryLincApp(navController = navController)
