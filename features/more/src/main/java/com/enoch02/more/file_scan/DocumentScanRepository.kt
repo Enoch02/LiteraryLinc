@@ -5,6 +5,8 @@ import java.util.UUID
 interface DocumentScanRepository {
     fun getIds(): Pair<UUID, UUID>
 
+    fun periodicBackgroundScan(frequency: Int)
+
     /**
      * Load documents from the selected directory. Also check if new documents have
      * been added or removed from the directory to update the local database.
@@ -18,6 +20,8 @@ interface DocumentScanRepository {
     fun rescanCovers()
 
     fun cancelWork()
+
+    fun cancelPeriodicScan()
 
     fun clearStoredFileScanId()
 

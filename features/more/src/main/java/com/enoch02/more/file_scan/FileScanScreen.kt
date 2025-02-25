@@ -45,16 +45,19 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.enoch02.more.R
+import com.enoch02.more.settings.components.DialogSettingItem
 import com.enoch02.more.settings.components.SwitchSettingItem
+import com.enoch02.settings.SettingsRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = hiltViewModel()) {
     val tonalElevation = 10.dp
-    // TODO: save using settingsViewModel
-    var autoStartScans by rememberSaveable {
-        mutableStateOf(false)
-    }
+    val autoStartScans by viewModel.getPreference(key = SettingsRepository.BooleanPreferenceType.AUTO_SCAN_FILES)
+        .collectAsState(initial = false)
+    val selectedFrequency by viewModel.getPreference(key = SettingsRepository.IntPreferenceType.AUTO_FILE_SCAN_FREQ)
+        .collectAsState(initial = 0)
+
     val context = LocalContext.current
     var isDirectoryPicked by rememberSaveable { mutableStateOf(false) }
     var showRemovalDialog by remember {
@@ -145,9 +148,77 @@ fun FileScanScreen(navController: NavController, viewModel: FileScanViewModel = 
                                                 description = stringResource(R.string.autostart_scans_desc),
                                                 checked = autoStartScans,
                                                 onCheckChanged = {
-                                                    autoStartScans = it
+                                                    viewModel.switchPreference(
+                                                        key = SettingsRepository.BooleanPreferenceType.AUTO_SCAN_FILES,
+                                                        newValue = it
+                                                    )
+
+                                                    if (!it) {
+                                                        viewModel.cancelPeriodicScan()
+                                                    }
                                                 }
                                             )
+
+                                            if (autoStartScans) {
+                                                val values = mapOf(
+                                                    6 to stringResource(R.string.every_six_hours),
+                                                    12 to stringResource(R.string.every_twelve_hours),
+                                                    24 to stringResource(R.string.daily),
+                                                    48 to stringResource(R.string.every_two_days),
+                                                    168 to stringResource(R.string.weekly)
+                                                )
+
+                                                DialogSettingItem(
+                                                    title = stringResource(R.string.auto_file_scan_freq_diag_title),
+                                                    values = values.values.toList(),
+                                                    selected = values[selectedFrequency]
+                                                        ?: stringResource(R.string.off),
+                                                    tonalElevation = tonalElevation,
+                                                    onSelectionChange = { newValue ->
+                                                        when (newValue) {
+                                                            context.getString(R.string.every_six_hours) -> {
+                                                                viewModel.switchPreference(
+                                                                    SettingsRepository.IntPreferenceType.AUTO_FILE_SCAN_FREQ,
+                                                                    6
+                                                                )
+                                                            }
+
+                                                            context.getString(R.string.every_twelve_hours) -> {
+                                                                viewModel.switchPreference(
+                                                                    SettingsRepository.IntPreferenceType.AUTO_FILE_SCAN_FREQ,
+                                                                    12
+                                                                )
+                                                            }
+
+                                                            context.getString(R.string.daily) -> {
+                                                                viewModel.switchPreference(
+                                                                    SettingsRepository.IntPreferenceType.AUTO_FILE_SCAN_FREQ,
+                                                                    24
+                                                                )
+                                                            }
+
+                                                            context.getString(R.string.every_two_days) -> {
+                                                                viewModel.switchPreference(
+                                                                    SettingsRepository.IntPreferenceType.AUTO_FILE_SCAN_FREQ,
+                                                                    48
+                                                                )
+                                                            }
+
+                                                            context.getString(R.string.weekly) -> {
+                                                                viewModel.switchPreference(
+                                                                    SettingsRepository.IntPreferenceType.AUTO_FILE_SCAN_FREQ,
+                                                                    168
+                                                                )
+                                                            }
+                                                        }
+
+
+                                                        viewModel.togglePeriodicScans(
+                                                            selectedFrequency
+                                                        )
+                                                    }
+                                                )
+                                            }
 
                                             ListItem(
                                                 headlineContent = {

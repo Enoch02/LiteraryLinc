@@ -6,6 +6,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -35,4 +36,10 @@ fun SwitchSettingItem(
         },
         tonalElevation = 10.dp
     )
+}
+
+@Preview
+@Composable
+private fun Preview() {
+    SwitchSettingItem(label = "Name", description = "Description", checked = true) { }
 }
