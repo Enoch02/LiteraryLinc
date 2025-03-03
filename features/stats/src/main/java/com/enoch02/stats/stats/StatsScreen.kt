@@ -63,7 +63,7 @@ fun StatsScreen(
                 item {
                     QuickStatCard(
                         title = "Total Books Read",
-                        value = "${viewModel.totalCount}",
+                        value = viewModel.totalCount.withCommas(),
                         icon = Icons.AutoMirrored.Rounded.MenuBook
                     )
                 }
@@ -71,7 +71,7 @@ fun StatsScreen(
                 item {
                     QuickStatCard(
                         title = "Pages Read",
-                        value = "${viewModel.pagesReadCount}",
+                        value = viewModel.pagesReadCount.withCommas(),
                         icon = Icons.AutoMirrored.Rounded.MenuBook
                     )
                 }
@@ -79,7 +79,7 @@ fun StatsScreen(
                 item {
                     QuickStatCard(
                         title = "Total Hours*",
-                        value = "${viewModel.totalHoursRead}",
+                        value = viewModel.totalHoursRead.withCommas(),
                         icon = Icons.Rounded.AccessTime
                     )
                 }

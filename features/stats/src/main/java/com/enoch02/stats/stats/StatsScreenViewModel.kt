@@ -13,6 +13,8 @@ import com.enoch02.database.model.Book
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -59,8 +61,10 @@ class StatsScreenViewModel @Inject constructor(
         val filteredBooks =
             books.filter { it.dateCompleted != null && it.dateStarted != null && it.status == Book.status[1] }
         val fastest = filteredBooks.minByOrNull { book ->
-            book.dateStarted!! - book.dateCompleted!!
+            book.dateCompleted!! - book.dateStarted!!
         }
         fastestCompletedBook = fastest?.title ?: ""
     }
 }
+
+fun Int.withCommas(): String = NumberFormat.getNumberInstance(Locale.ROOT).format(this)
