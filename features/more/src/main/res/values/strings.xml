@@ -67,4 +67,6 @@
     <string name="every_two_days">Every 2 days</string>
     <string name="weekly">Weekly</string>
     <string name="every_twelve_hours">Every 12 hours</string>
+    <string name="excel_friendly_export">Excel Friendly Export</string>
+    <string name="excel_friendly_export_desc">Export without covers. Makes the CSV file easier to view in Excel</string>
 </resources>
