@@ -59,4 +59,14 @@
     <string name="settings_desc">Theme, dynamic colors, app behavior</string>
     <string name="bckup_res_desc"><![CDATA[CSV Backup & Restore]]></string>
     <string name="about_desc">Version, licenses, check for updates</string>
+    <string name="file_scan_freq">Automatic file scan frequency</string>
+    <string name="auto_file_scan_freq_diag_title">Automatic file scan frequency</string>
+    <string name="every_six_hours">Every 6 hours</string>
+    <string name="off">Off</string>
+    <string name="daily">Daily</string>
+    <string name="every_two_days">Every 2 days</string>
+    <string name="weekly">Weekly</string>
+    <string name="every_twelve_hours">Every 12 hours</string>
+    <string name="excel_friendly_export">Excel Friendly Export</string>
+    <string name="excel_friendly_export_desc">Export without covers. Makes the CSV file easier to view in Excel</string>
 </resources>

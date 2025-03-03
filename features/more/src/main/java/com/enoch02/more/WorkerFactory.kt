@@ -11,6 +11,7 @@ import com.enoch02.more.backup_restore.workers.BackupWorker
 import com.enoch02.more.backup_restore.workers.RestoreWorker
 import com.enoch02.more.file_scan.workers.CoverScanWorker
 import com.enoch02.more.file_scan.workers.FileScanWorker
+import com.enoch02.more.file_scan.workers.PeriodicFileScanWorker
 
 class WorkerFactory(
     private val documentDao: DocumentDao,
@@ -37,6 +38,10 @@ class WorkerFactory(
 
             RestoreWorker::class.java.name -> {
                 RestoreWorker(appContext, parameters, csvManager)
+            }
+
+            PeriodicFileScanWorker::class.java.name -> {
+                PeriodicFileScanWorker(appContext, parameters, documentDao)
             }
 
             else -> {

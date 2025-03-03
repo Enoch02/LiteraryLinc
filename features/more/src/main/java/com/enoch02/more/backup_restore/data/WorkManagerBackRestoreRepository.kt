@@ -9,13 +9,17 @@ import com.enoch02.more.backup_restore.workers.BackupWorker
 import com.enoch02.more.backup_restore.workers.RestoreWorker
 import com.enoch02.more.file_scan.BACKUP_FILE_URI_KEY
 import com.enoch02.more.file_scan.CREATE_BACKUP_WORKER_ID
+import com.enoch02.more.file_scan.EXCEL_FRIENDLY_KEY
 import com.enoch02.more.file_scan.RESTORE_BACKUP_WORKER_ID
 
 //TODO: handle potential errors in the workers and show error messages
 class WorkManagerBackRestoreRepository(private val workManager: WorkManager) :
     BackupRestoreRepository {
-    override fun createBackup(backupUri: Uri) {
-        val data = Data.Builder().putString(BACKUP_FILE_URI_KEY, backupUri.toString()).build()
+    override fun createBackup(backupUri: Uri, excelFriendly: Boolean) {
+        val data = Data.Builder()
+            .putString(BACKUP_FILE_URI_KEY, backupUri.toString())
+            .putBoolean(EXCEL_FRIENDLY_KEY, excelFriendly)
+            .build()
         val createBackup = OneTimeWorkRequestBuilder<BackupWorker>()
             .setInputData(data)
             .setId(CREATE_BACKUP_WORKER_ID)

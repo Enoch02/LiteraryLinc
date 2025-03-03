@@ -7,6 +7,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.enoch02.database.export_and_import.csv.CSVManager
 import com.enoch02.more.file_scan.BACKUP_FILE_URI_KEY
+import com.enoch02.more.file_scan.EXCEL_FRIENDLY_KEY
 import com.enoch02.more.file_scan.util.makeStatusNotification
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -22,6 +23,7 @@ class BackupWorker @AssistedInject constructor(
 ) : CoroutineWorker(ctx, parameters) {
     override suspend fun doWork(): Result {
         val backupUri = inputData.getString(BACKUP_FILE_URI_KEY)
+        val friendly = inputData.getBoolean(EXCEL_FRIENDLY_KEY, false)
 
         makeStatusNotification("Creating Backup", applicationContext)
 
@@ -33,7 +35,14 @@ class BackupWorker @AssistedInject constructor(
             }
 
             try {
-                csvManager.export(Uri.parse(backupUri))
+                val uri = Uri.parse(backupUri)
+
+                if (friendly) {
+                    csvManager.excelFriendlyExport(uri)
+                } else {
+                    csvManager.export(uri)
+                }
+
                 withContext(Dispatchers.Main) {
                     makeStatusNotification("Backup Complete!", applicationContext)
                 }

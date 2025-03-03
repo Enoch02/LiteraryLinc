@@ -14,7 +14,11 @@ class BackupRestoreViewModel @Inject constructor(
         backupRestoreRepository.createBackup(uri)
     }
 
-    fun restoreCSVBackup(uri: Uri, onSuccess: () -> Unit) {
+    fun createExcelFriendlyBackup(uri: Uri) {
+        backupRestoreRepository.createBackup(uri, excelFriendly = true)
+    }
+
+    fun restoreCSVBackup(uri: Uri) {
         backupRestoreRepository.restoreBackup(uri)
     }
 }

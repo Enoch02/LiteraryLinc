@@ -16,7 +16,7 @@ A feature-rich e-book reader and book tracking application for Android that help
   - Record pages read for series
   - Add personal notes and ratings
 - **File Management**:
-  - Automatic document scanning (WIP)
+  - Automatic document scanning
   - Cover image management
   - Multiple directory support
 - **Data Management**:

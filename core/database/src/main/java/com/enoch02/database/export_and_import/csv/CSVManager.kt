@@ -99,6 +99,58 @@ class CSVManager(
         }
     }
 
+    suspend fun excelFriendlyExport(uri: Uri) {
+        val contentResolver = application.contentResolver
+        val outputStream = contentResolver.openOutputStream(uri)
+        val books = bookDao.getBooksNonFlow().sortedBy { it.title }
+
+        if (outputStream != null) {
+            val writer = OutputStreamWriter(outputStream)
+            val csvWriter = CSVWriter(writer)
+
+            val header = arrayOf(
+                "Title",
+                "Author",
+                "Pages Read",
+                "Page Count",
+                "Date Started",
+                "Date Completed",
+                "Times Reread",
+                "Personal Rating",
+                "ISBN",
+                "Genre",
+                "Type",
+                "Notes",
+                "Status"
+            )
+
+            csvWriter.writeNext(header)
+            books.forEach {
+                val row = arrayOf(
+                    it.title,
+                    it.author,
+                    it.pagesRead.toString(),
+                    it.pageCount.toString(),
+                    formatEpochAsString(it.dateStarted),
+                    formatEpochAsString(it.dateCompleted),
+                    it.timesReread.toString(),
+                    it.personalRating.toString(),
+                    it.isbn,
+                    it.genre,
+                    it.type,
+                    it.notes,
+                    it.status
+                )
+
+                csvWriter.writeNext(row)
+                Log.d(TAG, "export: ${it.title} exported")
+            }
+
+            csvWriter.flush()
+            csvWriter.close()
+        }
+    }
+
     fun import(uri: Uri): Result<Unit> {
         try {
             val inputStream = application.contentResolver.openInputStream(uri)

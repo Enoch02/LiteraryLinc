@@ -5,7 +5,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -71,7 +70,10 @@ class SettingsRepository(private val context: Context) {
         val dynamicColorKey = booleanPreferencesKey("dynamic_color")
         val confirmDialogKey = booleanPreferencesKey("confirm_dialogs")
         val volumeButtonPagingKey = booleanPreferencesKey("volume_btn_paging")
+        val autoScanFilesKey = booleanPreferencesKey("auto_scan_files")
+
         val currentReaderFilterKey = intPreferencesKey("current_reader_filter")
+        val autoFileScanFrequency = intPreferencesKey("auto_file_scan_duration")
     }
 
     // Map enum to preference keys
@@ -81,6 +83,7 @@ class SettingsRepository(private val context: Context) {
             BooleanPreferenceType.DYNAMIC_COLOR -> Keys.dynamicColorKey
             BooleanPreferenceType.CONFIRM_DIALOGS -> Keys.confirmDialogKey
             BooleanPreferenceType.VOLUME_BTN_PAGING -> Keys.volumeButtonPagingKey
+            BooleanPreferenceType.AUTO_SCAN_FILES -> Keys.autoScanFilesKey
         }
     }
 
@@ -93,6 +96,7 @@ class SettingsRepository(private val context: Context) {
     private fun getKeyForPreference(preference: IntPreferenceType): Preferences.Key<Int> {
         return when (preference) {
             IntPreferenceType.CURRENT_READER_FILTER -> Keys.currentReaderFilterKey
+            IntPreferenceType.AUTO_FILE_SCAN_FREQ -> Keys.autoFileScanFrequency
         }
     }
 
@@ -100,10 +104,12 @@ class SettingsRepository(private val context: Context) {
         DARK_MODE,
         DYNAMIC_COLOR,
         CONFIRM_DIALOGS,
-        VOLUME_BTN_PAGING
+        VOLUME_BTN_PAGING,
+        AUTO_SCAN_FILES
     }
 
     enum class IntPreferenceType {
         CURRENT_READER_FILTER,
+        AUTO_FILE_SCAN_FREQ
     }
 }

@@ -1,12 +1,16 @@
 package com.enoch02.more.file_scan
 
 import android.content.Context
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.enoch02.more.file_scan.workers.CoverScanWorker
 import com.enoch02.more.file_scan.workers.FileScanWorker
+import com.enoch02.more.file_scan.workers.PeriodicFileScanWorker
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 class WorkManagerDocumentScanRepository(
     private val context: Context,
@@ -21,6 +25,19 @@ class WorkManagerDocumentScanRepository(
             sharedPreferences.getString(COVER_SCAN_WORKER_KEY, null)?.let { UUID.fromString(it) }
 
         return Pair(fileScanWorkId ?: FILE_SCAN_WORKER_ID, coverScanWorkId ?: COVER_SCAN_WORKER_ID)
+    }
+
+    override fun periodicBackgroundScan(frequency: Int) {
+        val scanFiles = PeriodicWorkRequestBuilder<PeriodicFileScanWorker>(
+            frequency.toLong(), TimeUnit.HOURS
+        )
+            .build()
+
+        workManager.enqueueUniquePeriodicWork(
+            "periodicFileScan",
+            ExistingPeriodicWorkPolicy.UPDATE,
+            scanFiles
+        )
     }
 
     override fun scanFiles() {
@@ -59,6 +76,10 @@ class WorkManagerDocumentScanRepository(
     override fun cancelWork() {
         workManager.cancelWorkById(FILE_SCAN_WORKER_ID)
         workManager.cancelWorkById(COVER_SCAN_WORKER_ID)
+    }
+
+    override fun cancelPeriodicScan() {
+        workManager.cancelUniqueWork("periodicFileScan")
     }
 
 
