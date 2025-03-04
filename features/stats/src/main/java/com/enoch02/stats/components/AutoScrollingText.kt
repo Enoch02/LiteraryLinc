@@ -57,11 +57,11 @@ fun AutoScrollingText(
                         scrollState.animateScrollTo(
                             value = scrollState.maxValue,
                             animationSpec = tween(
-                                durationMillis = scrollState.maxValue * 15, // Increased multiplier for slower scrolling
+                                durationMillis = scrollState.maxValue * 15,
                                 easing = LinearEasing
                             )
                         )
-                        delay(1500) // Longer pause at the end
+                        delay(1500) // pause at the end
                         scrollState.animateScrollTo(
                             value = 0,
                             animationSpec = tween(

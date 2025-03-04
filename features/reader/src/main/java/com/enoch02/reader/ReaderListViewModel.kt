@@ -221,10 +221,6 @@ class ReaderListViewModel @Inject constructor(
         }
     }
 
-    fun rereadBook() {
-        /*TODO*/
-    }
-
     fun deleteDocument(document: LLDocument) {
         viewModelScope.launch(Dispatchers.IO) {
             if (document.deleteDocument(applicationContext)) {

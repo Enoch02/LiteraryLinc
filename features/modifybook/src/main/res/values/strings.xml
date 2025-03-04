@@ -21,4 +21,9 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="add_image">Add Image</string>
+    <string name="start_date">Start Date</string>
+    <string name="completion_date">Completion Date</string>
+    <string name="author">Author</string>
+    <string name="add_cover_image">Add Cover Image</string>
+    <string name="book_title">Book Title</string>
 </resources>

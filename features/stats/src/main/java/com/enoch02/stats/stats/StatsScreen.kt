@@ -108,35 +108,6 @@ fun StatsScreen(
                     )
                 }
             }
-
-            //TODO: show multiple leaderboards using a pager
-            //TODO: might not use this
-            /*LeaderBoardView(
-                modifier = Modifier.weight(0.45f),
-                header = "Most Read Book Types",
-                values = listOf(
-                    LeaderBoardValue(
-                        name = "Book 1",
-                        count = "10"
-                    ),
-                    LeaderBoardValue(
-                        name = "Book 2",
-                        count = "5"
-                    ),
-                    LeaderBoardValue(
-                        name = "Book 3",
-                        count = "4"
-                    ),
-                    LeaderBoardValue(
-                        name = "Book 4",
-                        count = "2"
-                    ),
-                    LeaderBoardValue(
-                        name = "Book 5",
-                        count = "1"
-                    )
-                )
-            )*/
         }
     )
 }
@@ -149,7 +120,7 @@ fun ReadingProgressView(modifier: Modifier) {
         Spacer(Modifier.height(4.dp))
 
         LinearProgressIndicator(
-            progress = 0.5f,
+            progress = { 0.5f },
             modifier = Modifier.fillMaxWidth(),
         )
     }

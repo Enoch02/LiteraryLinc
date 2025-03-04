@@ -139,9 +139,6 @@ fun AddBookScreen(
             )
         },
         content = { paddingValues ->
-            /*TODO: Change the form fields according to the type of book.
-            *  Example: Comics and Manga should have chapters fields instead of page*/
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -154,7 +151,7 @@ fun AddBookScreen(
                             verticalAlignment = Alignment.Top,
                             content = {
                                 ImagePicker(
-                                    label = "Add Cover Image",
+                                    label = stringResource(R.string.add_cover_image),
                                     launcher = rememberLauncherForActivityResult(
                                         ActivityResultContracts.StartActivityForResult()
                                     ) {
@@ -164,14 +161,12 @@ fun AddBookScreen(
                                 )
 
                                 Spacer(modifier = Modifier.width(12.dp))
-
-                                /* TODO: add something else here. Like a button to to initiate online image search */
                             }
                         )
                     }
                     item {
                         FormTextField(
-                            label = "Book Title",
+                            label = stringResource(R.string.book_title),
                             value = bookTitle,
                             onValueChange = { bookTitle = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -180,7 +175,7 @@ fun AddBookScreen(
 
                     item {
                         FormTextField(
-                            label = "Author",
+                            label = stringResource(R.string.author),
                             value = author,
                             onValueChange = { author = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -206,10 +201,9 @@ fun AddBookScreen(
                         )
                     }
 
-                    //TODO: Extract string resources
                     item {
                         FormDatePicker(
-                            label = "Start Date",
+                            label = stringResource(R.string.start_date),
                             datePickerState = dateStarted,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -219,7 +213,7 @@ fun AddBookScreen(
 
                     item {
                         FormDatePicker(
-                            label = "Completion Date",
+                            label = stringResource(R.string.completion_date),
                             datePickerState = dateCompleted,
                             modifier = Modifier
                                 .fillMaxWidth()

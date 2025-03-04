@@ -105,7 +105,6 @@ fun FormDatePicker(
                 .clickable { showDialog = true },
         )
 
-        //TODO: extract string resources
         if (showDialog) {
             val confirmEnabled by remember { derivedStateOf { datePickerState.selectedDateMillis != null } }
 

@@ -39,7 +39,6 @@ fun Uri.generateThumbnail(context: Context): Bitmap? {
  * @return A Bitmap of the first image or null if no image is found.
  */
 private fun generatePdfThumbnail(context: Context, uri: Uri): Bitmap? {
-    // TODO: fill with white bg first to see if it prevents transparent cover backgrounds
     val parcelFileDescriptor = context.contentResolver.openFileDescriptor(uri, "r")
     return parcelFileDescriptor?.use { pfd ->
         val pdfRenderer = PdfRenderer(pfd)

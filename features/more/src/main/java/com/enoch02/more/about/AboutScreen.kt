@@ -99,7 +99,6 @@ fun AboutScreen(navController: NavController) {
                                             Text(stringResource(R.string.check_for_updates_desc))
                                         },
                                         modifier = Modifier.clickable {
-                                            /*TODO: open the releases page for now*/
                                             context.startActivity(
                                                 Intent(
                                                     Intent.ACTION_VIEW,
