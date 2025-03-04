@@ -138,7 +138,7 @@ fun DocumentView(
 
             ContentState.NOT_LOADING -> {
                 var showBars by rememberSaveable {
-                    mutableStateOf(true)
+                    mutableStateOf(viewModel.showBarsInit)
                 }
                 val pageCount = viewModel.pages.size
                 val pagerState = rememberPagerState(

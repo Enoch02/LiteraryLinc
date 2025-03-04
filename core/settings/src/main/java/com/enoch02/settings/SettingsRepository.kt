@@ -71,6 +71,7 @@ class SettingsRepository(private val context: Context) {
         val confirmDialogKey = booleanPreferencesKey("confirm_dialogs")
         val volumeButtonPagingKey = booleanPreferencesKey("volume_btn_paging")
         val autoScanFilesKey = booleanPreferencesKey("auto_scan_files")
+        val showDocViewerBars = booleanPreferencesKey("show_doc_viewer_bars")
 
         val currentReaderFilterKey = intPreferencesKey("current_reader_filter")
         val autoFileScanFrequency = intPreferencesKey("auto_file_scan_duration")
@@ -84,6 +85,7 @@ class SettingsRepository(private val context: Context) {
             BooleanPreferenceType.CONFIRM_DIALOGS -> Keys.confirmDialogKey
             BooleanPreferenceType.VOLUME_BTN_PAGING -> Keys.volumeButtonPagingKey
             BooleanPreferenceType.AUTO_SCAN_FILES -> Keys.autoScanFilesKey
+            BooleanPreferenceType.SHOW_DOC_VIEWER_BARS -> Keys.showDocViewerBars
         }
     }
 
@@ -105,7 +107,8 @@ class SettingsRepository(private val context: Context) {
         DYNAMIC_COLOR,
         CONFIRM_DIALOGS,
         VOLUME_BTN_PAGING,
-        AUTO_SCAN_FILES
+        AUTO_SCAN_FILES,
+        SHOW_DOC_VIEWER_BARS
     }
 
     enum class IntPreferenceType {

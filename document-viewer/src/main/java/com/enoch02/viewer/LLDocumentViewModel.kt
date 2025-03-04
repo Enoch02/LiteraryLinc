@@ -34,6 +34,7 @@ import com.enoch02.viewer.model.SearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -90,12 +91,19 @@ class LLDocumentViewModel @Inject constructor(
 
     private var deviceWidth = 0
 
+    val dynamicColor = getPreference(key = SettingsRepository.BooleanPreferenceType.DYNAMIC_COLOR)
+    var showBarsInit = false
+
     fun initDocument(context: Context, uri: Uri, mimeType: String?, id: String?) {
         var cursor: Cursor? = null
 
         docKey = uri.toString()
         documentId = id
         deviceWidth = context.resources.displayMetrics.widthPixels
+        viewModelScope.launch(Dispatchers.IO) {
+            showBarsInit =
+                getPreference(key = SettingsRepository.BooleanPreferenceType.SHOW_DOC_VIEWER_BARS).first()
+        }
 
         try {
             cursor = context.contentResolver.query(uri, null, null, null, null)
@@ -112,7 +120,7 @@ class LLDocumentViewModel @Inject constructor(
             }
         } catch (x: Exception) {
             // Ignore any exception and depend on default values for title
-            // and size (unless one was decoded
+            // and size (unless one was decoded)
         } finally {
             cursor?.close()
         }

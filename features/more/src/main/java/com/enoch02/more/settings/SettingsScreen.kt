@@ -1,6 +1,7 @@
 package com.enoch02.more.settings
 
 import android.os.Build
+import android.widget.Toast
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -27,14 +29,11 @@ import com.enoch02.settings.SettingsRepository
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = hiltViewModel()) {
-    val alwaysDark by viewModel.getPreference(key = SettingsRepository.BooleanPreferenceType.DARK_MODE)
-        .collectAsState(initial = false)
-    val dynamicColors by viewModel.getPreference(key = SettingsRepository.BooleanPreferenceType.DYNAMIC_COLOR)
-        .collectAsState(initial = false)
-    val showConfirmDialog by viewModel.getPreference(key = SettingsRepository.BooleanPreferenceType.CONFIRM_DIALOGS)
-        .collectAsState(initial = false)
-    val volumeButtonPaging by viewModel.getPreference(key = SettingsRepository.BooleanPreferenceType.VOLUME_BTN_PAGING)
-        .collectAsState(initial = false)
+    val alwaysDark by viewModel.alwaysDark.collectAsState(false)
+    val dynamicColors by viewModel.dynamicColors.collectAsState(false)
+    val showConfirmDialog by viewModel.showConfirmDialog.collectAsState(false)
+    val volumeButtonPaging by viewModel.volumeButtonPaging.collectAsState(false)
+    val showDocViewerBars by viewModel.showDocViewerBars.collectAsState(false)
 
     Scaffold(
         topBar = {
@@ -96,7 +95,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                     item {
                         ListItem(
                             overlineContent = {
-                                Text(text = "Behaviour")
+                                Text(text = stringResource(R.string.behaviour))
                             },
                             headlineContent = {
                                 Card(
@@ -121,6 +120,18 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                             onCheckChanged = {
                                                 viewModel.switchPreference(
                                                     key = SettingsRepository.BooleanPreferenceType.VOLUME_BTN_PAGING,
+                                                    newValue = it
+                                                )
+                                            }
+                                        )
+
+                                        SwitchSettingItem(
+                                            label = stringResource(R.string.show_doc_viewer_bars),
+                                            description = stringResource(R.string.show_doc_viewer_bars_desc),
+                                            checked = showDocViewerBars,
+                                            onCheckChanged = {
+                                                viewModel.switchPreference(
+                                                    key = SettingsRepository.BooleanPreferenceType.SHOW_DOC_VIEWER_BARS,
                                                     newValue = it
                                                 )
                                             }

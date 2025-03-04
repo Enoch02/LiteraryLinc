@@ -31,10 +31,10 @@ class LLDocumentActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val intent = intent
+
         setContent {
             val viewModel: LLDocumentViewModel = hiltViewModel()
-            val dynamicColor by viewModel.getPreference(key = SettingsRepository.BooleanPreferenceType.DYNAMIC_COLOR)
-                .collectAsState(initial = null)
+            val dynamicColor by viewModel.dynamicColor.collectAsState(false)
 
             DisposableEffect(Unit) {
                 this@LLDocumentActivity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -50,7 +50,7 @@ class LLDocumentActivity : ComponentActivity() {
 
                 LiteraryLincTheme(
                     alwaysDark = true,
-                    dynamicColor = dynamicColor ?: false,
+                    dynamicColor = dynamicColor,
                     content = {
                         if (uri == null) {
                             Text("Cannot open Document")
