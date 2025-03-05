@@ -23,7 +23,7 @@ import com.artifex.mupdf.fitz.Page
 import com.artifex.mupdf.fitz.android.AndroidDrawDevice
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.dao.DocumentDao
-import com.enoch02.database.model.Book
+import com.enoch02.database.model.Book.Companion.BookStatus
 import com.enoch02.database.model.LLDocument
 import com.enoch02.resources.BitmapManager
 import com.enoch02.settings.SettingsRepository
@@ -388,13 +388,13 @@ class LLDocumentViewModel @Inject constructor(
                         pageCount = document.pages,
                         pagesRead = document.currentPage,
                         coverImageName = if (theBook.coverImageName.isNullOrEmpty()) document.cover else theBook.coverImageName,
-                        status = if (document.pages == document.currentPage) Book.status[1] else theBook.status,
+                        status = if (document.pages == document.currentPage) BookStatus.COMPLETED.strName else theBook.status,
                         dateCompleted = if (isComplete && theBook.dateCompleted == null) {
                             completionDate
                         } else {
                             theBook.dateCompleted
                         },
-                        timesReread = if (isComplete && theBook.status == Book.status[4]) theBook.timesReread + 1 else theBook.timesReread
+                        timesReread = if (isComplete && theBook.status == BookStatus.RE_READING.strName) theBook.timesReread + 1 else theBook.timesReread
                     )
                 )
             }
@@ -535,7 +535,7 @@ class LLDocumentViewModel @Inject constructor(
             if (book == null) {
                 _showRereadDialog.value = false
             } else {
-                _showRereadDialog.value = book.status == Book.status[1]
+                _showRereadDialog.value = book.status == BookStatus.COMPLETED.strName
             }
         }
     }
@@ -549,7 +549,7 @@ class LLDocumentViewModel @Inject constructor(
         book?.let { theBook ->
             bookDao.updateBook(
                 theBook.copy(
-                    status = Book.status[4],
+                    status = BookStatus.RE_READING.strName,
                     pagesRead = 0
                 )
             )

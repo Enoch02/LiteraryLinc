@@ -55,6 +55,7 @@ import com.enoch02.components.ImagePicker
 import com.enoch02.components.IncrementalFormIntField
 import com.enoch02.components.ProgressForms
 import com.enoch02.database.model.Book
+import com.enoch02.database.model.Book.Companion.BookStatus
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,7 +81,7 @@ fun AddBookScreen(
     var type by rememberSaveable { mutableStateOf(Book.Companion.BookType.ANY.strName) }
     var coverImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     var bookNotes by rememberSaveable { mutableStateOf("") }
-    var status by rememberSaveable { mutableStateOf(Book.status.first()) }
+    var status by rememberSaveable { mutableStateOf(BookStatus.PLANNING.strName) }
     var volumesRead by rememberSaveable { mutableStateOf("0") }
     var totalVolumes by rememberSaveable { mutableStateOf("0") }
 
@@ -195,7 +196,7 @@ fun AddBookScreen(
                     item {
                         FormSpinner(
                             label = stringResource(R.string.status_label),
-                            options = Book.status,
+                            options = BookStatus.entries.map { it.strName },
                             selectedOption = status,
                             onSelectionChange = { status = it }
                         )

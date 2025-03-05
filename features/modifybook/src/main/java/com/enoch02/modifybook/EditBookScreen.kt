@@ -54,6 +54,8 @@ import com.enoch02.components.FormTextField
 import com.enoch02.components.ImagePicker
 import com.enoch02.components.IncrementalFormIntField
 import com.enoch02.database.model.Book
+import com.enoch02.database.model.Book.Companion.BookType
+import com.enoch02.database.model.Book.Companion.BookStatus
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,8 +72,8 @@ fun EditBookScreen(
 
     var title by rememberSaveable { mutableStateOf("") }
     var author by rememberSaveable { mutableStateOf("") }
-    var type by rememberSaveable { mutableStateOf(Book.Companion.BookType.ANY.strName) }
-    var status by rememberSaveable { mutableStateOf(Book.status.first()) }
+    var type by rememberSaveable { mutableStateOf(BookType.ANY.strName) }
+    var status by rememberSaveable { mutableStateOf(BookStatus.PLANNING.strName) }
     var pagesRead by rememberSaveable { mutableStateOf("0") }
     var pageCount by rememberSaveable { mutableStateOf("0") }
     val dateStarted = rememberDatePickerState(initialSelectedDateMillis = null)
@@ -221,7 +223,7 @@ fun EditBookScreen(
                     item {
                         FormSpinner(
                             label = stringResource(R.string.status_label),
-                            options = Book.status,
+                            options = BookStatus.entries.map { it.strName },
                             selectedOption = status,
                             onSelectionChange = { status = it }
                         )
