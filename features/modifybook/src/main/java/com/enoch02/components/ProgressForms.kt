@@ -28,7 +28,8 @@ fun ProgressForms(
     onTotalVolumesChange: (String) -> Unit
 ) {
     Column {
-        val types = Book.types.values.toList()
+//        val types = Book.types.values.toList()
+        val types = Book.Companion.BookType.entries.map { it.strName }
 
         Row(
             modifier = Modifier

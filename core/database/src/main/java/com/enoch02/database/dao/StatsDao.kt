@@ -3,6 +3,7 @@ package com.enoch02.database.dao
 import androidx.room.Dao
 import androidx.room.Query
 import com.enoch02.database.model.Book
+import com.enoch02.database.model.Book.Companion.BookType
 
 @Dao
 interface StatsDao {
@@ -13,17 +14,17 @@ interface StatsDao {
     suspend fun getCompletedBooks(status: String = Book.status[1]): Int
 
     @Query(value = "SELECT COUNT(*) FROM books WHERE type = :type")
-    suspend fun getMangaCount(type: String = Book.types[3].toString()): Int
+    suspend fun getMangaCount(type: String = BookType.MANGA.strName): Int
 
     @Query(value = "SELECT COUNT(*) FROM books WHERE type = :type")
-    suspend fun getLNCount(type: String = Book.types[2].toString()): Int
+    suspend fun getLNCount(type: String = BookType.LN.strName): Int
 
     @Query(value = "SELECT COUNT(*) FROM books WHERE type = :type")
-    suspend fun getComicCount(type: String = Book.types[1].toString()): Int
+    suspend fun getComicCount(type: String = BookType.COMIC.strName): Int
 
     @Query(value = "SELECT COUNT(*) FROM books WHERE type = :type")
-    suspend fun getNovelCount(type: String = Book.types[4].toString()): Int
+    suspend fun getNovelCount(type: String = BookType.NOVEL.strName): Int
 
     @Query(value = "SELECT COUNT(*) FROM books WHERE type = :type")
-    suspend fun getAnyTypeCount(type: String = Book.types[0].toString()): Int
+    suspend fun getAnyTypeCount(type: String = BookType.ANY.strName): Int
 }

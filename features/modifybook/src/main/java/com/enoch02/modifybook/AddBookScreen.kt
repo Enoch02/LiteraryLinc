@@ -77,7 +77,7 @@ fun AddBookScreen(
     var personalRating by rememberSaveable { mutableStateOf("0") }
     var isbn by rememberSaveable { mutableStateOf("") }
     var genre by rememberSaveable { mutableStateOf("") }
-    var type by rememberSaveable { mutableStateOf(Book.types.values.first()) }
+    var type by rememberSaveable { mutableStateOf(Book.Companion.BookType.ANY.strName) }
     var coverImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     var bookNotes by rememberSaveable { mutableStateOf("") }
     var status by rememberSaveable { mutableStateOf(Book.status.first()) }
@@ -185,7 +185,7 @@ fun AddBookScreen(
                     item {
                         FormSpinner(
                             label = stringResource(R.string.book_type_label),
-                            options = Book.types.values.toList(),
+                            options = Book.Companion.BookType.entries.map { it.strName },
                             selectedOption = type,
                             onSelectionChange = { type = it },
                             modifier = Modifier.padding(vertical = 8.dp)

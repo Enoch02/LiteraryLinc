@@ -34,7 +34,7 @@ fun BookListScreen(
     onItemEdit: (Int) -> Unit,
     viewModel: BookListViewModel = hiltViewModel()
 ) {
-    val tabLabels = Book.types.values
+    val tabLabels = Book.Companion.BookType.entries.map { it.strName }
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabLabels.size })
 
     Column(

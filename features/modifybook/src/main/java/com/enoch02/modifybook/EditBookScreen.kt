@@ -70,7 +70,7 @@ fun EditBookScreen(
 
     var title by rememberSaveable { mutableStateOf("") }
     var author by rememberSaveable { mutableStateOf("") }
-    var type by rememberSaveable { mutableStateOf(Book.types.values.first()) }
+    var type by rememberSaveable { mutableStateOf(Book.Companion.BookType.ANY.strName) }
     var status by rememberSaveable { mutableStateOf(Book.status.first()) }
     var pagesRead by rememberSaveable { mutableStateOf("0") }
     var pageCount by rememberSaveable { mutableStateOf("0") }
@@ -211,7 +211,7 @@ fun EditBookScreen(
                     item {
                         FormSpinner(
                             label = stringResource(R.string.book_type_label),
-                            options = Book.types.values.toList(),
+                            options = Book.Companion.BookType.entries.map { it.strName },
                             selectedOption = type,
                             onSelectionChange = { type = it },
                             modifier = Modifier.padding(vertical = 8.dp)

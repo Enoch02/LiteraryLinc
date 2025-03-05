@@ -43,7 +43,7 @@ class BookListViewModel @Inject constructor(
         } else {
             books.map { books ->
                 books.filter { book ->
-                    book.type == Book.types[filter]
+                    book.type == Book.Companion.BookType.entries[filter].strName
                 }
             }
         }
