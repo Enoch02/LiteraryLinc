@@ -16,12 +16,10 @@ hiltCompiler = "1.2.0"
 hiltNavigationCompose = "1.2.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
-kotlinCsvJvm = "1.10.0"
 kotlinxCoroutinesAndroid = "1.8.1"
 lifecycleRuntimeKtx = "2.8.6"
 material = "1.12.0"
 materialIconsExtended = "1.7.4"
-mockkAndroid = "1.13.16"
 navigationCompose = "2.8.3"
 opencsv = "5.10"
 roomCompiler = "2.6.1"
@@ -44,6 +42,7 @@ agpVersion = "8.7.3"
 zoomable = "0.14.0"
 coreKtxVersion = "1.6.1"
 coreTesting = "2.2.0"
+zoomableImageCoil = "0.15.0"
 
 
 [libraries]
@@ -96,6 +95,7 @@ androidx-room-testing = { group = "androidx.room", name = "room-testing", versio
 zoomable = { module = "me.saket.telephoto:zoomable", version.ref = "zoomable" }
 core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtxVersion" }
 androidx-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "coreTesting" }
+zoomable-image-coil = { module = "me.saket.telephoto:zoomable-image-coil", version.ref = "zoomableImageCoil" }
 
 [plugins]
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
