@@ -178,7 +178,7 @@ fun EditBookScreen(
                             verticalAlignment = Alignment.Top,
                             content = {
                                 ImagePicker(
-                                    label = "Add Cover Image",
+                                    label = stringResource(R.string.cover_image_picker_label),
                                     launcher = rememberLauncherForActivityResult(
                                         ActivityResultContracts.StartActivityForResult()
                                     ) {
@@ -194,7 +194,7 @@ fun EditBookScreen(
                     }
                     item {
                         FormTextField(
-                            label = "Book Title",
+                            label = stringResource(R.string.book_title),
                             value = title,
                             onValueChange = { title = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -203,7 +203,7 @@ fun EditBookScreen(
 
                     item {
                         FormTextField(
-                            label = "Author",
+                            label = stringResource(R.string.author),
                             value = author,
                             onValueChange = { author = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -229,10 +229,9 @@ fun EditBookScreen(
                         )
                     }
 
-                    //TODO: Extract string resources
                     item {
                         FormDatePicker(
-                            label = "Start Date",
+                            label = stringResource(R.string.start_date),
                             datePickerState = dateStarted,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -242,7 +241,7 @@ fun EditBookScreen(
 
                     item {
                         FormDatePicker(
-                            label = "Completion Date",
+                            label = stringResource(R.string.completion_date),
                             datePickerState = dateCompleted,
                             modifier = Modifier
                                 .fillMaxWidth()
