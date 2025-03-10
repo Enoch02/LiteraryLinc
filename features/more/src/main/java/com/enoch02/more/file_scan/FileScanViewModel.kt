@@ -62,7 +62,6 @@ class FileScanViewModel @Inject constructor(
                 .onEach { fileScanWorkInfo.value = it }
                 .catch { exception ->
                     Log.e(TAG, "Error collecting file scan work info", exception)
-                    //TODO: show error msg?
                 }
                 .launchIn(viewModelScope)
         } else {

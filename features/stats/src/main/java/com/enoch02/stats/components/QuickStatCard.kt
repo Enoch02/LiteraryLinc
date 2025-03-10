@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.enoch02.resources.composables.AutoScrollingText
 
 @Composable
 fun QuickStatCard(modifier: Modifier = Modifier, title: String, value: String, icon: ImageVector) {

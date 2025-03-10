@@ -1,4 +1,4 @@
-package com.enoch02.stats.components
+package com.enoch02.resources.composables
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-//TODO: move to a common module in case i need to reuse it
 @Composable
 fun AutoScrollingText(
     text: String,

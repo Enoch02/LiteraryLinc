@@ -140,7 +140,7 @@ fun GridItemPreview() {
                             pageCount = 500
                         ),
                         coverPath = "",
-                        onClick = { /*TODO*/ },
+                        onClick = { },
                         onDelete = {
 
                         }
