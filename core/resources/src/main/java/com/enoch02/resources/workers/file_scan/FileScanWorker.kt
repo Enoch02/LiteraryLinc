@@ -17,7 +17,6 @@ import kotlinx.coroutines.withContext
 
 private const val TAG = "FileScanWorker"
 
-//TODO: add determinate progress notification
 @HiltWorker
 class FileScanWorker @AssistedInject constructor(
     @Assisted ctx: Context,
