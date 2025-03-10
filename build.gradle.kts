@@ -6,7 +6,7 @@ plugins {
     id("com.android.library") version "8.7.3" apply false
     id("com.google.devtools.ksp") version "2.1.0-1.0.29" apply false
     id("com.google.dagger.hilt.android") version "2.54" apply false
+    id("com.mikepenz.aboutlibraries.plugin") version "12.0.0-a04" apply false
     alias(libs.plugins.org.jetbrains.kotlin.android) apply false
     alias(libs.plugins.compose.compiler) apply false
-    id("com.mikepenz.aboutlibraries.plugin") version "12.0.0-a04" apply false
 }
