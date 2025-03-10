@@ -2,7 +2,7 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
-    id ("dagger.hilt.android.plugin")
+    id("dagger.hilt.android.plugin")
     alias(libs.plugins.compose.compiler)
 }
 
@@ -39,7 +39,6 @@ android {
 }
 
 dependencies {
-    api(project(":document-viewer"))
     val daggerVersion: String by rootProject.extra
 
     implementation(project(":core:settings"))
@@ -70,14 +69,9 @@ dependencies {
     ksp(libs.hilt.android.compiler)
 
     implementation(libs.androidx.material.icons.extended)
-    implementation("nl.siegmann.epublib:epublib-core:3.1") {
-        exclude(group = "org.slf4j")
-        exclude(group = "xmlpull")
-    }
     implementation(libs.slf4j.android)
     implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.androidx.hilt.work)
-    implementation( libs.aboutlibraries.compose.m3)
+    implementation(libs.aboutlibraries.compose.m3)
 }
 
 java {

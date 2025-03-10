@@ -1,4 +1,4 @@
-package com.enoch02.more.file_scan.workers
+package com.enoch02.resources.workers.file_scan
 
 import android.Manifest
 import android.content.Context
@@ -13,12 +13,12 @@ import androidx.work.WorkerParameters
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.model.existsAsFile
-import com.enoch02.more.R
-import com.enoch02.more.file_scan.PROGRESS_CHANNEL_ID
-import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_ID
-import com.enoch02.more.file_scan.util.createProgressNotificationChannel
-import com.enoch02.more.file_scan.util.generateThumbnail
-import com.enoch02.more.file_scan.util.sendFinalProgressNotification
+import com.enoch02.resources.R
+import com.enoch02.resources.createProgressNotificationChannel
+import com.enoch02.resources.sendFinalProgressNotification
+import com.enoch02.resources.workers.PROGRESS_CHANNEL_ID
+import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_ID
+import com.enoch02.resources.workers.file_scan.util.generateThumbnail
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -91,7 +91,7 @@ private fun createFileScanningNotification(context: Context, progress: Int) {
     val builder = NotificationCompat.Builder(context, PROGRESS_CHANNEL_ID)
         .setContentTitle("Loading Covers")
         .setContentText("Progress: $progress%")
-        .setSmallIcon(R.drawable.ic_android_black_24dp) //TODO
+        .setSmallIcon(R.drawable.app_icon_svg) //TODO
         .setProgress(
             100,
             progress,

@@ -4,7 +4,7 @@ import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 import androidx.work.Configuration
-import com.enoch02.more.WorkerFactory
+import com.enoch02.resources.workers.WorkerFactory
 
 @HiltAndroidApp
 class LiteraryLincApp : Application(), Configuration.Provider {

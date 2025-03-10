@@ -1,4 +1,4 @@
-package com.enoch02.viewer.model
+package com.enoch02.resources.mupdf.model
 
 data class Item(
     val title: String,

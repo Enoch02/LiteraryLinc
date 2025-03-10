@@ -26,11 +26,12 @@ import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.model.Book.Companion.BookStatus
 import com.enoch02.database.model.LLDocument
 import com.enoch02.resources.BitmapManager
+import com.enoch02.resources.mupdf.ContentInputStream
 import com.enoch02.settings.SettingsRepository
 import com.enoch02.viewer.model.ContentState
-import com.enoch02.viewer.model.Item
-import com.enoch02.viewer.model.LinkItem
-import com.enoch02.viewer.model.SearchResult
+import com.enoch02.resources.mupdf.model.Item
+import com.enoch02.resources.mupdf.model.LinkItem
+import com.enoch02.resources.mupdf.model.SearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

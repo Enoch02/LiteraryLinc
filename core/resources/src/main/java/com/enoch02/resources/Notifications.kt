@@ -1,4 +1,4 @@
-package com.enoch02.more.file_scan.util
+package com.enoch02.resources
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -10,16 +10,15 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.enoch02.more.R
-import com.enoch02.more.file_scan.CHANNEL_ID
-import com.enoch02.more.file_scan.NOTIFICATION_ID
-import com.enoch02.more.file_scan.NOTIFICATION_TITLE
-import com.enoch02.more.file_scan.COMPLETION_NOTIFICATION_CHANNEL_DESCRIPTION
-import com.enoch02.more.file_scan.COMPLETION_NOTIFICATION_CHANNEL_NAME
-import com.enoch02.more.file_scan.PROGRESS_CHANNEL_ID
-import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_CHANNEL_DESCRIPTION
-import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_CHANNEL_NAME
-import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_ID
+import com.enoch02.resources.workers.CHANNEL_ID
+import com.enoch02.resources.workers.NOTIFICATION_ID
+import com.enoch02.resources.workers.NOTIFICATION_TITLE
+import com.enoch02.resources.workers.COMPLETION_NOTIFICATION_CHANNEL_DESCRIPTION
+import com.enoch02.resources.workers.COMPLETION_NOTIFICATION_CHANNEL_NAME
+import com.enoch02.resources.workers.PROGRESS_CHANNEL_ID
+import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_CHANNEL_DESCRIPTION
+import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_CHANNEL_NAME
+import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_ID
 
 fun makeStatusNotification(message: String, context: Context) {
 
@@ -42,7 +41,7 @@ fun makeStatusNotification(message: String, context: Context) {
 
     // Create the notification
     val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-        .setSmallIcon(R.drawable.ic_android_black_24dp)//TODO: replace
+        .setSmallIcon(R.drawable.app_icon_svg)//TODO: replace
         .setContentTitle(NOTIFICATION_TITLE)
         .setContentText(message)
         .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -73,7 +72,7 @@ fun createIndeterminateProgressNotification(
     val builder = NotificationCompat.Builder(context, PROGRESS_CHANNEL_ID)
         .setContentTitle(title)
         .setContentText(message)
-        .setSmallIcon(R.drawable.ic_android_black_24dp) //TODO
+        .setSmallIcon(R.drawable.app_icon_svg) //TODO
         .setProgress(0, 0, true)
         .setOngoing(true)
 
@@ -114,7 +113,7 @@ fun sendFinalProgressNotification(context: Context) {
     val finalNotification = NotificationCompat.Builder(context, PROGRESS_CHANNEL_ID)
         .setContentTitle(NOTIFICATION_TITLE)
         .setContentText("Loading Complete!")
-        .setSmallIcon(R.drawable.ic_android_black_24dp) //TODO: change!
+        .setSmallIcon(R.drawable.app_icon_svg) //TODO: change!
         .setOngoing(false)
         .build()
 

@@ -1,4 +1,4 @@
-package com.enoch02.more.file_scan
+package com.enoch02.resources.workers.file_scan
 
 import android.content.Context
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -6,9 +6,11 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.enoch02.more.file_scan.workers.CoverScanWorker
-import com.enoch02.more.file_scan.workers.FileScanWorker
-import com.enoch02.more.file_scan.workers.PeriodicFileScanWorker
+import com.enoch02.resources.workers.COVER_SCAN_WORKER_ID
+import com.enoch02.resources.workers.COVER_SCAN_WORKER_KEY
+import com.enoch02.resources.workers.FILE_SCAN_WORKER_ID
+import com.enoch02.resources.workers.FILE_SCAN_WORKER_KEY
+import com.enoch02.resources.workers.SAVED_WORK_IDS_KEY
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 

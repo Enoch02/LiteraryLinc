@@ -1,4 +1,4 @@
-package com.enoch02.more.file_scan.workers
+package com.enoch02.resources.workers.file_scan
 
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
@@ -8,10 +8,10 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.enoch02.database.dao.DocumentDao
-import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_ID
-import com.enoch02.more.file_scan.util.addDocumentsToDb
-import com.enoch02.more.file_scan.util.createIndeterminateProgressNotification
-import com.enoch02.more.file_scan.util.createProgressNotificationChannel
+import com.enoch02.resources.createIndeterminateProgressNotification
+import com.enoch02.resources.createProgressNotificationChannel
+import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_ID
+import com.enoch02.resources.workers.file_scan.util.addDocumentsToDb
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers

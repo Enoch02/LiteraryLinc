@@ -1,4 +1,4 @@
-package com.enoch02.more.backup_restore.workers
+package com.enoch02.resources.workers.backup_restore
 
 import android.content.Context
 import android.net.Uri
@@ -8,11 +8,11 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.enoch02.database.export_and_import.csv.CSVManager
-import com.enoch02.more.file_scan.BACKUP_FILE_URI_KEY
-import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_ID
-import com.enoch02.more.file_scan.util.createIndeterminateProgressNotification
-import com.enoch02.more.file_scan.util.createProgressNotificationChannel
-import com.enoch02.more.file_scan.util.makeStatusNotification
+import com.enoch02.resources.createIndeterminateProgressNotification
+import com.enoch02.resources.createProgressNotificationChannel
+import com.enoch02.resources.makeStatusNotification
+import com.enoch02.resources.workers.BACKUP_FILE_URI_KEY
+import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_ID
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers

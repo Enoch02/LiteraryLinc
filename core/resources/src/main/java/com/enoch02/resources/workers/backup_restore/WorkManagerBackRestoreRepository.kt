@@ -1,18 +1,15 @@
-package com.enoch02.more.backup_restore.data
+package com.enoch02.resources.workers.backup_restore
 
 import android.net.Uri
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import com.enoch02.more.backup_restore.workers.BackupWorker
-import com.enoch02.more.backup_restore.workers.RestoreWorker
-import com.enoch02.more.file_scan.BACKUP_FILE_URI_KEY
-import com.enoch02.more.file_scan.CREATE_BACKUP_WORKER_ID
-import com.enoch02.more.file_scan.EXCEL_FRIENDLY_KEY
-import com.enoch02.more.file_scan.RESTORE_BACKUP_WORKER_ID
+import com.enoch02.resources.workers.BACKUP_FILE_URI_KEY
+import com.enoch02.resources.workers.CREATE_BACKUP_WORKER_ID
+import com.enoch02.resources.workers.EXCEL_FRIENDLY_KEY
+import com.enoch02.resources.workers.RESTORE_BACKUP_WORKER_ID
 
-//TODO: handle potential errors in the workers and show error messages
 class WorkManagerBackRestoreRepository(private val workManager: WorkManager) :
     BackupRestoreRepository {
     override fun createBackup(backupUri: Uri, excelFriendly: Boolean) {

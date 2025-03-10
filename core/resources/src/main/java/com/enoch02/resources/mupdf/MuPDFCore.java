@@ -1,4 +1,4 @@
-package com.enoch02.viewer;
+package com.enoch02.resources.mupdf;
 
 import com.artifex.mupdf.fitz.Cookie;
 import com.artifex.mupdf.fitz.DisplayList;
@@ -12,7 +12,7 @@ import com.artifex.mupdf.fitz.Rect;
 import com.artifex.mupdf.fitz.RectI;
 import com.artifex.mupdf.fitz.SeekableInputStream;
 import com.artifex.mupdf.fitz.android.AndroidDrawDevice;
-import com.enoch02.viewer.model.Item;
+import com.enoch02.resources.mupdf.model.Item;
 
 import android.graphics.Bitmap;
 import android.graphics.PointF;

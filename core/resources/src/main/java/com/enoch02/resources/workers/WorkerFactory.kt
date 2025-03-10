@@ -1,4 +1,4 @@
-package com.enoch02.more
+package com.enoch02.resources.workers
 
 import android.content.Context
 import androidx.work.CoroutineWorker
@@ -7,11 +7,11 @@ import androidx.work.WorkerParameters
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.export_and_import.csv.CSVManager
-import com.enoch02.more.backup_restore.workers.BackupWorker
-import com.enoch02.more.backup_restore.workers.RestoreWorker
-import com.enoch02.more.file_scan.workers.CoverScanWorker
-import com.enoch02.more.file_scan.workers.FileScanWorker
-import com.enoch02.more.file_scan.workers.PeriodicFileScanWorker
+import com.enoch02.resources.workers.backup_restore.BackupWorker
+import com.enoch02.resources.workers.backup_restore.RestoreWorker
+import com.enoch02.resources.workers.file_scan.CoverScanWorker
+import com.enoch02.resources.workers.file_scan.FileScanWorker
+import com.enoch02.resources.workers.file_scan.PeriodicFileScanWorker
 
 class WorkerFactory(
     private val documentDao: DocumentDao,

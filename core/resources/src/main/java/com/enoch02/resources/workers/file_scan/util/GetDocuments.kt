@@ -1,4 +1,4 @@
-package com.enoch02.more.file_scan.util
+package com.enoch02.resources.workers.file_scan.util
 
 import android.content.ContentResolver
 import android.content.Context
@@ -10,16 +10,14 @@ import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.artifex.mupdf.fitz.SeekableInputStream
 import com.enoch02.database.dao.DocumentDao
-import com.enoch02.viewer.ContentInputStream
-import com.enoch02.viewer.MuPDFCore
 import com.enoch02.database.model.LLDocument
-import com.enoch02.more.file_scan.TAG
+import com.enoch02.resources.mupdf.ContentInputStream
+import com.enoch02.resources.mupdf.MuPDFCore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
 import java.io.InputStream
 import java.security.MessageDigest
 import java.time.Instant
@@ -29,6 +27,7 @@ import java.util.concurrent.Executors
 import kotlin.math.max
 import kotlin.math.roundToInt
 
+private const val TAG = "GetDocuments"
 val allowedTypes = arrayOf(
     "application/pdf",
     "application/epub+zip",
