@@ -147,7 +147,6 @@ fun EditBookScreen(
                             documentMd5 = book.documentMd5
                         ).onSuccess {
                             navController.popBackStack()
-                            navController.popBackStack()
                         }.onFailure { e ->
                             Toast.makeText(
                                 context,
