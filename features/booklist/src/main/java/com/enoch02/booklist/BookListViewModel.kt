@@ -11,6 +11,7 @@ import com.enoch02.database.model.StatusFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -104,6 +105,35 @@ class BookListViewModel @Inject constructor(
                 bookDao.deleteBook(iterator.next())
                 iterator.remove()
             }
+        }
+    }
+
+    fun clearSelectedBooks() {
+        _selectedBooks.clear()
+    }
+
+    fun selectAllBooks() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val books = books.first()
+
+            books.map { it.id }
+                .forEach { id ->
+                    if (id != null) {
+                        addToSelectedBooks(id)
+                    }
+                }
+        }
+    }
+
+    fun invertSelection() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val books = books.first()
+            val unSelectedBooks = books
+                .filterNot { book -> _selectedBooks.contains(book.id) }
+                .map { it.id!! }
+
+            _selectedBooks.clear()
+            _selectedBooks.addAll(unSelectedBooks)
         }
     }
 }

@@ -83,7 +83,7 @@ fun BookListScreen(
                                 modifier = Modifier.fillMaxHeight()
                             ) {
                                 IconButton(
-                                    onClick = {},
+                                    onClick = { viewModel.clearSelectedBooks() },
                                     content = {
                                         Icon(
                                             imageVector = Icons.Rounded.Clear,
@@ -102,7 +102,7 @@ fun BookListScreen(
 
                             Row {
                                 IconButton(
-                                    onClick = {},
+                                    onClick = { viewModel.selectAllBooks() },
                                     content = {
                                         Icon(
                                             imageVector = Icons.Rounded.SelectAll,
@@ -112,7 +112,7 @@ fun BookListScreen(
                                 )
 
                                 IconButton(
-                                    onClick = {},
+                                    onClick = { viewModel.invertSelection() },
                                     content = {
                                         Icon(
                                             imageVector = Icons.Rounded.FlipToBack,
@@ -168,6 +168,17 @@ fun BookListScreen(
                     val covers = viewModel.getCovers()
                         .collectAsState(initial = emptyMap()).value
                     val selectedBooks = viewModel.selectedBooks
+                    val onClick: (id: Int) -> Unit = { id ->
+                        if (selectedBooks.isNotEmpty() && !viewModel.isBookSelected(id)) { // in item selection mode
+                            viewModel.addToSelectedBooks(id)
+                        } else {
+                            if (viewModel.isBookSelected(id)) {
+                                viewModel.removeFromSelectedBooks(id)
+                            } else {
+                                onItemClick(id)
+                            }
+                        }
+                    }
 
                     //TODO: implement hold to selected books,
                     // multi book deletion (for both list and grid view
@@ -176,8 +187,10 @@ fun BookListScreen(
                         BookViewMode.LIST_VIEW -> {
                             BookListView(
                                 books = books,
+                                selectedBookIds = selectedBooks,
                                 covers = covers,
-                                onItemClick = onItemClick,
+                                onItemClick = onClick,
+                                onItemLongClick = { id -> viewModel.addToSelectedBooks(id) },
                                 onItemDelete = { id -> viewModel.deleteBook(id) },
                                 onItemEdit = onItemEdit,
                                 modifier = Modifier
@@ -189,20 +202,8 @@ fun BookListScreen(
                                 books = books,
                                 selectedBookIds = selectedBooks,
                                 covers = covers,
-                                onItemClick = { id ->
-                                    if (selectedBooks.isNotEmpty() && !viewModel.isBookSelected(id)) { // in item selection mode
-                                        viewModel.addToSelectedBooks(id)
-                                    } else {
-                                        if (viewModel.isBookSelected(id)) {
-                                            viewModel.removeFromSelectedBooks(id)
-                                        } else {
-                                            onItemClick(id)
-                                        }
-                                    }
-                                },
-                                onItemLongClick = { id ->
-                                    viewModel.addToSelectedBooks(id)
-                                },
+                                onItemClick = onClick,
+                                onItemLongClick = { id -> viewModel.addToSelectedBooks(id) },
                                 onItemDelete = { id -> viewModel.deleteBook(id) },
                                 modifier = Modifier.padding(4.dp)
                             )
