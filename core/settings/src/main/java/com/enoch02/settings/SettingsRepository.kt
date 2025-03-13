@@ -68,7 +68,6 @@ class SettingsRepository(private val context: Context) {
     private object Keys {
         val darkModeKey = booleanPreferencesKey("dark_mode")
         val dynamicColorKey = booleanPreferencesKey("dynamic_color")
-        val confirmDialogKey = booleanPreferencesKey("confirm_dialogs")
         val volumeButtonPagingKey = booleanPreferencesKey("volume_btn_paging")
         val autoScanFilesKey = booleanPreferencesKey("auto_scan_files")
         val showDocViewerBars = booleanPreferencesKey("show_doc_viewer_bars")
@@ -82,7 +81,6 @@ class SettingsRepository(private val context: Context) {
         return when (preference) {
             BooleanPreferenceType.DARK_MODE -> Keys.darkModeKey
             BooleanPreferenceType.DYNAMIC_COLOR -> Keys.dynamicColorKey
-            BooleanPreferenceType.CONFIRM_DIALOGS -> Keys.confirmDialogKey
             BooleanPreferenceType.VOLUME_BTN_PAGING -> Keys.volumeButtonPagingKey
             BooleanPreferenceType.AUTO_SCAN_FILES -> Keys.autoScanFilesKey
             BooleanPreferenceType.SHOW_DOC_VIEWER_BARS -> Keys.showDocViewerBars
@@ -105,7 +103,6 @@ class SettingsRepository(private val context: Context) {
     enum class BooleanPreferenceType {
         DARK_MODE,
         DYNAMIC_COLOR,
-        CONFIRM_DIALOGS,
         VOLUME_BTN_PAGING,
         AUTO_SCAN_FILES,
         SHOW_DOC_VIEWER_BARS

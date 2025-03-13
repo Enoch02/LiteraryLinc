@@ -90,7 +90,7 @@ fun BookListView(
                     content = {
                         items(
                             count = books.size,
-                            key = { it },
+                            key = { index -> books[index].id!! },
                             itemContent = { index ->
                                 val book = books[index]
 

@@ -1,10 +1,10 @@
 package com.enoch02.booklist
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.BookDao
-import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
@@ -18,17 +18,13 @@ import javax.inject.Inject
 @HiltViewModel
 class BookListViewModel @Inject constructor(
     private val bookDao: BookDao,
-    bookCoverRepository: BookCoverRepository,
-    documentDao: DocumentDao
+    private val bookCoverRepository: BookCoverRepository,
 ) : ViewModel() {
     private val books = bookDao.getBooks()
     private val covers = bookCoverRepository.latestCoverPath
-    val documents = documentDao.getDocuments()
-        .map { documents ->
-            documents.sortedBy { document ->
-                document.name
-            }
-        }
+
+    private val _selectedBooks = mutableStateListOf<Int>()
+    val selectedBooks: List<Int> = _selectedBooks
 
     fun getBooks(filter: Int, sorting: Sorting, status: StatusFilter): Flow<List<Book>> {
         val filteredBooks = filterBooks(filter)
@@ -86,5 +82,28 @@ class BookListViewModel @Inject constructor(
 
     fun deleteBook(id: Int) {
         viewModelScope.launch(Dispatchers.IO) { bookDao.deleteBook(id) }
+    }
+
+    fun isBookSelected(id: Int): Boolean = _selectedBooks.contains(id)
+
+    fun addToSelectedBooks(id: Int) {
+        if (!_selectedBooks.contains(id)) {
+            _selectedBooks.add(id)
+        }
+    }
+
+    fun removeFromSelectedBooks(id: Int) {
+        _selectedBooks.remove(id)
+    }
+
+    fun deleteSelectedBooks() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val iterator = _selectedBooks.iterator()
+
+            while (iterator.hasNext()) {
+                bookDao.deleteBook(iterator.next())
+                iterator.remove()
+            }
+        }
     }
 }

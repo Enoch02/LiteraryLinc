@@ -29,7 +29,6 @@ import com.enoch02.settings.SettingsRepository
 fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = hiltViewModel()) {
     val alwaysDark by viewModel.alwaysDark.collectAsState(false)
     val dynamicColors by viewModel.dynamicColors.collectAsState(false)
-    val showConfirmDialog by viewModel.showConfirmDialog.collectAsState(false)
     val volumeButtonPaging by viewModel.volumeButtonPaging.collectAsState(false)
     val showDocViewerBars by viewModel.showDocViewerBars.collectAsState(false)
 
@@ -98,19 +97,6 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                             headlineContent = {
                                 Card(
                                     content = {
-                                        //TODO: not yet implemented
-                                        SwitchSettingItem(
-                                            label = stringResource(R.string.show_confirmation_dialogs),
-                                            description = stringResource(R.string.show_confirmation_dialogs_desc),
-                                            checked = showConfirmDialog,
-                                            onCheckChanged = {
-                                                viewModel.switchPreference(
-                                                    key = SettingsRepository.BooleanPreferenceType.CONFIRM_DIALOGS,
-                                                    newValue = it
-                                                )
-                                            }
-                                        )
-
                                         SwitchSettingItem(
                                             label = stringResource(R.string.volume_paging),
                                             description = stringResource(R.string.volume_paging_desc),
