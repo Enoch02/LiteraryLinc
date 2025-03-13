@@ -53,8 +53,9 @@ import com.enoch02.components.FormSpinner
 import com.enoch02.components.FormTextField
 import com.enoch02.components.ImagePicker
 import com.enoch02.components.IncrementalFormIntField
-import com.enoch02.components.ProgressForms
+import com.enoch02.components.ProgressForm
 import com.enoch02.database.model.Book
+import com.enoch02.database.model.Book.Companion.BookStatus
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,10 +78,10 @@ fun AddBookScreen(
     var personalRating by rememberSaveable { mutableStateOf("0") }
     var isbn by rememberSaveable { mutableStateOf("") }
     var genre by rememberSaveable { mutableStateOf("") }
-    var type by rememberSaveable { mutableStateOf(Book.types.values.first()) }
+    var type by rememberSaveable { mutableStateOf(Book.Companion.BookType.ANY.strName) }
     var coverImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
     var bookNotes by rememberSaveable { mutableStateOf("") }
-    var status by rememberSaveable { mutableStateOf(Book.status.first()) }
+    var status by rememberSaveable { mutableStateOf(BookStatus.PLANNING.strName) }
     var volumesRead by rememberSaveable { mutableStateOf("0") }
     var totalVolumes by rememberSaveable { mutableStateOf("0") }
 
@@ -185,7 +186,7 @@ fun AddBookScreen(
                     item {
                         FormSpinner(
                             label = stringResource(R.string.book_type_label),
-                            options = Book.types.values.toList(),
+                            options = Book.Companion.BookType.entries.map { it.strName },
                             selectedOption = type,
                             onSelectionChange = { type = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -195,7 +196,7 @@ fun AddBookScreen(
                     item {
                         FormSpinner(
                             label = stringResource(R.string.status_label),
-                            options = Book.status,
+                            options = BookStatus.entries.map { it.strName },
                             selectedOption = status,
                             onSelectionChange = { status = it }
                         )
@@ -222,16 +223,11 @@ fun AddBookScreen(
                     }
 
                     item {
-                        ProgressForms(
-                            type = type,
+                        ProgressForm(
                             pagesRead = pagesRead,
                             onPagesReadChange = { pagesRead = it },
                             pageCount = pageCount,
-                            onPageCountChange = { pageCount = it },
-                            volumesRead = volumesRead,
-                            onVolumesReadChange = { volumesRead = it },
-                            totalVolumes = totalVolumes,
-                            onTotalVolumesChange = { totalVolumes = it }
+                            onPageCountChange = { pageCount = it }
                         )
                     }
 

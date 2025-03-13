@@ -54,6 +54,8 @@ import com.enoch02.components.FormTextField
 import com.enoch02.components.ImagePicker
 import com.enoch02.components.IncrementalFormIntField
 import com.enoch02.database.model.Book
+import com.enoch02.database.model.Book.Companion.BookType
+import com.enoch02.database.model.Book.Companion.BookStatus
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,8 +72,8 @@ fun EditBookScreen(
 
     var title by rememberSaveable { mutableStateOf("") }
     var author by rememberSaveable { mutableStateOf("") }
-    var type by rememberSaveable { mutableStateOf(Book.types.values.first()) }
-    var status by rememberSaveable { mutableStateOf(Book.status.first()) }
+    var type by rememberSaveable { mutableStateOf(BookType.ANY.strName) }
+    var status by rememberSaveable { mutableStateOf(BookStatus.PLANNING.strName) }
     var pagesRead by rememberSaveable { mutableStateOf("0") }
     var pageCount by rememberSaveable { mutableStateOf("0") }
     val dateStarted = rememberDatePickerState(initialSelectedDateMillis = null)
@@ -145,7 +147,6 @@ fun EditBookScreen(
                             documentMd5 = book.documentMd5
                         ).onSuccess {
                             navController.popBackStack()
-                            navController.popBackStack()
                         }.onFailure { e ->
                             Toast.makeText(
                                 context,
@@ -176,7 +177,7 @@ fun EditBookScreen(
                             verticalAlignment = Alignment.Top,
                             content = {
                                 ImagePicker(
-                                    label = "Add Cover Image",
+                                    label = stringResource(R.string.cover_image_picker_label),
                                     launcher = rememberLauncherForActivityResult(
                                         ActivityResultContracts.StartActivityForResult()
                                     ) {
@@ -192,7 +193,7 @@ fun EditBookScreen(
                     }
                     item {
                         FormTextField(
-                            label = "Book Title",
+                            label = stringResource(R.string.book_title),
                             value = title,
                             onValueChange = { title = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -201,7 +202,7 @@ fun EditBookScreen(
 
                     item {
                         FormTextField(
-                            label = "Author",
+                            label = stringResource(R.string.author),
                             value = author,
                             onValueChange = { author = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -211,7 +212,7 @@ fun EditBookScreen(
                     item {
                         FormSpinner(
                             label = stringResource(R.string.book_type_label),
-                            options = Book.types.values.toList(),
+                            options = Book.Companion.BookType.entries.map { it.strName },
                             selectedOption = type,
                             onSelectionChange = { type = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -221,16 +222,15 @@ fun EditBookScreen(
                     item {
                         FormSpinner(
                             label = stringResource(R.string.status_label),
-                            options = Book.status,
+                            options = BookStatus.entries.map { it.strName },
                             selectedOption = status,
                             onSelectionChange = { status = it }
                         )
                     }
 
-                    //TODO: Extract string resources
                     item {
                         FormDatePicker(
-                            label = "Start Date",
+                            label = stringResource(R.string.start_date),
                             datePickerState = dateStarted,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -240,7 +240,7 @@ fun EditBookScreen(
 
                     item {
                         FormDatePicker(
-                            label = "Completion Date",
+                            label = stringResource(R.string.completion_date),
                             datePickerState = dateCompleted,
                             modifier = Modifier
                                 .fillMaxWidth()

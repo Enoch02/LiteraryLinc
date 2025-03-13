@@ -1,12 +1,17 @@
 package com.enoch02.booklist.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -16,6 +21,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -25,16 +32,19 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.enoch02.booklist.R
 import com.enoch02.database.model.Book
+import com.enoch02.resources.composables.SelectionOverlay
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun BookGridView(
     books: List<Book>,
+    selectedBookIds: List<Int>,
     covers: Map<String, String?>,
     onItemClick: (Int) -> Unit,
+    onItemLongClick: (Int) -> Unit,
     onItemDelete: (Int) -> Unit,
     modifier: Modifier
 ) {
-    //TODO: implement hold to delete
     if (books.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -54,17 +64,26 @@ internal fun BookGridView(
             content = {
                 items(
                     count = books.size,
+                    key = { index -> books[index].id!! },
                     itemContent = { index ->
                         val book = books[index]
 
-                        BookGridItem(
-                            modifier = Modifier
-                                .animateItem()
-                                .padding(horizontal = 4.dp, vertical = 8.dp),
-                            book = book,
-                            coverPath = covers[book.coverImageName],
-                            onClick = { book.id?.let { onItemClick(it) } },
-                            onDelete = { book.id?.let { it1 -> onItemDelete(it1) } }
+                        SelectionOverlay(
+                            selected = selectedBookIds.contains(book.id),
+                            content = {
+                                BookGridItem(
+                                    modifier = Modifier
+                                        .combinedClickable(
+                                            onClick = { book.id?.let { onItemClick(it) } },
+                                            onLongClick = { book.id?.let { onItemLongClick(it) } }
+                                        )
+                                        .animateItem()
+                                        .padding(horizontal = 4.dp, vertical = 8.dp),
+                                    book = book,
+                                    coverPath = covers[book.coverImageName],
+                                )
+                            },
+                            modifier = Modifier.padding(1.dp)
                         )
                     }
                 )
@@ -82,21 +101,17 @@ internal fun BookGridView(
 private fun BookGridItem(
     modifier: Modifier,
     book: Book,
-    coverPath: String?,
-    onClick: () -> Unit,
-    onDelete: () -> Unit
+    coverPath: String?
 ) {
     Card(
         modifier = modifier
             .fillMaxSize()
             .size(width = 149.dp, height = 225.dp),
-        onClick = onClick,
         content = {
             Box(
                 contentAlignment = Alignment.BottomStart,
                 content = {
                     AsyncImage(
-                        //TODO: replace placeholder with proper default image for book covers
                         model = coverPath ?: R.drawable.placeholder_image,
                         contentDescription = null,
                         contentScale = ContentScale.FillBounds,
@@ -105,15 +120,26 @@ private fun BookGridItem(
 
                     Box(
                         modifier = Modifier
-                            .background(MaterialTheme.colorScheme.primary)
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        MaterialTheme.colorScheme.primary
+                                    )
+                                )
+                            )
+                            .fillMaxHeight(0.2f)
                             .fillMaxWidth(),
+                        contentAlignment = Alignment.BottomStart,
                         content = {
                             Text(
                                 text = book.title,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                                 color = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.padding(4.dp)
+                                style = MaterialTheme.typography.labelMedium,
+                                modifier = Modifier
+                                    .padding(4.dp)
                             )
                         }
                     )
@@ -139,11 +165,7 @@ fun GridItemPreview() {
                             pagesRead = 100,
                             pageCount = 500
                         ),
-                        coverPath = "",
-                        onClick = { /*TODO*/ },
-                        onDelete = {
-
-                        }
+                        coverPath = ""
                     )
                 }
             }

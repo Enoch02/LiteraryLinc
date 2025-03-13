@@ -39,7 +39,8 @@ class StatsScreenViewModel @Inject constructor(
             booksFlow.collect { books ->
                 totalCount = books.size
                 pagesReadCount = books.sumOf { it.pagesRead }
-                currentlyReadingCount = books.filter { it.status == Book.status[0] }.size
+                currentlyReadingCount =
+                    books.filter { it.status == Book.Companion.BookStatus.READING.strName }.size
                 computeTotalHoursRead(books)
                 computeFastestCompletedBook(books)
             }
@@ -59,7 +60,7 @@ class StatsScreenViewModel @Inject constructor(
     private fun computeFastestCompletedBook(books: List<Book>) {
         fastestCompletedBook = ""
         val filteredBooks =
-            books.filter { it.dateCompleted != null && it.dateStarted != null && it.status == Book.status[1] }
+            books.filter { it.dateCompleted != null && it.dateStarted != null && it.status == Book.Companion.BookStatus.COMPLETED.strName }
         val fastest = filteredBooks.minByOrNull { book ->
             book.dateCompleted!! - book.dateStarted!!
         }

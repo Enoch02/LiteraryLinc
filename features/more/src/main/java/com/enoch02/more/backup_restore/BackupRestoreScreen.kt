@@ -148,36 +148,6 @@ fun BackupRestoreScreen(
                             }
                         )
                     }
-
-                    item {
-                        // TODO
-                        if (false) {
-                            ListItem(
-                                overlineContent = { Text(text = "Automatic backups") },
-                                headlineContent = {
-                                    Card {
-                                        ListItem(
-                                            headlineContent = { Text(text = "") },
-                                            supportingContent = { Text(text = "") },
-                                            tonalElevation = 30.dp
-                                        )
-
-                                        ListItem(
-                                            headlineContent = { Text(text = "") },
-                                            supportingContent = { Text(text = "") },
-                                            tonalElevation = 30.dp
-                                        )
-
-                                        ListItem(
-                                            headlineContent = { Text(text = "") },
-                                            supportingContent = { Text(text = "") },
-                                            tonalElevation = 30.dp
-                                        )
-                                    }
-                                }
-                            )
-                        }
-                    }
                 },
                 modifier = Modifier.padding(it)
             )

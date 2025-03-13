@@ -1,4 +1,4 @@
-package com.enoch02.more.backup_restore.workers
+package com.enoch02.resources.workers.backup_restore
 
 import android.content.Context
 import android.net.Uri
@@ -8,11 +8,11 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.enoch02.database.export_and_import.csv.CSVManager
-import com.enoch02.more.file_scan.BACKUP_FILE_URI_KEY
-import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_ID
-import com.enoch02.more.file_scan.util.createIndeterminateProgressNotification
-import com.enoch02.more.file_scan.util.createProgressNotificationChannel
-import com.enoch02.more.file_scan.util.makeStatusNotification
+import com.enoch02.resources.createIndeterminateProgressNotification
+import com.enoch02.resources.createProgressNotificationChannel
+import com.enoch02.resources.makeStatusNotification
+import com.enoch02.resources.workers.BACKUP_FILE_URI_KEY
+import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_ID
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -20,8 +20,6 @@ import kotlinx.coroutines.withContext
 
 private const val TAG = "RestoreWorker"
 
-//TODO: i still need to figure out how to gain access to the uri when the program is
-// closed and the task is running from the background
 @HiltWorker
 class RestoreWorker @AssistedInject constructor(
     @Assisted ctx: Context,
@@ -48,18 +46,20 @@ class RestoreWorker @AssistedInject constructor(
             try {
                 Log.d(TAG, "doWork: Opening backup file for import")
                 csvManager.import(Uri.parse(backupUri))
-
-                withContext(Dispatchers.Main) {
-                    notificationManager.cancel(PROGRESS_NOTIFICATION_ID)
-                    makeStatusNotification("Restore Complete!", applicationContext)
-                }
+                    .onSuccess {
+                        withContext(Dispatchers.Main) {
+                            notificationManager.cancel(PROGRESS_NOTIFICATION_ID)
+                            makeStatusNotification("Restore Complete!", applicationContext)
+                        }
+                    }
+                    .onFailure {
+                        notificationManager.cancel(PROGRESS_NOTIFICATION_ID)
+                        makeStatusNotification("Restore Failed: ${it.message}", applicationContext)
+                    }
 
                 Result.success()
             } catch (e: Exception) {
                 Log.e(TAG, "doWork: $e")
-                notificationManager.cancel(PROGRESS_NOTIFICATION_ID)
-                makeStatusNotification("Restore Failed!", applicationContext)
-
                 Result.failure()
             }
         }

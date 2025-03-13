@@ -4,13 +4,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -55,14 +56,17 @@ import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.enoch02.booklist.R
 import com.enoch02.database.model.Book
+import com.enoch02.resources.composables.SelectionOverlay
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BookListView(
     books: List<Book>,
+    selectedBookIds: List<Int>,
     covers: Map<String, String?>,
     onItemClick: (id: Int) -> Unit,
+    onItemLongClick: (Int) -> Unit,
     onItemDelete: (id: Int) -> Unit,
     onItemEdit: (id: Int) -> Unit,
     modifier: Modifier
@@ -90,17 +94,29 @@ fun BookListView(
                     content = {
                         items(
                             count = books.size,
-                            key = { it },
+                            key = { index -> books[index].id!! },
                             itemContent = { index ->
                                 val book = books[index]
 
-                                BookListItem(
-                                    modifier = Modifier.animateItem(),
-                                    book = book,
-                                    coverPath = covers[book.coverImageName],
-                                    onClick = { book.id?.let { onItemClick(it) } },
-                                    onDelete = { book.id?.let { it1 -> onItemDelete(it1) } },
-                                    onEdit = { book.id?.let { onItemEdit(it) } }
+                                SelectionOverlay(
+                                    selected = selectedBookIds.contains(book.id),
+                                    content = {
+                                        BookListItem(
+                                            modifier = Modifier
+                                                .animateItem()
+                                                .combinedClickable(
+                                                    onClick = { book.id?.let { onItemClick(it) } },
+                                                    onLongClick = {
+                                                        book.id?.let { onItemLongClick(it) }
+                                                    }
+                                                ),
+                                            book = book,
+                                            coverPath = covers[book.coverImageName],
+                                            onDelete = { book.id?.let { it1 -> onItemDelete(it1) } },
+                                            onEdit = { book.id?.let { onItemEdit(it) } }
+                                        )
+                                    },
+                                    modifier = Modifier.padding(1.dp)
                                 )
                             }
                         )
@@ -137,7 +153,6 @@ private fun BookListItem(
     modifier: Modifier,
     book: Book,
     coverPath: String?,
-    onClick: () -> Unit,
     onDelete: () -> Unit,
     onEdit: () -> Unit
 ) {
@@ -236,7 +251,7 @@ private fun BookListItem(
                 )
             }
         },
-        modifier = modifier.clickable { onClick() }
+        modifier = modifier
     )
 
     if (showWarningDialog) {
@@ -303,7 +318,6 @@ private fun Preview() {
                 pageCount = 100
             ),
             coverPath = null,
-            onClick = {},
             onDelete = {},
             onEdit = {}
         )
@@ -318,7 +332,6 @@ private fun Preview() {
                 pageCount = 100
             ),
             coverPath = null,
-            onClick = {},
             onDelete = {},
             onEdit = {}
         )

@@ -1,4 +1,4 @@
-package com.enoch02.more.file_scan.util
+package com.enoch02.resources.workers.file_scan.util
 
 import android.content.Context
 import android.graphics.Bitmap

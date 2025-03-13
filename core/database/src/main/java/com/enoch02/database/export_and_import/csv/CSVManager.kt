@@ -28,7 +28,6 @@ import java.io.OutputStreamWriter
 
 private const val TAG = "CSVManager"
 
-//TODO: test how it handles malformed csv files
 class CSVManager(
     private val application: Application,
     private val bookDao: BookDao,
@@ -171,8 +170,6 @@ class CSVManager(
                         val row = iterator.next()
 
                         try {
-
-
                             // Launch a coroutine to process the row
                             val job = async(Dispatchers.IO) {
                                 processRow(row)
@@ -189,7 +186,7 @@ class CSVManager(
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "import: ${e.message}", )
             return Result.failure(e)
         }
 

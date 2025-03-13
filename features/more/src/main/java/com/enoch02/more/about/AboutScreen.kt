@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -68,7 +67,7 @@ fun AboutScreen(navController: NavController) {
                                 if (version.first == "" || version.second == 0) 0f else 1f
                             )
                         }
-                        val appVersionText = "version ${version.first}(${version.second})"
+                        val appVersionText = "${version.first}(${version.second})"
 
                         ListItem(
                             headlineContent = {
@@ -81,12 +80,11 @@ fun AboutScreen(navController: NavController) {
                                         modifier = Modifier
                                             .alpha(alpha)
                                             .clickable {
-                                                // TODO: copy more info to clipboard in the future?
-                                                clipBoard.setText(buildAnnotatedString {
-                                                    append(
-                                                        appVersionText
-                                                    )
-                                                })
+                                                clipBoard.setText(
+                                                    buildAnnotatedString {
+                                                        append(getDeviceInfo(context))
+                                                    }
+                                                )
                                             },
                                         tonalElevation = 30.dp
                                     )
@@ -177,4 +175,48 @@ private fun getAppVersion(context: Context): Pair<String, Int> {
     }
 
     return Pair(versionName, versionCode)
+}
+
+private fun getDeviceInfo(context: Context): String {
+    var versionName = ""
+    var versionCode = 0
+    val androidVersion = Build.VERSION.RELEASE
+    val sdkVersion = Build.VERSION.SDK_INT
+    val deviceBrand = Build.BRAND
+    val deviceManufacturer = Build.MANUFACTURER
+    val deviceName = Build.DEVICE
+    val deviceModel = Build.MODEL
+
+    try {
+        val packageInfo =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getPackageInfo(
+                    context.packageName,
+                    PackageManager.PackageInfoFlags.of(0)
+                )
+            } else context.packageManager.getPackageInfo(
+                context.packageName,
+                0
+            )
+        versionName = packageInfo.versionName.toString()
+        versionCode =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                packageInfo.longVersionCode.toInt()
+            } else {
+                packageInfo.versionCode
+            }
+    } catch (e: Exception) {
+        Log.d("getDeviceInfo", "getDeviceInfo: ${e.message}")
+    }
+
+    return """
+        App Version Name: $versionName
+        App Version Code: $versionCode
+        Android Version: $androidVersion
+        SDK Version: $sdkVersion
+        Device Brand: $deviceBrand
+        Device Manufacturer: $deviceManufacturer
+        Device Name: $deviceName
+        Device Model: $deviceModel
+    """.trimIndent()
 }

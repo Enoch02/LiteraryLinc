@@ -17,7 +17,6 @@ class SettingViewModel @Inject constructor(
     ViewModel() {
     val alwaysDark = getPreference(key = BooleanPreferenceType.DARK_MODE)
     val dynamicColors = getPreference(key = BooleanPreferenceType.DYNAMIC_COLOR)
-    val showConfirmDialog = getPreference(key = BooleanPreferenceType.CONFIRM_DIALOGS)
     val volumeButtonPaging = getPreference(key = BooleanPreferenceType.VOLUME_BTN_PAGING)
     val showDocViewerBars = getPreference(key = BooleanPreferenceType.SHOW_DOC_VIEWER_BARS)
 
@@ -27,7 +26,7 @@ class SettingViewModel @Inject constructor(
         }
     }
 
-    fun getPreference(key: BooleanPreferenceType): Flow<Boolean> {
+    private fun getPreference(key: BooleanPreferenceType): Flow<Boolean> {
         return settingsRepository.getPreference(key)
     }
 

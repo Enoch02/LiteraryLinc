@@ -1,4 +1,4 @@
-package com.enoch02.more.file_scan.util
+package com.enoch02.resources
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -10,16 +10,15 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.enoch02.more.R
-import com.enoch02.more.file_scan.CHANNEL_ID
-import com.enoch02.more.file_scan.NOTIFICATION_ID
-import com.enoch02.more.file_scan.NOTIFICATION_TITLE
-import com.enoch02.more.file_scan.COMPLETION_NOTIFICATION_CHANNEL_DESCRIPTION
-import com.enoch02.more.file_scan.COMPLETION_NOTIFICATION_CHANNEL_NAME
-import com.enoch02.more.file_scan.PROGRESS_CHANNEL_ID
-import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_CHANNEL_DESCRIPTION
-import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_CHANNEL_NAME
-import com.enoch02.more.file_scan.PROGRESS_NOTIFICATION_ID
+import com.enoch02.resources.workers.CHANNEL_ID
+import com.enoch02.resources.workers.NOTIFICATION_ID
+import com.enoch02.resources.workers.NOTIFICATION_TITLE
+import com.enoch02.resources.workers.COMPLETION_NOTIFICATION_CHANNEL_DESCRIPTION
+import com.enoch02.resources.workers.COMPLETION_NOTIFICATION_CHANNEL_NAME
+import com.enoch02.resources.workers.PROGRESS_CHANNEL_ID
+import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_CHANNEL_DESCRIPTION
+import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_CHANNEL_NAME
+import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_ID
 
 fun makeStatusNotification(message: String, context: Context) {
 
@@ -42,7 +41,7 @@ fun makeStatusNotification(message: String, context: Context) {
 
     // Create the notification
     val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-        .setSmallIcon(R.drawable.ic_android_black_24dp)//TODO: replace
+        .setSmallIcon(R.drawable.app_icon_svg)
         .setContentTitle(NOTIFICATION_TITLE)
         .setContentText(message)
         .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -54,7 +53,6 @@ fun makeStatusNotification(message: String, context: Context) {
             Manifest.permission.POST_NOTIFICATIONS
         ) != PackageManager.PERMISSION_GRANTED
     ) {
-        //TODO: redirect to settings page?
         Toast.makeText(
             context,
             "Allow notification permission in settings to get notified when the scan completes",
@@ -73,7 +71,7 @@ fun createIndeterminateProgressNotification(
     val builder = NotificationCompat.Builder(context, PROGRESS_CHANNEL_ID)
         .setContentTitle(title)
         .setContentText(message)
-        .setSmallIcon(R.drawable.ic_android_black_24dp) //TODO
+        .setSmallIcon(R.drawable.app_icon_svg)
         .setProgress(0, 0, true)
         .setOngoing(true)
 
@@ -82,14 +80,6 @@ fun createIndeterminateProgressNotification(
             Manifest.permission.POST_NOTIFICATIONS
         ) != PackageManager.PERMISSION_GRANTED
     ) {
-        //TODO: redirect to settings page
-        // TODO: Consider calling
-        //    ActivityCompat#requestPermissions
-        // here to request the missing permissions, and then overriding
-        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-        //                                          int[] grantResults)
-        // to handle the case where the user grants the permission. See the documentation
-        // for ActivityCompat#requestPermissions for more details.
         return
     }
 
@@ -114,7 +104,7 @@ fun sendFinalProgressNotification(context: Context) {
     val finalNotification = NotificationCompat.Builder(context, PROGRESS_CHANNEL_ID)
         .setContentTitle(NOTIFICATION_TITLE)
         .setContentText("Loading Complete!")
-        .setSmallIcon(R.drawable.ic_android_black_24dp) //TODO: change!
+        .setSmallIcon(R.drawable.app_icon_svg)
         .setOngoing(false)
         .build()
 
@@ -123,13 +113,6 @@ fun sendFinalProgressNotification(context: Context) {
             Manifest.permission.POST_NOTIFICATIONS
         ) != PackageManager.PERMISSION_GRANTED
     ) {
-        // TODO: Consider calling
-        //    ActivityCompat#requestPermissions
-        // here to request the missing permissions, and then overriding
-        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-        //                                          int[] grantResults)
-        // to handle the case where the user grants the permission. See the documentation
-        // for ActivityCompat#requestPermissions for more details.
         return
     }
     NotificationManagerCompat.from(context).notify(PROGRESS_NOTIFICATION_ID, finalNotification)

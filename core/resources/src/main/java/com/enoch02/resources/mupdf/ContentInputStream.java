@@ -1,4 +1,4 @@
-package com.enoch02.viewer;
+package com.enoch02.resources.mupdf;
 
 import com.artifex.mupdf.fitz.SeekableInputStream;
 

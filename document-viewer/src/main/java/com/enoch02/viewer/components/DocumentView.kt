@@ -78,8 +78,8 @@ import com.composables.core.rememberScrollAreaState
 import com.enoch02.settings.SettingsRepository
 import com.enoch02.viewer.LLDocumentViewModel
 import com.enoch02.viewer.model.ContentState
-import com.enoch02.viewer.model.Item
-import com.enoch02.viewer.model.SearchResult
+import com.enoch02.resources.mupdf.model.Item
+import com.enoch02.resources.mupdf.model.SearchResult
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

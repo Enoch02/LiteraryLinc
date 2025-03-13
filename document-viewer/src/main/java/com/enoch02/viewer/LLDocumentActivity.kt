@@ -63,7 +63,6 @@ class LLDocumentActivity : ComponentActivity() {
                                         documentId = documentId,
                                         viewModel = viewModel,
                                         closeViewAction = {
-                                            //TODO: remove missing doc entry from the db?
                                             finish()
                                         }
                                     )

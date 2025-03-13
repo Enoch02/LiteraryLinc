@@ -1,4 +1,4 @@
-package com.enoch02.more.file_scan
+package com.enoch02.resources.workers
 
 import java.util.UUID
 

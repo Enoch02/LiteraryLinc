@@ -17,25 +17,32 @@ data class Book(
     val personalRating: Int = 0,
     val isbn: String = "",
     val genre: String = "",
-    val type: String = types.values.first(),
+    val type: String = BookType.ANY.strName,
     val coverImageName: String? = null,
     val notes: String = "",
-    val status: String = Book.status.first(),
+    val status: String = BookStatus.PLANNING.strName,
     val volumesRead: Int = 0,
     val totalVolumes: Int = 0,
     val documentMd5: String? = null
 ) {
     companion object {
-        //TODO: convert to data objects?
-        val types = mapOf(
-            0 to "All",
-            1 to "Non-Fiction",
-            2 to "Light Novel",
-            3 to "Novel",
-            4 to "Comic",
-            5 to "Manga"
-        )
-        val status = listOf("Reading", "Completed", "On Hold", "Planning", "Rereading")
+        enum class BookType(val strName: String) {
+            ANY("Any"),
+            NON_FICTION("Non-Fiction"),
+            LN("Light Novel"),
+            NOVEL("Novel"),
+            COMIC("Comic"),
+            MANGA("Manga")
+        }
+
+        enum class BookStatus(val strName: String) {
+            READING("Reading"),
+            COMPLETED("Completed"),
+            ON_HOLD("On Hold"),
+            PLANNING("Planning"),
+            RE_READING("Rereading")
+        }
+        //val status = listOf("Reading", "Completed", "On Hold", "Planning", "Rereading")
 
         fun createBook(
             id: Int? = null,

@@ -13,6 +13,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.enoch02.database.dao.DocumentDao
+import com.enoch02.resources.workers.APP_PREFS_KEY
+import com.enoch02.resources.workers.DOCUMENT_DIR_KEY
+import com.enoch02.resources.workers.file_scan.DocumentScanRepository
 import com.enoch02.settings.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -62,7 +65,6 @@ class FileScanViewModel @Inject constructor(
                 .onEach { fileScanWorkInfo.value = it }
                 .catch { exception ->
                     Log.e(TAG, "Error collecting file scan work info", exception)
-                    //TODO: show error msg?
                 }
                 .launchIn(viewModelScope)
         } else {
