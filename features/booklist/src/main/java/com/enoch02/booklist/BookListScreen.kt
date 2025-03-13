@@ -180,9 +180,6 @@ fun BookListScreen(
                         }
                     }
 
-                    //TODO: implement hold to selected books,
-                    // multi book deletion (for both list and grid view
-                    // TODO: add buttons to top bar to clear selection and to delete selection
                     when (listViewMode) {
                         BookViewMode.LIST_VIEW -> {
                             BookListView(
