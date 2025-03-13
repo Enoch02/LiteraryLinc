@@ -33,7 +33,7 @@ val allowedTypes = arrayOf(
     "application/epub+zip",
     "application/x-cbz",
     "application/vnd.comicbook+zip",
-    /*TODO*/
+   // might allow support (or not)
     /*"application/vnd.ms-xpsdocument",
     "application/oxps",
     "application/x-fictionbook",

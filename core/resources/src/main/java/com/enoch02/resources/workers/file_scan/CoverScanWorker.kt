@@ -2,15 +2,11 @@ package com.enoch02.resources.workers.file_scan
 
 import android.Manifest
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
-import android.provider.Settings
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -95,7 +91,7 @@ private fun createFileScanningNotification(context: Context, progress: Int) {
     val builder = NotificationCompat.Builder(context, PROGRESS_CHANNEL_ID)
         .setContentTitle("Loading Covers")
         .setContentText("Progress: $progress%")
-        .setSmallIcon(R.drawable.app_icon_svg) //TODO
+        .setSmallIcon(R.drawable.app_icon_svg)
         .setProgress(
             100,
             progress,
