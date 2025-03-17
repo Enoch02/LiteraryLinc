@@ -17,16 +17,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.enoch02.more.R
+import com.enoch02.more.settings.components.ConfirmationSettingItem
 import com.enoch02.more.settings.components.SwitchSettingItem
 import com.enoch02.settings.SettingsRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = hiltViewModel()) {
+    val context = LocalContext.current
     val alwaysDark by viewModel.alwaysDark.collectAsState(false)
     val dynamicColors by viewModel.dynamicColors.collectAsState(false)
     val volumeButtonPaging by viewModel.volumeButtonPaging.collectAsState(false)
@@ -119,6 +122,33 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                                     newValue = it
                                                 )
                                             }
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    }
+
+                    item {
+                        ListItem(
+                            overlineContent = {
+                                Text(text = stringResource(R.string.data))
+                            },
+                            headlineContent = {
+                                Card(
+                                    content = {
+                                        ConfirmationSettingItem(
+                                            label = stringResource(R.string.reset_booklist),
+                                            onClick = { viewModel.resetBooklist(context) },
+                                            description = stringResource(R.string.reset_booklist_desc),
+                                            alertMsg = stringResource(R.string.reset_booklist_warning_msg)
+                                        )
+
+                                        ConfirmationSettingItem(
+                                            label = stringResource(R.string.reset_readerlist),
+                                            onClick = { viewModel.resetReaderList(context) },
+                                            description = stringResource(R.string.reset_readerlist_desc),
+                                            alertMsg = stringResource(R.string.reset_readerlist_warning_msg)
                                         )
                                     }
                                 )

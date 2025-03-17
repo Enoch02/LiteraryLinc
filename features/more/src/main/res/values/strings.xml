@@ -72,4 +72,13 @@
     <string name="behaviour">Behaviour</string>
     <string name="show_doc_viewer_bars">Show document viewer bars by default</string>
     <string name="show_doc_viewer_bars_desc">Make the top and bottom bars visible (or not) when a document is opened</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="reset_booklist">Reset Booklist</string>
+    <string name="data">Data</string>
+    <string name="reset_booklist_desc">Remove all entries from the book list database</string>
+    <string name="reset_readerlist_desc">Remove all entries from the readerlist database</string>
+    <string name="reset_booklist_warning_msg">Do you really want to clear your booklist?</string>
+    <string name="reset_readerlist_warning_msg">Do you really want to rest the readerlist? \nDocuments on the device will not be affected</string>
+    <string name="reset_readerlist">Reset Readerlist</string>
 </resources>
