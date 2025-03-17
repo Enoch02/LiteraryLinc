@@ -12,7 +12,7 @@ import com.enoch02.resources.createIndeterminateProgressNotification
 import com.enoch02.resources.createProgressNotificationChannel
 import com.enoch02.resources.makeStatusNotification
 import com.enoch02.resources.workers.BACKUP_FILE_URI_KEY
-import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_ID
+import com.enoch02.resources.workers.RESTORE_NOTIFICATION_ID
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +33,8 @@ class RestoreWorker @AssistedInject constructor(
         createProgressNotificationChannel(applicationContext)
         createIndeterminateProgressNotification(
             context = applicationContext,
-            title = "Restoring Backup"
+            title = "Restoring Backup",
+            id = RESTORE_NOTIFICATION_ID
         )
 
         return withContext(Dispatchers.IO) {
@@ -48,13 +49,21 @@ class RestoreWorker @AssistedInject constructor(
                 csvManager.import(Uri.parse(backupUri))
                     .onSuccess {
                         withContext(Dispatchers.Main) {
-                            notificationManager.cancel(PROGRESS_NOTIFICATION_ID)
-                            makeStatusNotification("Restore Complete!", applicationContext)
+                            notificationManager.cancel(RESTORE_NOTIFICATION_ID)
+                            makeStatusNotification(
+                                "Restore Complete!",
+                                applicationContext,
+                                RESTORE_NOTIFICATION_ID
+                            )
                         }
                     }
                     .onFailure {
-                        notificationManager.cancel(PROGRESS_NOTIFICATION_ID)
-                        makeStatusNotification("Restore Failed: ${it.message}", applicationContext)
+                        notificationManager.cancel(RESTORE_NOTIFICATION_ID)
+                        makeStatusNotification(
+                            "Restore Failed: ${it.message}",
+                            applicationContext,
+                            RESTORE_NOTIFICATION_ID
+                        )
                     }
 
                 Result.success()

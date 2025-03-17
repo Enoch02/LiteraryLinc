@@ -11,16 +11,14 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.enoch02.resources.workers.CHANNEL_ID
-import com.enoch02.resources.workers.NOTIFICATION_ID
-import com.enoch02.resources.workers.NOTIFICATION_TITLE
 import com.enoch02.resources.workers.COMPLETION_NOTIFICATION_CHANNEL_DESCRIPTION
 import com.enoch02.resources.workers.COMPLETION_NOTIFICATION_CHANNEL_NAME
+import com.enoch02.resources.workers.NOTIFICATION_TITLE
 import com.enoch02.resources.workers.PROGRESS_CHANNEL_ID
 import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_CHANNEL_DESCRIPTION
 import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_CHANNEL_NAME
-import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_ID
 
-fun makeStatusNotification(message: String, context: Context) {
+fun makeStatusNotification(message: String, context: Context, id: Int) {
     // Make a channel if necessary
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val name = COMPLETION_NOTIFICATION_CHANNEL_NAME
@@ -53,13 +51,14 @@ fun makeStatusNotification(message: String, context: Context) {
         ).show()
         return
     }
-    NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, builder.build())
+    NotificationManagerCompat.from(context).notify(id, builder.build())
 }
 
 fun createIndeterminateProgressNotification(
     context: Context,
     title: String,
-    message: String = "Please wait..."
+    message: String = "Please wait...",
+    id: Int
 ) {
     val builder = NotificationCompat.Builder(context, PROGRESS_CHANNEL_ID)
         .setContentTitle(title)
@@ -76,7 +75,7 @@ fun createIndeterminateProgressNotification(
         return
     }
 
-    NotificationManagerCompat.from(context).notify(PROGRESS_NOTIFICATION_ID, builder.build())
+    NotificationManagerCompat.from(context).notify(id, builder.build())
 }
 
 fun createProgressNotificationChannel(context: Context) {
@@ -93,7 +92,7 @@ fun createProgressNotificationChannel(context: Context) {
     }
 }
 
-fun sendFinalProgressNotification(context: Context) {
+fun sendFinalProgressNotification(context: Context, id: Int) {
     val finalNotification = NotificationCompat.Builder(context, PROGRESS_CHANNEL_ID)
         .setContentTitle(NOTIFICATION_TITLE)
         .setContentText("Loading Complete!")
@@ -108,5 +107,5 @@ fun sendFinalProgressNotification(context: Context) {
     ) {
         return
     }
-    NotificationManagerCompat.from(context).notify(PROGRESS_NOTIFICATION_ID, finalNotification)
+    NotificationManagerCompat.from(context).notify(id, finalNotification)
 }
