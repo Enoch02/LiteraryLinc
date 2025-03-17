@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.automirrored.rounded.ReadMore
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.QuestionMark
 import androidx.compose.material.icons.rounded.Timelapse
 import androidx.compose.material3.LinearProgressIndicator
@@ -23,9 +24,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.enoch02.stats.R
 import com.enoch02.stats.components.LeaderBoardValue
 import com.enoch02.stats.components.LeaderBoardView
 import com.enoch02.stats.components.QuickStatCard
@@ -62,7 +65,7 @@ fun StatsScreen(
             ) {
                 item {
                     QuickStatCard(
-                        title = "Total Books Read",
+                        title = stringResource(R.string.total_books_read),
                         value = viewModel.totalCount.withCommas(),
                         icon = Icons.AutoMirrored.Rounded.MenuBook
                     )
@@ -70,7 +73,7 @@ fun StatsScreen(
 
                 item {
                     QuickStatCard(
-                        title = "Pages Read",
+                        title = stringResource(R.string.pages_read),
                         value = viewModel.pagesReadCount.withCommas(),
                         icon = Icons.AutoMirrored.Rounded.MenuBook
                     )
@@ -78,7 +81,7 @@ fun StatsScreen(
 
                 item {
                     QuickStatCard(
-                        title = "Total Hours*",
+                        title = stringResource(R.string.total_hours),
                         value = viewModel.totalHoursRead.withCommas(),
                         icon = Icons.Rounded.AccessTime
                     )
@@ -86,7 +89,7 @@ fun StatsScreen(
 
                 item {
                     QuickStatCard(
-                        title = "Fastest Book Completed",
+                        title = stringResource(R.string.fastest_book_completed),
                         value = viewModel.fastestCompletedBook,
                         icon = Icons.Rounded.Timelapse
                     )
@@ -95,19 +98,37 @@ fun StatsScreen(
                 item {
                     QuickStatCard(
                         title = "Reading",
-                        value = "${viewModel.currentlyReadingCount} Books",
+                        value = stringResource(
+                            R.string.currently_reading,
+                            viewModel.currentlyReadingCount
+                        ),
                         icon = Icons.AutoMirrored.Rounded.ReadMore
                     )
                 }
 
+                if (0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) {
+                    item {
+                        QuickStatCard(
+                            title = "Longest Streak",
+                            value = "n Days",
+                            icon = Icons.Rounded.CalendarMonth
+                        )
+                    }
+                }
+
                 item {
                     QuickStatCard(
-                        title = "Longest Streak",
-                        value = "n Days",
-                        icon = Icons.Rounded.CalendarMonth
+                        title = stringResource(R.string.completed_this_year),
+                        value = viewModel.booksReadThisYear.withCommas(),
+                        icon = Icons.Rounded.Check
                     )
                 }
             }
+
+            Text(
+                text = stringResource(R.string.rough_estimate),
+                style = MaterialTheme.typography.labelSmall
+            )
         }
     )
 }

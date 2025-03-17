@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="total_books_read">Total Books Read</string>
+    <string name="pages_read">Pages Read</string>
+    <string name="total_hours">Total Hours*</string>
+    <string name="fastest_book_completed">Fastest Book Completed*</string>
+    <string name="currently_reading">%1$s Books</string>
+    <string name="completed_this_year">Completed this Year</string>
+    <string name="rough_estimate">*Rough Estimate</string>
+</resources>

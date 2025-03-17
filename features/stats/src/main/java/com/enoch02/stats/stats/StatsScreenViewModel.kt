@@ -1,6 +1,5 @@
 package com.enoch02.stats.stats
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -14,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
+import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -29,6 +29,7 @@ class StatsScreenViewModel @Inject constructor(
     var currentlyReadingCount by mutableIntStateOf(0)
     var totalHoursRead by mutableIntStateOf(0)
     var fastestCompletedBook by mutableStateOf("")
+    var booksReadThisYear by mutableIntStateOf(0)
 
     init {
         getOtherStats()
@@ -65,6 +66,26 @@ class StatsScreenViewModel @Inject constructor(
             book.dateCompleted!! - book.dateStarted!!
         }
         fastestCompletedBook = fastest?.title ?: ""
+        booksReadThisYear = computeBooksReadThisYear(books)
+    }
+
+    //TODO: test on vivo phone
+    private fun computeBooksReadThisYear(books: List<Book>): Int {
+        return books.filter { isThisYear(it.dateStarted) && it.status == Book.Companion.BookStatus.COMPLETED.strName }.size
+    }
+
+    private fun isThisYear(timestamp: Long?): Boolean {
+        if (timestamp == null) {
+            return false
+        }
+
+        val calendar = Calendar.getInstance()
+        val currentYear = calendar.get(Calendar.YEAR)
+
+        calendar.timeInMillis = timestamp
+        val yearFromTimestamp = calendar.get(Calendar.YEAR)
+
+        return yearFromTimestamp == currentYear
     }
 }
 
