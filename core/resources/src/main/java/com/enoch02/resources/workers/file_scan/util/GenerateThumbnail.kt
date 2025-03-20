@@ -3,6 +3,8 @@ package com.enoch02.resources.workers.file_scan.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.util.Log
@@ -46,8 +48,13 @@ private fun generatePdfThumbnail(context: Context, uri: Uri): Bitmap? {
 
         val width = page.width
         val height = page.height
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        canvas.drawColor(Color.WHITE)
+
+        // Render the PDF page on top of the white background
         page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
         page.close()
 
