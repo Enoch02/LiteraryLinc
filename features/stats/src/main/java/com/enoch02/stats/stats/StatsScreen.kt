@@ -19,6 +19,8 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,13 +39,14 @@ fun StatsScreen(
     modifier: Modifier,
     viewModel: StatsScreenViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     val formattedStreakMessage = remember(viewModel.currentReadingStreak) {
         viewModel.formatCurrentStreakMessage()
     }
     val formattedLongestStreakMessage = remember(viewModel.longestReadingStreak) {
         viewModel.formatLongestStreakMessage()
     }
+    val readingGoal by viewModel.readingGoal.collectAsState(0)
+    val readingProgress by viewModel.readingProgress.collectAsState(0)
 
     Column(
         modifier = modifier
@@ -51,18 +54,25 @@ fun StatsScreen(
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         content = {
-            Column(modifier = Modifier.weight(0.1f)) {
-                Text(
-                    text = formattedStreakMessage,
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                ReadingProgressView(modifier = Modifier)
-            }
+            Text(
+                text = formattedStreakMessage,
+                style = MaterialTheme.typography.headlineSmall
+            )
+
+            Spacer(Modifier.height(6.dp))
+
+            ReadingProgressView(
+                modifier = Modifier,
+                progress = readingProgress,
+                goal = readingGoal
+            )
+
+            Spacer(Modifier.height(8.dp))
 
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 150.dp),
                 modifier = Modifier
-                    .weight(0.45f)
+                    /*.weight(0.45f)*/
                     .padding(bottom = 4.dp)
             ) {
                 item {
@@ -133,17 +143,25 @@ fun StatsScreen(
     )
 }
 
-//TODO: implement!
 @Composable
-fun ReadingProgressView(modifier: Modifier) {
+fun ReadingProgressView(modifier: Modifier, progress: Int, goal: Int) {
     Column(modifier = modifier.fillMaxWidth()) {
-        Text("Yearly Goal: 15/30 Books")
+        Text(stringResource(R.string.reading_goal_text, progress, goal))
 
         Spacer(Modifier.height(4.dp))
 
-        LinearProgressIndicator(
-            progress = { 0.5f },
-            modifier = Modifier.fillMaxWidth(),
-        )
+        if (progress > 0 && goal > 0) {
+            val progressPercentage = progress.toFloat() / goal
+
+            LinearProgressIndicator(
+                progress = { progressPercentage },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        } else {
+            LinearProgressIndicator(
+                progress = { 0f},
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }

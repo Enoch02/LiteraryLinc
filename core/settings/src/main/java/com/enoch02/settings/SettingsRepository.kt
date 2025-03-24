@@ -77,6 +77,8 @@ class SettingsRepository(private val context: Context) {
         val autoFileScanFrequency = intPreferencesKey("auto_file_scan_duration")
         val currentReadingStreak = intPreferencesKey("current_reading_streak")
         val longestReadingStreak = intPreferencesKey("longest_reading_streak")
+        val bookReadingTarget = intPreferencesKey("book_reading_target")
+        val bookReadingProgress = intPreferencesKey("book_reading_progress")
 
         val lastBookOpenedTimestamp = longPreferencesKey("last_book_opened_timestamp")
     }
@@ -98,6 +100,8 @@ class SettingsRepository(private val context: Context) {
             IntPreferenceType.AUTO_FILE_SCAN_FREQ -> Keys.autoFileScanFrequency
             IntPreferenceType.CURRENT_READING_STREAK -> Keys.currentReadingStreak
             IntPreferenceType.LONGEST_READING_STREAK -> Keys.longestReadingStreak
+            IntPreferenceType.BOOK_READING_TARGET -> Keys.bookReadingTarget
+            IntPreferenceType.BOOK_READING_PROGRESS -> Keys.bookReadingProgress
         }
     }
 
@@ -119,7 +123,9 @@ class SettingsRepository(private val context: Context) {
         CURRENT_READER_FILTER,
         AUTO_FILE_SCAN_FREQ,
         CURRENT_READING_STREAK,
-        LONGEST_READING_STREAK
+        LONGEST_READING_STREAK,
+        BOOK_READING_TARGET,
+        BOOK_READING_PROGRESS
     }
 
     enum class LongPreferenceType {

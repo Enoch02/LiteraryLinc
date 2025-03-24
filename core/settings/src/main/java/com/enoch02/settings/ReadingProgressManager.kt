@@ -63,4 +63,31 @@ class ReadingProgressManager(val settingsRepository: SettingsRepository) {
                 )
         }
     }
+
+    suspend fun setReadingGoal(target: Int) {
+        settingsRepository
+            .switchPreference(SettingsRepository.IntPreferenceType.BOOK_READING_TARGET, target)
+    }
+
+    suspend fun updateReadingGoalProgress(newValue: Int) {
+        settingsRepository.switchPreference(
+            SettingsRepository.IntPreferenceType.BOOK_READING_PROGRESS,
+            newValue
+        )
+    }
+
+    suspend fun incrementReadingGoalProgress() {
+        settingsRepository.switchPreference(
+            SettingsRepository.IntPreferenceType.BOOK_READING_PROGRESS,
+            getReadingGoalProgress().first() + 1
+        )
+    }
+
+    fun getReadingGoal(): Flow<Int> {
+        return settingsRepository.getPreference(SettingsRepository.IntPreferenceType.BOOK_READING_TARGET)
+    }
+
+    fun getReadingGoalProgress(): Flow<Int> {
+        return settingsRepository.getPreference(SettingsRepository.IntPreferenceType.BOOK_READING_PROGRESS)
+    }
 }

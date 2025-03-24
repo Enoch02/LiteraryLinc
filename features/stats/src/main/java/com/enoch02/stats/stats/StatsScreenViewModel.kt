@@ -37,6 +37,9 @@ class StatsScreenViewModel @Inject constructor(
     var longestReadingStreak by mutableIntStateOf(0)
     var currentReadingStreak by mutableIntStateOf(0)
 
+    val readingGoal = readingProgressManager.getReadingGoal()
+    val readingProgress = readingProgressManager.getReadingGoalProgress()
+
     init {
         getOtherStats()
         getStreak()
@@ -101,7 +104,7 @@ class StatsScreenViewModel @Inject constructor(
         }
     }
 
-    fun getStreak(): Flow<Int> {
+    private fun getStreak(): Flow<Int> {
         return readingProgressManager.getReadingStreak()
     }
 

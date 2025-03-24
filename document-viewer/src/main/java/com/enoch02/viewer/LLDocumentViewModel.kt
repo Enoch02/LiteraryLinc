@@ -386,6 +386,11 @@ class LLDocumentViewModel @Inject constructor(
 
         book?.let { theBook ->
             if (theBook.pagesRead <= document.currentPage) {
+                //                  check if book has not been completed in the past
+                if (isComplete && theBook.dateCompleted == null) {
+                    readingProgressManager.incrementReadingGoalProgress()
+                }
+
                 bookDao.updateBook(
                     theBook.copy(
                         pageCount = document.pages,

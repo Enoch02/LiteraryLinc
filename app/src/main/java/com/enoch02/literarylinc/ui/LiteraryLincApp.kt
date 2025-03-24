@@ -47,7 +47,7 @@ import com.enoch02.literarylinc.ui.components.BookListTopAppBar
 import com.enoch02.literarylinc.ui.components.MoreTopAppBar
 import com.enoch02.literarylinc.ui.components.ReaderListSortOptionsAlert
 import com.enoch02.literarylinc.ui.components.ReaderTopAppBar
-import com.enoch02.literarylinc.ui.components.StatsTopAppBar
+import com.enoch02.stats.components.StatsTopAppBar
 import com.enoch02.literarylinc.ui.components.drawersheets.BookListDrawerSheet
 import com.enoch02.literarylinc.ui.components.drawersheets.ReaderListDrawerSheet
 import com.enoch02.more.MoreScreen
@@ -76,6 +76,10 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
     var isSearchingInReaderList by rememberSaveable { mutableStateOf(false) }
 
     var enableDrawerGestures by rememberSaveable { mutableStateOf(true) }
+
+    // stats
+    val readingGoal by viewModel.readingGoal.collectAsState(0)
+    val readingProgress by viewModel.readingProgress.collectAsState(0)
 
     LaunchedEffect(
         key1 = currentScreen,
@@ -163,7 +167,13 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                         }
 
                         TopLevelDestination.STATS -> {
-                            StatsTopAppBar()
+                            StatsTopAppBar(
+                                readingGoal = readingGoal,
+                                readingProgress = readingProgress,
+                                onSaveProgressData = { goal, progress ->
+                                    viewModel.updateReadingGoalData(goal, progress)
+                                }
+                            )
                         }
 
                         TopLevelDestination.MORE -> {
