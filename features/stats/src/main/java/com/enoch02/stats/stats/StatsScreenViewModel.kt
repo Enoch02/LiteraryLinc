@@ -9,8 +9,11 @@ import androidx.lifecycle.viewModelScope
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.dao.StatsDao
 import com.enoch02.database.model.Book
+import com.enoch02.settings.ReadingProgressManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Calendar
@@ -20,8 +23,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StatsScreenViewModel @Inject constructor(
+    bookDao: BookDao,
     private val statsDao: StatsDao,
-    private val bookDao: BookDao
+    private val readingProgressManager: ReadingProgressManager
 ) : ViewModel() {
     private val booksFlow = bookDao.getBooks()
     var totalCount by mutableIntStateOf(0)
@@ -30,9 +34,48 @@ class StatsScreenViewModel @Inject constructor(
     var totalHoursRead by mutableIntStateOf(0)
     var fastestCompletedBook by mutableStateOf("")
     var booksReadThisYear by mutableIntStateOf(0)
+    var longestReadingStreak by mutableIntStateOf(0)
+    var currentReadingStreak by mutableIntStateOf(0)
 
     init {
         getOtherStats()
+        getStreak()
+    }
+
+    fun formatCurrentStreakMessage(): String {
+        if (currentReadingStreak == 0) {
+            return "Start Reading to build a streak!"
+        }
+
+        return buildString {
+            if (currentReadingStreak > 7) {
+                append("🔥")
+            }
+
+            append("Reading Streak: $currentReadingStreak")
+            if (currentReadingStreak == 1) {
+                append(" day")
+            } else {
+                append(" days")
+            }
+        }
+    }
+
+    fun formatLongestStreakMessage(): String {
+        if (longestReadingStreak == 0) {
+            return "None"
+        }
+
+        return buildString {
+            append(longestReadingStreak)
+
+            if (longestReadingStreak == 1) {
+                append(" day")
+
+            } else {
+                append(" days")
+            }
+        }
     }
 
     private fun getOtherStats() {
@@ -45,7 +88,21 @@ class StatsScreenViewModel @Inject constructor(
                 computeTotalHoursRead(books)
                 computeFastestCompletedBook(books)
             }
+
+            readingProgressManager.getReadingStreak()
+                .collect { streak ->
+                    currentReadingStreak = streak
+                }
+
+            readingProgressManager.getLongestReadingStreak()
+                .collectLatest { streak ->
+                    longestReadingStreak = streak
+                }
         }
+    }
+
+    fun getStreak(): Flow<Int> {
+        return readingProgressManager.getReadingStreak()
     }
 
     private fun computeTotalHoursRead(books: List<Book>) {
@@ -69,7 +126,6 @@ class StatsScreenViewModel @Inject constructor(
         booksReadThisYear = computeBooksReadThisYear(books)
     }
 
-    //TODO: test on vivo phone
     private fun computeBooksReadThisYear(books: List<Book>): Int {
         return books.filter { isThisYear(it.dateStarted) && it.status == Book.Companion.BookStatus.COMPLETED.strName }.size
     }

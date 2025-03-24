@@ -32,6 +32,7 @@ import com.enoch02.viewer.model.ContentState
 import com.enoch02.resources.mupdf.model.Item
 import com.enoch02.resources.mupdf.model.LinkItem
 import com.enoch02.resources.mupdf.model.SearchResult
+import com.enoch02.settings.ReadingProgressManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -55,7 +56,8 @@ class LLDocumentViewModel @Inject constructor(
     private val bookDao: BookDao,
     private val documentDao: DocumentDao,
     private val settingsRepository: SettingsRepository,
-    private val bitmapManager: BitmapManager
+    private val bitmapManager: BitmapManager,
+    val readingProgressManager: ReadingProgressManager
 ) : ViewModel() {
     var contentState by mutableStateOf(ContentState.LOADING)
     var document by mutableStateOf<Document?>(null)

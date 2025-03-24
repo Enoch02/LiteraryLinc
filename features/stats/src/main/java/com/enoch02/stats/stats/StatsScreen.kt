@@ -1,6 +1,5 @@
 package com.enoch02.stats.stats
 
-import android.content.pm.ApplicationInfo
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,12 +14,12 @@ import androidx.compose.material.icons.automirrored.rounded.ReadMore
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.QuestionMark
 import androidx.compose.material.icons.rounded.Timelapse
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,10 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.enoch02.stats.R
-import com.enoch02.stats.components.LeaderBoardValue
-import com.enoch02.stats.components.LeaderBoardView
 import com.enoch02.stats.components.QuickStatCard
 
+// add a button in the top app bar to set a yearly goal
 @Composable
 fun StatsScreen(
     navController: NavController,
@@ -40,6 +38,12 @@ fun StatsScreen(
     viewModel: StatsScreenViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val formattedStreakMessage = remember(viewModel.currentReadingStreak) {
+        viewModel.formatCurrentStreakMessage()
+    }
+    val formattedLongestStreakMessage = remember(viewModel.longestReadingStreak) {
+        viewModel.formatLongestStreakMessage()
+    }
 
     Column(
         modifier = modifier
@@ -47,14 +51,12 @@ fun StatsScreen(
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         content = {
-            if (0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) {
-                Column(modifier = Modifier.weight(0.1f)) {
-                    Text(
-                        text = "🔥 10-Day Reading Streak",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                    ReadingProgressView(modifier = Modifier)
-                }
+            Column(modifier = Modifier.weight(0.1f)) {
+                Text(
+                    text = formattedStreakMessage,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                ReadingProgressView(modifier = Modifier)
             }
 
             LazyVerticalGrid(
@@ -106,14 +108,12 @@ fun StatsScreen(
                     )
                 }
 
-                if (0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) {
-                    item {
-                        QuickStatCard(
-                            title = "Longest Streak",
-                            value = "n Days",
-                            icon = Icons.Rounded.CalendarMonth
-                        )
-                    }
+                item {
+                    QuickStatCard(
+                        title = "Longest Streak",
+                        value = formattedLongestStreakMessage,
+                        icon = Icons.Rounded.CalendarMonth
+                    )
                 }
 
                 item {
@@ -133,6 +133,7 @@ fun StatsScreen(
     )
 }
 
+//TODO: implement!
 @Composable
 fun ReadingProgressView(modifier: Modifier) {
     Column(modifier = modifier.fillMaxWidth()) {
