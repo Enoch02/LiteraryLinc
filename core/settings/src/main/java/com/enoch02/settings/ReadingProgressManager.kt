@@ -1,9 +1,12 @@
 package com.enoch02.settings
 
+import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
+
+private const val TAG = "ReadingProgressManager"
 
 class ReadingProgressManager(val settingsRepository: SettingsRepository) {
 
@@ -21,32 +24,47 @@ class ReadingProgressManager(val settingsRepository: SettingsRepository) {
             .first()
         val currentTime = System.currentTimeMillis()
 
-        if (isDifferenceGreaterThanOneDay(lastOpened, currentTime)) {
-            settingsRepository
-                .switchPreference(SettingsRepository.IntPreferenceType.CURRENT_READING_STREAK, 0)
-        } else {
-            val current = getReadingStreak().first()
+        Log.d(TAG, "last opened = $lastOpened.")
+        Log.d(TAG, "current time = $currentTime.")
 
-            settingsRepository
-                .switchPreference(
-                    SettingsRepository.IntPreferenceType.CURRENT_READING_STREAK,
-                    current + 1
-                )
+        // calculate days difference using milliseconds
+        val oneDayInMillis = 24 * 60 * 60 * 1000L // 24 hours in milliseconds
+        val timeDifference = currentTime - lastOpened
+
+        when {
+            timeDifference > oneDayInMillis * 1.5 -> {
+                // more than 1.5 days (allowing for some buffer)
+                Log.i(TAG, "updateReadingStreak: More than one day passed. Streak reset.")
+                settingsRepository
+                    .switchPreference(
+                        SettingsRepository.IntPreferenceType.CURRENT_READING_STREAK,
+                        0
+                    )
+            }
+
+            timeDifference >= oneDayInMillis -> {
+                // between 24-36 hours (1-1.5 days)
+                Log.i(TAG, "updateReadingStreak: Exactly one day passed. Incrementing streak.")
+                val current = getReadingStreak().first()
+                settingsRepository
+                    .switchPreference(
+                        SettingsRepository.IntPreferenceType.CURRENT_READING_STREAK,
+                        current + 1
+                    )
+            }
+
+            else -> {
+                // less than 24 hours - no streak change
+                Log.i(TAG, "updateReadingStreak: Less than one day passed. No streak change.")
+            }
         }
 
-        // update the date a book was last opened
+        // update last opened timestamp
         settingsRepository.switchPreference(
             SettingsRepository.LongPreferenceType.LAST_BOOK_OPENED_TIMESTAMP,
-            System.currentTimeMillis()
+            currentTime
         )
         checkForNewLongestStreak()
-    }
-
-    private fun isDifferenceGreaterThanOneDay(timestamp1: Long, timestamp2: Long): Boolean {
-        val differenceInMillis = abs(timestamp1 - timestamp2)
-        val onDayInMillis = TimeUnit.DAYS.toMillis(1)
-
-        return differenceInMillis > onDayInMillis
     }
 
     private suspend fun checkForNewLongestStreak() {
@@ -55,7 +73,11 @@ class ReadingProgressManager(val settingsRepository: SettingsRepository) {
             .getPreference(SettingsRepository.IntPreferenceType.LONGEST_READING_STREAK)
             .first()
 
+        Log.d(TAG, "checkForNewLongestStreak: current=$current.")
+        Log.d(TAG, "checkForNewLongestStreak: stored=$storedLongestStreak.")
+
         if (current > storedLongestStreak) {
+            Log.i(TAG, "checkForNewLongestStreak: new longest streak set.")
             settingsRepository
                 .switchPreference(
                     SettingsRepository.IntPreferenceType.LONGEST_READING_STREAK,

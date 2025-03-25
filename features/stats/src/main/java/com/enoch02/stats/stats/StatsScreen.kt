@@ -27,23 +27,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.enoch02.stats.R
 import com.enoch02.stats.components.QuickStatCard
 
-// add a button in the top app bar to set a yearly goal
 @Composable
 fun StatsScreen(
-    navController: NavController,
     modifier: Modifier,
     viewModel: StatsScreenViewModel = hiltViewModel()
 ) {
-    val formattedStreakMessage = remember(viewModel.currentReadingStreak) {
-        viewModel.formatCurrentStreakMessage()
+    val currentStreak by viewModel.currentReadingStreak.collectAsState(0)
+    val longestStreak by viewModel.longestReadingStreak.collectAsState(0)
+
+    val formattedStreakMessage = remember(currentStreak) {
+        viewModel.formatCurrentStreakMessage(currentStreak)
     }
-    val formattedLongestStreakMessage = remember(viewModel.longestReadingStreak) {
-        viewModel.formatLongestStreakMessage()
+    val formattedLongestStreakMessage = remember(longestStreak) {
+        viewModel.formatLongestStreakMessage(longestStreak)
     }
+
     val readingGoal by viewModel.readingGoal.collectAsState(0)
     val readingProgress by viewModel.readingProgress.collectAsState(0)
 
@@ -53,7 +54,6 @@ fun StatsScreen(
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         content = {
-            Text(viewModel.currentReadingStreak.toString())
             Text(
                 text = formattedStreakMessage,
                 style = MaterialTheme.typography.headlineSmall
@@ -72,7 +72,6 @@ fun StatsScreen(
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 150.dp),
                 modifier = Modifier
-                    /*.weight(0.45f)*/
                     .padding(bottom = 4.dp)
             ) {
                 item {
@@ -159,7 +158,7 @@ fun ReadingProgressView(modifier: Modifier, progress: Int, goal: Int) {
             )
         } else {
             LinearProgressIndicator(
-                progress = { 0f},
+                progress = { 0f },
                 modifier = Modifier.fillMaxWidth(),
             )
         }

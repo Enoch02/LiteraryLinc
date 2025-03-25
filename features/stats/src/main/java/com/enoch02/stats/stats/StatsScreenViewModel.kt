@@ -13,7 +13,6 @@ import com.enoch02.settings.ReadingProgressManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Calendar
@@ -34,29 +33,29 @@ class StatsScreenViewModel @Inject constructor(
     var totalHoursRead by mutableIntStateOf(0)
     var fastestCompletedBook by mutableStateOf("")
     var booksReadThisYear by mutableIntStateOf(0)
-    var longestReadingStreak by mutableIntStateOf(0)
-    var currentReadingStreak by mutableIntStateOf(0)
 
+    var currentReadingStreak = readingProgressManager.getReadingStreak()
+    var longestReadingStreak = readingProgressManager.getLongestReadingStreak()
     val readingGoal = readingProgressManager.getReadingGoal()
     val readingProgress = readingProgressManager.getReadingGoalProgress()
 
     init {
-        getOtherStats()
+        collectOtherStats()
         getStreak()
     }
 
-    fun formatCurrentStreakMessage(): String {
-        if (currentReadingStreak == 0) {
+    fun formatCurrentStreakMessage(value: Int): String {
+        if (value == 0) {
             return "Start Reading to build a streak!"
         }
 
         return buildString {
-            if (currentReadingStreak > 7) {
+            if (value > 7) {
                 append("🔥")
             }
 
-            append("Reading Streak: $currentReadingStreak")
-            if (currentReadingStreak == 1) {
+            append("Reading Streak: $value")
+            if (value == 1) {
                 append(" day")
             } else {
                 append(" days")
@@ -64,15 +63,15 @@ class StatsScreenViewModel @Inject constructor(
         }
     }
 
-    fun formatLongestStreakMessage(): String {
-        if (longestReadingStreak == 0) {
+    fun formatLongestStreakMessage(value: Int): String {
+        if (value == 0) {
             return "None"
         }
 
         return buildString {
-            append(longestReadingStreak)
+            append(value)
 
-            if (longestReadingStreak == 1) {
+            if (value == 1) {
                 append(" day")
 
             } else {
@@ -81,7 +80,7 @@ class StatsScreenViewModel @Inject constructor(
         }
     }
 
-    private fun getOtherStats() {
+    private fun collectOtherStats() {
         viewModelScope.launch(Dispatchers.IO) {
             booksFlow.collect { books ->
                 totalCount = books.size
@@ -91,16 +90,6 @@ class StatsScreenViewModel @Inject constructor(
                 computeTotalHoursRead(books)
                 computeFastestCompletedBook(books)
             }
-
-            readingProgressManager.getReadingStreak()
-                .collect { streak ->
-                    currentReadingStreak = streak
-                }
-
-            readingProgressManager.getLongestReadingStreak()
-                .collectLatest { streak ->
-                    longestReadingStreak = streak
-                }
         }
     }
 

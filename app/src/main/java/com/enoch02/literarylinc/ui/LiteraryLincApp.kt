@@ -300,10 +300,7 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                 }
 
                                 TopLevelDestination.STATS -> {
-                                    StatsScreen(
-                                        navController = navController,
-                                        modifier = Modifier.padding(paddingValues)
-                                    )
+                                    StatsScreen(modifier = Modifier.padding(paddingValues)  )
                                 }
 
                                 TopLevelDestination.MORE -> {
