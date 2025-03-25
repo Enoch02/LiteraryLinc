@@ -144,23 +144,57 @@ fun StatsScreen(
 
 @Composable
 fun ReadingProgressView(modifier: Modifier, progress: Int, goal: Int) {
+    val message = if (progress >= 0 && goal > 0) {
+        stringResource(R.string.reading_goal_text, progress, goal)
+    } else {
+        stringResource(R.string.set_reading_goal_msg)
+    }
+
     Column(modifier = modifier.fillMaxWidth()) {
-        Text(stringResource(R.string.reading_goal_text, progress, goal))
+        Text(message)
 
         Spacer(Modifier.height(4.dp))
 
-        if (progress > 0 && goal > 0) {
-            val progressPercentage = progress.toFloat() / goal
+        LinearProgressIndicator(
+            progress = {
+                if (progress > 0 && goal > 0) {
+                    progress.toFloat() / goal
+                } else {
+                    0f
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+        )
 
-            LinearProgressIndicator(
-                progress = { progressPercentage },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        } else {
-            LinearProgressIndicator(
-                progress = { 0f },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
+        /* if (progress > 0 && goal > 0) {
+             val progressPercentage = progress.toFloat() / goal
+
+             LinearProgressIndicator(
+                 progress = { progressPercentage },
+                 modifier = Modifier.fillMaxWidth(),
+             )
+         }
+
+         if (progress > 0 && goal > 0) {
+             val progressPercentage = progress.toFloat() / goal
+
+             Text(stringResource(R.string.reading_goal_text, progress, goal))
+
+             Spacer(Modifier.height(4.dp))
+
+             LinearProgressIndicator(
+                 progress = { progressPercentage },
+                 modifier = Modifier.fillMaxWidth(),
+             )
+         } else {
+             Text(stringResource(R.string.set_reading_goal_msg))
+
+             Spacer(Modifier.height(4.dp))
+
+             LinearProgressIndicator(
+                 progress = { 0f },
+                 modifier = Modifier.fillMaxWidth(),
+             )
+         }*/
     }
 }

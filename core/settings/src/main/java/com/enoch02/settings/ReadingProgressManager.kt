@@ -3,8 +3,6 @@ package com.enoch02.settings
 import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import java.util.concurrent.TimeUnit
-import kotlin.math.abs
 
 private const val TAG = "ReadingProgressManager"
 

@@ -15,4 +15,5 @@
     <string name="modify_reading_goal">Modify Reading Goal</string>
     <string name="progress">Progress</string>
     <string name="reading_goal_text">Reading Goal: %1$s/%2$s Books</string>
+    <string name="set_reading_goal_msg">Tap the edit button to set a reading goal</string>
 </resources>
