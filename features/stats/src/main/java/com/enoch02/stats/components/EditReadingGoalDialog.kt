@@ -18,7 +18,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -37,7 +36,6 @@ fun EditReadingGoalDialog(
     onDismiss: () -> Unit,
     onSave: (goal: Int, progress: Int) -> Unit
 ) {
-    val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     var mGoal by remember { mutableStateOf("") }
     var mProgress by remember { mutableStateOf("") }
@@ -75,15 +73,7 @@ fun EditReadingGoalDialog(
                     OutlinedTextField(
                         value = mGoal,
                         onValueChange = { mGoal = it },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onNext = {
-                                focusManager.moveFocus(FocusDirection.Down)
-                            }
-                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         label = { Text(stringResource(R.string.reading_goal)) }
                     )
 

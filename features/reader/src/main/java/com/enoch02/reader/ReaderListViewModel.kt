@@ -49,8 +49,6 @@ class ReaderListViewModel @Inject constructor(
     private val documents = documentDao.getDocuments()
     private val _sorting = MutableStateFlow(ReaderSorting.LAST_READ)
     private val _filter = MutableStateFlow(ReaderFilter.ALL)
-    private val _selectedDocs = mutableStateListOf<LLDocument>()
-    val selectedDocs = _selectedDocs
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val documentsState: StateFlow<DocumentsState> = combine(_sorting, _filter) { sorting, filter ->
@@ -240,9 +238,13 @@ class ReaderListViewModel @Inject constructor(
 
     fun searchFor(text: String): Flow<List<LLDocument>> {
         return documents.map { documents ->
-            documents.filter {
-                it.name.contains(text, ignoreCase = true) ||
-                        it.author.contains(text, ignoreCase = true)
+            if (text.isBlank()) {
+                emptyList()
+            } else {
+                documents.filter {
+                    it.name.contains(text, ignoreCase = true) ||
+                            it.author.contains(text, ignoreCase = true)
+                }
             }
         }
     }
