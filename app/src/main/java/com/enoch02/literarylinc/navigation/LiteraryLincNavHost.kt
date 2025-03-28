@@ -2,7 +2,6 @@ package com.enoch02.literarylinc.navigation
 
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -77,18 +76,6 @@ fun LiteraryLincNavHost(navController: NavHostController = rememberNavController
                     MoreScreen(navController = navController, modifier = Modifier)
                 }
 
-                composable(route = MoreScreenDestination.PomoTimer.route) {
-
-                }
-
-                composable(route = MoreScreenDestination.CustomTags.route) {
-
-                }
-
-                composable(route = MoreScreenDestination.Wishlist.route) {
-
-                }
-
                 composable(route = MoreScreenDestination.Settings.route) {
                     SettingsScreen(navController = navController)
                 }
@@ -101,7 +88,7 @@ fun LiteraryLincNavHost(navController: NavHostController = rememberNavController
                     AboutScreen(navController = navController)
                 }
 
-                composable(route = MoreScreenDestination.Scanner.route) {
+                composable(route = MoreScreenDestination.FileScan.route) {
                     FileScanScreen(navController = navController)
                 }
 

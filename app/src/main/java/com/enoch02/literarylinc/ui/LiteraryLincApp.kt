@@ -289,7 +289,7 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                                 filter = currentReaderListFilter!!,
                                                 isSearching = isSearchingInReaderList,
                                                 onScanForDocs = {
-                                                    navController.navigate(MoreScreenDestination.Scanner.route)
+                                                    navController.navigate(MoreScreenDestination.FileScan.route)
                                                 },
                                                 onDismissSearching = {
                                                     isSearchingInReaderList = false

@@ -30,7 +30,7 @@ fun MoreScreen(navController: NavController, modifier: Modifier) {
                     supportingContent = {
                         Text(stringResource(R.string.file_scan_desc))
                     },
-                    modifier = Modifier.clickable { navController.navigate(MoreScreenDestination.Scanner.route) }
+                    modifier = Modifier.clickable { navController.navigate(MoreScreenDestination.FileScan.route) }
                 )
             }
 
