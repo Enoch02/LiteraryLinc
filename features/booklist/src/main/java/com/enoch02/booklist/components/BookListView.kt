@@ -149,7 +149,7 @@ fun BookListView(
 }
 
 @Composable
-private fun BookListItem(
+fun BookListItem(
     modifier: Modifier,
     book: Book,
     coverPath: String?,

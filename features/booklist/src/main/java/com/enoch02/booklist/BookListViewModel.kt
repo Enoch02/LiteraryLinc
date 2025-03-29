@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.model.Book
+import com.enoch02.database.model.LLDocument
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -134,6 +135,19 @@ class BookListViewModel @Inject constructor(
 
             _selectedBooks.clear()
             _selectedBooks.addAll(unSelectedBooks)
+        }
+    }
+
+    fun searchFor(text: String): Flow<List<Book>> {
+        return books.map { documents ->
+            if (text.isBlank()) {
+                emptyList()
+            } else {
+                documents.filter {
+                    it.title.contains(text, ignoreCase = true) ||
+                            it.author.contains(text, ignoreCase = true)
+                }
+            }
         }
     }
 }

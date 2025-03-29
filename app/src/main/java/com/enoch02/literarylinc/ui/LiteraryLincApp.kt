@@ -67,6 +67,7 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
     var showBookListSortOptions by rememberSaveable { mutableStateOf(false) }
     var bookViewMode by rememberSaveable { mutableStateOf(BookViewMode.LIST_VIEW) }
     var statusFilter by rememberSaveable { mutableStateOf(StatusFilter.ALL) }
+    var isSearchingInBookList by rememberSaveable { mutableStateOf(false) }
 
     // reader list
     var currentReaderListSorting by rememberSaveable { mutableStateOf(ReaderSorting.LAST_READ) }
@@ -143,6 +144,9 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                             drawerState.close()
                                         }
                                     }
+                                },
+                                onSearch = {
+                                    isSearchingInBookList = true
                                 }
                             )
                         }
@@ -260,6 +264,10 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                         },
                                         onItemEdit = { id ->
                                             navController.navigate(Screen.EditBook.withArgs(id.toString()))
+                                        },
+                                        isSearching = isSearchingInBookList,
+                                        onDismissSearching = {
+                                            isSearchingInBookList = false
                                         }
                                     )
                                 }
@@ -300,7 +308,7 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                 }
 
                                 TopLevelDestination.STATS -> {
-                                    StatsScreen(modifier = Modifier.padding(paddingValues)  )
+                                    StatsScreen(modifier = Modifier.padding(paddingValues))
                                 }
 
                                 TopLevelDestination.MORE -> {

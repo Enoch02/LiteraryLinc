@@ -1,7 +1,6 @@
 package com.enoch02.booklist
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,7 +14,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Deselect
 import androidx.compose.material.icons.rounded.FlipToBack
 import androidx.compose.material.icons.rounded.SelectAll
 import androidx.compose.material3.AlertDialog
@@ -35,15 +33,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.enoch02.booklist.components.BookGridView
 import com.enoch02.booklist.components.BookListView
 import com.enoch02.booklist.components.BookViewMode
+import com.enoch02.booklist.components.BooklistBottomSheet
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
@@ -59,11 +56,15 @@ fun BookListScreen(
     listViewMode: BookViewMode,
     onItemClick: (Int) -> Unit,
     onItemEdit: (Int) -> Unit,
+    isSearching: Boolean,
+    onDismissSearching: () -> Unit,
     viewModel: BookListViewModel = hiltViewModel()
 ) {
     val tabLabels = Book.Companion.BookType.entries.map { it.strName }
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabLabels.size })
     var showDeletionConfirmation by remember { mutableStateOf(false) }
+    val covers = viewModel.getCovers()
+        .collectAsState(initial = emptyMap()).value
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -165,8 +166,6 @@ fun BookListScreen(
                         status = statusFilter
                     )
                         .collectAsState(initial = emptyList()).value
-                    val covers = viewModel.getCovers()
-                        .collectAsState(initial = emptyMap()).value
                     val selectedBooks = viewModel.selectedBooks
                     val onClick: (id: Int) -> Unit = { id ->
                         if (selectedBooks.isNotEmpty() && !viewModel.isBookSelected(id)) { // in item selection mode
@@ -222,6 +221,18 @@ fun BookListScreen(
             R.string.book_list_multi_deletion_warning,
             viewModel.selectedBooks.size
         )
+    )
+
+    BooklistBottomSheet(
+        visible = isSearching,
+        onDismissSearchSheet = onDismissSearching,
+        onSearch = { query ->
+            viewModel.searchFor(query)
+        },
+        covers = covers,
+        onDeleteBook = { id -> viewModel.deleteBook(id) },
+        onItemClick = onItemClick,
+        onEditBook = onItemEdit
     )
 }
 

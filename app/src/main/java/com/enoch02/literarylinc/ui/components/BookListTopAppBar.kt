@@ -1,5 +1,7 @@
 package com.enoch02.literarylinc.ui.components
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -19,7 +21,8 @@ fun BookListTopAppBar(
     bookViewMode: BookViewMode,
     onChangeBookListMode: (mode: BookViewMode) -> Unit,
     onShowSortOption: (show: Boolean) -> Unit,
-    onChangeDrawerState: () -> Unit
+    onChangeDrawerState: () -> Unit,
+    onSearch: () -> Unit,
 ) {
     TopAppBar(
         title = {
@@ -52,6 +55,16 @@ fun BookListTopAppBar(
             )
         },
         actions = {
+            IconButton(
+                onClick = { onSearch() },
+                content = {
+                    Icon(
+                        imageVector = Icons.Rounded.Search,
+                        contentDescription = stringResource(R.string.search_desc)
+                    )
+                }
+            )
+
             IconButton(
                 onClick = {
                     when (bookViewMode) {
