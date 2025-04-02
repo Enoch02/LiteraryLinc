@@ -3,7 +3,6 @@ package com.enoch02.reader
 import android.content.Context
 import android.os.Build
 import android.widget.Toast
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.util.fastFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -176,6 +175,7 @@ class ReaderListViewModel @Inject constructor(
                     dateStarted = now,
                     documentMd5 = document.id,
                     coverImageName = document.cover,
+                    status = Book.Companion.BookStatus.READING.strName
                 )
 
                 bookDao.insertBook(newBook)
