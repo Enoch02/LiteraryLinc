@@ -63,7 +63,7 @@ fun ConfirmationSettingItem(
                         showConfirmationDialog = false
                     },
                     content = {
-                        Text(stringResource(LLString.yes))
+                        Text(stringResource(LLString.no))
                     }
                 )
             }
