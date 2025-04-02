@@ -80,6 +80,26 @@ class StatsScreenViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Formats the remaining time as a human-readable string.
+     * Example: "23 hours, 45 minutes"
+     */
+    fun getFormattedTimeRemainingForStreak(): String {
+        val remainingMillis = readingProgressManager.getTimeRemainingForStreak()
+
+        if (remainingMillis <= 0) {
+            return "Streak expired"
+        }
+
+        val hours = TimeUnit.MILLISECONDS.toHours(remainingMillis)
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(remainingMillis) % 60
+
+        return when {
+            hours > 0 -> "$hours hours, $minutes minutes"
+            else -> "$minutes minutes"
+        }
+    }
+
     private fun collectOtherStats() {
         viewModelScope.launch(Dispatchers.IO) {
             booksFlow.collect { books ->

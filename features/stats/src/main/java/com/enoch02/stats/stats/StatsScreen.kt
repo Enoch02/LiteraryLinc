@@ -1,5 +1,6 @@
 package com.enoch02.stats.stats
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -52,11 +53,11 @@ fun StatsScreen(
         modifier = modifier
             .fillMaxSize()
             .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+//        horizontalAlignment = Alignment.CenterHorizontally,
         content = {
-            Text(
-                text = formattedStreakMessage,
-                style = MaterialTheme.typography.headlineSmall
+            StreakView(
+                streakMessage = formattedStreakMessage,
+                timeRemaining = viewModel.getFormattedTimeRemainingForStreak()
             )
 
             Spacer(Modifier.height(6.dp))
@@ -134,12 +135,29 @@ fun StatsScreen(
                 }
             }
 
-            Text(
-                text = stringResource(LLString.roughEstimate),
-                style = MaterialTheme.typography.labelSmall
-            )
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(LLString.roughEstimate),
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
         }
     )
+}
+
+@Composable
+fun StreakView(modifier: Modifier = Modifier, streakMessage: String, timeRemaining: String) {
+    Column(modifier = modifier) {
+        Text(
+            text = streakMessage,
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        Text(
+            text = "Streak Expires in $timeRemaining"
+        )
+    }
 }
 
 @Composable
@@ -165,36 +183,5 @@ fun ReadingProgressView(modifier: Modifier, progress: Int, goal: Int) {
             },
             modifier = Modifier.fillMaxWidth(),
         )
-
-        /* if (progress > 0 && goal > 0) {
-             val progressPercentage = progress.toFloat() / goal
-
-             LinearProgressIndicator(
-                 progress = { progressPercentage },
-                 modifier = Modifier.fillMaxWidth(),
-             )
-         }
-
-         if (progress > 0 && goal > 0) {
-             val progressPercentage = progress.toFloat() / goal
-
-             Text(stringResource(R.string.reading_goal_text, progress, goal))
-
-             Spacer(Modifier.height(4.dp))
-
-             LinearProgressIndicator(
-                 progress = { progressPercentage },
-                 modifier = Modifier.fillMaxWidth(),
-             )
-         } else {
-             Text(stringResource(R.string.set_reading_goal_msg))
-
-             Spacer(Modifier.height(4.dp))
-
-             LinearProgressIndicator(
-                 progress = { 0f },
-                 modifier = Modifier.fillMaxWidth(),
-             )
-         }*/
     }
 }
