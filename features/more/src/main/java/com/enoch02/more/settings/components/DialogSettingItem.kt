@@ -20,7 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.enoch02.more.R
+import com.enoch02.resources.LLString
 
 @Composable
 fun DialogSettingItem(
@@ -34,7 +34,7 @@ fun DialogSettingItem(
     var showOptionDialog by remember { mutableStateOf(false) }
 
     ListItem(
-        headlineContent = { Text(text = stringResource(R.string.file_scan_freq)) },
+        headlineContent = { Text(text = stringResource(LLString.fileScanFrequency)) },
         supportingContent = { Text(text = selected) },
         modifier = modifier
             .fillMaxWidth()
@@ -76,7 +76,7 @@ fun DialogSettingItem(
             dismissButton = {
                 TextButton(
                     onClick = { showOptionDialog = false },
-                    content = { Text(stringResource(R.string.cancel)) }
+                    content = { Text(stringResource(LLString.cancel)) }
                 )
             }
         )

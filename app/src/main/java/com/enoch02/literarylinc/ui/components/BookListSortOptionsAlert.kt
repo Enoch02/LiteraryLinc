@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.enoch02.database.model.Sorting
-import com.enoch02.literarylinc.R
+import com.enoch02.resources.LLString
 
 @Composable
 fun BookListSortOptionsAlert(
@@ -24,14 +24,14 @@ fun BookListSortOptionsAlert(
 ) {
     if (showBookListSortOptions) {
         AlertDialog(
-            title = { Text(text = stringResource(R.string.sorting_options_text)) },
+            title = { Text(text = stringResource(LLString.sortingOptions)) },
             onDismissRequest = onDismiss,
             confirmButton = {},
             dismissButton = {
                 TextButton(
                     onClick = onDismiss,
                     content = {
-                        Text(text = stringResource(R.string.cancel))
+                        Text(text = stringResource(LLString.cancel))
                     }
                 )
             },

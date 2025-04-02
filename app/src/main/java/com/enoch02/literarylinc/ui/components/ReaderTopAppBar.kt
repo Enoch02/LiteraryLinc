@@ -9,12 +9,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.enoch02.database.model.ReaderFilter
 import com.enoch02.literarylinc.R
+import com.enoch02.resources.LLString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +36,7 @@ fun ReaderTopAppBar(
                 content = {
                     Icon(
                         imageVector = Icons.Rounded.Search,
-                        contentDescription = stringResource(R.string.search_desc)
+                        contentDescription = stringResource(LLString.search)
                     )
                 }
             )
@@ -47,7 +46,7 @@ fun ReaderTopAppBar(
                 content = {
                     Icon(
                         painter = painterResource(id = R.drawable.round_sort_24),
-                        contentDescription = stringResource(R.string.sort_desc)
+                        contentDescription = stringResource(LLString.sort)
                     )
                 }
             )
@@ -60,7 +59,7 @@ fun ReaderTopAppBar(
                 content = {
                     Icon(
                         painter = painterResource(id = R.drawable.round_menu_24),
-                        contentDescription = stringResource(R.string.open_menu)
+                        contentDescription = stringResource(LLString.openMenu)
                     )
                 }
             )

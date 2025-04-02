@@ -31,7 +31,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import com.enoch02.database.model.LLDocument
-import com.enoch02.reader.R
+import com.enoch02.resources.LLString
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
@@ -83,7 +83,7 @@ fun ReaderSearchBottomSheet(
                             onExpandedChange = { },
                             modifier = Modifier,
                             enabled = true,
-                            placeholder = { Text(stringResource(R.string.search_input_placholder)) },
+                            placeholder = { Text(stringResource(LLString.searchPlaceHolder)) },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Rounded.Search,

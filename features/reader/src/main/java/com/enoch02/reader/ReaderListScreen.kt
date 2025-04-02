@@ -43,6 +43,7 @@ import com.enoch02.database.model.ReaderSorting
 import com.enoch02.reader.components.NoDocumentView
 import com.enoch02.reader.components.ReaderListItem
 import com.enoch02.reader.components.ReaderSearchBottomSheet
+import com.enoch02.resources.LLString
 import com.enoch02.viewer.LLDocumentActivity
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
@@ -97,7 +98,7 @@ fun ReaderListScreen(
             Intent.createChooser(
                 intent,
                 context.getString(
-                    R.string.chooser_title
+                    LLString.chooserTitle
                 )
             )
         )

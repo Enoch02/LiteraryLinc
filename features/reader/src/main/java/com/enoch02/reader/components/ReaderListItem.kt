@@ -53,7 +53,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.enoch02.database.model.LLDocument
-import com.enoch02.reader.R
+import com.enoch02.resources.LLString
 import java.time.Instant
 import java.util.Calendar
 import java.util.Date
@@ -82,7 +82,7 @@ fun ReaderListItem(
         mutableStateOf(false)
     }
     var confirmationDialogText by remember {
-        mutableIntStateOf(R.string.blank)
+        mutableIntStateOf(LLString.blank)
     }
 
     ListItem(
@@ -142,7 +142,7 @@ fun ReaderListItem(
 
                 TooltipBox(
                     tooltip = {
-                        ToolTipText(text = stringResource(R.string.add_to_favorites))
+                        ToolTipText(text = stringResource(LLString.addToFavorites))
                     },
                     state = rememberTooltipState(isPersistent = false),
                     positionProvider = tooltipPosition,
@@ -152,7 +152,7 @@ fun ReaderListItem(
                             content = {
                                 Icon(
                                     imageVector = favoriteIcon,
-                                    contentDescription = stringResource(R.string.add_to_favorites),
+                                    contentDescription = stringResource(LLString.addToFavorites),
                                     tint = if (document.isFavorite) {
                                         ReaderColors.activatedIconColor
                                     } else {
@@ -166,7 +166,7 @@ fun ReaderListItem(
 
                 TooltipBox(
                     tooltip = {
-                        ToolTipText(text = stringResource(R.string.mark_as_read))
+                        ToolTipText(text = stringResource(LLString.markAsRead))
                     },
                     state = rememberTooltipState(isPersistent = false),
                     positionProvider = tooltipPosition,
@@ -176,7 +176,7 @@ fun ReaderListItem(
                             content = {
                                 Icon(
                                     imageVector = Icons.Rounded.DoneAll,
-                                    contentDescription = stringResource(R.string.mark_as_read),
+                                    contentDescription = stringResource(LLString.markAsRead),
                                     tint = if (document.isRead || document.pages == document.currentPage) {
                                         ReaderColors.activatedIconColor
                                     } else {
@@ -190,7 +190,7 @@ fun ReaderListItem(
 
                 TooltipBox(
                     tooltip = {
-                        ToolTipText(text = stringResource(R.string.do_not_auto_track))
+                        ToolTipText(text = stringResource(LLString.doNotAutoTrack))
                     },
                     state = rememberTooltipState(isPersistent = false),
                     positionProvider = tooltipPosition,
@@ -200,7 +200,7 @@ fun ReaderListItem(
                             content = {
                                 Icon(
                                     imageVector = Icons.Rounded.Block,
-                                    contentDescription = stringResource(R.string.do_not_auto_track),
+                                    contentDescription = stringResource(LLString.doNotAutoTrack),
                                     tint = if (document.autoTrackable) {
                                         LocalContentColor.current
                                     } else {
@@ -214,7 +214,7 @@ fun ReaderListItem(
 
                 TooltipBox(
                     tooltip = {
-                        ToolTipText(text = stringResource(R.string.more))
+                        ToolTipText(text = stringResource(LLString.more))
                     },
                     state = rememberTooltipState(isPersistent = false),
                     positionProvider = tooltipPosition,
@@ -224,7 +224,7 @@ fun ReaderListItem(
                             content = {
                                 Icon(
                                     imageVector = Icons.Rounded.MoreVert,
-                                    contentDescription = stringResource(R.string.more)
+                                    contentDescription = stringResource(LLString.more)
                                 )
 
                                 DropdownMenu(
@@ -233,7 +233,7 @@ fun ReaderListItem(
                                     onDismissRequest = { showOptions = false },
                                     content = {
                                         DropdownMenuItem(
-                                            text = { Text(stringResource(R.string.add_to_book_list)) },
+                                            text = { Text(stringResource(LLString.addToBooklist)) },
                                             enabled = !documentInBookList,
                                             onClick = {
                                                 onAddToBookList()
@@ -243,7 +243,7 @@ fun ReaderListItem(
 
                                         if (document.isRead) {
                                             DropdownMenuItem(
-                                                text = { Text(stringResource(R.string.mark_as_rereading)) },
+                                                text = { Text(stringResource(LLString.markAsRereading)) },
                                                 onClick = {
                                                     Toast.makeText(
                                                         context,
@@ -256,7 +256,7 @@ fun ReaderListItem(
                                         }
 
                                         DropdownMenuItem(
-                                            text = { Text(stringResource(R.string.share)) },
+                                            text = { Text(stringResource(LLString.share)) },
                                             onClick = {
                                                 onShare()
                                                 showOptions = false
@@ -269,14 +269,14 @@ fun ReaderListItem(
                                             DropdownMenuItem(
                                                 text = {
                                                     Text(
-                                                        text = stringResource(R.string.remove_from_book_list),
+                                                        text = stringResource(LLString.removeFromBooklist),
                                                         color = Color.Red
                                                     )
                                                 },
                                                 onClick = {
                                                     showOptions = false
                                                     confirmationDialogText =
-                                                        R.string.document_removal_warning
+                                                        LLString.documentRemovalWarning
                                                     showConfirmationDialog = true
                                                 }
                                             )
@@ -285,14 +285,14 @@ fun ReaderListItem(
                                         DropdownMenuItem(
                                             text = {
                                                 Text(
-                                                    text = stringResource(R.string.delete),
+                                                    text = stringResource(LLString.delete),
                                                     color = Color.Red
                                                 )
                                             },
                                             onClick = {
                                                 showOptions = false
                                                 confirmationDialogText =
-                                                    R.string.document_deletion_warning
+                                                    LLString.documentDeletionWarning
                                                 showConfirmationDialog = true
                                             }
                                         )
@@ -318,18 +318,18 @@ fun ReaderListItem(
         },
         onConfirm = {
             when (confirmationDialogText) {
-                R.string.document_removal_warning -> {
+                LLString.documentRemovalWarning -> {
                     onRemoveFromBookList()
                 }
 
-                R.string.document_deletion_warning -> {
+                LLString.documentDeletionWarning -> {
                     onDeleteDocument()
                 }
             }
 
             showConfirmationDialog = false
         },
-        title = stringResource(R.string.warning),
+        title = stringResource(LLString.warning),
         text = stringResource(confirmationDialogText)
     )
 }

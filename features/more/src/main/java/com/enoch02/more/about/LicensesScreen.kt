@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
-import com.enoch02.more.R
+import com.enoch02.resources.LLString
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -23,7 +23,7 @@ fun LicensesScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.licenses)) },
+                title = { Text(text = stringResource(LLString.licenses)) },
                 navigationIcon = {
                     IconButton(
                         onClick = { navController.popBackStack() },

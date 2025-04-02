@@ -21,9 +21,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.enoch02.more.R
 import com.enoch02.more.settings.components.ConfirmationSettingItem
 import com.enoch02.more.settings.components.SwitchSettingItem
+import com.enoch02.resources.LLString
 import com.enoch02.settings.SettingsRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,14 +38,14 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(id = R.string.settings_text)) },
+                title = { Text(text = stringResource(id = LLString.settings)) },
                 navigationIcon = {
                     IconButton(
                         onClick = { navController.popBackStack() },
                         content = {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                                contentDescription = stringResource(id = R.string.settings_text)
+                                contentDescription = stringResource(id = LLString.navigateBack)
                             )
                         }
                     )
@@ -57,13 +57,13 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                 content = {
                     item {
                         ListItem(
-                            overlineContent = { Text(text = stringResource(R.string.appearance)) },
+                            overlineContent = { Text(text = stringResource(LLString.appearance)) },
                             headlineContent = {
                                 Card(
                                     content = {
                                         SwitchSettingItem(
-                                            label = stringResource(R.string.always_dark_mode_label),
-                                            description = stringResource(R.string.always_dark_mode_desc),
+                                            label = stringResource(LLString.alwaysDarkLabel),
+                                            description = stringResource(LLString.alwaysDarkDesc),
                                             checked = alwaysDark,
                                             onCheckChanged = {
                                                 viewModel.switchPreference(
@@ -75,8 +75,8 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
 
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                                             SwitchSettingItem(
-                                                label = stringResource(R.string.dynamic_colors_label),
-                                                description = stringResource(R.string.toggle_dynamic_colors_desc),
+                                                label = stringResource(LLString.dynamicColorsLabel),
+                                                description = stringResource(LLString.dynamicColorsDesc),
                                                 checked = dynamicColors,
                                                 onCheckChanged = {
                                                     viewModel.switchPreference(
@@ -95,14 +95,14 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                     item {
                         ListItem(
                             overlineContent = {
-                                Text(text = stringResource(R.string.behaviour))
+                                Text(text = stringResource(LLString.behavior))
                             },
                             headlineContent = {
                                 Card(
                                     content = {
                                         SwitchSettingItem(
-                                            label = stringResource(R.string.volume_paging),
-                                            description = stringResource(R.string.volume_paging_desc),
+                                            label = stringResource(LLString.volumePaging),
+                                            description = stringResource(LLString.volumePagingDesc),
                                             checked = volumeButtonPaging,
                                             onCheckChanged = {
                                                 viewModel.switchPreference(
@@ -113,8 +113,8 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                         )
 
                                         SwitchSettingItem(
-                                            label = stringResource(R.string.show_doc_viewer_bars),
-                                            description = stringResource(R.string.show_doc_viewer_bars_desc),
+                                            label = stringResource(LLString.showDocViewerBars),
+                                            description = stringResource(LLString.showDocViewerBarsDesc),
                                             checked = showDocViewerBars,
                                             onCheckChanged = {
                                                 viewModel.switchPreference(
@@ -132,23 +132,23 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                     item {
                         ListItem(
                             overlineContent = {
-                                Text(text = stringResource(R.string.data))
+                                Text(text = stringResource(LLString.data))
                             },
                             headlineContent = {
                                 Card(
                                     content = {
                                         ConfirmationSettingItem(
-                                            label = stringResource(R.string.reset_booklist),
+                                            label = stringResource(LLString.resetBooklist),
                                             onClick = { viewModel.resetBooklist(context) },
-                                            description = stringResource(R.string.reset_booklist_desc),
-                                            alertMsg = stringResource(R.string.reset_booklist_warning_msg)
+                                            description = stringResource(LLString.resetBooklistDesc),
+                                            alertMsg = stringResource(LLString.resetBooklistWarning)
                                         )
 
                                         ConfirmationSettingItem(
-                                            label = stringResource(R.string.reset_readerlist),
+                                            label = stringResource(LLString.resetReaderlist),
                                             onClick = { viewModel.resetReaderList(context) },
-                                            description = stringResource(R.string.reset_readerlist_desc),
-                                            alertMsg = stringResource(R.string.reset_readerlist_warning_msg)
+                                            description = stringResource(LLString.resetReaderlistDesc),
+                                            alertMsg = stringResource(LLString.resetReaderlistWarning)
                                         )
                                     }
                                 )

@@ -56,6 +56,7 @@ import com.enoch02.components.IncrementalFormIntField
 import com.enoch02.components.ProgressForm
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.Book.Companion.BookStatus
+import com.enoch02.resources.LLString
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,7 +90,7 @@ fun AddBookScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.add_a_new_book_text)) },
+                title = { Text(text = stringResource(LLString.addANewBook)) },
                 navigationIcon = {
                     BackArrowButton {
                         navController.popBackStack()
@@ -134,7 +135,7 @@ fun AddBookScreen(
                 content = {
                     Icon(
                         painter = painterResource(id = R.drawable.round_save_24),
-                        contentDescription = stringResource(R.string.save_book_desc)
+                        contentDescription = stringResource(LLString.saveBookDetails)
                     )
                 }
             )
@@ -152,7 +153,7 @@ fun AddBookScreen(
                             verticalAlignment = Alignment.Top,
                             content = {
                                 ImagePicker(
-                                    label = stringResource(R.string.add_cover_image),
+                                    label = stringResource(LLString.addCoverImage),
                                     launcher = rememberLauncherForActivityResult(
                                         ActivityResultContracts.StartActivityForResult()
                                     ) {
@@ -167,7 +168,7 @@ fun AddBookScreen(
                     }
                     item {
                         FormTextField(
-                            label = stringResource(R.string.book_title),
+                            label = stringResource(LLString.bookTitle),
                             value = bookTitle,
                             onValueChange = { bookTitle = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -176,7 +177,7 @@ fun AddBookScreen(
 
                     item {
                         FormTextField(
-                            label = stringResource(R.string.author),
+                            label = stringResource(LLString.author),
                             value = author,
                             onValueChange = { author = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -185,7 +186,7 @@ fun AddBookScreen(
 
                     item {
                         FormSpinner(
-                            label = stringResource(R.string.book_type_label),
+                            label = stringResource(LLString.bookType),
                             options = Book.Companion.BookType.entries.map { it.strName },
                             selectedOption = type,
                             onSelectionChange = { type = it },
@@ -195,7 +196,7 @@ fun AddBookScreen(
 
                     item {
                         FormSpinner(
-                            label = stringResource(R.string.status_label),
+                            label = stringResource(LLString.status),
                             options = BookStatus.entries.map { it.strName },
                             selectedOption = status,
                             onSelectionChange = { status = it }
@@ -204,7 +205,7 @@ fun AddBookScreen(
 
                     item {
                         FormDatePicker(
-                            label = stringResource(R.string.start_date),
+                            label = stringResource(LLString.startDate),
                             datePickerState = dateStarted,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -214,7 +215,7 @@ fun AddBookScreen(
 
                     item {
                         FormDatePicker(
-                            label = stringResource(R.string.completion_date),
+                            label = stringResource(LLString.completionDate),
                             datePickerState = dateCompleted,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -233,7 +234,7 @@ fun AddBookScreen(
 
                     item {
                         IncrementalFormIntField(
-                            label = stringResource(R.string.times_reread_label),
+                            label = stringResource(LLString.timesReread),
                             value = timesReread,
                             onValueChange = { timesReread = it },
                             onIncrement = { timesReread = it },
@@ -243,7 +244,7 @@ fun AddBookScreen(
 
                     item {
                         FormSlider(
-                            label = stringResource(R.string.rating_label),
+                            label = stringResource(LLString.rating),
                             value = personalRating.toFloat(),
                             onValueChange = { personalRating = "${it.toInt()}" },
                             range = 0f..10f,
@@ -254,7 +255,7 @@ fun AddBookScreen(
 
                     item {
                         FormIntField(
-                            label = stringResource(R.string.isbn_label),
+                            label = stringResource(LLString.isbn),
                             value = isbn,
                             onValueChange = { isbn = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -263,7 +264,7 @@ fun AddBookScreen(
 
                     item {
                         FormTextField(
-                            label = stringResource(R.string.genre_label),
+                            label = stringResource(LLString.genre),
                             value = genre,
                             onValueChange = { genre = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -275,7 +276,7 @@ fun AddBookScreen(
                             modifier = Modifier.padding(vertical = 8.dp)
                         ) {
                             Text(
-                                text = stringResource(R.string.notes_label),
+                                text = stringResource(LLString.additionalNotes),
                                 fontWeight = FontWeight.Bold
                             )
                             Spacer(modifier = Modifier.height(8.dp))

@@ -13,7 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
-import com.enoch02.stats.R
+import com.enoch02.resources.LLString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,14 +25,14 @@ fun StatsTopAppBar(
     var showGoalEditDialog by remember { mutableStateOf(false) }
 
     TopAppBar(
-        title = { Text(text = stringResource(id = R.string.statistics_label)) },
+        title = { Text(text = stringResource(id = LLString.statistics)) },
         actions = {
             IconButton(
                 onClick = { showGoalEditDialog = true },
                 content = {
                     Icon(
                         imageVector = Icons.Rounded.Edit,
-                        contentDescription = stringResource(R.string.edit_reading_goal_desc)
+                        contentDescription = stringResource(LLString.editReadingGoalDesc)
                     )
                 }
             )

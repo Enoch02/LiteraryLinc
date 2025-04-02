@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.enoch02.addbook.R
+import com.enoch02.resources.LLString
 
 @Composable
 internal fun ImagePicker(
@@ -52,7 +52,7 @@ internal fun ImagePicker(
                 if (coverImageUri == null) {
                     Icon(
                         painter = painterResource(R.drawable.round_image_24),
-                        contentDescription = stringResource(R.string.add_image),
+                        contentDescription = stringResource(LLString.addImage),
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {
@@ -102,7 +102,7 @@ internal fun ImagePicker(
                 if (coverImageUri == null && coverImagePath.isNullOrEmpty()) {
                     Icon(
                         painter = painterResource(R.drawable.round_image_24),
-                        contentDescription = stringResource(R.string.add_image_desc),
+                        contentDescription = stringResource(LLString.addImage),
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {

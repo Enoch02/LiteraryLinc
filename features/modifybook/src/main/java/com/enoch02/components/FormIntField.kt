@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.enoch02.addbook.R
+import com.enoch02.resources.LLString
 
 @Composable
 internal fun FormIntField(
@@ -89,7 +90,7 @@ internal fun IncrementalFormIntField(
                 content = {
                     Icon(
                         painter = painterResource(id = R.drawable.round_minus_24),
-                        contentDescription = stringResource(R.string.increment_desc)
+                        contentDescription = stringResource(LLString.increment)
                     )
                 }
             )
@@ -101,7 +102,7 @@ internal fun IncrementalFormIntField(
                 content = {
                     Icon(
                         painter = painterResource(id = R.drawable.round_add_24),
-                        contentDescription = stringResource(R.string.decrement_desc)
+                        contentDescription = stringResource(LLString.decrement)
                     )
                 }
             )

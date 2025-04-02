@@ -27,7 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.enoch02.stats.R
+import com.enoch02.resources.LLString
 import com.enoch02.stats.components.QuickStatCard
 
 @Composable
@@ -76,7 +76,7 @@ fun StatsScreen(
             ) {
                 item {
                     QuickStatCard(
-                        title = stringResource(R.string.total_books_read),
+                        title = stringResource(LLString.totalBooksRead),
                         value = viewModel.totalCount.withCommas(),
                         icon = Icons.AutoMirrored.Rounded.MenuBook
                     )
@@ -84,7 +84,7 @@ fun StatsScreen(
 
                 item {
                     QuickStatCard(
-                        title = stringResource(R.string.pages_read),
+                        title = stringResource(LLString.pagesRead),
                         value = viewModel.pagesReadCount.withCommas(),
                         icon = Icons.AutoMirrored.Rounded.MenuBook
                     )
@@ -92,7 +92,7 @@ fun StatsScreen(
 
                 item {
                     QuickStatCard(
-                        title = stringResource(R.string.total_hours),
+                        title = stringResource(LLString.totalHours),
                         value = viewModel.totalHoursRead.withCommas(),
                         icon = Icons.Rounded.AccessTime
                     )
@@ -100,7 +100,7 @@ fun StatsScreen(
 
                 item {
                     QuickStatCard(
-                        title = stringResource(R.string.fastest_book_completed),
+                        title = stringResource(LLString.fastestBookCompleted),
                         value = viewModel.fastestCompletedBook,
                         icon = Icons.Rounded.Timelapse
                     )
@@ -110,7 +110,7 @@ fun StatsScreen(
                     QuickStatCard(
                         title = "Reading",
                         value = stringResource(
-                            R.string.currently_reading,
+                            LLString.currentlyReading,
                             viewModel.currentlyReadingCount
                         ),
                         icon = Icons.AutoMirrored.Rounded.ReadMore
@@ -127,7 +127,7 @@ fun StatsScreen(
 
                 item {
                     QuickStatCard(
-                        title = stringResource(R.string.completed_this_year),
+                        title = stringResource(LLString.completedThisYear),
                         value = viewModel.booksReadThisYear.withCommas(),
                         icon = Icons.Rounded.Check
                     )
@@ -135,7 +135,7 @@ fun StatsScreen(
             }
 
             Text(
-                text = stringResource(R.string.rough_estimate),
+                text = stringResource(LLString.roughEstimate),
                 style = MaterialTheme.typography.labelSmall
             )
         }
@@ -145,9 +145,9 @@ fun StatsScreen(
 @Composable
 fun ReadingProgressView(modifier: Modifier, progress: Int, goal: Int) {
     val message = if (progress >= 0 && goal > 0) {
-        stringResource(R.string.reading_goal_text, progress, goal)
+        stringResource(LLString.readingGoalText, progress, goal)
     } else {
-        stringResource(R.string.set_reading_goal_msg)
+        stringResource(LLString.setReadingGoalMsg)
     }
 
     Column(modifier = modifier.fillMaxWidth()) {

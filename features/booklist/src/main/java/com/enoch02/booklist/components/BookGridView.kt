@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -32,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.enoch02.booklist.R
 import com.enoch02.database.model.Book
+import com.enoch02.resources.LLString
 import com.enoch02.resources.composables.SelectionOverlay
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -42,7 +41,6 @@ internal fun BookGridView(
     covers: Map<String, String?>,
     onItemClick: (Int) -> Unit,
     onItemLongClick: (Int) -> Unit,
-    onItemDelete: (Int) -> Unit,
     modifier: Modifier
 ) {
     if (books.isEmpty()) {
@@ -51,7 +49,7 @@ internal fun BookGridView(
             contentAlignment = Alignment.Center,
             content = {
                 Text(
-                    text = stringResource(R.string.empty_booklist_msg),
+                    text = stringResource(LLString.emptyBooklistMsg),
                     textAlign = TextAlign.Center
                 )
             }

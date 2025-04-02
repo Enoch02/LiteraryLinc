@@ -19,13 +19,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.enoch02.stats.R
+import com.enoch02.resources.LLString
 
 @Composable
 fun EditReadingGoalDialog(
@@ -67,14 +66,14 @@ fun EditReadingGoalDialog(
     if (visible) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text(stringResource(R.string.modify_reading_goal)) },
+            title = { Text(stringResource(LLString.modifyReadingGoal)) },
             text = {
                 Column {
                     OutlinedTextField(
                         value = mGoal,
                         onValueChange = { mGoal = it },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        label = { Text(stringResource(R.string.reading_goal)) }
+                        label = { Text(stringResource(LLString.readingGoal)) }
                     )
 
                     Spacer(Modifier.height(4.dp))
@@ -91,20 +90,20 @@ fun EditReadingGoalDialog(
                                 saveChanges()
                             }
                         ),
-                        label = { Text(stringResource(R.string.progress)) }
+                        label = { Text(stringResource(LLString.progress)) }
                     )
                 }
             },
             confirmButton = {
                 Button(
                     onClick = { saveChanges() },
-                    content = { Text(stringResource(R.string.save)) }
+                    content = { Text(stringResource(LLString.save)) }
                 )
             },
             dismissButton = {
                 TextButton(
                     onClick = onDismiss,
-                    content = { Text(stringResource(R.string.cancel)) }
+                    content = { Text(stringResource(LLString.cancel)) }
                 )
             },
             modifier = modifier

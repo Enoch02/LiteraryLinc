@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.enoch02.reader"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.android)
     implementation(libs.androidx.documentfile)
+    implementation(project(":core:resources"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

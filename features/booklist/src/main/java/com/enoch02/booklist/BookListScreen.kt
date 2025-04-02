@@ -44,6 +44,7 @@ import com.enoch02.booklist.components.BooklistBottomSheet
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
+import com.enoch02.resources.LLString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -88,7 +89,7 @@ fun BookListScreen(
                                     content = {
                                         Icon(
                                             imageVector = Icons.Rounded.Clear,
-                                            contentDescription = stringResource(R.string.clear_selection_desc)
+                                            contentDescription = stringResource(LLString.clearSelection)
                                         )
                                     }
                                 )
@@ -107,7 +108,7 @@ fun BookListScreen(
                                     content = {
                                         Icon(
                                             imageVector = Icons.Rounded.SelectAll,
-                                            contentDescription = stringResource(R.string.select_all_desc)
+                                            contentDescription = stringResource(LLString.selectAll)
                                         )
                                     }
                                 )
@@ -117,7 +118,7 @@ fun BookListScreen(
                                     content = {
                                         Icon(
                                             imageVector = Icons.Rounded.FlipToBack,
-                                            contentDescription = stringResource(R.string.invert_selection_desc)
+                                            contentDescription = stringResource(LLString.invertSelection)
                                         )
                                     }
                                 )
@@ -128,7 +129,7 @@ fun BookListScreen(
                                     content = {
                                         Icon(
                                             imageVector = Icons.Rounded.Delete,
-                                            contentDescription = stringResource(R.string.delete_selection_desc)
+                                            contentDescription = stringResource(LLString.deleteSelection)
                                         )
                                     }
                                 )
@@ -200,7 +201,6 @@ fun BookListScreen(
                                 covers = covers,
                                 onItemClick = onClick,
                                 onItemLongClick = { id -> viewModel.addToSelectedBooks(id) },
-                                onItemDelete = { id -> viewModel.deleteBook(id) },
                                 modifier = Modifier.padding(4.dp)
                             )
                         }
@@ -218,7 +218,7 @@ fun BookListScreen(
             showDeletionConfirmation = false
         },
         message = stringResource(
-            R.string.book_list_multi_deletion_warning,
+            LLString.bookListMultiDeletionWarning,
             viewModel.selectedBooks.size
         )
     )
@@ -248,18 +248,18 @@ private fun ConfirmDeletionDialog(
         AlertDialog(
             modifier = modifier,
             onDismissRequest = onDismiss,
-            title = { Text(text = stringResource(R.string.warning)) },
+            title = { Text(text = stringResource(LLString.warning)) },
             text = { Text(text = message) },
             confirmButton = {
                 TextButton(
                     onClick = onConfirm,
-                    content = { Text(text = stringResource(R.string.yes), color = Color.Red) }
+                    content = { Text(text = stringResource(LLString.yes), color = Color.Red) }
                 )
             },
             dismissButton = {
                 TextButton(
                     onClick = onDismiss,
-                    content = { Text(text = stringResource(R.string.no)) }
+                    content = { Text(text = stringResource(LLString.no)) }
                 )
             }
         )

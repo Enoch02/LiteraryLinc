@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.enoch02.addbook.R
+import com.enoch02.resources.LLString
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -117,14 +118,14 @@ fun FormDatePicker(
                             formatDate()
                         },
                         enabled = confirmEnabled,
-                        content = { Text(text = stringResource(R.string.ok)) }
+                        content = { Text(text = stringResource(LLString.ok)) }
                     )
                 },
                 dismissButton = {
                     TextButton(
                         onClick = { showDialog = false },
                         content = {
-                            Text(text = stringResource(R.string.cancel))
+                            Text(text = stringResource(LLString.cancel))
                         }
                     )
                 },

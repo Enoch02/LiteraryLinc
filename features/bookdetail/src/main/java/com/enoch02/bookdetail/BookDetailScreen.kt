@@ -55,6 +55,7 @@ import com.enoch02.bookdetail.components.BookInfoText
 import com.enoch02.bookdetail.components.DocumentsBottomSheet
 import com.enoch02.bookdetail.components.WarningDialog
 import com.enoch02.database.util.formatEpochAsString
+import com.enoch02.resources.LLString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,7 +66,6 @@ fun BookDetailScreen(
     viewModel: BookDetailViewModel = hiltViewModel()
 ) {
     val book = viewModel.book
-    val coverPath = viewModel.coverPath
     var showBookDetails by rememberSaveable { mutableStateOf(false) }
     var showWarningDialog by rememberSaveable {
         mutableStateOf(false)
@@ -82,7 +82,7 @@ fun BookDetailScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(R.string.book_detail_label),
+                        text = stringResource(LLString.bookDetail),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 },
@@ -92,9 +92,7 @@ fun BookDetailScreen(
                         content = {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                                contentDescription = stringResource(
-                                    R.string.navigate_up_desc
-                                ),
+                                contentDescription = stringResource(LLString.navigateBack),
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
@@ -147,9 +145,9 @@ fun BookDetailScreen(
                                     Icons.Rounded.LinkOff
                                 },
                                 contentDescription = if (book.documentMd5.isNullOrEmpty()) {
-                                    stringResource(R.string.link_document)
+                                    stringResource(LLString.linkDocument)
                                 } else {
-                                    stringResource(R.string.unlink_document)
+                                    stringResource(LLString.unLinkDocument)
                                 },
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
@@ -174,11 +172,8 @@ fun BookDetailScreen(
                                         .padding(8.dp),
                                     content = {
                                         AsyncImage(
-                                            model = if (coverPath == null) {
-                                                R.drawable.placeholder_image
-                                            } else {
-                                                coverPath
-                                            },
+                                            model = viewModel.coverPath
+                                                ?: R.drawable.placeholder_image,
                                             contentDescription = null,
                                             contentScale = ContentScale.FillBounds,
                                             modifier = Modifier
@@ -218,15 +213,15 @@ fun BookDetailScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     content = {
                                         BookInfo(
-                                            label = "Rating",
+                                            label = stringResource(LLString.rating),
                                             value = "${book.personalRating}/10"
                                         )
                                         BookInfo(
-                                            label = stringResource(R.string.status),
+                                            label = stringResource(LLString.status),
                                             value = book.status
                                         )
                                         BookInfo(
-                                            label = stringResource(R.string.pages),
+                                            label = stringResource(LLString.pages),
                                             value = "${book.pageCount}"
                                         )
                                     }
@@ -242,7 +237,7 @@ fun BookDetailScreen(
                             modifier = Modifier.padding(top = 24.dp, start = 8.dp, end = 8.dp),
                             content = {
                                 Text(
-                                    text = stringResource(R.string.additional_notes),
+                                    text = stringResource(LLString.additionalNotes),
                                     fontSize = MaterialTheme.typography.headlineMedium.fontSize,
                                     fontWeight = MaterialTheme.typography.headlineMedium.fontWeight
                                 )
@@ -250,7 +245,7 @@ fun BookDetailScreen(
                                 Spacer(modifier = Modifier.height(16.dp))
 
                                 Text(
-                                    text = book.notes.ifBlank { stringResource(R.string.nothing) },
+                                    text = book.notes.ifBlank { stringResource(LLString.nothingHere) },
                                     textAlign = TextAlign.Justify
                                 )
                             }
@@ -274,55 +269,55 @@ fun BookDetailScreen(
                             content = {
                                 item {
                                     BookInfoText(
-                                        header = stringResource(R.string.title),
+                                        header = stringResource(LLString.title),
                                         value = book.title
                                     )
                                 }
                                 item {
                                     BookInfoText(
-                                        header = stringResource(R.string.author),
+                                        header = stringResource(LLString.author),
                                         value = book.author
                                     )
                                 }
                                 item {
                                     BookInfoText(
-                                        header = stringResource(R.string.page_count),
+                                        header = stringResource(LLString.pageCount),
                                         value = "${book.pageCount}"
                                     )
                                 }
                                 item {
                                     BookInfoText(
-                                        header = stringResource(R.string.date_started),
+                                        header = stringResource(LLString.dateStarted),
                                         value = formatEpochAsString(book.dateStarted)
                                     )
                                 }
                                 item {
                                     BookInfoText(
-                                        header = stringResource(R.string.date_completed),
+                                        header = stringResource(LLString.dateCompleted),
                                         value = formatEpochAsString(book.dateCompleted)
                                     )
                                 }
                                 item {
                                     BookInfoText(
-                                        header = stringResource(R.string.times_reread),
+                                        header = stringResource(LLString.timesReread),
                                         value = "${book.timesReread}"
                                     )
                                 }
                                 item {
                                     BookInfoText(
-                                        header = stringResource(R.string.personal_rating),
+                                        header = stringResource(LLString.personalRating),
                                         value = "${book.personalRating}/10"
                                     )
                                 }
                                 item {
                                     BookInfoText(
-                                        header = stringResource(R.string.isbn),
+                                        header = stringResource(LLString.isbn),
                                         value = book.isbn
                                     )
                                 }
                                 item {
                                     BookInfoText(
-                                        header = stringResource(R.string.genre),
+                                        header = stringResource(LLString.genre),
                                         value = book.genre
                                     )
                                 }
@@ -342,7 +337,7 @@ fun BookDetailScreen(
                                 navController.popBackStack()
                             },
                             content = {
-                                Text(text = stringResource(R.string.yes))
+                                Text(text = stringResource(LLString.yes))
                             }
                         )
                     },
@@ -350,7 +345,7 @@ fun BookDetailScreen(
                         TextButton(
                             onClick = { showWarningDialog = false },
                             content = {
-                                Text(text = stringResource(R.string.no))
+                                Text(text = stringResource(LLString.no))
                             }
                         )
                     },
@@ -358,7 +353,7 @@ fun BookDetailScreen(
                         Icon(imageVector = Icons.Rounded.Warning, contentDescription = null)
                     },
                     text = {
-                        Text(text = stringResource(R.string.delete_entry_warning))
+                        Text(text = stringResource(LLString.deleteEntryWarning))
                     }
                 )
             }
@@ -372,7 +367,7 @@ fun BookDetailScreen(
                     onDismiss = {
                         showUnlinkWarningDialog = false
                     },
-                    message = stringResource(R.string.unlink_entry_warning)
+                    message = stringResource(LLString.unlinkWarning)
                 )
             }
 

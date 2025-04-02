@@ -56,6 +56,7 @@ import com.enoch02.components.IncrementalFormIntField
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.Book.Companion.BookType
 import com.enoch02.database.model.Book.Companion.BookStatus
+import com.enoch02.resources.LLString
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -159,7 +160,7 @@ fun EditBookScreen(
                 content = {
                     Icon(
                         painter = painterResource(id = R.drawable.round_save_24),
-                        contentDescription = stringResource(R.string.save_book_desc)
+                        contentDescription = stringResource(LLString.save)
                     )
                 }
             )
@@ -177,7 +178,7 @@ fun EditBookScreen(
                             verticalAlignment = Alignment.Top,
                             content = {
                                 ImagePicker(
-                                    label = stringResource(R.string.cover_image_picker_label),
+                                    label = stringResource(LLString.coverImagePickerLabel),
                                     launcher = rememberLauncherForActivityResult(
                                         ActivityResultContracts.StartActivityForResult()
                                     ) {
@@ -193,7 +194,7 @@ fun EditBookScreen(
                     }
                     item {
                         FormTextField(
-                            label = stringResource(R.string.book_title),
+                            label = stringResource(LLString.bookTitle),
                             value = title,
                             onValueChange = { title = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -202,7 +203,7 @@ fun EditBookScreen(
 
                     item {
                         FormTextField(
-                            label = stringResource(R.string.author),
+                            label = stringResource(LLString.author),
                             value = author,
                             onValueChange = { author = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -211,7 +212,7 @@ fun EditBookScreen(
 
                     item {
                         FormSpinner(
-                            label = stringResource(R.string.book_type_label),
+                            label = stringResource(LLString.bookType),
                             options = Book.Companion.BookType.entries.map { it.strName },
                             selectedOption = type,
                             onSelectionChange = { type = it },
@@ -221,7 +222,7 @@ fun EditBookScreen(
 
                     item {
                         FormSpinner(
-                            label = stringResource(R.string.status_label),
+                            label = stringResource(LLString.status),
                             options = BookStatus.entries.map { it.strName },
                             selectedOption = status,
                             onSelectionChange = { status = it }
@@ -230,7 +231,7 @@ fun EditBookScreen(
 
                     item {
                         FormDatePicker(
-                            label = stringResource(R.string.start_date),
+                            label = stringResource(LLString.startDate),
                             datePickerState = dateStarted,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -240,7 +241,7 @@ fun EditBookScreen(
 
                     item {
                         FormDatePicker(
-                            label = stringResource(R.string.completion_date),
+                            label = stringResource(LLString.completionDate),
                             datePickerState = dateCompleted,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -256,7 +257,7 @@ fun EditBookScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             content = {
                                 FormIntField(
-                                    label = stringResource(R.string.pages_read_label),
+                                    label = stringResource(LLString.pagesRead),
                                     value = pagesRead,
                                     onValueChange = { pagesRead = it },
                                     modifier = Modifier.weight(0.45f)
@@ -267,7 +268,7 @@ fun EditBookScreen(
                                         .weight(0.1f)
                                 )
                                 FormIntField(
-                                    label = stringResource(R.string.page_count_label),
+                                    label = stringResource(LLString.pageCount),
                                     value = pageCount,
                                     onValueChange = { pageCount = it },
                                     modifier = Modifier.weight(0.45f)
@@ -298,7 +299,7 @@ fun EditBookScreen(
 
                     item {
                         IncrementalFormIntField(
-                            label = stringResource(R.string.times_reread_label),
+                            label = stringResource(LLString.timesReread),
                             value = timesReread,
                             onValueChange = { timesReread = it },
                             onIncrement = { timesReread = it },
@@ -308,7 +309,7 @@ fun EditBookScreen(
 
                     item {
                         FormSlider(
-                            label = stringResource(R.string.rating_label),
+                            label = stringResource(LLString.rating),
                             value = personalRating.toFloat(),
                             onValueChange = { personalRating = "${it.toInt()}" },
                             range = 0f..10f,
@@ -319,7 +320,7 @@ fun EditBookScreen(
 
                     item {
                         FormIntField(
-                            label = stringResource(R.string.isbn_label),
+                            label = stringResource(LLString.isbn),
                             value = isbn,
                             onValueChange = { isbn = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -328,7 +329,7 @@ fun EditBookScreen(
 
                     item {
                         FormTextField(
-                            label = stringResource(R.string.genre_label),
+                            label = stringResource(LLString.genre),
                             value = genre,
                             onValueChange = { genre = it },
                             modifier = Modifier.padding(vertical = 8.dp)
@@ -340,7 +341,7 @@ fun EditBookScreen(
                             modifier = Modifier.padding(vertical = 8.dp)
                         ) {
                             Text(
-                                text = stringResource(R.string.notes_label),
+                                text = stringResource(LLString.additionalNotes),
                                 fontWeight = FontWeight.Bold
                             )
                             Spacer(modifier = Modifier.height(8.dp))

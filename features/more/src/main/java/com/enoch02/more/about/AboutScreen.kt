@@ -31,8 +31,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.enoch02.more.R
 import com.enoch02.more.navigation.MoreScreenDestination
+import com.enoch02.resources.LLString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,14 +43,14 @@ fun AboutScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.about_label)) },
+                title = { Text(text = stringResource(LLString.about)) },
                 navigationIcon = {
                     IconButton(
                         onClick = { navController.popBackStack() },
                         content = {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                                contentDescription = stringResource(R.string.back_label)
+                                contentDescription = stringResource(LLString.navigateBack)
                             )
                         }
                     )
@@ -73,7 +73,7 @@ fun AboutScreen(navController: NavController) {
                             headlineContent = {
                                 Card {
                                     ListItem(
-                                        headlineContent = { Text(text = stringResource(R.string.version_label)) },
+                                        headlineContent = { Text(text = stringResource(LLString.version)) },
                                         supportingContent = {
                                             Text(text = appVersionText)
                                         },
@@ -91,16 +91,16 @@ fun AboutScreen(navController: NavController) {
 
                                     ListItem(
                                         headlineContent = {
-                                            Text(text = stringResource(R.string.check_for_updates_label))
+                                            Text(text = stringResource(LLString.checkForUpdatesLabel))
                                         },
                                         supportingContent = {
-                                            Text(stringResource(R.string.check_for_updates_desc))
+                                            Text(stringResource(LLString.checkUpdatesDesc))
                                         },
                                         modifier = Modifier.clickable {
                                             context.startActivity(
                                                 Intent(
                                                     Intent.ACTION_VIEW,
-                                                    Uri.parse(context.getString(R.string.app_repo_url))
+                                                    Uri.parse(context.getString(LLString.appRepoUrl))
                                                 )
                                             )
                                         },
@@ -109,10 +109,10 @@ fun AboutScreen(navController: NavController) {
 
                                     ListItem(
                                         headlineContent = {
-                                            Text(text = stringResource(R.string.open_source_licenses_label))
+                                            Text(text = stringResource(LLString.ossLicensesLabel))
                                         },
                                         supportingContent = {
-                                            Text(stringResource(R.string.open_source_licenses_desc))
+                                            Text(stringResource(LLString.ossLicensesDesc))
                                         },
                                         modifier = Modifier.clickable {
                                             navController.navigate(MoreScreenDestination.Licenses.route)
@@ -122,16 +122,16 @@ fun AboutScreen(navController: NavController) {
 
                                     ListItem(
                                         headlineContent = {
-                                            Text(text = stringResource(R.string.visit_repo_label))
+                                            Text(text = stringResource(LLString.visitRepoLabel))
                                         },
                                         supportingContent = {
-                                            Text(stringResource(R.string.visit_repo_desc))
+                                            Text(stringResource(LLString.visitRepoDesc))
                                         },
                                         modifier = Modifier.clickable {
                                             context.startActivity(
                                                 Intent(
                                                     Intent.ACTION_VIEW,
-                                                    Uri.parse(context.getString(R.string.app_repo_url))
+                                                    Uri.parse(context.getString(LLString.appRepoUrl))
                                                 )
                                             )
                                         },
