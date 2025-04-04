@@ -88,15 +88,20 @@ class StatsScreenViewModel @Inject constructor(
         val remainingMillis = readingProgressManager.getTimeRemainingForStreak()
 
         if (remainingMillis <= 0) {
-            return "Streak expired"
+            viewModelScope.launch(Dispatchers.IO) { readingProgressManager.resetReadingStreak() }
+            return ""
         }
 
         val hours = TimeUnit.MILLISECONDS.toHours(remainingMillis)
         val minutes = TimeUnit.MILLISECONDS.toMinutes(remainingMillis) % 60
 
-        return when {
-            hours > 0 -> "$hours hours, $minutes minutes"
-            else -> "$minutes minutes"
+        return buildString {
+            append("Streak Expires in ")
+
+            when {
+                hours > 0 -> append("$hours hours, $minutes minutes")
+                else -> append("$minutes minutes")
+            }
         }
     }
 

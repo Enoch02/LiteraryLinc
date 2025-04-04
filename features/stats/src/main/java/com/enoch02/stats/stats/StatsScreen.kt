@@ -155,7 +155,7 @@ fun StreakView(modifier: Modifier = Modifier, streakMessage: String, timeRemaini
         )
 
         Text(
-            text = "Streak Expires in $timeRemaining"
+            text = timeRemaining
         )
     }
 }

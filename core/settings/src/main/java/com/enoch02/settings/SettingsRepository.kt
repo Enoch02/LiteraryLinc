@@ -81,6 +81,7 @@ class SettingsRepository(private val context: Context) {
         val bookReadingProgress = intPreferencesKey("book_reading_progress")
 
         val lastBookOpenedTimestamp = longPreferencesKey("last_book_opened_timestamp")
+        val lastStreakUpdateTimestamp = longPreferencesKey("last_streak_update_timestamp")
     }
 
     // Map enum to preference keys
@@ -108,6 +109,7 @@ class SettingsRepository(private val context: Context) {
     private fun getKeyForPreference(preference: LongPreferenceType): Preferences.Key<Long> {
         return when (preference) {
             LongPreferenceType.LAST_BOOK_OPENED_TIMESTAMP -> Keys.lastBookOpenedTimestamp
+            LongPreferenceType.LAST_STREAK_UPDATE_TIMESTAMP -> Keys.lastStreakUpdateTimestamp
         }
     }
 
@@ -129,6 +131,7 @@ class SettingsRepository(private val context: Context) {
     }
 
     enum class LongPreferenceType {
-        LAST_BOOK_OPENED_TIMESTAMP
+        LAST_BOOK_OPENED_TIMESTAMP,
+        LAST_STREAK_UPDATE_TIMESTAMP
     }
 }
