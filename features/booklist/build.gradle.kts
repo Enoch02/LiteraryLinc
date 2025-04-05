@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.enoch02.booklist"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
