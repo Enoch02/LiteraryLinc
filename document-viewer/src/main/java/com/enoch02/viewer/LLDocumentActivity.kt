@@ -13,6 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -34,6 +35,10 @@ class LLDocumentActivity : ComponentActivity() {
         setContent {
             val viewModel: LLDocumentViewModel = hiltViewModel()
             val dynamicColor by viewModel.dynamicColor.collectAsState(false)
+
+            LaunchedEffect(Unit) {
+                viewModel.readingProgressManager.updateReadingStreak()
+            }
 
             DisposableEffect(Unit) {
                 this@LLDocumentActivity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)

@@ -16,8 +16,8 @@ import com.enoch02.database.model.existsAsFile
 import com.enoch02.resources.R
 import com.enoch02.resources.createProgressNotificationChannel
 import com.enoch02.resources.sendFinalProgressNotification
+import com.enoch02.resources.workers.COVER_SCAN_NOTIFICATION_ID
 import com.enoch02.resources.workers.PROGRESS_CHANNEL_ID
-import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_ID
 import com.enoch02.resources.workers.file_scan.util.generateThumbnail
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -81,7 +81,7 @@ class CoverScanWorker @AssistedInject constructor(
         } else {
             Log.i(TAG, "doWork: No unused cover to cleanup")
         }
-        sendFinalProgressNotification(applicationContext)
+        sendFinalProgressNotification(applicationContext, COVER_SCAN_NOTIFICATION_ID)
 
         return Result.success()
     }
@@ -106,5 +106,5 @@ private fun createFileScanningNotification(context: Context, progress: Int) {
     ) {
         return
     }
-    NotificationManagerCompat.from(context).notify(PROGRESS_NOTIFICATION_ID, builder.build())
+    NotificationManagerCompat.from(context).notify(COVER_SCAN_NOTIFICATION_ID, builder.build())
 }

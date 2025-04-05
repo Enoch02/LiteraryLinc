@@ -38,7 +38,6 @@ import com.enoch02.booklist.components.BookViewMode
 import com.enoch02.database.model.ReaderSorting
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
-import com.enoch02.literarylinc.R
 import com.enoch02.literarylinc.RequestNotificationPermission
 import com.enoch02.literarylinc.navigation.Screen
 import com.enoch02.literarylinc.navigation.TopLevelDestination
@@ -47,12 +46,13 @@ import com.enoch02.literarylinc.ui.components.BookListTopAppBar
 import com.enoch02.literarylinc.ui.components.MoreTopAppBar
 import com.enoch02.literarylinc.ui.components.ReaderListSortOptionsAlert
 import com.enoch02.literarylinc.ui.components.ReaderTopAppBar
-import com.enoch02.literarylinc.ui.components.StatsTopAppBar
 import com.enoch02.literarylinc.ui.components.drawersheets.BookListDrawerSheet
 import com.enoch02.literarylinc.ui.components.drawersheets.ReaderListDrawerSheet
 import com.enoch02.more.MoreScreen
 import com.enoch02.more.navigation.MoreScreenDestination
 import com.enoch02.reader.ReaderListScreen
+import com.enoch02.resources.LLString
+import com.enoch02.stats.components.StatsTopAppBar
 import com.enoch02.stats.stats.StatsScreen
 import kotlinx.coroutines.launch
 
@@ -67,6 +67,7 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
     var showBookListSortOptions by rememberSaveable { mutableStateOf(false) }
     var bookViewMode by rememberSaveable { mutableStateOf(BookViewMode.LIST_VIEW) }
     var statusFilter by rememberSaveable { mutableStateOf(StatusFilter.ALL) }
+    var isSearchingInBookList by rememberSaveable { mutableStateOf(false) }
 
     // reader list
     var currentReaderListSorting by rememberSaveable { mutableStateOf(ReaderSorting.LAST_READ) }
@@ -76,6 +77,10 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
     var isSearchingInReaderList by rememberSaveable { mutableStateOf(false) }
 
     var enableDrawerGestures by rememberSaveable { mutableStateOf(true) }
+
+    // stats
+    val readingGoal by viewModel.readingGoal.collectAsState(0)
+    val readingProgress by viewModel.readingProgress.collectAsState(0)
 
     LaunchedEffect(
         key1 = currentScreen,
@@ -139,6 +144,9 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                             drawerState.close()
                                         }
                                     }
+                                },
+                                onSearch = {
+                                    isSearchingInBookList = true
                                 }
                             )
                         }
@@ -163,7 +171,13 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                         }
 
                         TopLevelDestination.STATS -> {
-                            StatsTopAppBar()
+                            StatsTopAppBar(
+                                readingGoal = readingGoal,
+                                readingProgress = readingProgress,
+                                onSaveProgressData = { goal, progress ->
+                                    viewModel.updateReadingGoalData(goal, progress)
+                                }
+                            )
                         }
 
                         TopLevelDestination.MORE -> {
@@ -180,10 +194,10 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                         Icons.Rounded.MoreHoriz
                     )
                     val labels = listOf(
-                        stringResource(R.string.book_list_label),
-                        stringResource(R.string.reader_label),
-                        stringResource(R.string.statistics_label),
-                        stringResource(R.string.more_label)
+                        stringResource(LLString.bookList),
+                        stringResource(LLString.reader),
+                        stringResource(LLString.statistics),
+                        stringResource(LLString.more)
                     )
 
                     NavigationBar {
@@ -213,7 +227,7 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                             content = {
                                 Icon(
                                     imageVector = Icons.Rounded.Add,
-                                    contentDescription = stringResource(R.string.add_new_book_desc)
+                                    contentDescription = stringResource(LLString.addBookDesc)
                                 )
                             },
                         )
@@ -250,6 +264,10 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                         },
                                         onItemEdit = { id ->
                                             navController.navigate(Screen.EditBook.withArgs(id.toString()))
+                                        },
+                                        isSearching = isSearchingInBookList,
+                                        onDismissSearching = {
+                                            isSearchingInBookList = false
                                         }
                                     )
                                 }
@@ -279,7 +297,7 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                                 filter = currentReaderListFilter!!,
                                                 isSearching = isSearchingInReaderList,
                                                 onScanForDocs = {
-                                                    navController.navigate(MoreScreenDestination.Scanner.route)
+                                                    navController.navigate(MoreScreenDestination.FileScan.route)
                                                 },
                                                 onDismissSearching = {
                                                     isSearchingInReaderList = false
@@ -290,10 +308,7 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                 }
 
                                 TopLevelDestination.STATS -> {
-                                    StatsScreen(
-                                        navController = navController,
-                                        modifier = Modifier.padding(paddingValues)
-                                    )
+                                    StatsScreen(modifier = Modifier.padding(paddingValues))
                                 }
 
                                 TopLevelDestination.MORE -> {

@@ -1,6 +1,5 @@
 package com.enoch02.stats.stats
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -10,18 +9,22 @@ import androidx.lifecycle.viewModelScope
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.dao.StatsDao
 import com.enoch02.database.model.Book
+import com.enoch02.settings.ReadingProgressManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
+import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
 class StatsScreenViewModel @Inject constructor(
+    bookDao: BookDao,
     private val statsDao: StatsDao,
-    private val bookDao: BookDao
+    private val readingProgressManager: ReadingProgressManager
 ) : ViewModel() {
     private val booksFlow = bookDao.getBooks()
     var totalCount by mutableIntStateOf(0)
@@ -29,12 +32,80 @@ class StatsScreenViewModel @Inject constructor(
     var currentlyReadingCount by mutableIntStateOf(0)
     var totalHoursRead by mutableIntStateOf(0)
     var fastestCompletedBook by mutableStateOf("")
+    var booksReadThisYear by mutableIntStateOf(0)
+
+    var currentReadingStreak = readingProgressManager.getReadingStreak()
+    var longestReadingStreak = readingProgressManager.getLongestReadingStreak()
+    val readingGoal = readingProgressManager.getReadingGoal()
+    val readingProgress = readingProgressManager.getReadingGoalProgress()
 
     init {
-        getOtherStats()
+        collectOtherStats()
+        getStreak()
     }
 
-    private fun getOtherStats() {
+    fun formatCurrentStreakMessage(value: Int): String {
+        if (value == 0) {
+            return "Start Reading to build a streak!"
+        }
+
+        return buildString {
+            if (value > 7) {
+                append("🔥")
+            }
+
+            append("Reading Streak: $value")
+            if (value == 1) {
+                append(" day")
+            } else {
+                append(" days")
+            }
+        }
+    }
+
+    fun formatLongestStreakMessage(value: Int): String {
+        if (value == 0) {
+            return "None"
+        }
+
+        return buildString {
+            append(value)
+
+            if (value == 1) {
+                append(" day")
+
+            } else {
+                append(" days")
+            }
+        }
+    }
+
+    /**
+     * Formats the remaining time as a human-readable string.
+     * Example: "23 hours, 45 minutes"
+     */
+    fun getFormattedTimeRemainingForStreak(): String {
+        val remainingMillis = readingProgressManager.getTimeRemainingForStreak()
+
+        if (remainingMillis <= 0) {
+            viewModelScope.launch(Dispatchers.IO) { readingProgressManager.resetReadingStreak() }
+            return ""
+        }
+
+        val hours = TimeUnit.MILLISECONDS.toHours(remainingMillis)
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(remainingMillis) % 60
+
+        return buildString {
+            append("Streak Expires in ")
+
+            when {
+                hours > 0 -> append("$hours hours, $minutes minutes")
+                else -> append("$minutes minutes")
+            }
+        }
+    }
+
+    private fun collectOtherStats() {
         viewModelScope.launch(Dispatchers.IO) {
             booksFlow.collect { books ->
                 totalCount = books.size
@@ -45,6 +116,10 @@ class StatsScreenViewModel @Inject constructor(
                 computeFastestCompletedBook(books)
             }
         }
+    }
+
+    private fun getStreak(): Flow<Int> {
+        return readingProgressManager.getReadingStreak()
     }
 
     private fun computeTotalHoursRead(books: List<Book>) {
@@ -65,6 +140,25 @@ class StatsScreenViewModel @Inject constructor(
             book.dateCompleted!! - book.dateStarted!!
         }
         fastestCompletedBook = fastest?.title ?: ""
+        booksReadThisYear = computeBooksReadThisYear(books)
+    }
+
+    private fun computeBooksReadThisYear(books: List<Book>): Int {
+        return books.filter { isThisYear(it.dateStarted) && it.status == Book.Companion.BookStatus.COMPLETED.strName }.size
+    }
+
+    private fun isThisYear(timestamp: Long?): Boolean {
+        if (timestamp == null) {
+            return false
+        }
+
+        val calendar = Calendar.getInstance()
+        val currentYear = calendar.get(Calendar.YEAR)
+
+        calendar.timeInMillis = timestamp
+        val yearFromTimestamp = calendar.get(Calendar.YEAR)
+
+        return yearFromTimestamp == currentYear
     }
 }
 

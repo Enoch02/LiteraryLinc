@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.enoch02.more.navigation.MoreScreenDestination
+import com.enoch02.resources.LLString
 
 
 @Composable
@@ -26,11 +27,11 @@ fun MoreScreen(navController: NavController, modifier: Modifier) {
                     leadingContent = {
                         Icon(imageVector = Icons.Rounded.Search, contentDescription = null)
                     },
-                    headlineContent = { Text(text = stringResource(R.string.file_scan_text)) },
+                    headlineContent = { Text(text = stringResource(LLString.fileScan)) },
                     supportingContent = {
-                        Text(stringResource(R.string.file_scan_desc))
+                        Text(stringResource(LLString.fileScanDesc))
                     },
-                    modifier = Modifier.clickable { navController.navigate(MoreScreenDestination.Scanner.route) }
+                    modifier = Modifier.clickable { navController.navigate(MoreScreenDestination.FileScan.route) }
                 )
             }
 
@@ -42,9 +43,9 @@ fun MoreScreen(navController: NavController, modifier: Modifier) {
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text(stringResource(R.string.settings_text)) },
+                    headlineContent = { Text(stringResource(LLString.settings)) },
                     supportingContent = {
-                        Text(stringResource(R.string.settings_desc))
+                        Text(stringResource(LLString.settingsDesc))
                     },
                     modifier = Modifier.clickable { navController.navigate(MoreScreenDestination.Settings.route) }
                 )
@@ -58,9 +59,9 @@ fun MoreScreen(navController: NavController, modifier: Modifier) {
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text(stringResource(R.string.bckup_res_text)) },
+                    headlineContent = { Text(stringResource(LLString.backupRestore)) },
                     supportingContent = {
-                        Text(stringResource(R.string.bckup_res_desc))
+                        Text(stringResource(LLString.backupRestoreDesc))
                     },
                     modifier = Modifier.clickable {
                         navController.navigate(MoreScreenDestination.BackupRestore.route)
@@ -76,9 +77,9 @@ fun MoreScreen(navController: NavController, modifier: Modifier) {
                             contentDescription = null
                         )
                     },
-                    headlineContent = { Text(stringResource(R.string.about_text)) },
+                    headlineContent = { Text(stringResource(LLString.about)) },
                     supportingContent = {
-                        Text(stringResource(R.string.about_desc))
+                        Text(stringResource(LLString.aboutDesc))
                     },
                     modifier = Modifier.clickable {
                         navController.navigate(MoreScreenDestination.About.route)

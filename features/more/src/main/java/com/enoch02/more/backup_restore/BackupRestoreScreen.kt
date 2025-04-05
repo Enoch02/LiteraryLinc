@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.enoch02.database.util.formatEpochAsString
-import com.enoch02.more.R
+import com.enoch02.resources.LLString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,7 +68,7 @@ fun BackupRestoreScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.backup_and_restore)) },
+                title = { Text(text = stringResource(LLString.backupRestore)) },
                 navigationIcon = {
                     IconButton(
                         onClick = { navController.popBackStack() },
@@ -92,8 +92,8 @@ fun BackupRestoreScreen(
                                 Card(
                                     content = {
                                         ListItem(
-                                            headlineContent = { Text(text = stringResource(R.string.create_csv_bkup)) },
-                                            supportingContent = { Text(text = stringResource(R.string.create_csv_bkup_desc)) },
+                                            headlineContent = { Text(text = stringResource(LLString.createCSV)) },
+                                            supportingContent = { Text(text = stringResource(LLString.createCSVDesc)) },
                                             modifier = Modifier.clickable {
                                                 csvBackupLauncher.launch(
                                                     createFileIntent.apply {
@@ -114,8 +114,8 @@ fun BackupRestoreScreen(
                                         HorizontalDivider()
 
                                         ListItem(
-                                            headlineContent = { Text(text = stringResource(R.string.restore_csv_bkup)) },
-                                            supportingContent = { Text(text = stringResource(R.string.restore_csv_bkup_desc)) },
+                                            headlineContent = { Text(text = stringResource(LLString.restoreCSV)) },
+                                            supportingContent = { Text(text = stringResource(LLString.restoreCSVDesc)) },
                                             modifier = Modifier.clickable {
                                                 openFileLauncher.launch("*/*")
                                             },
@@ -125,8 +125,8 @@ fun BackupRestoreScreen(
                                         HorizontalDivider()
 
                                         ListItem(
-                                            headlineContent = { Text(text = stringResource(R.string.excel_friendly_export)) },
-                                            supportingContent = { Text(text = stringResource(R.string.excel_friendly_export_desc)) },
+                                            headlineContent = { Text(text = stringResource(LLString.excelFriendlyExport)) },
+                                            supportingContent = { Text(text = stringResource(LLString.excelFriendlyExportDesc)) },
                                             modifier = Modifier.clickable {
                                                 excelFriendlyBackupLauncher.launch(
                                                     createFileIntent.apply {

@@ -7,14 +7,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import com.enoch02.bookdetail.R
+import com.enoch02.resources.LLString
 
 @Composable
 fun WarningDialog(
     modifier: Modifier = Modifier,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
-    title: String = stringResource(R.string.warning),
+    title: String = stringResource(LLString.warning),
     message: String
 ) {
     AlertDialog(
@@ -24,7 +24,7 @@ fun WarningDialog(
             TextButton(
                 onClick = onConfirm,
                 content = {
-                    Text(text = stringResource(R.string.yes), color = Color.Red)
+                    Text(text = stringResource(LLString.yes), color = Color.Red)
                 }
             )
         },
@@ -32,7 +32,7 @@ fun WarningDialog(
             TextButton(
                 onClick = onDismiss,
                 content = {
-                    Text(text = stringResource(R.string.no))
+                    Text(text = stringResource(LLString.no))
                 }
             )
         },

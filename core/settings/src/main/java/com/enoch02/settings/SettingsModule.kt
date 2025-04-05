@@ -15,4 +15,9 @@ class SettingsModuleModule {
     @Singleton
     fun providesSettingsRepository(@ApplicationContext context: Context) =
         SettingsRepository(context)
+
+    @Provides
+    @Singleton
+    fun providesReadingProgressManager(settingsRepository: SettingsRepository) =
+        ReadingProgressManager(settingsRepository)
 }

@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.FileUriExposedException
 import android.view.KeyEvent
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -75,11 +74,11 @@ import com.composables.core.ScrollArea
 import com.composables.core.Thumb
 import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
+import com.enoch02.resources.mupdf.model.Item
+import com.enoch02.resources.mupdf.model.SearchResult
 import com.enoch02.settings.SettingsRepository
 import com.enoch02.viewer.LLDocumentViewModel
 import com.enoch02.viewer.model.ContentState
-import com.enoch02.resources.mupdf.model.Item
-import com.enoch02.resources.mupdf.model.SearchResult
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -111,13 +110,6 @@ fun DocumentView(
             mimeType = mimeType,
             id = documentId
         )
-    }
-
-    BackHandler {
-        coroutineScope.launch {
-            viewModel.updateDocumentData()
-            closeViewAction()
-        }
     }
 
     AnimatedContent(

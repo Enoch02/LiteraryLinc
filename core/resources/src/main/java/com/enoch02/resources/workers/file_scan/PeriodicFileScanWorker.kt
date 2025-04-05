@@ -10,7 +10,7 @@ import androidx.work.WorkerParameters
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.resources.createIndeterminateProgressNotification
 import com.enoch02.resources.createProgressNotificationChannel
-import com.enoch02.resources.workers.PROGRESS_NOTIFICATION_ID
+import com.enoch02.resources.workers.PERIODIC_FILE_SCAN_NOTIFICATION_ID
 import com.enoch02.resources.workers.file_scan.util.addDocumentsToDb
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -38,7 +38,8 @@ class PeriodicFileScanWorker @AssistedInject constructor(
         createProgressNotificationChannel(applicationContext)
         createIndeterminateProgressNotification(
             context = applicationContext,
-            title = "Loading Documents"
+            title = "Loading Documents",
+            id = PERIODIC_FILE_SCAN_NOTIFICATION_ID
         )
 
         val notificationManager = NotificationManagerCompat.from(applicationContext)
@@ -53,6 +54,6 @@ class PeriodicFileScanWorker @AssistedInject constructor(
                 dao = documentDao
             )
         }
-        notificationManager.cancel(PROGRESS_NOTIFICATION_ID)
+        notificationManager.cancel(PERIODIC_FILE_SCAN_NOTIFICATION_ID)
     }
 }

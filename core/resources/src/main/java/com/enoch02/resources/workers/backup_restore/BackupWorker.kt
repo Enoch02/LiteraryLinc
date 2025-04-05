@@ -8,6 +8,7 @@ import androidx.work.WorkerParameters
 import com.enoch02.database.export_and_import.csv.CSVManager
 import com.enoch02.resources.makeStatusNotification
 import com.enoch02.resources.workers.BACKUP_FILE_URI_KEY
+import com.enoch02.resources.workers.BACKUP_NOTIFICATION_ID
 import com.enoch02.resources.workers.EXCEL_FRIENDLY_KEY
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -25,7 +26,7 @@ class BackupWorker @AssistedInject constructor(
         val backupUri = inputData.getString(BACKUP_FILE_URI_KEY)
         val friendly = inputData.getBoolean(EXCEL_FRIENDLY_KEY, false)
 
-        makeStatusNotification("Creating Backup", applicationContext)
+        makeStatusNotification("Creating Backup", applicationContext, BACKUP_NOTIFICATION_ID)
 
         return withContext(Dispatchers.IO) {
             require(!backupUri.isNullOrBlank()) {
@@ -44,7 +45,11 @@ class BackupWorker @AssistedInject constructor(
                 }
 
                 withContext(Dispatchers.Main) {
-                    makeStatusNotification("Backup Complete!", applicationContext)
+                    makeStatusNotification(
+                        "Backup Complete!",
+                        applicationContext,
+                        BACKUP_NOTIFICATION_ID
+                    )
                 }
 
                 Result.success()

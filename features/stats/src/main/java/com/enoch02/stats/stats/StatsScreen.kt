@@ -1,6 +1,6 @@
 package com.enoch02.stats.stats
 
-import android.content.pm.ApplicationInfo
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,55 +14,70 @@ import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.automirrored.rounded.ReadMore
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.CalendarMonth
-import androidx.compose.material.icons.rounded.QuestionMark
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Timelapse
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import com.enoch02.stats.components.LeaderBoardValue
-import com.enoch02.stats.components.LeaderBoardView
+import com.enoch02.resources.LLString
 import com.enoch02.stats.components.QuickStatCard
 
 @Composable
 fun StatsScreen(
-    navController: NavController,
     modifier: Modifier,
     viewModel: StatsScreenViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
+    val currentStreak by viewModel.currentReadingStreak.collectAsState(0)
+    val longestStreak by viewModel.longestReadingStreak.collectAsState(0)
+
+    val formattedStreakMessage = remember(currentStreak) {
+        viewModel.formatCurrentStreakMessage(currentStreak)
+    }
+    val formattedLongestStreakMessage = remember(longestStreak) {
+        viewModel.formatLongestStreakMessage(longestStreak)
+    }
+
+    val readingGoal by viewModel.readingGoal.collectAsState(0)
+    val readingProgress by viewModel.readingProgress.collectAsState(0)
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+//        horizontalAlignment = Alignment.CenterHorizontally,
         content = {
-            if (0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) {
-                Column(modifier = Modifier.weight(0.1f)) {
-                    Text(
-                        text = "🔥 10-Day Reading Streak",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                    ReadingProgressView(modifier = Modifier)
-                }
-            }
+            StreakView(
+                streakMessage = formattedStreakMessage,
+                timeRemaining = viewModel.getFormattedTimeRemainingForStreak()
+            )
+
+            Spacer(Modifier.height(6.dp))
+
+            ReadingProgressView(
+                modifier = Modifier,
+                progress = readingProgress,
+                goal = readingGoal
+            )
+
+            Spacer(Modifier.height(8.dp))
 
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 150.dp),
                 modifier = Modifier
-                    .weight(0.45f)
                     .padding(bottom = 4.dp)
             ) {
                 item {
                     QuickStatCard(
-                        title = "Total Books Read",
+                        title = stringResource(LLString.totalBooksRead),
                         value = viewModel.totalCount.withCommas(),
                         icon = Icons.AutoMirrored.Rounded.MenuBook
                     )
@@ -70,7 +85,7 @@ fun StatsScreen(
 
                 item {
                     QuickStatCard(
-                        title = "Pages Read",
+                        title = stringResource(LLString.pagesRead),
                         value = viewModel.pagesReadCount.withCommas(),
                         icon = Icons.AutoMirrored.Rounded.MenuBook
                     )
@@ -78,7 +93,7 @@ fun StatsScreen(
 
                 item {
                     QuickStatCard(
-                        title = "Total Hours*",
+                        title = stringResource(LLString.totalHours),
                         value = viewModel.totalHoursRead.withCommas(),
                         icon = Icons.Rounded.AccessTime
                     )
@@ -86,7 +101,7 @@ fun StatsScreen(
 
                 item {
                     QuickStatCard(
-                        title = "Fastest Book Completed",
+                        title = stringResource(LLString.fastestBookCompleted),
                         value = viewModel.fastestCompletedBook,
                         icon = Icons.Rounded.Timelapse
                     )
@@ -95,7 +110,10 @@ fun StatsScreen(
                 item {
                     QuickStatCard(
                         title = "Reading",
-                        value = "${viewModel.currentlyReadingCount} Books",
+                        value = stringResource(
+                            LLString.currentlyReading,
+                            viewModel.currentlyReadingCount
+                        ),
                         icon = Icons.AutoMirrored.Rounded.ReadMore
                     )
                 }
@@ -103,24 +121,66 @@ fun StatsScreen(
                 item {
                     QuickStatCard(
                         title = "Longest Streak",
-                        value = "n Days",
+                        value = formattedLongestStreakMessage,
                         icon = Icons.Rounded.CalendarMonth
                     )
                 }
+
+                item {
+                    QuickStatCard(
+                        title = stringResource(LLString.completedThisYear),
+                        value = viewModel.booksReadThisYear.withCommas(),
+                        icon = Icons.Rounded.Check
+                    )
+                }
+            }
+
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(LLString.roughEstimate),
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
     )
 }
 
 @Composable
-fun ReadingProgressView(modifier: Modifier) {
+fun StreakView(modifier: Modifier = Modifier, streakMessage: String, timeRemaining: String) {
+    Column(modifier = modifier) {
+        Text(
+            text = streakMessage,
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        Text(
+            text = timeRemaining
+        )
+    }
+}
+
+@Composable
+fun ReadingProgressView(modifier: Modifier, progress: Int, goal: Int) {
+    val message = if (progress >= 0 && goal > 0) {
+        stringResource(LLString.readingGoalText, progress, goal)
+    } else {
+        stringResource(LLString.setReadingGoalMsg)
+    }
+
     Column(modifier = modifier.fillMaxWidth()) {
-        Text("Yearly Goal: 15/30 Books")
+        Text(message)
 
         Spacer(Modifier.height(4.dp))
 
         LinearProgressIndicator(
-            progress = { 0.5f },
+            progress = {
+                if (progress > 0 && goal > 0) {
+                    progress.toFloat() / goal
+                } else {
+                    0f
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
         )
     }

@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.enoch02.literarylinc.R
+import com.enoch02.resources.LLString
 
 @Composable
 fun SheetHeader() {
@@ -34,7 +35,7 @@ fun SheetHeader() {
             Spacer(modifier = Modifier.width(6.dp))
 
             Text(
-                text = stringResource(id = R.string.app_name),
+                text = stringResource(id = LLString.appName),
                 fontSize = MaterialTheme.typography.headlineMedium.fontSize,
                 fontWeight = MaterialTheme.typography.headlineMedium.fontWeight
             )

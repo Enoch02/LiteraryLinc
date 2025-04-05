@@ -56,6 +56,7 @@ import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.enoch02.booklist.R
 import com.enoch02.database.model.Book
+import com.enoch02.resources.LLString
 import com.enoch02.resources.composables.SelectionOverlay
 import kotlin.time.Duration.Companion.seconds
 
@@ -77,7 +78,7 @@ fun BookListView(
             contentAlignment = Alignment.Center,
             content = {
                 Text(
-                    text = stringResource(R.string.empty_booklist_msg),
+                    text = stringResource(LLString.emptyBooklistMsg),
                     textAlign = TextAlign.Center
                 )
             }
@@ -149,7 +150,7 @@ fun BookListView(
 }
 
 @Composable
-private fun BookListItem(
+fun BookListItem(
     modifier: Modifier,
     book: Book,
     coverPath: String?,
@@ -215,7 +216,7 @@ private fun BookListItem(
 
                 if (showEmptyProgress) {
                     Text(
-                        text = stringResource(R.string.progress_not_recorded),
+                        text = stringResource(LLString.progressNotRecorded),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -263,7 +264,7 @@ private fun BookListItem(
             onDismiss = {
                 showWarningDialog = false
             },
-            message = stringResource(R.string.delete_entry_warning)
+            message = stringResource(LLString.deleteEntryWarning)
         )
     }
 }
@@ -273,7 +274,7 @@ private fun ItemWarningDialog(
     modifier: Modifier = Modifier,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
-    title: String = stringResource(R.string.warning),
+    title: String = stringResource(LLString.warning),
     message: String
 ) {
     AlertDialog(
@@ -283,7 +284,7 @@ private fun ItemWarningDialog(
             TextButton(
                 onClick = onConfirm,
                 content = {
-                    Text(text = stringResource(R.string.yes), color = Color.Red)
+                    Text(text = stringResource(LLString.yes), color = Color.Red)
                 }
             )
         },
@@ -291,7 +292,7 @@ private fun ItemWarningDialog(
             TextButton(
                 onClick = onDismiss,
                 content = {
-                    Text(text = stringResource(R.string.no))
+                    Text(text = stringResource(LLString.no))
                 }
             )
         },

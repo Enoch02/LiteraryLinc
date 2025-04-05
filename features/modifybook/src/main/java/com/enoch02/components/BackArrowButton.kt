@@ -6,7 +6,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import com.enoch02.addbook.R
+import com.enoch02.resources.LLString
 
 @Composable
 internal fun BackArrowButton(onClick: () -> Unit) {
@@ -15,7 +15,7 @@ internal fun BackArrowButton(onClick: () -> Unit) {
         content = {
             Icon(
                 imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                contentDescription = stringResource(R.string.navigate_back_desc)
+                contentDescription = stringResource(LLString.navigateBack)
             )
         }
     )

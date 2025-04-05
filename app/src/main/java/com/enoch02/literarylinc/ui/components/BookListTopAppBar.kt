@@ -1,5 +1,7 @@
 package com.enoch02.literarylinc.ui.components
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -11,6 +13,7 @@ import androidx.compose.ui.res.stringResource
 import com.enoch02.booklist.components.BookViewMode
 import com.enoch02.database.model.StatusFilter
 import com.enoch02.literarylinc.R
+import com.enoch02.resources.LLString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -19,14 +22,15 @@ fun BookListTopAppBar(
     bookViewMode: BookViewMode,
     onChangeBookListMode: (mode: BookViewMode) -> Unit,
     onShowSortOption: (show: Boolean) -> Unit,
-    onChangeDrawerState: () -> Unit
+    onChangeDrawerState: () -> Unit,
+    onSearch: () -> Unit,
 ) {
     TopAppBar(
         title = {
             Text(
                 text = when (statusFilter) {
                     StatusFilter.ALL -> {
-                        stringResource(id = R.string.your_library_label)
+                        stringResource(id = LLString.yourLibrary)
                     }
 
                     StatusFilter.READING -> {
@@ -53,6 +57,16 @@ fun BookListTopAppBar(
         },
         actions = {
             IconButton(
+                onClick = { onSearch() },
+                content = {
+                    Icon(
+                        imageVector = Icons.Rounded.Search,
+                        contentDescription = stringResource(LLString.search)
+                    )
+                }
+            )
+
+            IconButton(
                 onClick = {
                     when (bookViewMode) {
                         BookViewMode.LIST_VIEW -> {
@@ -75,7 +89,7 @@ fun BookListTopAppBar(
                                 painterResource(id = R.drawable.round_view_list_24)
                             }
                         },
-                        contentDescription = stringResource(R.string.toggle_arrangement_desc)
+                        contentDescription = stringResource(LLString.toggleBooklistArrangementDesc)
                     )
                 }
             )
@@ -85,7 +99,7 @@ fun BookListTopAppBar(
                 content = {
                     Icon(
                         painter = painterResource(id = R.drawable.round_sort_24),
-                        contentDescription = stringResource(R.string.sort_desc)
+                        contentDescription = stringResource(LLString.sort)
                     )
                 }
             )
@@ -98,7 +112,7 @@ fun BookListTopAppBar(
                 content = {
                     Icon(
                         painter = painterResource(id = R.drawable.round_menu_24),
-                        contentDescription = stringResource(R.string.status_filter_menu_desc)
+                        contentDescription = stringResource(LLString.statusFilterDesc)
                     )
                 }
             )

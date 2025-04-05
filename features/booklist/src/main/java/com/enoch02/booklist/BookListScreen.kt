@@ -1,7 +1,6 @@
 package com.enoch02.booklist
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,7 +14,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Deselect
 import androidx.compose.material.icons.rounded.FlipToBack
 import androidx.compose.material.icons.rounded.SelectAll
 import androidx.compose.material3.AlertDialog
@@ -35,18 +33,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.enoch02.booklist.components.BookGridView
 import com.enoch02.booklist.components.BookListView
 import com.enoch02.booklist.components.BookViewMode
+import com.enoch02.booklist.components.BooklistBottomSheet
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
+import com.enoch02.resources.LLString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -59,11 +57,15 @@ fun BookListScreen(
     listViewMode: BookViewMode,
     onItemClick: (Int) -> Unit,
     onItemEdit: (Int) -> Unit,
+    isSearching: Boolean,
+    onDismissSearching: () -> Unit,
     viewModel: BookListViewModel = hiltViewModel()
 ) {
     val tabLabels = Book.Companion.BookType.entries.map { it.strName }
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabLabels.size })
     var showDeletionConfirmation by remember { mutableStateOf(false) }
+    val covers = viewModel.getCovers()
+        .collectAsState(initial = emptyMap()).value
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -87,7 +89,7 @@ fun BookListScreen(
                                     content = {
                                         Icon(
                                             imageVector = Icons.Rounded.Clear,
-                                            contentDescription = stringResource(R.string.clear_selection_desc)
+                                            contentDescription = stringResource(LLString.clearSelection)
                                         )
                                     }
                                 )
@@ -106,7 +108,7 @@ fun BookListScreen(
                                     content = {
                                         Icon(
                                             imageVector = Icons.Rounded.SelectAll,
-                                            contentDescription = stringResource(R.string.select_all_desc)
+                                            contentDescription = stringResource(LLString.selectAll)
                                         )
                                     }
                                 )
@@ -116,7 +118,7 @@ fun BookListScreen(
                                     content = {
                                         Icon(
                                             imageVector = Icons.Rounded.FlipToBack,
-                                            contentDescription = stringResource(R.string.invert_selection_desc)
+                                            contentDescription = stringResource(LLString.invertSelection)
                                         )
                                     }
                                 )
@@ -127,7 +129,7 @@ fun BookListScreen(
                                     content = {
                                         Icon(
                                             imageVector = Icons.Rounded.Delete,
-                                            contentDescription = stringResource(R.string.delete_selection_desc)
+                                            contentDescription = stringResource(LLString.deleteSelection)
                                         )
                                     }
                                 )
@@ -165,8 +167,6 @@ fun BookListScreen(
                         status = statusFilter
                     )
                         .collectAsState(initial = emptyList()).value
-                    val covers = viewModel.getCovers()
-                        .collectAsState(initial = emptyMap()).value
                     val selectedBooks = viewModel.selectedBooks
                     val onClick: (id: Int) -> Unit = { id ->
                         if (selectedBooks.isNotEmpty() && !viewModel.isBookSelected(id)) { // in item selection mode
@@ -201,7 +201,6 @@ fun BookListScreen(
                                 covers = covers,
                                 onItemClick = onClick,
                                 onItemLongClick = { id -> viewModel.addToSelectedBooks(id) },
-                                onItemDelete = { id -> viewModel.deleteBook(id) },
                                 modifier = Modifier.padding(4.dp)
                             )
                         }
@@ -219,9 +218,21 @@ fun BookListScreen(
             showDeletionConfirmation = false
         },
         message = stringResource(
-            R.string.book_list_multi_deletion_warning,
+            LLString.bookListMultiDeletionWarning,
             viewModel.selectedBooks.size
         )
+    )
+
+    BooklistBottomSheet(
+        visible = isSearching,
+        onDismissSearchSheet = onDismissSearching,
+        onSearch = { query ->
+            viewModel.searchFor(query)
+        },
+        covers = covers,
+        onDeleteBook = { id -> viewModel.deleteBook(id) },
+        onItemClick = onItemClick,
+        onEditBook = onItemEdit
     )
 }
 
@@ -237,18 +248,18 @@ private fun ConfirmDeletionDialog(
         AlertDialog(
             modifier = modifier,
             onDismissRequest = onDismiss,
-            title = { Text(text = stringResource(R.string.warning)) },
+            title = { Text(text = stringResource(LLString.warning)) },
             text = { Text(text = message) },
             confirmButton = {
                 TextButton(
                     onClick = onConfirm,
-                    content = { Text(text = stringResource(R.string.yes), color = Color.Red) }
+                    content = { Text(text = stringResource(LLString.yes), color = Color.Red) }
                 )
             },
             dismissButton = {
                 TextButton(
                     onClick = onDismiss,
-                    content = { Text(text = stringResource(R.string.no)) }
+                    content = { Text(text = stringResource(LLString.no)) }
                 )
             }
         )

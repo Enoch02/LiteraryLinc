@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.enoch02.addbook.R
+import com.enoch02.resources.LLString
 
 @Composable
 fun ProgressForm(
@@ -28,7 +28,7 @@ fun ProgressForm(
             horizontalArrangement = Arrangement.SpaceBetween,
             content = {
                 FormIntField(
-                    label = stringResource(R.string.pages_read_label),
+                    label = stringResource(LLString.pagesRead),
                     value = pagesRead,
                     onValueChange = onPagesReadChange,
                     modifier = Modifier.weight(0.45f)
@@ -39,7 +39,7 @@ fun ProgressForm(
                         .weight(0.1f)
                 )
                 FormIntField(
-                    label = stringResource(R.string.page_count_label),
+                    label = stringResource(LLString.pageCount),
                     value = pageCount,
                     onValueChange = onPageCountChange,
                     modifier = Modifier.weight(0.45f)
