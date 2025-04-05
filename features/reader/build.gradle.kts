@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.enoch02.reader"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
