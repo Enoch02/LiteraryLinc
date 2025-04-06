@@ -3,15 +3,15 @@ package com.enoch02.settings
 import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 
 private const val TAG = "ReadingProgressManager"
 
-//TODO: handle edge case were user manually changes device's date and time to
-// a future date, then reverts it back to present date?
-class ReadingProgressManager(val settingsRepository: SettingsRepository) {
+class ReadingProgressManager(private val settingsRepository: SettingsRepository) {
     private val oneDayInMillis = 24 * 60 * 60 * 1000L // 24 hours in milliseconds
-    private val halfADayInMillis = oneDayInMillis / 2
+
+    //    private val oneAndHalfDays = (oneDayInMillis * 1.5).toLong()
+    private val oneDayAndSixHoursInMillis = (oneDayInMillis * 1.25).toLong()
+
 
     /**
      * Obtain the reading streak stored in the repository
@@ -44,12 +44,12 @@ class ReadingProgressManager(val settingsRepository: SettingsRepository) {
         val timeDifference = currentTime - lastStreakUpdateTime
 
         when {
-            timeDifference > oneDayInMillis * 1.5 -> {
+            timeDifference > oneDayAndSixHoursInMillis -> {
                 resetReadingStreak()
             }
 
             timeDifference >= oneDayInMillis -> {
-                // between 24-36 hours (1-1.5 days)
+                // between 24-36 hours (1-1.25 days)
                 Log.i(TAG, "updateReadingStreak: Exactly one day passed. Incrementing streak.")
                 val newStreak = getReadingStreak().first() + 1
 
@@ -72,6 +72,7 @@ class ReadingProgressManager(val settingsRepository: SettingsRepository) {
         }
 
         checkForNewLongestStreak()
+        checkForTimeManipulation()
     }
 
     /**
@@ -107,23 +108,22 @@ class ReadingProgressManager(val settingsRepository: SettingsRepository) {
             .first()
 
         // Calculate deadline timestamp
-        return lastOpened + oneDayInMillis + halfADayInMillis
+        return lastOpened + oneDayAndSixHoursInMillis
     }
 
     /**
      * Returns the time remaining before the streak ends, in milliseconds.
      * Negative value indicates the streak has already expired.
      */
-    fun getTimeRemainingForStreak(): Long {
+    suspend fun getTimeRemainingForStreak(): Long {
         val currentTime = System.currentTimeMillis()
-        val deadlineTimestamp = runBlocking { getStreakExpirationTimestamp() }
+        val deadlineTimestamp = getStreakExpirationTimestamp()
 
         return deadlineTimestamp - currentTime
     }
 
-    suspend fun resetReadingStreak() {
-        // more than 1.5 days (allowing for some buffer)
-        Log.i(TAG, "updateReadingStreak: More than one day passed. Streak reset.")
+    private suspend fun resetReadingStreak() {
+        Log.i(TAG, "resetReadingStreak: More than one day passed. Streak reset.")
 
         settingsRepository
             .switchPreference(
@@ -183,5 +183,18 @@ class ReadingProgressManager(val settingsRepository: SettingsRepository) {
      */
     fun getReadingGoalProgress(): Flow<Int> {
         return settingsRepository.getPreference(SettingsRepository.IntPreferenceType.BOOK_READING_PROGRESS)
+    }
+
+    /**
+     * checks if date was moved to a future (or past) date and time then reverted to the current time
+     */
+    suspend fun checkForTimeManipulation() {
+        val remainingMillis = getTimeRemainingForStreak()
+        Log.d(TAG, "checkForTimeManipulation: remainingTimeForStreakInMillis=$remainingMillis")
+
+        if (remainingMillis >= oneDayAndSixHoursInMillis || remainingMillis < 0) {
+            Log.i(TAG, "checkForTimeManipulation: time manipulation detected! resetting streak")
+            resetReadingStreak()
+        }
     }
 }

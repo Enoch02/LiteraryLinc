@@ -20,9 +20,12 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -48,6 +51,11 @@ fun StatsScreen(
 
     val readingGoal by viewModel.readingGoal.collectAsState(0)
     val readingProgress by viewModel.readingProgress.collectAsState(0)
+    var timeRemainingForStreak by remember { mutableStateOf("") }
+
+    LaunchedEffect(currentStreak) {
+        timeRemainingForStreak = viewModel.getFormattedTimeRemainingForStreak()
+    }
 
     Column(
         modifier = modifier
@@ -56,8 +64,9 @@ fun StatsScreen(
 //        horizontalAlignment = Alignment.CenterHorizontally,
         content = {
             StreakView(
+                currentStreak = currentStreak,
                 streakMessage = formattedStreakMessage,
-                timeRemaining = viewModel.getFormattedTimeRemainingForStreak()
+                timeRemaining = timeRemainingForStreak
             )
 
             Spacer(Modifier.height(6.dp))
@@ -147,16 +156,23 @@ fun StatsScreen(
 }
 
 @Composable
-fun StreakView(modifier: Modifier = Modifier, streakMessage: String, timeRemaining: String) {
+fun StreakView(
+    modifier: Modifier = Modifier,
+    currentStreak: Int,
+    streakMessage: String,
+    timeRemaining: String
+) {
     Column(modifier = modifier) {
         Text(
             text = streakMessage,
             style = MaterialTheme.typography.headlineSmall
         )
 
-        Text(
-            text = timeRemaining
-        )
+        if (currentStreak >= 1) {
+            Text(
+                text = timeRemaining
+            )
+        }
     }
 }
 
