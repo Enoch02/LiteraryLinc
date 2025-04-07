@@ -36,7 +36,7 @@ android {
 }
 
 dependencies {
-    api("com.artifex.mupdf:fitz:1.24.9")
+    api("com.artifex.mupdf:fitz:1.25.6")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
