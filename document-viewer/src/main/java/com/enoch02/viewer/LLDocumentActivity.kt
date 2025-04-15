@@ -37,7 +37,7 @@ class LLDocumentActivity : ComponentActivity() {
             val dynamicColor by viewModel.dynamicColor.collectAsState(false)
 
             LaunchedEffect(Unit) {
-                viewModel.readingProgressManager.updateReadingStreak()
+                viewModel.readingProgressManager.updateReadingStreak(isBookOpen = true)
             }
 
             DisposableEffect(Unit) {

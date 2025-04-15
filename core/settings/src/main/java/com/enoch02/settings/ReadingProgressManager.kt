@@ -1,18 +1,22 @@
 package com.enoch02.settings
 
+import android.icu.text.SimpleDateFormat
+import android.os.Build
 import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 private const val TAG = "ReadingProgressManager"
 
+//TODO: update when the day changes instead of waiting for 24 hours
 class ReadingProgressManager(private val settingsRepository: SettingsRepository) {
-    private val oneDayInMillis = 24 * 60 * 60 * 1000L // 24 hours in milliseconds
-
-    //    private val oneAndHalfDays = (oneDayInMillis * 1.5).toLong()
-    private val oneDayAndSixHoursInMillis = (oneDayInMillis * 1.25).toLong()
-
-
     /**
      * Obtain the reading streak stored in the repository
      */
@@ -30,50 +34,70 @@ class ReadingProgressManager(private val settingsRepository: SettingsRepository)
     /**
      * Updates the stored reading streak. Resets the value to 0 if over
      * a day has passed, else it increments the streak by 1.
+     *
+     * @param isBookOpen was this called after opening a book?
      */
-    suspend fun updateReadingStreak() {
+    suspend fun updateReadingStreak(isBookOpen: Boolean) {
         val lastStreakUpdateTime = settingsRepository
             .getPreference(SettingsRepository.LongPreferenceType.LAST_STREAK_UPDATE_TIMESTAMP)
             .first()
         val currentTime = System.currentTimeMillis()
 
-        Log.d(TAG, "last streak update time = $lastStreakUpdateTime.")
-        Log.d(TAG, "current time = $currentTime.")
+        Log.d(TAG, "last streak update time = ${formatMillisAsString(lastStreakUpdateTime)}.")
+        Log.d(TAG, "current time = ${formatMillisAsString(currentTime)}")
 
-        // calculate days difference using milliseconds
-        val timeDifference = currentTime - lastStreakUpdateTime
+        val lastCal =
+            Calendar.getInstance().apply { timeInMillis = lastStreakUpdateTime ?: currentTime }
+        val currentCal = Calendar.getInstance().apply { timeInMillis = currentTime }
+
+        val lastYear = lastCal.get(Calendar.YEAR)
+        val lastDayOfYear = lastCal.get(Calendar.DAY_OF_YEAR)
+
+        val currentYear = currentCal.get(Calendar.YEAR)
+        val currentDayOfYear = currentCal.get(Calendar.DAY_OF_YEAR)
+
+        val isSameDay = lastYear == currentYear && lastDayOfYear == currentDayOfYear
+        val daysBetween = if (lastYear == currentYear) {
+            currentDayOfYear - lastDayOfYear
+        } else {
+            // Handle year change (e.g., Dec 31 -> Jan 1)
+            val daysInLastYear = lastCal.getActualMaximum(Calendar.DAY_OF_YEAR)
+            (daysInLastYear - lastDayOfYear) + currentDayOfYear
+        }
 
         when {
-            timeDifference > oneDayAndSixHoursInMillis -> {
-                resetReadingStreak()
+            isSameDay -> {
+                Log.i(TAG, "updateReadingStreak: Same calendar day. No streak change.")
             }
 
-            timeDifference >= oneDayInMillis -> {
-                // between 24-36 hours (1-1.25 days)
-                Log.i(TAG, "updateReadingStreak: Exactly one day passed. Incrementing streak.")
-                val newStreak = getReadingStreak().first() + 1
+            daysBetween == 1 -> {
+                if (isBookOpen) {
+                    Log.i(TAG, "updateReadingStreak: New calendar day. Incrementing streak.")
+                    val newStreak = getReadingStreak().first() + 1
 
-                settingsRepository
-                    .switchPreference(
+                    settingsRepository.switchPreference(
                         SettingsRepository.IntPreferenceType.CURRENT_READING_STREAK,
                         newStreak
                     )
+                }
+            }
 
-                settingsRepository.switchPreference(
-                    SettingsRepository.LongPreferenceType.LAST_STREAK_UPDATE_TIMESTAMP,
-                    currentTime
-                )
+            daysBetween < 0 -> {
+                resetReadingStreak("Possible time manipulation detected. Streak reset.")
             }
 
             else -> {
-                // less than 24 hours - no streak change
-                Log.i(TAG, "updateReadingStreak: Less than one day passed. No streak change.")
+                resetReadingStreak("More than one day passed. Streak reset.")
             }
         }
 
+        settingsRepository.switchPreference(
+            SettingsRepository.LongPreferenceType.LAST_STREAK_UPDATE_TIMESTAMP,
+            currentTime
+        )
         checkForNewLongestStreak()
-        checkForTimeManipulation()
     }
+
 
     /**
      * Compares the current streak with the stored longest streak.
@@ -98,32 +122,8 @@ class ReadingProgressManager(private val settingsRepository: SettingsRepository)
         }
     }
 
-    /**
-     * Returns the timestamp when the current streak will expire.
-     * This represents the deadline before which the user needs to read again.
-     */
-    private suspend fun getStreakExpirationTimestamp(): Long {
-        val lastOpened = settingsRepository
-            .getPreference(SettingsRepository.LongPreferenceType.LAST_STREAK_UPDATE_TIMESTAMP)
-            .first()
-
-        // Calculate deadline timestamp
-        return lastOpened + oneDayAndSixHoursInMillis
-    }
-
-    /**
-     * Returns the time remaining before the streak ends, in milliseconds.
-     * Negative value indicates the streak has already expired.
-     */
-    suspend fun getTimeRemainingForStreak(): Long {
-        val currentTime = System.currentTimeMillis()
-        val deadlineTimestamp = getStreakExpirationTimestamp()
-
-        return deadlineTimestamp - currentTime
-    }
-
-    private suspend fun resetReadingStreak() {
-        Log.i(TAG, "resetReadingStreak: More than one day passed. Streak reset.")
+    private suspend fun resetReadingStreak(message: String) {
+        Log.i(TAG, "resetReadingStreak: $message")
 
         settingsRepository
             .switchPreference(
@@ -185,16 +185,25 @@ class ReadingProgressManager(private val settingsRepository: SettingsRepository)
         return settingsRepository.getPreference(SettingsRepository.IntPreferenceType.BOOK_READING_PROGRESS)
     }
 
-    /**
-     * checks if date was moved to a future (or past) date and time then reverted to the current time
-     */
-    suspend fun checkForTimeManipulation() {
-        val remainingMillis = getTimeRemainingForStreak()
-        Log.d(TAG, "checkForTimeManipulation: remainingTimeForStreakInMillis=$remainingMillis")
+    private fun formatMillisAsString(date: Long?): String {
+        return when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && date != null -> {
+                val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy hh:mm")
+                val dateObj = LocalDateTime.ofInstant(
+                    Instant.ofEpochMilli(date),
+                    ZoneId.systemDefault()
+                )
+                formatter.format(dateObj)
+            }
 
-        if (remainingMillis >= oneDayAndSixHoursInMillis || remainingMillis < 0) {
-            Log.i(TAG, "checkForTimeManipulation: time manipulation detected! resetting streak")
-            resetReadingStreak()
+            Build.VERSION.SDK_INT <= Build.VERSION_CODES.O && date != null -> {
+                val formatter = SimpleDateFormat("dd MMM yyyy hh:mm", Locale.ROOT)
+                formatter.format(Date(date))
+            }
+
+            else -> {
+                ""
+            }
         }
     }
 }

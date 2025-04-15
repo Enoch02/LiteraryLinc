@@ -42,7 +42,6 @@ class StatsScreenViewModel @Inject constructor(
     init {
         collectOtherStats()
         getStreak()
-        checkForTimeManipulation()
     }
 
     fun formatCurrentStreakMessage(value: Int): String {
@@ -81,26 +80,6 @@ class StatsScreenViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Formats the remaining time as a human-readable string.
-     * Example: "23 hours, 45 minutes"
-     */
-    suspend fun getFormattedTimeRemainingForStreak(): String {
-        val remainingMillis = readingProgressManager.getTimeRemainingForStreak()
-
-        val hours = TimeUnit.MILLISECONDS.toHours(remainingMillis)
-        val minutes = TimeUnit.MILLISECONDS.toMinutes(remainingMillis) % 60
-
-        return buildString {
-            append("Streak Expires in ")
-
-            when {
-                hours > 0 -> append("$hours hours, $minutes minutes")
-                else -> append("$minutes minutes")
-            }
-        }
-    }
-
     private fun collectOtherStats() {
         viewModelScope.launch(Dispatchers.IO) {
             booksFlow.collect { books ->
@@ -116,10 +95,6 @@ class StatsScreenViewModel @Inject constructor(
 
     private fun getStreak(): Flow<Int> {
         return readingProgressManager.getReadingStreak()
-    }
-
-    private fun checkForTimeManipulation() {
-        viewModelScope.launch(Dispatchers.IO) { readingProgressManager.checkForTimeManipulation() }
     }
 
     private fun computeTotalHoursRead(books: List<Book>) {
@@ -159,6 +134,12 @@ class StatsScreenViewModel @Inject constructor(
         val yearFromTimestamp = calendar.get(Calendar.YEAR)
 
         return yearFromTimestamp == currentYear
+    }
+
+    fun updateReadingStreak() {
+        viewModelScope.launch(Dispatchers.IO) {
+            readingProgressManager.updateReadingStreak(isBookOpen = false)
+        }
     }
 }
 

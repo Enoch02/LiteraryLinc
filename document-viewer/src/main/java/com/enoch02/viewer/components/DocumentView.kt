@@ -195,7 +195,7 @@ fun DocumentView(
                         )
                         val imageZoomState = rememberZoomableImageState(zoomState)
 
-                        HorizontalPager(state = pagerState, beyondViewportPageCount = 1) { index ->
+                        HorizontalPager(state = pagerState, beyondViewportPageCount = 1, pageSpacing = 8.dp) { index ->
                             var pageContainerSize by remember {
                                 mutableStateOf(
                                     IntSize.Zero

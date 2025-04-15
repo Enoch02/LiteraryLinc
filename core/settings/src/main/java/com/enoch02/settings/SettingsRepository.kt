@@ -56,13 +56,12 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    fun getPreference(preference: LongPreferenceType): Flow<Long> {
+    fun getPreference(preference: LongPreferenceType): Flow<Long?> {
         val key = getKeyForPreference(preference)
-        val flow: Flow<Long> =
-            context.dataStore.data.map { preferences ->
-                preferences[key] ?: 0
-            }
-        return flow
+
+        return context.dataStore.data.map { preferences ->
+            preferences[key]
+        }
     }
 
     // Private keys to restrict access

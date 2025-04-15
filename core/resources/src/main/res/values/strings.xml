@@ -50,7 +50,7 @@
     <string name="select_all_desc">Select All</string>
     <string name="invert_selection_desc">Invert Selection</string>
     <string name="book_list_multi_deletion_warning">Do you want to delete %1$s book data?</string>
-    <string name="search_input_placeholder">Book Title or Author\n</string>
+    <string name="search_input_placeholder">Book Title or Author</string>
 
     <string name="add_a_new_book">Add a New Book</string>
     <string name="save_book_desc">Save book details</string>
