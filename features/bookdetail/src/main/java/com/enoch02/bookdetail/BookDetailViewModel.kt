@@ -11,6 +11,7 @@ import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.model.Book
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -30,23 +31,14 @@ class BookDetailViewModel @Inject constructor(
                 document.name
             }
         }
-    var book by mutableStateOf(Book())
+
     var coverPath: String? by mutableStateOf(null)
 
-    suspend fun getBookInfo(id: Int) {
-        book = getBook(id)
-        if (!book.coverImageName.isNullOrEmpty()) {
-            coverPath = getCover(book.coverImageName!!)
-        }
-    }
+    fun getBookWith(id: Int): Flow<Book?> = bookDao.getBookByIdFlow(id)
 
-    private suspend fun getBook(id: Int): Book {
-        return withContext(viewModelScope.coroutineContext) {
-            bookDao.getBookById(id)
-        }
+    suspend fun getCover(coverName: String?) {
+        coverPath = covers.first()[coverName]
     }
-
-    private suspend fun getCover(coverName: String): String? = covers.first()[coverName]
 
     fun getCovers() = covers
 
@@ -55,14 +47,24 @@ class BookDetailViewModel @Inject constructor(
     fun unlinkDocumentFromBook(book: Book) {
         viewModelScope.launch(Dispatchers.IO) {
             bookDao.updateBook(book.copy(documentMd5 = null))
-            book.id?.let { getBookInfo(it) } // update the reference to the book in the view
         }
     }
 
     fun linkDocumentToBook(book: Book, documentMd5: String) {
         viewModelScope.launch(Dispatchers.IO) {
             bookDao.updateBook(book.copy(documentMd5 = documentMd5))
-            book.id?.let { getBookInfo(it) }
+        }
+    }
+
+    fun updateBookStatus(book: Book, newStatus: Book.Companion.BookStatus) {
+        viewModelScope.launch(Dispatchers.IO) {
+            bookDao.updateBook(book.copy(status = newStatus.strName))
+        }
+    }
+
+    fun updateBookRating(book: Book, newRating: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            bookDao.updateBook(book.copy(personalRating = newRating))
         }
     }
 }
