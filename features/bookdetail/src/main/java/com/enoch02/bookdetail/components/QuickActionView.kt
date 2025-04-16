@@ -26,9 +26,6 @@ fun QuickActionView(
     var showRatingDropdown by remember { mutableStateOf(false) }
 
     Column(modifier = modifier) {
-        //TODO: implement this to change the book status after a
-        // dropdown showing available choices are displayed. Also
-        // extract string to LLString
         Button(
             onClick = {
                 showStatusDropdown = true
