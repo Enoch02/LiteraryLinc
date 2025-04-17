@@ -27,7 +27,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -85,8 +84,7 @@ fun BookDetailScreen(
                             content = {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                                    contentDescription = stringResource(LLString.navigateBack),
-                                    tint = MaterialTheme.colorScheme.onPrimary
+                                    contentDescription = stringResource(LLString.navigateBack)
                                 )
                             }
                         )
@@ -111,8 +109,7 @@ fun BookDetailScreen(
                                 content = {
                                     Icon(
                                         imageVector = icon,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onPrimary
+                                        contentDescription = null
                                     )
                                 }
                             )
@@ -137,13 +134,11 @@ fun BookDetailScreen(
                                         stringResource(LLString.linkDocument)
                                     } else {
                                         stringResource(LLString.unLinkDocument)
-                                    },
-                                    tint = MaterialTheme.colorScheme.onPrimary
+                                    }
                                 )
-                            },
+                            }
                         )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
+                    }
                 )
             },
             content = { paddingValues ->
