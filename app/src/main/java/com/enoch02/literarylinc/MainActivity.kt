@@ -5,17 +5,14 @@ import android.view.View
 import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import com.enoch02.literarylinc.navigation.LiteraryLincNavHost
@@ -30,6 +27,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             val viewModel: InitViewModel = hiltViewModel()
             val alwaysDark by viewModel.getBooleanPreference(key = SettingsRepository.BooleanPreferenceType.DARK_MODE)
@@ -42,16 +40,6 @@ class MainActivity : ComponentActivity() {
                     alwaysDark = alwaysDark!!,
                     dynamicColor = dynamicColor!!,
                     content = {
-                        window.navigationBarColor =
-                            MaterialTheme.colorScheme.surfaceContainer.toArgb()
-                        val windowInsetsController =
-                            WindowInsetsControllerCompat(window, window.decorView)
-                        if (!isSystemInDarkTheme()) {
-                            // Set to true for dark icons, false for light icons
-                            windowInsetsController.isAppearanceLightNavigationBars = true
-                        }
-
-
                         Surface(
                             modifier = Modifier
                                 .fillMaxSize()
