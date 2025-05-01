@@ -147,19 +147,17 @@ fun BookDetailScreen(
                         item {
                             val viewHeight = 225.dp
 
-                            Column {
-                                Row {
-                                    Card {
-                                        AsyncImage(
-                                            model = viewModel.coverPath
-                                                ?: R.drawable.placeholder_image,
-                                            contentDescription = null,
-                                            contentScale = ContentScale.FillBounds,
-                                            modifier = Modifier
-                                                .size(width = 149.dp, height = viewHeight)
-                                                .padding(8.dp)
-                                        )
-                                    }
+                            Card {
+                                Row(modifier = Modifier.padding(4.dp)) {
+                                    AsyncImage(
+                                        model = viewModel.coverPath
+                                            ?: R.drawable.placeholder_image,
+                                        contentDescription = null,
+                                        contentScale = ContentScale.FillBounds,
+                                        modifier = Modifier
+                                            .size(width = 149.dp, height = viewHeight)
+                                            .padding(8.dp)
+                                    )
 
                                     Spacer(modifier = Modifier.width(6.dp))
 
