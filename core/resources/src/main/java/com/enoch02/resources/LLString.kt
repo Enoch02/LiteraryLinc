@@ -18,6 +18,7 @@ object LLString {
     val statusFilterDesc = R.string.status_filter_menu_desc
     val reader = R.string.reader_label
     val cancel = R.string.cancel
+    val clear = R.string.clear
     val openMenu = R.string.open_menu
     val filters = R.string.filters
     val deleteSelection = R.string.delete_selection_desc
