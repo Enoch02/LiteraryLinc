@@ -80,6 +80,8 @@ class LLDocumentViewModel @Inject constructor(
     val documentInfo by _documentInfo
     private var _showRereadDialog = mutableStateOf(false)
     val showRereadDialog by _showRereadDialog
+    private var _askForRating = mutableStateOf(false)
+    val askForRating by _askForRating
 
     private var docTitle by mutableStateOf("")
     private var docKey = ""
@@ -389,6 +391,10 @@ class LLDocumentViewModel @Inject constructor(
                 //                  check if book has not been completed in the past
                 if (isComplete && theBook.dateCompleted == null) {
                     readingProgressManager.incrementReadingGoalProgress()
+
+                    if (theBook.personalRating == 0) {
+                        _askForRating.value = true
+                    }
                 }
 
                 bookDao.updateBook(
@@ -565,6 +571,23 @@ class LLDocumentViewModel @Inject constructor(
 
             _showRereadDialog.value = false
         }
+    }
+
+    suspend fun setBookRating(rating: Int) {
+        val book = documentId?.let { bookDao.getBookByMd5(it) }
+        book?.let { theBook ->
+            bookDao.updateBook(
+                theBook.copy(
+                    personalRating = rating
+                )
+            )
+        }
+
+        _askForRating.value = false
+    }
+
+    fun closeRatingDialog() {
+        _askForRating.value = false
     }
 
     override fun onCleared() {

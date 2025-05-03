@@ -313,7 +313,7 @@ fun EditBookScreen(
                             value = personalRating.toFloat(),
                             onValueChange = { personalRating = "${it.toInt()}" },
                             range = 0f..10f,
-                            steps = 10,
+                            steps = 9,
                             modifier = Modifier.padding(vertical = 8.dp)
                         )
                     }

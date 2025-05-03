@@ -12,6 +12,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
@@ -31,6 +33,7 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
@@ -88,6 +91,7 @@ import me.saket.telephoto.zoomable.rememberZoomableImageState
 import me.saket.telephoto.zoomable.rememberZoomableState
 import java.math.BigDecimal
 import java.math.RoundingMode
+import androidx.core.net.toUri
 
 @Composable
 fun DocumentView(
@@ -195,7 +199,11 @@ fun DocumentView(
                         )
                         val imageZoomState = rememberZoomableImageState(zoomState)
 
-                        HorizontalPager(state = pagerState, beyondViewportPageCount = 1, pageSpacing = 8.dp) { index ->
+                        HorizontalPager(
+                            state = pagerState,
+                            beyondViewportPageCount = 1,
+                            pageSpacing = 8.dp
+                        ) { index ->
                             var pageContainerSize by remember {
                                 mutableStateOf(
                                     IntSize.Zero
@@ -276,7 +284,7 @@ fun DocumentView(
                                                             val intent =
                                                                 Intent(
                                                                     Intent.ACTION_VIEW,
-                                                                    Uri.parse(link.uri)
+                                                                    link.uri.toUri()
                                                                 )
 
                                                             try {
@@ -432,6 +440,55 @@ fun DocumentView(
                         },
                         onDismissRequest = {
                             viewModel.closeRereadDialog()
+                        }
+                    )
+                }
+
+                if (viewModel.askForRating) {
+                    var rating by remember { mutableIntStateOf(5) }
+
+                    AlertDialog(
+                        onDismissRequest = {
+                            viewModel.closeRatingDialog()
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        viewModel.setBookRating(rating)
+                                    }
+                                },
+                                content = {
+                                    Text(stringResource(R.string.yes))
+                                }
+                            )
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    viewModel.closeRatingDialog()
+                                },
+                                content = {
+                                    Text(stringResource(R.string.no))
+                                }
+                            )
+                        },
+                        title = {
+                            Text(stringResource(R.string.rate_book_question))
+                        },
+                        text = {
+                            Column {
+                                Text(text = "$rating", style = MaterialTheme.typography.labelMedium)
+
+                                Slider(
+                                    value = rating.toFloat(),
+                                    onValueChange = { newValue ->
+                                        rating = newValue.toInt()
+                                    },
+                                    valueRange = 1f..10f,
+                                    steps = 8
+                                )
+                            }
                         }
                     )
                 }
@@ -647,7 +704,6 @@ private fun calculateLinkAreas(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TableOfContentSheet(chapterPage: Int, outline: List<Item>, onItemSelected: (Int) -> Unit) {
     var selected by remember { mutableIntStateOf(0) }

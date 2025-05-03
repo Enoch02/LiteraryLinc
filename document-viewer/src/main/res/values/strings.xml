@@ -17,4 +17,7 @@
 	<string name="missing_doc_title">Could not open document</string>
     <string name="info">Information</string>
 	<string name="reread_book_msg">This document has been marked as complete in the book list. Do you want to mark this book as being reread?</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="rate_book_question">Rate this book?</string>
 </resources>
