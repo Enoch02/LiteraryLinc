@@ -27,12 +27,12 @@ import com.enoch02.database.model.Book.Companion.BookStatus
 import com.enoch02.database.model.LLDocument
 import com.enoch02.resources.BitmapManager
 import com.enoch02.resources.mupdf.ContentInputStream
-import com.enoch02.settings.SettingsRepository
-import com.enoch02.viewer.model.ContentState
 import com.enoch02.resources.mupdf.model.Item
 import com.enoch02.resources.mupdf.model.LinkItem
 import com.enoch02.resources.mupdf.model.SearchResult
 import com.enoch02.settings.ReadingProgressManager
+import com.enoch02.settings.SettingsRepository
+import com.enoch02.viewer.model.ContentState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -272,6 +272,9 @@ class LLDocumentViewModel @Inject constructor(
         // synchronize currentPage with zero indexing expected by the pager
         if (currentPage > 0) {
             currentPage--
+        } else {
+            // Ensure currentPage is never negative
+            currentPage = 0
         }
     }
 
