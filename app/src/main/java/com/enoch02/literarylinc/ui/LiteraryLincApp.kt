@@ -18,6 +18,8 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -25,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -61,6 +64,7 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
     val scope = rememberCoroutineScope()
     var currentScreen by rememberSaveable { mutableStateOf(TopLevelDestination.READER) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val snackbarHostState = remember { SnackbarHostState() }
 
     //book list
     var currentBookListSorting by rememberSaveable { mutableStateOf(Sorting.ALPHABETICAL) }
@@ -308,7 +312,13 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                 }
 
                                 TopLevelDestination.STATS -> {
-                                    StatsScreen(modifier = Modifier.padding(paddingValues))
+                                    StatsScreen(
+                                        modifier = Modifier.padding(paddingValues),
+                                        snackbarHostState = snackbarHostState,
+                                        onSaveProgressData = { goal, progress ->
+                                            viewModel.updateReadingGoalData(goal, progress)
+                                        }
+                                    )
                                 }
 
                                 TopLevelDestination.MORE -> {
@@ -321,7 +331,8 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                         },
                         label = "MainScaffold Cross-fade"
                     )
-                }
+                },
+                snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             )
         }
     )

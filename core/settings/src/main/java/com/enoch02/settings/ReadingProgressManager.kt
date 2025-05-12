@@ -15,7 +15,6 @@ import java.util.Locale
 
 private const val TAG = "ReadingProgressManager"
 
-//TODO: update when the day changes instead of waiting for 24 hours
 class ReadingProgressManager(private val settingsRepository: SettingsRepository) {
     /**
      * Obtain the reading streak stored in the repository

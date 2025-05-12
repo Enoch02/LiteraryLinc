@@ -166,7 +166,10 @@ object LLString {
     val save = R.string.save
     val readingGoal = R.string.reading_goal
     val modifyReadingGoal = R.string.modify_reading_goal
+    val setNewReadingGoal = R.string.set_new_reading_goal
     val progress = R.string.progress
     val readingGoalText = R.string.reading_goal_text
     val setReadingGoalMsg = R.string.set_reading_goal_msg
+    val readingGoalAchieved = R.string.goal_achieved
+    val setGoalActionLabel = R.string.set_new_goal_action_label
 }

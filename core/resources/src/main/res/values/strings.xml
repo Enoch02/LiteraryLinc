@@ -183,4 +183,7 @@
     <string name="reading_goal_text">Reading Goal: %1$s/%2$s Books</string>
     <string name="set_reading_goal_msg">Tap the edit button to set a reading goal</string>
     <string name="clear">Clear</string>
+    <string name="goal_achieved">Reading goal has been achieved!</string>
+    <string name="set_new_reading_goal">New Reading Goal</string>
+    <string name="set_new_goal_action_label">Set New Goal</string>
 </resources>
