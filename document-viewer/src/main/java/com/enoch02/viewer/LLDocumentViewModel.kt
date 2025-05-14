@@ -60,7 +60,7 @@ class LLDocumentViewModel @Inject constructor(
     val readingProgressManager: ReadingProgressManager
 ) : ViewModel() {
     var contentState by mutableStateOf(ContentState.LOADING)
-    var document by mutableStateOf<Document?>(null)
+    private var document by mutableStateOf<Document?>(null)
     var currentPage by mutableIntStateOf(0)
     val pages = mutableStateListOf<Page>()
     var hasOutline by mutableStateOf(false)
