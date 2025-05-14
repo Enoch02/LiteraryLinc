@@ -27,12 +27,12 @@ import com.enoch02.database.model.Book.Companion.BookStatus
 import com.enoch02.database.model.LLDocument
 import com.enoch02.resources.BitmapManager
 import com.enoch02.resources.mupdf.ContentInputStream
-import com.enoch02.settings.SettingsRepository
-import com.enoch02.viewer.model.ContentState
 import com.enoch02.resources.mupdf.model.Item
 import com.enoch02.resources.mupdf.model.LinkItem
 import com.enoch02.resources.mupdf.model.SearchResult
 import com.enoch02.settings.ReadingProgressManager
+import com.enoch02.settings.SettingsRepository
+import com.enoch02.viewer.model.ContentState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -60,7 +60,7 @@ class LLDocumentViewModel @Inject constructor(
     val readingProgressManager: ReadingProgressManager
 ) : ViewModel() {
     var contentState by mutableStateOf(ContentState.LOADING)
-    var document by mutableStateOf<Document?>(null)
+    private var document by mutableStateOf<Document?>(null)
     var currentPage by mutableIntStateOf(0)
     val pages = mutableStateListOf<Page>()
     var hasOutline by mutableStateOf(false)
@@ -80,6 +80,8 @@ class LLDocumentViewModel @Inject constructor(
     val documentInfo by _documentInfo
     private var _showRereadDialog = mutableStateOf(false)
     val showRereadDialog by _showRereadDialog
+    private var _askForRating = mutableStateOf(false)
+    val askForRating by _askForRating
 
     private var docTitle by mutableStateOf("")
     private var docKey = ""
@@ -270,6 +272,9 @@ class LLDocumentViewModel @Inject constructor(
         // synchronize currentPage with zero indexing expected by the pager
         if (currentPage > 0) {
             currentPage--
+        } else {
+            // Ensure currentPage is never negative
+            currentPage = 0
         }
     }
 
@@ -389,6 +394,10 @@ class LLDocumentViewModel @Inject constructor(
                 //                  check if book has not been completed in the past
                 if (isComplete && theBook.dateCompleted == null) {
                     readingProgressManager.incrementReadingGoalProgress()
+
+                    if (theBook.personalRating == 0) {
+                        _askForRating.value = true
+                    }
                 }
 
                 bookDao.updateBook(
@@ -565,6 +574,23 @@ class LLDocumentViewModel @Inject constructor(
 
             _showRereadDialog.value = false
         }
+    }
+
+    suspend fun setBookRating(rating: Int) {
+        val book = documentId?.let { bookDao.getBookByMd5(it) }
+        book?.let { theBook ->
+            bookDao.updateBook(
+                theBook.copy(
+                    personalRating = rating
+                )
+            )
+        }
+
+        _askForRating.value = false
+    }
+
+    fun closeRatingDialog() {
+        _askForRating.value = false
     }
 
     override fun onCleared() {

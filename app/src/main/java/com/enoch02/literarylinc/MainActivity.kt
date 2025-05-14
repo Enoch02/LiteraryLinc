@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -34,6 +35,8 @@ class MainActivity : ComponentActivity() {
                 .collectAsState(initial = null)
             val dynamicColor by viewModel.getBooleanPreference(key = SettingsRepository.BooleanPreferenceType.DYNAMIC_COLOR)
                 .collectAsState(initial = null)
+
+            enableEdgeToEdge()
 
             if (alwaysDark != null && dynamicColor != null) {
                 LiteraryLincTheme(

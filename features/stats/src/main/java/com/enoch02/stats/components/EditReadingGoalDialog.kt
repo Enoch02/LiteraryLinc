@@ -29,9 +29,10 @@ import com.enoch02.resources.LLString
 @Composable
 fun EditReadingGoalDialog(
     modifier: Modifier = Modifier,
+    title: String,
     visible: Boolean,
-    goal: String,
-    progress: String,
+    goal: Int,
+    progress: Int,
     onDismiss: () -> Unit,
     onSave: (goal: Int, progress: Int) -> Unit
 ) {
@@ -43,7 +44,7 @@ fun EditReadingGoalDialog(
             val gInt = mGoal.toInt()
             val pInt = mProgress.toInt()
 
-            if (pInt >= gInt) {
+            if (pInt > gInt) {
                 Toast.makeText(
                     context,
                     "Your progress can't be greater than the goal!🤨",
@@ -58,15 +59,15 @@ fun EditReadingGoalDialog(
         }
     }
 
-    LaunchedEffect(Unit) {
-        mGoal = goal
-        mProgress = progress
+    LaunchedEffect(goal, progress) {
+        mGoal = "$goal"
+        mProgress = "$progress"
     }
 
     if (visible) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text(stringResource(LLString.modifyReadingGoal)) },
+            title = { Text(title) },
             text = {
                 Column {
                     OutlinedTextField(
@@ -115,9 +116,10 @@ fun EditReadingGoalDialog(
 @Composable
 private fun Preview() {
     EditReadingGoalDialog(
+        title="Hello",
         visible = true,
         onDismiss = {},
-        progress = "5",
-        goal = "999",
+        progress = 5,
+        goal = 999,
         onSave = { _, _ -> })
 }

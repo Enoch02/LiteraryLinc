@@ -40,9 +40,10 @@ fun StatsTopAppBar(
     )
 
     EditReadingGoalDialog(
+        title = stringResource(LLString.modifyReadingGoal),
         visible = showGoalEditDialog,
-        goal = "$readingGoal",
-        progress = "$readingProgress",
+        goal = readingGoal,
+        progress = readingProgress,
         onDismiss = { showGoalEditDialog = false },
         onSave = { goal, progress ->
             onSaveProgressData(goal, progress)

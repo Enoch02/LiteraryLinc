@@ -18,25 +18,36 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Timelapse
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.enoch02.resources.LLString
+import com.enoch02.stats.components.EditReadingGoalDialog
 import com.enoch02.stats.components.QuickStatCard
 
 @Composable
 fun StatsScreen(
     modifier: Modifier,
-    viewModel: StatsScreenViewModel = hiltViewModel()
+    viewModel: StatsScreenViewModel = hiltViewModel(),
+    snackbarHostState: SnackbarHostState,
+    onSaveProgressData: (goal: Int, progress: Int) -> Unit
 ) {
+    val context = LocalContext.current
     val currentStreak by viewModel.currentReadingStreak.collectAsState(0)
     val longestStreak by viewModel.longestReadingStreak.collectAsState(0)
 
@@ -49,16 +60,34 @@ fun StatsScreen(
 
     val readingGoal by viewModel.readingGoal.collectAsState(0)
     val readingProgress by viewModel.readingProgress.collectAsState(0)
+    var showGoalEditDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.updateReadingStreak()
+    }
+
+    LaunchedEffect(readingGoal, readingProgress) {
+        if (readingGoal > 0 && readingProgress == readingGoal) {
+            val result = snackbarHostState.showSnackbar(
+                message = context.getString(LLString.readingGoalAchieved),
+                actionLabel = context.getString(LLString.setGoalActionLabel),
+                duration = SnackbarDuration.Short
+            )
+
+            when (result) {
+                SnackbarResult.Dismissed -> {}
+                SnackbarResult.ActionPerformed -> {
+                    showGoalEditDialog = true
+                }
+            }
+
+        }
     }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(8.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally,
         content = {
             StreakView(streakMessage = formattedStreakMessage)
 
@@ -144,6 +173,17 @@ fun StatsScreen(
                     )
                 }
             }
+        }
+    )
+
+    EditReadingGoalDialog(
+        title = stringResource(LLString.setNewReadingGoal),
+        visible = showGoalEditDialog,
+        goal = readingGoal,
+        progress = 0,
+        onDismiss = { showGoalEditDialog = false },
+        onSave = { goal, progress ->
+            onSaveProgressData(goal, progress)
         }
     )
 }
