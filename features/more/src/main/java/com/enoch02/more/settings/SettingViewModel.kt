@@ -1,7 +1,7 @@
 package com.enoch02.more.settings
 
 import android.content.Context
-import android.widget.Toast
+import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.database.dao.BookDao
@@ -47,23 +47,18 @@ class SettingViewModel @Inject constructor(
         return settingsRepository.getPreference(key)
     }
 
-    fun resetBooklist(context: Context) {
+    // TODO: create LLStrings for these
+    fun resetBooklist(sbHostState: SnackbarHostState) {
         viewModelScope.launch(Dispatchers.IO) {
             bookDao.deleteAll()
-
-            withContext(Dispatchers.Main) {
-                Toast.makeText(context, "Booklist cleared!", Toast.LENGTH_SHORT).show()
-            }
+            sbHostState.showSnackbar("Booklist cleared!")
         }
     }
 
-    fun resetReaderList(context: Context) {
+    fun resetReaderList(sbHostState: SnackbarHostState) {
         viewModelScope.launch(Dispatchers.IO) {
             documentDao.deleteAll()
-
-            withContext(Dispatchers.Main) {
-                Toast.makeText(context, "Readerlist cleared!", Toast.LENGTH_SHORT).show()
-            }
+            sbHostState.showSnackbar("Readerlist cleared!")
         }
     }
 }
