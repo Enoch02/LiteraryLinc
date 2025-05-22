@@ -1,7 +1,6 @@
 package com.enoch02.modifybook
 
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +20,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
@@ -66,7 +67,8 @@ fun EditBookScreen(
     id: Int,
     viewModel: ModifyBookViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
     var book by remember { mutableStateOf(Book()) }
     // For the cover currently stored in the app
     var coverPath: String? by rememberSaveable { mutableStateOf(null) }
@@ -110,6 +112,7 @@ fun EditBookScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { },
@@ -149,11 +152,9 @@ fun EditBookScreen(
                         ).onSuccess {
                             navController.popBackStack()
                         }.onFailure { e ->
-                            Toast.makeText(
-                                context,
-                                "${e.message}",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("${e.message}")
+                            }
                         }
                     }
                 },

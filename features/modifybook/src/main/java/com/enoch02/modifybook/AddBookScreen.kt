@@ -2,7 +2,6 @@ package com.enoch02.modifybook
 
 import android.icu.util.Calendar
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
@@ -21,12 +20,15 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -66,8 +68,9 @@ fun AddBookScreen(
     modifier: Modifier,
     viewModel: ModifyBookViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     val calendar = Calendar.getInstance()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     var bookTitle by rememberSaveable { mutableStateOf("") }
     var author by rememberSaveable { mutableStateOf("") }
@@ -88,6 +91,7 @@ fun AddBookScreen(
 
     Scaffold(
         modifier = modifier,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(LLString.addANewBook)) },
@@ -124,11 +128,9 @@ fun AddBookScreen(
                         ).onSuccess {
                             navController.popBackStack()
                         }.onFailure { e ->
-                            Toast.makeText(
-                                context,
-                                "${e.message}",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("${e.message}")
+                            }
                         }
                     }
                 },

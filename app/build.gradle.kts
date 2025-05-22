@@ -128,3 +128,11 @@ java {
         languageVersion = JavaLanguageVersion.of(17)
     }
 }
+
+aboutLibraries {
+    registerAndroidTasks = true
+    duplicationMode = com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
+    duplicationRule = com.mikepenz.aboutlibraries.plugin.DuplicateRule.SIMPLE
+
+    filterVariants = arrayOf("debug", "release")
+}
