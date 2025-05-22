@@ -3,7 +3,6 @@ package com.enoch02.reader
 import android.content.Intent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -15,6 +14,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -48,7 +49,6 @@ import com.enoch02.viewer.LLDocumentActivity
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ReaderListScreen(
     modifier: Modifier,
@@ -57,7 +57,8 @@ fun ReaderListScreen(
     filter: ReaderFilter,
     isSearching: Boolean,
     onScanForDocs: () -> Unit,
-    onDismissSearching: () -> Unit
+    onDismissSearching: () -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
     val context = LocalContext.current
     val arrangedDocs by viewModel.documentsState.collectAsStateWithLifecycle()
@@ -137,6 +138,24 @@ fun ReaderListScreen(
                     onScanForDocs = onScanForDocs
                 )
             } else {
+                val deletionFailedSnackbar: (message: String, document: LLDocument) -> Unit =
+                    { message, document ->
+                        coroutineScope.launch {
+                            val result = snackbarHostState.showSnackbar(
+                                message = message,
+                                actionLabel = "Remove",
+                                withDismissAction = true
+                            )
+
+                            when (result) {
+                                SnackbarResult.Dismissed -> {}
+                                SnackbarResult.ActionPerformed -> {
+                                    viewModel.deleteDocumentEntry(document)
+                                }
+                            }
+                        }
+                    }
+
                 ScrollArea(
                     state = scrollAreaState,
                     modifier = modifier,
@@ -177,7 +196,15 @@ fun ReaderListScreen(
                                                 shareDocument(document)
                                             },
                                             onDeleteDocument = {
-                                                viewModel.deleteDocument(document = document)
+                                                coroutineScope.launch {
+                                                    viewModel.deleteDocument(document)
+                                                        .onFailure { error ->
+                                                            deletionFailedSnackbar(
+                                                                error.message.toString(),
+                                                                document
+                                                            )
+                                                        }
+                                                }
                                             }
                                         )
 
@@ -228,7 +255,14 @@ fun ReaderListScreen(
                     onAddToBookList = { viewModel.createBookListEntry(it) },
                     onRemoveFromBookList = { viewModel.removeBookListEntry(it) },
                     onToggleAutoTracking = { viewModel.toggleDocumentAutoTracking(it) },
-                    onDeleteDocument = { viewModel.deleteDocument(it) },
+                    onDeleteDocument = {
+                        coroutineScope.launch {
+                            viewModel.deleteDocument(it)
+                                .onFailure { error ->
+                                    deletionFailedSnackbar(error.message.toString(), it)
+                                }
+                        }
+                    },
                     onShare = { shareDocument(it) }
                 )
             }

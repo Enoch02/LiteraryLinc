@@ -219,21 +219,17 @@ class ReaderListViewModel @Inject constructor(
         }
     }
 
-    fun deleteDocument(document: LLDocument) {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (document.deleteDocument(applicationContext)) {
-                documentDao.deleteDocument(document.contentUri.toString())
-            } else {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        applicationContext,
-                        "Document could not be deleted",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
-                }
-            }
+    suspend fun deleteDocument(document: LLDocument): Result<Unit> {
+        if (document.deleteDocument(applicationContext)) {
+            documentDao.deleteDocument(document.contentUri.toString())
+            return Result.success(Unit)
+        } else {
+            return Result.failure(Exception("Document may have been moved or deleted"))
         }
+    }
+
+    suspend fun deleteDocumentEntry(document: LLDocument) {
+        documentDao.deleteDocument(document.contentUri.toString())
     }
 
     fun searchFor(text: String): Flow<List<LLDocument>> {

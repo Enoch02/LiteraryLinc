@@ -305,7 +305,8 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                                 },
                                                 onDismissSearching = {
                                                     isSearchingInReaderList = false
-                                                }
+                                                },
+                                                snackbarHostState = snackbarHostState
                                             )
                                         }
                                     }
@@ -332,7 +333,7 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                         label = "MainScaffold Cross-fade"
                     )
                 },
-                snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+                snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
             )
         }
     )
