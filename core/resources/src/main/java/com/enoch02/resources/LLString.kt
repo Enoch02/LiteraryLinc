@@ -172,4 +172,5 @@ object LLString {
     val setReadingGoalMsg = R.string.set_reading_goal_msg
     val readingGoalAchieved = R.string.goal_achieved
     val setGoalActionLabel = R.string.set_new_goal_action_label
+    val editReadingGoalDialogWarning = R.string.edit_reading_goal_warning
 }

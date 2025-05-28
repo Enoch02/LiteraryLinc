@@ -186,4 +186,5 @@
     <string name="goal_achieved">Reading goal has been achieved!</string>
     <string name="set_new_reading_goal">New Reading Goal</string>
     <string name="set_new_goal_action_label">Set New Goal</string>
+    <string name="edit_reading_goal_warning">Your progress can\'t be greater than the goal!🤨</string>
 </resources>
