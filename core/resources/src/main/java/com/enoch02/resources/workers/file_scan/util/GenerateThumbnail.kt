@@ -11,6 +11,7 @@ import android.util.Log
 import nl.siegmann.epublib.epub.EpubReader
 import java.util.Locale
 import java.util.zip.ZipInputStream
+import androidx.core.graphics.createBitmap
 
 /**
  * Generates a thumbnail from the first image in supported file Uri.
@@ -49,7 +50,7 @@ private fun generatePdfThumbnail(context: Context, uri: Uri): Bitmap? {
         val width = page.width
         val height = page.height
 
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(width, height)
         val canvas = Canvas(bitmap)
 
         canvas.drawColor(Color.WHITE)

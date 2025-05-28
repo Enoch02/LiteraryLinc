@@ -17,6 +17,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import androidx.core.net.toUri
 
 private const val TAG = "RestoreWorker"
 
@@ -46,7 +47,7 @@ class RestoreWorker @AssistedInject constructor(
 
             try {
                 Log.d(TAG, "doWork: Opening backup file for import")
-                csvManager.import(Uri.parse(backupUri))
+                csvManager.import(backupUri.toUri())
                     .onSuccess {
                         withContext(Dispatchers.Main) {
                             notificationManager.cancel(RESTORE_NOTIFICATION_ID)

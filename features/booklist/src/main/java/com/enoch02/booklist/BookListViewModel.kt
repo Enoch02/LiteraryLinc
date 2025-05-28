@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.model.Book
-import com.enoch02.database.model.LLDocument
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
 import dagger.hilt.android.lifecycle.HiltViewModel

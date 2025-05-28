@@ -2,7 +2,6 @@ package com.enoch02.database.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.enoch02.database.model.Book
 import com.enoch02.database.model.Book.Companion.BookStatus
 import com.enoch02.database.model.Book.Companion.BookType
 

@@ -30,6 +30,7 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.UUID
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 const val TAG = "FileScan"
 
@@ -180,7 +181,7 @@ class FileScanViewModel @Inject constructor(
         val uriString = sharedPreferences.getString(DOCUMENT_DIR_KEY, null)
 
         if (uriString != null) {
-            val uri = Uri.parse(uriString)
+            val uri = uriString.toUri()
             val persistedUris = context.contentResolver.persistedUriPermissions
             for (persistedUri in persistedUris) {
                 if (persistedUri.uri == uri) {

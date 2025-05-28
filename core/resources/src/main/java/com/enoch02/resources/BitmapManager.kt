@@ -88,7 +88,3 @@ class BitmapManager private constructor() {
     }
 }
 
-// Extension function for convenient cleanup in Activities/Fragments
-suspend fun BitmapManager.cleanup() {
-    releaseAllBitmaps()
-}

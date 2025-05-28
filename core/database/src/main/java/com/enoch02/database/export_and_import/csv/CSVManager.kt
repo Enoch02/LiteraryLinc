@@ -184,7 +184,7 @@ class CSVManager(
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "import: ${e.message}", )
+            Log.e(TAG, "import: ${e.message}")
             return Result.failure(e)
         }
 

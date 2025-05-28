@@ -1,9 +1,9 @@
 package com.enoch02.literarylinc
 
 import android.Manifest
-import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -16,7 +16,7 @@ import androidx.core.content.ContextCompat
 fun RequestNotificationPermission() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         val context = LocalContext.current
-        val activity = LocalContext.current as? Activity
+        val activity = LocalActivity.current
         val permission = Manifest.permission.POST_NOTIFICATIONS
         val permissionState = remember { mutableStateOf(false) }
 
