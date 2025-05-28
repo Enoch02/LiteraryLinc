@@ -19,3 +19,15 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# keep aboutlib classes
+-keep class com.mikepenz.aboutlibraries.** { *; }
+-keep class com.mikepenz.aboutlibraries.entity.** { *; }
+
+# keep license informaion
+-keepclassmembers class **.R$* {
+    public static <fields>;
+}
+
+# keep generated license classes
+-keep class **.aboutlibraries.** { *; }

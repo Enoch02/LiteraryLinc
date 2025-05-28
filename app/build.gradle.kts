@@ -1,4 +1,5 @@
-﻿import com.android.build.api.variant.FilterConfiguration
+﻿import com.android.build.api.dsl.Packaging
+import com.android.build.api.variant.FilterConfiguration
 
 plugins {
     id("com.android.application")
