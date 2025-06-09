@@ -230,33 +230,37 @@ class LLDocumentViewModel @Inject constructor(
     }
 
     fun getPageBitmap(index: Int, zoom: Float): Flow<Bitmap?> = flow {
-        val pageKey = "${docTitle}-$index-z=$zoom"
-        Log.d(TAG, "getPageBitmap: loading page $pageKey")
         if (document != null) {
+            val pageKey = "${docTitle}-$index-z=$zoom"
+            Log.d(TAG, "getPageBitmap: loading page $pageKey")
             val cachedBitmap = bitmapManager.getCachedBitmap(pageKey)
 
             if (cachedBitmap != null && !cachedBitmap.isRecycled) {
                 Log.i(TAG, "getPageBitmap: using cached bitmap!")
                 emit(cachedBitmap)
-
             } else {
                 Log.i(TAG, "getPageBitmap: page not in cache")
-                bitmapManager.releaseBitmap(cachedBitmap)
-                try {
-                    val page: Page = pages[index]
-                    val ctm = AndroidDrawDevice.fitPageWidth(page, deviceWidth)
-                    if (zoom != 1f) {
-                        ctm.scale(zoom)
-                    }
-                    val bitmap = synchronized(pageLock) { AndroidDrawDevice.drawPage(page, ctm) }
-                    bitmapManager.cacheBitmap(pageKey, bitmap)
+                val page: Page = pages[index]
+                val ctm = AndroidDrawDevice.fitPageWidth(page, deviceWidth)
+                if (zoom != 1f) {
+                    ctm.scale(zoom)
+                }
+                val bitmap = synchronized(pageLock) { AndroidDrawDevice.drawPage(page, ctm) }
 
-                    emit(bitmap)
+                // Current workaround to avoid memory related crashes, only cache the default scale.
+                // Zoomed variants will be loaded on demand instead.
+                if (zoom == 1f) {
+                    bitmapManager.cacheBitmap(pageKey, bitmap)
+                }
+
+                emit(bitmap)
+                //TODO: is error catching necessary here?
+                /*try {
+
                 } catch (e: Exception) {
                     Log.e(TAG, "getPageBitmap at index $index: ${e.message}")
-                    e.printStackTrace()
                     emit(null)
-                }
+                }*/
             }
         } else {
             emit(null)

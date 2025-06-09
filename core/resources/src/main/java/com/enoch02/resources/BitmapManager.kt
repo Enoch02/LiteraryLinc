@@ -15,7 +15,7 @@ class BitmapManager private constructor() {
     init {
         // Get max available VM memory
         val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
-        Log.d("BitmapManager", "Max Memory: ${maxMemory / 1024} MB")
+        Log.d(tag, "Max Memory: ${maxMemory / 1024} MB")
         // Use 1/8th of the available memory for this cache
         /*val cacheSize = maxMemory / 8*/
         val cacheSize = maxMemory / 2
@@ -50,6 +50,7 @@ class BitmapManager private constructor() {
     fun cacheBitmap(key: String, bitmap: Bitmap) {
         bitmapCache.put(key, bitmap)
         trackBitmap(bitmap)
+        Log.d(tag, "Cache capacity=${bitmapCache.size()}/${bitmapCache.maxSize()}")
     }
 
     fun getCachedBitmap(key: String): Bitmap? = bitmapCache.get(key)
