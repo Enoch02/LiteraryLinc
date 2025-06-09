@@ -1,6 +1,7 @@
 package com.enoch02.viewer.components
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.FileUriExposedException
 import android.view.KeyEvent
@@ -38,11 +39,9 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -81,15 +80,13 @@ import com.enoch02.resources.mupdf.model.SearchResult
 import com.enoch02.settings.SettingsRepository
 import com.enoch02.viewer.LLDocumentViewModel
 import com.enoch02.viewer.model.ContentState
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.ZoomSpec
 import me.saket.telephoto.zoomable.coil.ZoomableAsyncImage
 import me.saket.telephoto.zoomable.rememberZoomableImageState
 import me.saket.telephoto.zoomable.rememberZoomableState
-import java.math.BigDecimal
-import java.math.RoundingMode
 
 @Composable
 fun DocumentView(
@@ -208,15 +205,17 @@ fun DocumentView(
                                 )
                             }
                             val pageZoom by remember {
-                                derivedStateOf {
-                                    scaleZoom(
-                                        zoomState.zoomFraction ?: 0f
-                                    )
-                                }
+                                derivedStateOf { scaleZoom(zoomState.zoomFraction ?: 0f) }
                             }
-                            val debouncedZoom by rememberDebouncedState(pageZoom)
-                            val pageBitmap by viewModel.getPageBitmap(index, debouncedZoom)
-                                .collectAsState(null)
+                            //TODO: this commented out line is called to often during recompositions
+//                            val pageBitmap by viewModel.getPageBitmap(index, pageZoom).collectAsState(null)
+                            var pageBitmap by remember {
+                                mutableStateOf<Bitmap?>(null)
+                            }
+
+                            LaunchedEffect(key1 = pageZoom) {
+                                pageBitmap = viewModel.getPageBitmap(index, pageZoom).first()
+                            }
 
                             Box(
                                 modifier = Modifier
@@ -828,30 +827,11 @@ fun VolumeButtonDetector(
     }
 }
 
-@Composable
-fun rememberDebouncedState(
-    value: Float,
-    delayMillis: Long = 300L
-): State<Float> {
-    val debouncedValue = remember { mutableFloatStateOf(value) }
+fun scaleZoom(value: Float): Float {
+    // ensure input is in expected range
+    val clampedValue = value.coerceIn(0.0f, 1.0f)
+    val scaled = clampedValue * 2.0f + 1.0f
+    val final = scaled.toInt().coerceIn(1, 3)
 
-    LaunchedEffect(value) {
-        delay(delayMillis)
-        debouncedValue.floatValue = value
-    }
-
-    return debouncedValue
-}
-
-fun scaleZoom(
-    value: Float,
-    oldMin: Float = 0.0f,
-    oldMax: Float = 1.0f,
-    newMin: Float = 1.0f,
-    newMax: Float = 3.0f
-): Float {
-    val scaled = ((value - oldMin) / (oldMax - oldMin)) * (newMax - newMin) + newMin
-    val rounded = BigDecimal(scaled.toDouble()).setScale(2, RoundingMode.HALF_EVEN)
-
-    return rounded.toFloat()
+    return final.toFloat()
 }
