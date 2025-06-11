@@ -34,12 +34,6 @@ fun LiteraryLincNavHost(navController: NavHostController = rememberNavController
                 animationSpec = tween(400)
             )
         },
-//        exitTransition = {
-//            slideOutHorizontally(
-//                targetOffsetX = { it },
-//                animationSpec = tween(300)
-//            )
-//        },
         builder = {
             composable(Screen.LiteraryLincApp.route) {
                 LiteraryLincApp(navController = navController)

@@ -22,7 +22,7 @@ import com.enoch02.database.model.StatusFilter
 
 @Composable
 fun BookListDrawerSheet(
-    selectedStatusFilter: StatusFilter,
+    selectedStatusFilter: StatusFilter?,
     onStatusSelected: (StatusFilter) -> Unit
 ) {
     val statusFilters = StatusFilter.entries.toTypedArray()

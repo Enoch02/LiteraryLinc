@@ -40,7 +40,6 @@ import com.enoch02.booklist.BookListScreen
 import com.enoch02.booklist.components.BookViewMode
 import com.enoch02.database.model.ReaderSorting
 import com.enoch02.database.model.Sorting
-import com.enoch02.database.model.StatusFilter
 import com.enoch02.literarylinc.RequestNotificationPermission
 import com.enoch02.literarylinc.navigation.Screen
 import com.enoch02.literarylinc.navigation.TopLevelDestination
@@ -70,7 +69,7 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
     var currentBookListSorting by rememberSaveable { mutableStateOf(Sorting.ALPHABETICAL) }
     var showBookListSortOptions by rememberSaveable { mutableStateOf(false) }
     var bookViewMode by rememberSaveable { mutableStateOf(BookViewMode.LIST_VIEW) }
-    var statusFilter by rememberSaveable { mutableStateOf(StatusFilter.ALL) }
+    val statusFilter by viewModel.getCurrentBookStatusFilter().collectAsState(initial = null)
     var isSearchingInBookList by rememberSaveable { mutableStateOf(false) }
 
     // reader list
@@ -102,7 +101,7 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                     BookListDrawerSheet(
                         selectedStatusFilter = statusFilter,
                         onStatusSelected = { selected ->
-                            statusFilter = selected
+                            viewModel.changeBookStatusFilter(selected)
                             scope.launch { drawerState.close() }
                         }
                     )
@@ -131,28 +130,30 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                 topBar = {
                     when (currentScreen) {
                         TopLevelDestination.BOOK_LIST -> {
-                            BookListTopAppBar(
-                                statusFilter = statusFilter,
-                                bookViewMode = bookViewMode,
-                                onChangeBookListMode = { mode ->
-                                    bookViewMode = mode
-                                },
-                                onShowSortOption = {
-                                    showBookListSortOptions = true
-                                },
-                                onChangeDrawerState = {
-                                    scope.launch {
-                                        if (drawerState.isClosed) {
-                                            drawerState.open()
-                                        } else {
-                                            drawerState.close()
+                            statusFilter?.let {
+                                BookListTopAppBar(
+                                    statusFilter = it,
+                                    bookViewMode = bookViewMode,
+                                    onChangeBookListMode = { mode ->
+                                        bookViewMode = mode
+                                    },
+                                    onShowSortOption = {
+                                        showBookListSortOptions = true
+                                    },
+                                    onChangeDrawerState = {
+                                        scope.launch {
+                                            if (drawerState.isClosed) {
+                                                drawerState.open()
+                                            } else {
+                                                drawerState.close()
+                                            }
                                         }
+                                    },
+                                    onSearch = {
+                                        isSearchingInBookList = true
                                     }
-                                },
-                                onSearch = {
-                                    isSearchingInBookList = true
-                                }
-                            )
+                                )
+                            }
                         }
 
                         TopLevelDestination.READER -> {
@@ -257,23 +258,30 @@ fun LiteraryLincApp(navController: NavController, viewModel: LLAppViewModel = hi
                                         }
                                     )
 
-                                    BookListScreen(
-                                        modifier = Modifier.padding(paddingValues),
-                                        scope = scope,
-                                        sorting = currentBookListSorting,
-                                        statusFilter = statusFilter,
-                                        listViewMode = bookViewMode,
-                                        onItemClick = { id ->
-                                            navController.navigate(Screen.BookDetail.withArgs(id.toString()))
-                                        },
-                                        onItemEdit = { id ->
-                                            navController.navigate(Screen.EditBook.withArgs(id.toString()))
-                                        },
-                                        isSearching = isSearchingInBookList,
-                                        onDismissSearching = {
-                                            isSearchingInBookList = false
+                                    when (statusFilter) {
+                                        null -> {
+                                            CircularProgressIndicator()
                                         }
-                                    )
+                                        else -> {
+                                            BookListScreen(
+                                                modifier = Modifier.padding(paddingValues),
+                                                scope = scope,
+                                                sorting = currentBookListSorting,
+                                                statusFilter = statusFilter!!,
+                                                listViewMode = bookViewMode,
+                                                onItemClick = { id ->
+                                                    navController.navigate(Screen.BookDetail.withArgs(id.toString()))
+                                                },
+                                                onItemEdit = { id ->
+                                                    navController.navigate(Screen.EditBook.withArgs(id.toString()))
+                                                },
+                                                isSearching = isSearchingInBookList,
+                                                onDismissSearching = {
+                                                    isSearchingInBookList = false
+                                                }
+                                            )
+                                        }
+                                    }
                                 }
 
                                 TopLevelDestination.READER -> {
