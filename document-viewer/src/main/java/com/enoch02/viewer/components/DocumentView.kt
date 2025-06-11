@@ -207,8 +207,6 @@ fun DocumentView(
                             val pageZoom by remember {
                                 derivedStateOf { scaleZoom(zoomState.zoomFraction ?: 0f) }
                             }
-                            //TODO: this commented out line is called to often during recompositions
-//                            val pageBitmap by viewModel.getPageBitmap(index, pageZoom).collectAsState(null)
                             var pageBitmap by remember {
                                 mutableStateOf<Bitmap?>(null)
                             }

@@ -15,6 +15,7 @@ import androidx.compose.material.icons.automirrored.rounded.ReadMore
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.StarRate
 import androidx.compose.material.icons.rounded.Timelapse
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -169,6 +170,14 @@ fun StatsScreen(
                         title = stringResource(LLString.completedThisYear),
                         value = viewModel.booksReadThisYear.withCommas(),
                         icon = Icons.Rounded.Check
+                    )
+                }
+
+                item {
+                    QuickStatCard(
+                        title = stringResource(LLString.avgRating),
+                        value = viewModel.averageRating.toString(),
+                        icon = Icons.Rounded.StarRate
                     )
                 }
             }

@@ -162,6 +162,7 @@ object LLString {
     val currentlyReading = R.string.currently_reading
     val completedThisYear = R.string.completed_this_year
     val roughEstimate = R.string.rough_estimate
+    val avgRating = R.string.average_rating
     val editReadingGoalDesc = R.string.edit_reading_goal_desc
     val save = R.string.save
     val readingGoal = R.string.reading_goal

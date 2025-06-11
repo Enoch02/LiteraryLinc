@@ -1,6 +1,7 @@
 package com.enoch02.stats.stats
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,6 +13,7 @@ import com.enoch02.database.model.Book
 import com.enoch02.settings.ReadingProgressManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -33,6 +35,7 @@ class StatsScreenViewModel @Inject constructor(
     var totalHoursRead by mutableIntStateOf(0)
     var fastestCompletedBook by mutableStateOf("")
     var booksReadThisYear by mutableIntStateOf(0)
+    var averageRating by mutableDoubleStateOf(0.0)
 
     var currentReadingStreak = readingProgressManager.getReadingStreak()
     var longestReadingStreak = readingProgressManager.getLongestReadingStreak()
@@ -84,11 +87,22 @@ class StatsScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             booksFlow.collect { books ->
                 totalCount = books.size
-                pagesReadCount = books.sumOf { it.pagesRead }
-                currentlyReadingCount =
-                    books.filter { it.status == Book.Companion.BookStatus.READING.strName }.size
-                computeTotalHoursRead(books)
-                computeFastestCompletedBook(books)
+                val task1 = async { pagesReadCount = books.sumOf { it.pagesRead } }
+                val task2 = async {
+                    currentlyReadingCount =
+                        books.filter { it.status == Book.Companion.BookStatus.READING.strName }.size
+                }
+                val task3 = async { computeTotalHoursRead(books) }
+                val task4 = async { computeFastestCompletedBook(books) }
+                val task5 = async { booksReadThisYear = computeBooksReadThisYear(books) }
+                val task6 = async { averageRating = computeAverageRating(books) }
+
+                task1.await()
+                task2.await()
+                task3.await()
+                task4.await()
+                task5.await()
+                task6.await()
             }
         }
     }
@@ -98,7 +112,6 @@ class StatsScreenViewModel @Inject constructor(
     }
 
     private fun computeTotalHoursRead(books: List<Book>) {
-        totalHoursRead = 0
         books.forEach { book ->
             if (book.dateStarted != null && book.dateCompleted != null) {
                 val difference = book.dateCompleted!! - book.dateStarted!!
@@ -108,18 +121,21 @@ class StatsScreenViewModel @Inject constructor(
     }
 
     private fun computeFastestCompletedBook(books: List<Book>) {
-        fastestCompletedBook = ""
         val filteredBooks =
             books.filter { it.dateCompleted != null && it.dateStarted != null && it.status == Book.Companion.BookStatus.COMPLETED.strName }
         val fastest = filteredBooks.minByOrNull { book ->
             book.dateCompleted!! - book.dateStarted!!
         }
+
         fastestCompletedBook = fastest?.title ?: ""
-        booksReadThisYear = computeBooksReadThisYear(books)
     }
 
     private fun computeBooksReadThisYear(books: List<Book>): Int {
         return books.filter { isThisYear(it.dateStarted) && it.status == Book.Companion.BookStatus.COMPLETED.strName }.size
+    }
+
+    private fun computeAverageRating(books: List<Book>): Double {
+        return books.map { it.personalRating }.filter { it > 0 }.average()
     }
 
     private fun isThisYear(timestamp: Long?): Boolean {
