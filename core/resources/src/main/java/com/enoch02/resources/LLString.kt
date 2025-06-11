@@ -51,7 +51,7 @@ object LLString {
     val clearSelection = R.string.clear_selection_desc
     val selectAll = R.string.select_all_desc
     val invertSelection = R.string.invert_selection_desc
-    val bookListMultiDeletionWarning = R.string.book_list_multi_deletion_warning
+    val multiDeletionWarning = R.string.multi_deletion_warning
     val searchPlaceHolder = R.string.search_input_placeholder
 
     val addANewBook = R.string.add_a_new_book

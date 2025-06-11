@@ -5,8 +5,10 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -45,6 +47,8 @@ import com.enoch02.reader.components.NoDocumentView
 import com.enoch02.reader.components.ReaderListItem
 import com.enoch02.reader.components.ReaderSearchBottomSheet
 import com.enoch02.resources.LLString
+import com.enoch02.resources.composables.ListSelectionTopRow
+import com.enoch02.resources.composables.SelectionOverlay
 import com.enoch02.viewer.LLDocumentActivity
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
@@ -61,6 +65,7 @@ fun ReaderListScreen(
     snackbarHostState: SnackbarHostState
 ) {
     val context = LocalContext.current
+    val selectedDocs = viewModel.selectedDocuments
     val arrangedDocs by viewModel.documentsState.collectAsStateWithLifecycle()
     val covers by viewModel.covers.collectAsState(initial = emptyMap())
     val listState = rememberLazyListState()
@@ -69,17 +74,27 @@ fun ReaderListScreen(
     var scrollToTheTippyTop by rememberSaveable { mutableStateOf(false) }
 
     val listItemClicked = { document: LLDocument ->
-        scrollToTheTippyTop = true
-        viewModel.createBookListEntry(document)
+        val id = document.id
 
-        val intent =
-            Intent(context, LLDocumentActivity::class.java)
-                .apply {
-                    action = Intent.ACTION_VIEW
-                    data = document.contentUri
-                    putExtra("id", document.id)
-                }
-        context.startActivity(intent)
+        if (selectedDocs.isNotEmpty() && !viewModel.isDocumentSelected(id)) { // in item selection mode
+            viewModel.addToSelectedDocs(id)
+        } else {
+            if (viewModel.isDocumentSelected(id)) {  // remove selection
+                viewModel.removeFromSelectedBooks(id)
+            } else {
+                scrollToTheTippyTop = true
+                viewModel.createBookListEntry(document)
+
+                val intent =
+                    Intent(context, LLDocumentActivity::class.java)
+                        .apply {
+                            action = Intent.ACTION_VIEW
+                            data = document.contentUri
+                            putExtra("id", document.id)
+                        }
+                context.startActivity(intent)
+            }
+        }
     }
     val shareDocument = { document: LLDocument ->
         val intent = Intent().apply {
@@ -160,62 +175,100 @@ fun ReaderListScreen(
                     state = scrollAreaState,
                     modifier = modifier,
                     content = {
-                        LazyColumn(
-                            state = listState,
-                            content = {
-                                items(
-                                    items = docList.documents,
-                                    key = { item -> item.id },
-                                    itemContent = { document ->
-                                        val inBookList by viewModel.isDocumentInBookList(document.id)
-                                            .collectAsState(false)
+                        Column {
+                            ListSelectionTopRow(
+                                visible = viewModel.selectedDocuments.isNotEmpty(),
+                                selectionCount = viewModel.selectedDocuments.size,
+                                onClearSelection = { viewModel.clearSelectedDocs() },
+                                onSelectAll = { viewModel.selectAllDocuments() },
+                                onInvertSelection = { viewModel.invertSelection() },
+                                onDelete = { viewModel.deleteSelectedDocs() },
+                                additionalIcons = {
+                                    //TODO: implement star, mark as read, and block tracking for multiple items
+                                    /*IconButton(
+                                        onClick = {  },
+                                        content = {
+                                            Icon(
+                                                imageVector = Icons.Rounded.Star,
+                                                contentDescription = stringResource(LLString.deleteSelection)
+                                            )
+                                        }
+                                    )*/
+                                }
+                            )
 
-                                        ReaderListItem(
-                                            document = document,
-                                            documentInBookList = inBookList,
-                                            cover = covers[document.cover],
-                                            onClick = {
-                                                listItemClicked(document)
-                                            },
-                                            onAddToFavoritesClicked = {
-                                                viewModel.toggleFavoriteStatus(document)
-                                            },
-                                            onMarkAsReadClicked = {
-                                                viewModel.toggleDocumentReadStatus(document)
-                                            },
-                                            onAddToBookList = {
-                                                viewModel.createBookListEntry(document)
-                                            },
-                                            onRemoveFromBookList = {
-                                                viewModel.removeBookListEntry(document.id)
-                                            },
-                                            onToggleAutoTracking = {
-                                                viewModel.toggleDocumentAutoTracking(document)
-                                            },
-                                            onShare = {
-                                                shareDocument(document)
-                                            },
-                                            onDeleteDocument = {
-                                                coroutineScope.launch {
-                                                    viewModel.deleteDocument(document)
-                                                        .onFailure { error ->
-                                                            deletionFailedSnackbar(
-                                                                error.message.toString(),
+                            LazyColumn(
+                                state = listState,
+                                content = {
+                                    items(
+                                        items = docList.documents,
+                                        key = { item -> item.id },
+                                        itemContent = { document ->
+                                            val inBookList by viewModel.isDocumentInBookList(
+                                                document.id
+                                            )
+                                                .collectAsState(false)
+
+                                            SelectionOverlay(
+                                                selected = selectedDocs.contains(document.id),
+                                                modifier = Modifier.padding(1.dp),
+                                                content = {
+                                                    ReaderListItem(
+                                                        document = document,
+                                                        documentInBookList = inBookList,
+                                                        cover = covers[document.cover],
+                                                        onClick = {
+                                                            listItemClicked(document)
+                                                        },
+                                                        onLongClick = {
+                                                            viewModel.addToSelectedDocs(document.id)
+                                                        },
+                                                        onAddToFavoritesClicked = {
+                                                            viewModel.toggleFavoriteStatus(document)
+                                                        },
+                                                        onMarkAsReadClicked = {
+                                                            viewModel.toggleDocumentReadStatus(
                                                                 document
                                                             )
+                                                        },
+                                                        onAddToBookList = {
+                                                            viewModel.createBookListEntry(document)
+                                                        },
+                                                        onRemoveFromBookList = {
+                                                            viewModel.removeBookListEntry(document.id)
+                                                        },
+                                                        onToggleAutoTracking = {
+                                                            viewModel.toggleDocumentAutoTracking(
+                                                                document
+                                                            )
+                                                        },
+                                                        onShare = {
+                                                            shareDocument(document)
+                                                        },
+                                                        onDeleteDocument = {
+                                                            coroutineScope.launch {
+                                                                viewModel.deleteDocument(document)
+                                                                    .onFailure { error ->
+                                                                        deletionFailedSnackbar(
+                                                                            error.message.toString(),
+                                                                            document
+                                                                        )
+                                                                    }
+                                                            }
                                                         }
+                                                    )
                                                 }
-                                            }
-                                        )
+                                            )
 
-                                        if (docList.documents.indexOf(document) != docList.documents.lastIndex) {
-                                            HorizontalDivider()
+                                            if (docList.documents.indexOf(document) != docList.documents.lastIndex) {
+                                                HorizontalDivider()
+                                            }
                                         }
-                                    }
-                                )
-                            },
-                            modifier = Modifier.fillMaxSize()
-                        )
+                                    )
+                                },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
 
                         VerticalScrollbar(
                             modifier = Modifier

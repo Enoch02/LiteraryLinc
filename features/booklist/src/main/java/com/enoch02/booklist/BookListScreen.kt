@@ -1,39 +1,16 @@
 package com.enoch02.booklist
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Clear
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.FlipToBack
-import androidx.compose.material.icons.rounded.SelectAll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,7 +21,7 @@ import com.enoch02.booklist.components.BooklistBottomSheet
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
-import com.enoch02.resources.LLString
+import com.enoch02.resources.composables.ListSelectionTopRow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -63,80 +40,19 @@ fun BookListScreen(
 ) {
     val tabLabels = Book.Companion.BookType.entries.map { it.strName }
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabLabels.size })
-    var showDeletionConfirmation by remember { mutableStateOf(false) }
     val covers = viewModel.getCovers()
         .collectAsState(initial = emptyMap()).value
 
     Column(
         modifier = modifier.fillMaxSize(),
         content = {
-            AnimatedVisibility(
+            ListSelectionTopRow(
                 visible = viewModel.selectedBooks.isNotEmpty(),
-                content = {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(42.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                        content = {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxHeight()
-                            ) {
-                                IconButton(
-                                    onClick = { viewModel.clearSelectedBooks() },
-                                    content = {
-                                        Icon(
-                                            imageVector = Icons.Rounded.Clear,
-                                            contentDescription = stringResource(LLString.clearSelection)
-                                        )
-                                    }
-                                )
-
-                                Text(
-                                    text = "${viewModel.selectedBooks.size}",
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    style = MaterialTheme.typography.titleLarge,
-                                )
-                            }
-
-                            Row {
-                                IconButton(
-                                    onClick = { viewModel.selectAllBooks() },
-                                    content = {
-                                        Icon(
-                                            imageVector = Icons.Rounded.SelectAll,
-                                            contentDescription = stringResource(LLString.selectAll)
-                                        )
-                                    }
-                                )
-
-                                IconButton(
-                                    onClick = { viewModel.invertSelection() },
-                                    content = {
-                                        Icon(
-                                            imageVector = Icons.Rounded.FlipToBack,
-                                            contentDescription = stringResource(LLString.invertSelection)
-                                        )
-                                    }
-                                )
-
-
-                                IconButton(
-                                    onClick = { showDeletionConfirmation = true },
-                                    content = {
-                                        Icon(
-                                            imageVector = Icons.Rounded.Delete,
-                                            contentDescription = stringResource(LLString.deleteSelection)
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                    )
-                }
+                selectionCount = viewModel.selectedBooks.size,
+                onClearSelection = { viewModel.clearSelectedBooks() },
+                onSelectAll = { viewModel.selectAllBooks() },
+                onInvertSelection = { viewModel.invertSelection() },
+                onDelete = { viewModel.deleteSelectedBooks() }
             )
 
             ScrollableTabRow(
@@ -210,18 +126,18 @@ fun BookListScreen(
         }
     )
 
-    ConfirmDeletionDialog(
-        visible = showDeletionConfirmation,
-        onDismiss = { showDeletionConfirmation = false },
-        onConfirm = {
-            viewModel.deleteSelectedBooks()
-            showDeletionConfirmation = false
-        },
-        message = stringResource(
-            LLString.bookListMultiDeletionWarning,
-            viewModel.selectedBooks.size
-        )
-    )
+    /* ConfirmDeletionDialog(
+         visible = showDeletionConfirmation,
+         onDismiss = { showDeletionConfirmation = false },
+         onConfirm = {
+             viewModel.deleteSelectedBooks()
+             showDeletionConfirmation = false
+         },
+         message = stringResource(
+             LLString.bookListMultiDeletionWarning,
+             viewModel.selectedBooks.size
+         )
+     )*/
 
     BooklistBottomSheet(
         visible = isSearching,
@@ -234,34 +150,4 @@ fun BookListScreen(
         onItemClick = onItemClick,
         onEditBook = onItemEdit
     )
-}
-
-@Composable
-private fun ConfirmDeletionDialog(
-    modifier: Modifier = Modifier,
-    visible: Boolean,
-    message: String,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    if (visible) {
-        AlertDialog(
-            modifier = modifier,
-            onDismissRequest = onDismiss,
-            title = { Text(text = stringResource(LLString.warning)) },
-            text = { Text(text = message) },
-            confirmButton = {
-                TextButton(
-                    onClick = onConfirm,
-                    content = { Text(text = stringResource(LLString.yes), color = Color.Red) }
-                )
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = onDismiss,
-                    content = { Text(text = stringResource(LLString.no)) }
-                )
-            }
-        )
-    }
 }

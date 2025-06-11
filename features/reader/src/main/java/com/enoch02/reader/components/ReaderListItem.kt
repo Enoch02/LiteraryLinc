@@ -2,7 +2,8 @@ package com.enoch02.reader.components
 
 import android.os.Build
 import android.widget.Toast
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -58,7 +59,7 @@ import java.time.Instant
 import java.util.Calendar
 import java.util.Date
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ReaderListItem(
     document: LLDocument,
@@ -66,6 +67,7 @@ fun ReaderListItem(
     cover: String?,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
     onAddToFavoritesClicked: () -> Unit,
     onMarkAsReadClicked: () -> Unit,
     onAddToBookList: () -> Unit,
@@ -306,9 +308,10 @@ fun ReaderListItem(
         },
         modifier = modifier
             .height(IntrinsicSize.Min)
-            .clickable {
-                onClick()
-            }
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
     )
 
     ConfirmationDialog(
@@ -410,6 +413,7 @@ private fun Preview() {
             documentInBookList = true,
             cover = null,
             onClick = {},
+            onLongClick = {},
             onAddToFavoritesClicked = {},
             onMarkAsReadClicked = {},
             onAddToBookList = {},
@@ -432,6 +436,7 @@ private fun Preview() {
             documentInBookList = false,
             cover = null,
             onClick = {},
+            onLongClick = {},
             onAddToFavoritesClicked = {},
             onMarkAsReadClicked = {},
             onAddToBookList = {},

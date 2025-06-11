@@ -2,7 +2,7 @@ package com.enoch02.reader
 
 import android.content.Context
 import android.os.Build
-import androidx.compose.ui.util.fastFilter
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -46,6 +47,9 @@ class ReaderListViewModel @Inject constructor(
     private val documents = documentDao.getDocuments()
     private val _sorting = MutableStateFlow(ReaderSorting.LAST_READ)
     private val _filter = MutableStateFlow(ReaderFilter.ALL)
+    private val _selectedDocuments = mutableStateListOf<String>()
+
+    val selectedDocuments: List<String> = _selectedDocuments
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val documentsState: StateFlow<DocumentsState> = combine(_sorting, _filter) { sorting, filter ->
@@ -72,7 +76,7 @@ class ReaderListViewModel @Inject constructor(
                 emit(
                     DocumentsState.Loaded(
                         documents
-                            .fastFilter { filterPredicate(applicationContext, filter, it) }
+                            .filter { filterPredicate(applicationContext, filter, it) }
                             .sortedWith(sortingComparator(sorting))
                     )
                 )
@@ -228,6 +232,59 @@ class ReaderListViewModel @Inject constructor(
 
     suspend fun deleteDocumentEntry(document: LLDocument) {
         documentDao.deleteDocument(document.contentUri.toString())
+    }
+
+    fun isDocumentSelected(id: String): Boolean = _selectedDocuments.contains(id)
+
+    fun addToSelectedDocs(id: String) {
+        if (!_selectedDocuments.contains(id)) {
+            _selectedDocuments.add(id)
+        }
+    }
+
+    fun removeFromSelectedBooks(id: String) {
+        _selectedDocuments.remove(id)
+    }
+
+    fun deleteSelectedDocs() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val docs = documents.first()
+
+            for (id in _selectedDocuments) {
+                val docToDelete = docs.find { it.id == id }
+                if (docToDelete != null) {
+                    deleteDocument(docToDelete)
+                }
+            }
+            _selectedDocuments.clear()
+        }
+    }
+
+    fun clearSelectedDocs() {
+        _selectedDocuments.clear()
+    }
+
+    fun selectAllDocuments() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val docs = documents.first()
+
+            docs.map { it.id }
+                .forEach { id ->
+                    addToSelectedDocs(id)
+                }
+        }
+    }
+
+    fun invertSelection() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val docs = documents.first()
+            val unSelectedDocs = docs
+                .filterNot { book -> _selectedDocuments.contains(book.id) }
+                .map { it.id }
+
+            _selectedDocuments.clear()
+            _selectedDocuments.addAll(unSelectedDocs)
+        }
     }
 
     fun searchFor(text: String): Flow<List<LLDocument>> {
