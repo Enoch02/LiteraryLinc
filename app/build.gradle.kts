@@ -121,6 +121,7 @@ dependencies {
     ksp(libs.hilt.android.compiler)
 
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.core.splashscreen)
 }
 
 java {

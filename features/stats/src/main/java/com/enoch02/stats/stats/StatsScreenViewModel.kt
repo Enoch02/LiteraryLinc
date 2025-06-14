@@ -13,7 +13,6 @@ import com.enoch02.database.model.Book
 import com.enoch02.settings.ReadingProgressManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -87,22 +86,13 @@ class StatsScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             booksFlow.collect { books ->
                 totalCount = books.size
-                val task1 = async { pagesReadCount = books.sumOf { it.pagesRead } }
-                val task2 = async {
-                    currentlyReadingCount =
-                        books.filter { it.status == Book.Companion.BookStatus.READING.strName }.size
-                }
-                val task3 = async { computeTotalHoursRead(books) }
-                val task4 = async { computeFastestCompletedBook(books) }
-                val task5 = async { booksReadThisYear = computeBooksReadThisYear(books) }
-                val task6 = async { averageRating = computeAverageRating(books) }
-
-                task1.await()
-                task2.await()
-                task3.await()
-                task4.await()
-                task5.await()
-                task6.await()
+                pagesReadCount = books.sumOf { it.pagesRead }
+                currentlyReadingCount =
+                    books.filter { it.status == Book.Companion.BookStatus.READING.strName }.size
+                computeTotalHoursRead(books)
+                computeFastestCompletedBook(books)
+                booksReadThisYear = computeBooksReadThisYear(books)
+                averageRating = computeAverageRating(books)
             }
         }
     }
