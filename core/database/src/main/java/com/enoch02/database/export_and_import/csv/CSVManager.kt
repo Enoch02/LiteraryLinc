@@ -166,20 +166,12 @@ class CSVManager(
 
                     while (iterator.hasNext()) {
                         val row = iterator.next()
-
-                        try {
-                            // Launch a coroutine to process the row
-                            val job = async(Dispatchers.IO) {
-                                processRow(row)
-                            }
-
-                            jobs.add(job)
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Error while processing row: ${e.message}")
+                        val job = async(Dispatchers.IO) {
+                            processRow(row)
                         }
-                    }
 
-                    // Wait for all jobs to complete
+                        jobs.add(job)
+                    }
                     jobs.awaitAll()
                 }
             }
