@@ -43,7 +43,7 @@ import com.enoch02.stats.components.QuickStatCard
 @Composable
 fun StatsScreen(
     modifier: Modifier,
-    viewModel: StatsScreenViewModel = hiltViewModel(),
+    viewModel: StatsViewModel = hiltViewModel(),
     snackbarHostState: SnackbarHostState,
     onSaveProgressData: (goal: Int, progress: Int) -> Unit
 ) {
