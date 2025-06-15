@@ -1,14 +1,12 @@
 package com.enoch02.stats.stats
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.database.dao.BookDao
-import com.enoch02.database.dao.StatsDao
 import com.enoch02.database.model.Book
 import com.enoch02.settings.ReadingProgressManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,11 +18,11 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 @HiltViewModel
-class StatsScreenViewModel @Inject constructor(
+class StatsViewModel @Inject constructor(
     bookDao: BookDao,
-    private val statsDao: StatsDao,
     private val readingProgressManager: ReadingProgressManager
 ) : ViewModel() {
     private val booksFlow = bookDao.getBooks()
@@ -34,7 +32,7 @@ class StatsScreenViewModel @Inject constructor(
     var totalHoursRead by mutableIntStateOf(0)
     var fastestCompletedBook by mutableStateOf("")
     var booksReadThisYear by mutableIntStateOf(0)
-    var averageRating by mutableDoubleStateOf(0.0)
+    var averageRating by mutableIntStateOf(0)
 
     var currentReadingStreak = readingProgressManager.getReadingStreak()
     var longestReadingStreak = readingProgressManager.getLongestReadingStreak()
@@ -124,8 +122,14 @@ class StatsScreenViewModel @Inject constructor(
         return books.filter { isThisYear(it.dateStarted) && it.status == Book.Companion.BookStatus.COMPLETED.strName }.size
     }
 
-    private fun computeAverageRating(books: List<Book>): Double {
-        return books.map { it.personalRating }.filter { it > 0 }.average()
+    private fun computeAverageRating(books: List<Book>): Int {
+        val avg = books.map { it.personalRating }.filter { it > 0 }.average()
+
+        return if (avg.isNaN()) {
+            0
+        } else {
+            avg.roundToInt()
+        }
     }
 
     private fun isThisYear(timestamp: Long?): Boolean {
