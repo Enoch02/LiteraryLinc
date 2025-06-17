@@ -9,7 +9,11 @@ import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -78,11 +82,16 @@ fun BookListScreen(
             HorizontalPager(
                 state = pagerState,
                 pageContent = { tabIndex ->
-                    val books = viewModel.getBooks(
-                        filter = tabIndex, sorting = sorting,
-                        status = statusFilter
-                    )
-                        .collectAsState(initial = emptyList()).value
+                    val booksFlow by remember(tabIndex, sorting, statusFilter) {
+                        derivedStateOf {
+                            viewModel.getBooks(
+                                filter = tabIndex,
+                                sorting = sorting,
+                                status = statusFilter
+                            )
+                        }
+                    }
+                    val books by booksFlow.collectAsState(emptyList())
                     val selectedBooks = viewModel.selectedBooks
                     val onClick: (id: Int) -> Unit = { id ->
                         if (selectedBooks.isNotEmpty() && !viewModel.isBookSelected(id)) { // in item selection mode
@@ -94,6 +103,11 @@ fun BookListScreen(
                                 onItemClick(id)
                             }
                         }
+                    }
+
+                    // clear selected items when filter changes
+                    LaunchedEffect(tabIndex) {
+                        viewModel.clearSelectedBooks()
                     }
 
                     when (listViewMode) {
@@ -125,19 +139,6 @@ fun BookListScreen(
             )
         }
     )
-
-    /* ConfirmDeletionDialog(
-         visible = showDeletionConfirmation,
-         onDismiss = { showDeletionConfirmation = false },
-         onConfirm = {
-             viewModel.deleteSelectedBooks()
-             showDeletionConfirmation = false
-         },
-         message = stringResource(
-             LLString.bookListMultiDeletionWarning,
-             viewModel.selectedBooks.size
-         )
-     )*/
 
     BooklistBottomSheet(
         visible = isSearching,
