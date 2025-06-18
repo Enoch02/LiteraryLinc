@@ -23,6 +23,8 @@ import kotlinx.coroutines.runBlocking
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 private const val TAG = "CSVManager"
 
@@ -188,6 +190,7 @@ class CSVManager(
         return Result.success(Unit)
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     private suspend fun processRow(restoreObj: CSVRestoreObject) {
         var decodedImage: Bitmap? = null
         Log.d(TAG, "import: Restoring ${restoreObj.title}")
@@ -213,15 +216,13 @@ class CSVManager(
                 type = restoreObj.type,
                 coverImageName = bookCoverRepository.copyCoverFrom(
                     bitmap = decodedImage,
-                    name = restoreObj.title
+                    name = restoreObj.documentMd5 ?: Uuid.random().toString()
                 ),
                 notes = restoreObj.notes,
                 status = restoreObj.status,
                 documentMd5 = restoreObj.documentMd5
             )
         )
-
-        decodedImage?.recycle()
     }
 }
 
