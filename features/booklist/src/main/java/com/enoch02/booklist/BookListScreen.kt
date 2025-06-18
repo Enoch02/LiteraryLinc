@@ -47,6 +47,11 @@ fun BookListScreen(
     val covers = viewModel.getCovers()
         .collectAsState(initial = emptyMap()).value
 
+    // clear selected items when filter changes
+    LaunchedEffect(pagerState.currentPage) {
+        viewModel.clearSelectedBooks()
+    }
+
     Column(
         modifier = modifier.fillMaxSize(),
         content = {
@@ -54,8 +59,8 @@ fun BookListScreen(
                 visible = viewModel.selectedBooks.isNotEmpty(),
                 selectionCount = viewModel.selectedBooks.size,
                 onClearSelection = { viewModel.clearSelectedBooks() },
-                onSelectAll = { viewModel.selectAllBooks() },
-                onInvertSelection = { viewModel.invertSelection() },
+                onSelectAll = { viewModel.selectAllBooks(currentType = pagerState.currentPage) },
+                onInvertSelection = { viewModel.invertSelection(currentType = pagerState.currentPage) },
                 onDelete = { viewModel.deleteSelectedBooks() }
             )
 
@@ -105,11 +110,6 @@ fun BookListScreen(
                         }
                     }
 
-                    // clear selected items when filter changes
-                    LaunchedEffect(tabIndex) {
-                        viewModel.clearSelectedBooks()
-                    }
-
                     when (listViewMode) {
                         BookViewMode.LIST_VIEW -> {
                             BookListView(
@@ -144,7 +144,7 @@ fun BookListScreen(
         visible = isSearching,
         onDismissSearchSheet = onDismissSearching,
         onSearch = { query ->
-            viewModel.searchFor(query)
+            viewModel.searchFor(text = query, currentType = pagerState.currentPage)
         },
         covers = covers,
         onDeleteBook = { id -> viewModel.deleteBook(id) },
