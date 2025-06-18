@@ -174,7 +174,7 @@ fun BookListItem(
             Column {
                 Text(
                     text = book.title,
-                    fontStyle = MaterialTheme.typography.titleMedium.fontStyle,
+                    style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -182,7 +182,7 @@ fun BookListItem(
                 val authorAlpha = if (book.author.isNotEmpty()) 1f else 0f
                 Text(
                     text = book.author,
-                    fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                    style = MaterialTheme.typography.labelSmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.alpha(authorAlpha)
