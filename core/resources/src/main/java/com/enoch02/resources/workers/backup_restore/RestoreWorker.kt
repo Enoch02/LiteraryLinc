@@ -20,7 +20,7 @@ import kotlinx.coroutines.withContext
 
 private const val TAG = "RestoreWorker"
 
-//TODO: add progress to restore
+//TODO: add progress to restore?
 @HiltWorker
 class RestoreWorker @AssistedInject constructor(
     @Assisted ctx: Context,
