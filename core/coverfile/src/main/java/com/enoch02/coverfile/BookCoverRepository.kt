@@ -70,7 +70,7 @@ class BookCoverRepository(private val context: Context) {
                 FileOutputStream(coverFile).use {
                     bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, it)
                 }
-
+                bitmap?.recycle()
                 coverFile.name
             } catch (e: Exception) {
                 ""
