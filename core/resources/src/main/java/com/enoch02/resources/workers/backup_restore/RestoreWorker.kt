@@ -1,9 +1,9 @@
 package com.enoch02.resources.workers.backup_restore
 
 import android.content.Context
-import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -17,7 +17,6 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import androidx.core.net.toUri
 
 private const val TAG = "RestoreWorker"
 
@@ -47,7 +46,7 @@ class RestoreWorker @AssistedInject constructor(
 
             try {
                 Log.d(TAG, "doWork: Opening backup file for import")
-                csvManager.import(backupUri.toUri())
+                csvManager.import(uri = backupUri.toUri())
                     .onSuccess {
                         withContext(Dispatchers.Main) {
                             notificationManager.cancel(RESTORE_NOTIFICATION_ID)
