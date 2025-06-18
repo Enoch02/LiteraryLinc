@@ -8,6 +8,8 @@ import com.enoch02.database.dao.BookDao
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
+import com.enoch02.resources.extensions.uniqueAdd
+import com.enoch02.resources.extensions.uniqueAddAll
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -30,8 +32,9 @@ class BookListViewModel @Inject constructor(
     fun getBooks(filter: Int, sorting: Sorting, status: StatusFilter): Flow<List<Book>> {
         val filteredBooks = filterBooks(filter)
         val sortedBooks = sortBooks(sorting = sorting, filteredBooks = filteredBooks)
+        val final = filterStatus(status = status, sortedBooks = sortedBooks)
 
-        return filterStatus(status = status, sortedBooks = sortedBooks)
+        return final
     }
 
     private fun filterBooks(filter: Int): Flow<List<Book>> {
@@ -88,9 +91,7 @@ class BookListViewModel @Inject constructor(
     fun isBookSelected(id: Int): Boolean = _selectedBooks.contains(id)
 
     fun addToSelectedBooks(id: Int) {
-        if (!_selectedBooks.contains(id)) {
-            _selectedBooks.add(id)
-        }
+        _selectedBooks.uniqueAdd(id)
     }
 
     fun removeFromSelectedBooks(id: Int) {
@@ -115,13 +116,9 @@ class BookListViewModel @Inject constructor(
     fun selectAllBooks() {
         viewModelScope.launch(Dispatchers.IO) {
             val books = books.first()
+            val ids = books.mapNotNull { it.id }
 
-            books.map { it.id }
-                .forEach { id ->
-                    if (id != null) {
-                        addToSelectedBooks(id)
-                    }
-                }
+            _selectedBooks.uniqueAddAll(ids)
         }
     }
 
