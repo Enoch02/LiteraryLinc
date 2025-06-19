@@ -92,7 +92,7 @@ fun ReaderListItem(
             Column {
                 Text(
                     text = document.name,
-                    fontStyle = MaterialTheme.typography.titleMedium.fontStyle,
+                    style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )

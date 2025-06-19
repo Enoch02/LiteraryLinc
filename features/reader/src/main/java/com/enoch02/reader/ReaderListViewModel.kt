@@ -14,6 +14,7 @@ import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.ReaderSorting
 import com.enoch02.database.model.deleteDocument
 import com.enoch02.database.model.existsAsFile
+import com.enoch02.resources.extensions.uniqueAddAll
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,7 +27,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -90,6 +90,7 @@ class ReaderListViewModel @Inject constructor(
 
     fun updateFilter(filter: ReaderFilter) {
         _filter.value = filter
+        _selectedDocuments.clear()
     }
 
     private fun filterPredicate(
@@ -266,35 +267,55 @@ class ReaderListViewModel @Inject constructor(
 
     fun selectAllDocuments() {
         viewModelScope.launch(Dispatchers.IO) {
-            val docs = documents.first()
-
-            docs.map { it.id }
-                .forEach { id ->
-                    addToSelectedDocs(id)
+            when (val docsState = documentsState.value) {
+                is DocumentsState.Loaded -> {
+                    val ids = docsState.documents.map { it.id }
+                    _selectedDocuments.uniqueAddAll(ids)
                 }
+
+                DocumentsState.Loading -> {}
+            }
         }
     }
 
     fun invertSelection() {
         viewModelScope.launch(Dispatchers.IO) {
-            val docs = documents.first()
-            val unSelectedDocs = docs
-                .filterNot { book -> _selectedDocuments.contains(book.id) }
-                .map { it.id }
+            when (val docsState = documentsState.value) {
+                is DocumentsState.Loaded -> {
+                    val unSelectedDocs = docsState.documents
+                        .filterNot { document -> _selectedDocuments.contains(document.id) }
+                        .map { it.id }
 
-            _selectedDocuments.clear()
-            _selectedDocuments.addAll(unSelectedDocs)
+                    _selectedDocuments.clear()
+                    _selectedDocuments.uniqueAddAll(unSelectedDocs)
+                }
+
+                DocumentsState.Loading -> {}
+            }
         }
     }
 
     fun searchFor(text: String): Flow<List<LLDocument>> {
-        return documents.map { documents ->
-            if (text.isBlank()) {
-                emptyList()
-            } else {
-                documents.filter {
-                    it.name.contains(text, ignoreCase = true) ||
-                            it.author.contains(text, ignoreCase = true)
+        return flow {
+            when (val docsState = documentsState.value) {
+                is DocumentsState.Loaded -> {
+                    if (text.isEmpty()) {
+                        emit(emptyList())
+                    } else {
+                        emit(
+                            docsState.documents.filter {
+                                it.name.contains(text, ignoreCase = true) || it.author.contains(
+                                    text,
+                                    ignoreCase = true
+                                )
+                            }
+                        )
+                    }
+
+                }
+
+                DocumentsState.Loading -> {
+                    emit(emptyList())
                 }
             }
         }
