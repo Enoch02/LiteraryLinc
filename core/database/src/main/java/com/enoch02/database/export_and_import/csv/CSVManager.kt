@@ -23,6 +23,8 @@ import kotlinx.coroutines.runBlocking
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 private const val TAG = "CSVManager"
 
@@ -166,71 +168,61 @@ class CSVManager(
 
                     while (iterator.hasNext()) {
                         val row = iterator.next()
-
-                        try {
-                            // Launch a coroutine to process the row
-                            val job = async(Dispatchers.IO) {
-                                processRow(row)
-                            }
-
-                            jobs.add(job)
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Error while processing row: ${e.message}")
+                        if (!bookDao.doesBookTitleExist(row.title).first()) {
+                            jobs.add(
+                                async(Dispatchers.IO) {
+                                    processRow(row)
+                                }
+                            )
+                        } else {
+                            Log.i(TAG, "import: skipping ${row.title}, title already in db")
                         }
                     }
 
-                    // Wait for all jobs to complete
                     jobs.awaitAll()
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "import: ${e.message}", )
+            Log.e(TAG, "import: ${e.message}")
             return Result.failure(e)
         }
 
         return Result.success(Unit)
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     private suspend fun processRow(restoreObj: CSVRestoreObject) {
+        var decodedImage: Bitmap? = null
         Log.d(TAG, "import: Restoring ${restoreObj.title}")
 
-        if (!bookDao.doesBookTitleExist(restoreObj.title).first()) {
-            val decodedImageResult = restoreObj.coverImageMd5?.let {
-                Base64Functions.decode(
-                    it
-                )
-            }
-            var decodedImage: Bitmap? = null
-
-            decodedImageResult?.onSuccess { bitmap ->
-                decodedImage = bitmap
-            }
-
-            bookDao.insertBook(
-                Book(
-                    title = restoreObj.title,
-                    author = restoreObj.author,
-                    pagesRead = restoreObj.pagesRead,
-                    pageCount = restoreObj.pageCount,
-                    dateStarted = getEpochFromString(restoreObj.dateStarted ?: ""),
-                    dateCompleted = getEpochFromString(restoreObj.dateCompleted ?: ""),
-                    timesReread = restoreObj.timesReread,
-                    personalRating = restoreObj.personalRating,
-                    isbn = restoreObj.isbn,
-                    genre = restoreObj.genre,
-                    type = restoreObj.type,
-                    coverImageName = bookCoverRepository.copyCoverFrom(
-                        bitmap = decodedImage,
-                        name = restoreObj.title
-                    ),
-                    notes = restoreObj.notes,
-                    status = restoreObj.status,
-                    documentMd5 = restoreObj.documentMd5
-                )
-            )
-        } else {
-            Log.i(TAG, "processRow: skipping ${restoreObj.title}, title already in db")
+        restoreObj.coverImageMd5?.let {
+            Base64Functions.decode(it)
+        }?.onSuccess { bitmap ->
+            decodedImage = bitmap
         }
+
+        bookDao.insertBook(
+            Book(
+                title = restoreObj.title,
+                author = restoreObj.author,
+                pagesRead = restoreObj.pagesRead,
+                pageCount = restoreObj.pageCount,
+                dateStarted = getEpochFromString(restoreObj.dateStarted ?: ""),
+                dateCompleted = getEpochFromString(restoreObj.dateCompleted ?: ""),
+                timesReread = restoreObj.timesReread,
+                personalRating = restoreObj.personalRating,
+                isbn = restoreObj.isbn,
+                genre = restoreObj.genre,
+                type = restoreObj.type,
+                coverImageName = bookCoverRepository.copyCoverFrom(
+                    bitmap = decodedImage,
+                    name = restoreObj.documentMd5 ?: Uuid.random().toString()
+                ),
+                notes = restoreObj.notes,
+                status = restoreObj.status,
+                documentMd5 = restoreObj.documentMd5
+            )
+        )
     }
 }
 

@@ -15,6 +15,7 @@ import androidx.compose.material.icons.automirrored.rounded.ReadMore
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.StarRate
 import androidx.compose.material.icons.rounded.Timelapse
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +29,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,7 +43,7 @@ import com.enoch02.stats.components.QuickStatCard
 @Composable
 fun StatsScreen(
     modifier: Modifier,
-    viewModel: StatsScreenViewModel = hiltViewModel(),
+    viewModel: StatsViewModel = hiltViewModel(),
     snackbarHostState: SnackbarHostState,
     onSaveProgressData: (goal: Int, progress: Int) -> Unit
 ) {
@@ -170,6 +170,14 @@ fun StatsScreen(
                         title = stringResource(LLString.completedThisYear),
                         value = viewModel.booksReadThisYear.withCommas(),
                         icon = Icons.Rounded.Check
+                    )
+                }
+
+                item {
+                    QuickStatCard(
+                        title = stringResource(LLString.avgRating),
+                        value = viewModel.averageRating.toString(),
+                        icon = Icons.Rounded.StarRate
                     )
                 }
             }

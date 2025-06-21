@@ -73,6 +73,7 @@ class SettingsRepository(private val context: Context) {
         val showDocViewerBars = booleanPreferencesKey("show_doc_viewer_bars")
 
         val currentReaderFilterKey = intPreferencesKey("current_reader_filter")
+        val currentBooklistStatusFilterKey = intPreferencesKey("current_booklist_status_filter")
         val autoFileScanFrequency = intPreferencesKey("auto_file_scan_duration")
         val currentReadingStreak = intPreferencesKey("current_reading_streak")
         val longestReadingStreak = intPreferencesKey("longest_reading_streak")
@@ -97,6 +98,7 @@ class SettingsRepository(private val context: Context) {
     private fun getKeyForPreference(preference: IntPreferenceType): Preferences.Key<Int> {
         return when (preference) {
             IntPreferenceType.CURRENT_READER_FILTER -> Keys.currentReaderFilterKey
+            IntPreferenceType.CURRENT_BOOKLIST_STATUS_FILTER -> Keys.currentBooklistStatusFilterKey
             IntPreferenceType.AUTO_FILE_SCAN_FREQ -> Keys.autoFileScanFrequency
             IntPreferenceType.CURRENT_READING_STREAK -> Keys.currentReadingStreak
             IntPreferenceType.LONGEST_READING_STREAK -> Keys.longestReadingStreak
@@ -122,6 +124,7 @@ class SettingsRepository(private val context: Context) {
 
     enum class IntPreferenceType {
         CURRENT_READER_FILTER,
+        CURRENT_BOOKLIST_STATUS_FILTER,
         AUTO_FILE_SCAN_FREQ,
         CURRENT_READING_STREAK,
         LONGEST_READING_STREAK,

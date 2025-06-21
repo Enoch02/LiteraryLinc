@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.enoch02.more.navigation.MoreScreenDestination
 import com.enoch02.resources.LLString
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,7 +101,7 @@ fun AboutScreen(navController: NavController) {
                                             context.startActivity(
                                                 Intent(
                                                     Intent.ACTION_VIEW,
-                                                    Uri.parse(context.getString(LLString.appRepoUrl))
+                                                    context.getString(LLString.appRepoUrl).toUri()
                                                 )
                                             )
                                         },
@@ -131,7 +132,7 @@ fun AboutScreen(navController: NavController) {
                                             context.startActivity(
                                                 Intent(
                                                     Intent.ACTION_VIEW,
-                                                    Uri.parse(context.getString(LLString.appRepoUrl))
+                                                    context.getString(LLString.appRepoUrl).toUri()
                                                 )
                                             )
                                         },

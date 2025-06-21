@@ -4,7 +4,6 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.enoch02.database.dao.BookDao
-import com.enoch02.database.dao.StatsDao
 import com.enoch02.database.model.Book
 
 @Database(
@@ -17,6 +16,4 @@ import com.enoch02.database.model.Book
 )
 abstract class LiteraryLincDatabase : RoomDatabase() {
     abstract fun getBookDao(): BookDao
-
-    abstract fun getStatsDao(): StatsDao
 }

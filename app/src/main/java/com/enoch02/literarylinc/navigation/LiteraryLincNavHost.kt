@@ -17,7 +17,7 @@ import com.enoch02.modifybook.AddBookScreen
 import com.enoch02.modifybook.EditBookScreen
 import com.enoch02.more.MoreScreen
 import com.enoch02.more.about.AboutScreen
-import com.enoch02.more.about.LicensesScreen
+import com.enoch02.literarylinc.ui.licenses.LicensesScreen
 import com.enoch02.more.backup_restore.BackupRestoreScreen
 import com.enoch02.more.file_scan.FileScanScreen
 import com.enoch02.more.navigation.MoreScreenDestination

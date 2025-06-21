@@ -47,7 +47,7 @@ fun EditReadingGoalDialog(
             if (pInt > gInt) {
                 Toast.makeText(
                     context,
-                    "Your progress can't be greater than the goal!🤨",
+                    context.getString(LLString.editReadingGoalDialogWarning),
                     Toast.LENGTH_SHORT
                 ).show()
             } else {

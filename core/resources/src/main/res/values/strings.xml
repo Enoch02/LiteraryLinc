@@ -49,7 +49,7 @@
     <string name="clear_selection_desc">Clear Selection</string>
     <string name="select_all_desc">Select All</string>
     <string name="invert_selection_desc">Invert Selection</string>
-    <string name="book_list_multi_deletion_warning">Do you want to delete %1$s book data?</string>
+    <string name="multi_deletion_warning">Do you want to delete %1$s item(s)?</string>
     <string name="search_input_placeholder">Book Title or Author</string>
 
     <string name="add_a_new_book">Add a New Book</string>
@@ -186,4 +186,6 @@
     <string name="goal_achieved">Reading goal has been achieved!</string>
     <string name="set_new_reading_goal">New Reading Goal</string>
     <string name="set_new_goal_action_label">Set New Goal</string>
+    <string name="edit_reading_goal_warning">Your progress can\'t be greater than the goal!🤨</string>
+    <string name="average_rating">Average Rating</string>
 </resources>

@@ -11,13 +11,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -29,13 +31,15 @@ import com.enoch02.settings.SettingsRepository
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = hiltViewModel()) {
-    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val alwaysDark by viewModel.alwaysDark.collectAsState(false)
     val dynamicColors by viewModel.dynamicColors.collectAsState(false)
     val volumeButtonPaging by viewModel.volumeButtonPaging.collectAsState(false)
     val showDocViewerBars by viewModel.showDocViewerBars.collectAsState(false)
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = LLString.settings)) },
@@ -139,14 +143,14 @@ fun SettingsScreen(navController: NavController, viewModel: SettingViewModel = h
                                     content = {
                                         ConfirmationSettingItem(
                                             label = stringResource(LLString.resetBooklist),
-                                            onClick = { viewModel.resetBooklist(context) },
+                                            onClick = { viewModel.resetBooklist(snackbarHostState) },
                                             description = stringResource(LLString.resetBooklistDesc),
                                             alertMsg = stringResource(LLString.resetBooklistWarning)
                                         )
 
                                         ConfirmationSettingItem(
                                             label = stringResource(LLString.resetReaderlist),
-                                            onClick = { viewModel.resetReaderList(context) },
+                                            onClick = { viewModel.resetReaderList(snackbarHostState) },
                                             description = stringResource(LLString.resetReaderlistDesc),
                                             alertMsg = stringResource(LLString.resetReaderlistWarning)
                                         )

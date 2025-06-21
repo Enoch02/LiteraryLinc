@@ -5,7 +5,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("dagger.hilt.android.plugin")
-    id("com.mikepenz.aboutlibraries.plugin")
+    alias(libs.plugins.aboutLibraries)
     alias(libs.plugins.compose.compiler)
 }
 
@@ -17,8 +17,8 @@ android {
         applicationId = "com.enoch02.literarylinc"
         minSdk = 24
         targetSdk = 35
-        versionCode = 13
-        versionName = "0.0.13"
+        versionCode = 14
+        versionName = "0.0.14"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -80,7 +80,7 @@ android {
                 val baseAbiCode = abiCodes[name]
 
                 if (baseAbiCode != null) {
-                    output.versionCode.set(baseAbiCode * 1000 + (output.versionCode.get() ?: 0))
+                    output.versionCode.set(baseAbiCode * 1000 + output.versionCode.get())
                 }
             }
         }
@@ -121,6 +121,11 @@ dependencies {
     ksp(libs.hilt.android.compiler)
 
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.core.splashscreen)
+
+    implementation(libs.aboutlibraries.core)
+    implementation(libs.aboutlibraries.compose.core)
+    implementation(libs.aboutlibraries.compose.m3)
 }
 
 java {
@@ -128,3 +133,11 @@ java {
         languageVersion = JavaLanguageVersion.of(17)
     }
 }
+/*
+aboutLibraries {
+//    android.registerAndroidTasks = true
+    library.duplicationMode = com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
+    library.duplicationRule = com.mikepenz.aboutlibraries.plugin.DuplicateRule.SIMPLE
+
+    collect.filterVariants.addAll(listOf("debug", "release"))
+}*/

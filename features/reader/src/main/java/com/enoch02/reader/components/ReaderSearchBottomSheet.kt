@@ -124,6 +124,7 @@ fun ReaderSearchBottomSheet(
                                     documentInBookList = inBookList,
                                     cover = covers[document.cover],
                                     onClick = { onItemClick(document) },
+                                    onLongClick = { },
                                     onAddToFavoritesClicked = { onAddToFavoritesClicked(document) },
                                     onMarkAsReadClicked = { onMarkAsReadClicked(document) },
                                     onAddToBookList = { onAddToBookList(document) },

@@ -3,6 +3,7 @@ package com.enoch02.literarylinc.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.database.model.ReaderFilter
+import com.enoch02.database.model.StatusFilter
 import com.enoch02.settings.ReadingProgressManager
 import com.enoch02.settings.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,6 +46,23 @@ class LLAppViewModel @Inject constructor(
     fun changeReaderFilter(newValue: ReaderFilter) {
         changeIntPreference(
             SettingsRepository.IntPreferenceType.CURRENT_READER_FILTER,
+            newValue.ordinal
+        )
+    }
+
+    fun getCurrentBookStatusFilter(): Flow<StatusFilter> {
+        val ordinalFlow =
+            getIntPreference(SettingsRepository.IntPreferenceType.CURRENT_BOOKLIST_STATUS_FILTER)
+
+        return ordinalFlow.map {
+            val filter: StatusFilter? = fromOrdinal<StatusFilter>(it)
+            filter ?: StatusFilter.ALL
+        }
+    }
+
+    fun changeBookStatusFilter(newValue: StatusFilter) {
+        changeIntPreference(
+            SettingsRepository.IntPreferenceType.CURRENT_BOOKLIST_STATUS_FILTER,
             newValue.ordinal
         )
     }

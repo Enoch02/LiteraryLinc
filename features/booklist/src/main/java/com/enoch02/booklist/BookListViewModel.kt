@@ -6,9 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
 import com.enoch02.database.dao.BookDao
 import com.enoch02.database.model.Book
-import com.enoch02.database.model.LLDocument
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
+import com.enoch02.resources.extensions.uniqueAdd
+import com.enoch02.resources.extensions.uniqueAddAll
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BookListViewModel @Inject constructor(
     private val bookDao: BookDao,
-    private val bookCoverRepository: BookCoverRepository,
+    bookCoverRepository: BookCoverRepository,
 ) : ViewModel() {
     private val books = bookDao.getBooks()
     private val covers = bookCoverRepository.latestCoverPath
@@ -31,8 +32,9 @@ class BookListViewModel @Inject constructor(
     fun getBooks(filter: Int, sorting: Sorting, status: StatusFilter): Flow<List<Book>> {
         val filteredBooks = filterBooks(filter)
         val sortedBooks = sortBooks(sorting = sorting, filteredBooks = filteredBooks)
+        val final = filterStatus(status = status, sortedBooks = sortedBooks)
 
-        return filterStatus(status = status, sortedBooks = sortedBooks)
+        return final
     }
 
     private fun filterBooks(filter: Int): Flow<List<Book>> {
@@ -89,9 +91,7 @@ class BookListViewModel @Inject constructor(
     fun isBookSelected(id: Int): Boolean = _selectedBooks.contains(id)
 
     fun addToSelectedBooks(id: Int) {
-        if (!_selectedBooks.contains(id)) {
-            _selectedBooks.add(id)
-        }
+        _selectedBooks.uniqueAdd(id)
     }
 
     fun removeFromSelectedBooks(id: Int) {
@@ -113,22 +113,18 @@ class BookListViewModel @Inject constructor(
         _selectedBooks.clear()
     }
 
-    fun selectAllBooks() {
+    fun selectAllBooks(currentType: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            val books = books.first()
+            val books = filterBooks(currentType).first()
+            val ids = books.mapNotNull { it.id }
 
-            books.map { it.id }
-                .forEach { id ->
-                    if (id != null) {
-                        addToSelectedBooks(id)
-                    }
-                }
+            _selectedBooks.uniqueAddAll(ids)
         }
     }
 
-    fun invertSelection() {
+    fun invertSelection(currentType: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            val books = books.first()
+            val books = filterBooks(currentType).first()
             val unSelectedBooks = books
                 .filterNot { book -> _selectedBooks.contains(book.id) }
                 .map { it.id!! }
@@ -138,8 +134,8 @@ class BookListViewModel @Inject constructor(
         }
     }
 
-    fun searchFor(text: String): Flow<List<Book>> {
-        return books.map { documents ->
+    fun searchFor(text: String, currentType: Int): Flow<List<Book>> {
+        return filterBooks(currentType).map { documents ->
             if (text.isBlank()) {
                 emptyList()
             } else {

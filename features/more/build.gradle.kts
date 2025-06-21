@@ -71,7 +71,6 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.slf4j.android)
     implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.aboutlibraries.compose.m3)
 }
 
 java {

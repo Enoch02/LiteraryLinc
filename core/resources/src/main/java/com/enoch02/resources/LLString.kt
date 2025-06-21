@@ -51,7 +51,7 @@ object LLString {
     val clearSelection = R.string.clear_selection_desc
     val selectAll = R.string.select_all_desc
     val invertSelection = R.string.invert_selection_desc
-    val bookListMultiDeletionWarning = R.string.book_list_multi_deletion_warning
+    val multiDeletionWarning = R.string.multi_deletion_warning
     val searchPlaceHolder = R.string.search_input_placeholder
 
     val addANewBook = R.string.add_a_new_book
@@ -162,6 +162,7 @@ object LLString {
     val currentlyReading = R.string.currently_reading
     val completedThisYear = R.string.completed_this_year
     val roughEstimate = R.string.rough_estimate
+    val avgRating = R.string.average_rating
     val editReadingGoalDesc = R.string.edit_reading_goal_desc
     val save = R.string.save
     val readingGoal = R.string.reading_goal
@@ -172,4 +173,5 @@ object LLString {
     val setReadingGoalMsg = R.string.set_reading_goal_msg
     val readingGoalAchieved = R.string.goal_achieved
     val setGoalActionLabel = R.string.set_new_goal_action_label
+    val editReadingGoalDialogWarning = R.string.edit_reading_goal_warning
 }

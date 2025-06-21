@@ -1,9 +1,9 @@
 package com.enoch02.resources.workers.backup_restore
 
 import android.content.Context
-import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -20,6 +20,7 @@ import kotlinx.coroutines.withContext
 
 private const val TAG = "RestoreWorker"
 
+//TODO: add progress to restore?
 @HiltWorker
 class RestoreWorker @AssistedInject constructor(
     @Assisted ctx: Context,
@@ -46,7 +47,7 @@ class RestoreWorker @AssistedInject constructor(
 
             try {
                 Log.d(TAG, "doWork: Opening backup file for import")
-                csvManager.import(Uri.parse(backupUri))
+                csvManager.import(uri = backupUri.toUri())
                     .onSuccess {
                         withContext(Dispatchers.Main) {
                             notificationManager.cancel(RESTORE_NOTIFICATION_ID)

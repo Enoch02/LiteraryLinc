@@ -60,6 +60,7 @@ dependencies {
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.hilt.work)
+    implementation(libs.androidx.material.icons.extended)
 
     implementation("nl.siegmann.epublib:epublib-core:3.1") {
         exclude(group = "org.slf4j")

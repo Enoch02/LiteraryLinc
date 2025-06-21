@@ -13,11 +13,11 @@ import androidx.compose.ui.text.style.TextAlign
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun OtherBookInfoView(
-    modifier: Modifier = Modifier.fillMaxWidth(),
+    modifier: Modifier = Modifier,
     infoLabel: String,
     value: String
 ) {
-    FlowRow(modifier = modifier, horizontalArrangement = Arrangement.SpaceBetween) {
+    FlowRow(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(
             text = infoLabel,
             style = MaterialTheme.typography.titleLarge,

@@ -14,6 +14,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import androidx.core.net.toUri
 
 private const val TAG = "BackupWorker"
 
@@ -36,7 +37,7 @@ class BackupWorker @AssistedInject constructor(
             }
 
             try {
-                val uri = Uri.parse(backupUri)
+                val uri = backupUri.toUri()
 
                 if (friendly) {
                     csvManager.excelFriendlyExport(uri)

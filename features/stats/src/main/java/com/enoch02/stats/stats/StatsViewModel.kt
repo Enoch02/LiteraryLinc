@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.database.dao.BookDao
-import com.enoch02.database.dao.StatsDao
 import com.enoch02.database.model.Book
 import com.enoch02.settings.ReadingProgressManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,11 +18,11 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 @HiltViewModel
-class StatsScreenViewModel @Inject constructor(
+class StatsViewModel @Inject constructor(
     bookDao: BookDao,
-    private val statsDao: StatsDao,
     private val readingProgressManager: ReadingProgressManager
 ) : ViewModel() {
     private val booksFlow = bookDao.getBooks()
@@ -33,6 +32,7 @@ class StatsScreenViewModel @Inject constructor(
     var totalHoursRead by mutableIntStateOf(0)
     var fastestCompletedBook by mutableStateOf("")
     var booksReadThisYear by mutableIntStateOf(0)
+    var averageRating by mutableIntStateOf(0)
 
     var currentReadingStreak = readingProgressManager.getReadingStreak()
     var longestReadingStreak = readingProgressManager.getLongestReadingStreak()
@@ -89,6 +89,8 @@ class StatsScreenViewModel @Inject constructor(
                     books.filter { it.status == Book.Companion.BookStatus.READING.strName }.size
                 computeTotalHoursRead(books)
                 computeFastestCompletedBook(books)
+                booksReadThisYear = computeBooksReadThisYear(books)
+                averageRating = computeAverageRating(books)
             }
         }
     }
@@ -98,7 +100,6 @@ class StatsScreenViewModel @Inject constructor(
     }
 
     private fun computeTotalHoursRead(books: List<Book>) {
-        totalHoursRead = 0
         books.forEach { book ->
             if (book.dateStarted != null && book.dateCompleted != null) {
                 val difference = book.dateCompleted!! - book.dateStarted!!
@@ -108,18 +109,27 @@ class StatsScreenViewModel @Inject constructor(
     }
 
     private fun computeFastestCompletedBook(books: List<Book>) {
-        fastestCompletedBook = ""
         val filteredBooks =
             books.filter { it.dateCompleted != null && it.dateStarted != null && it.status == Book.Companion.BookStatus.COMPLETED.strName }
         val fastest = filteredBooks.minByOrNull { book ->
             book.dateCompleted!! - book.dateStarted!!
         }
+
         fastestCompletedBook = fastest?.title ?: ""
-        booksReadThisYear = computeBooksReadThisYear(books)
     }
 
     private fun computeBooksReadThisYear(books: List<Book>): Int {
         return books.filter { isThisYear(it.dateStarted) && it.status == Book.Companion.BookStatus.COMPLETED.strName }.size
+    }
+
+    private fun computeAverageRating(books: List<Book>): Int {
+        val avg = books.map { it.personalRating }.filter { it > 0 }.average()
+
+        return if (avg.isNaN()) {
+            0
+        } else {
+            avg.roundToInt()
+        }
     }
 
     private fun isThisYear(timestamp: Long?): Boolean {

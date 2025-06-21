@@ -2,8 +2,7 @@ package com.enoch02.reader
 
 import android.content.Context
 import android.os.Build
-import android.widget.Toast
-import androidx.compose.ui.util.fastFilter
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enoch02.coverfile.BookCoverRepository
@@ -15,6 +14,7 @@ import com.enoch02.database.model.ReaderFilter
 import com.enoch02.database.model.ReaderSorting
 import com.enoch02.database.model.deleteDocument
 import com.enoch02.database.model.existsAsFile
+import com.enoch02.resources.extensions.uniqueAddAll
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,13 +23,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.util.Calendar
 import javax.inject.Inject
@@ -48,6 +47,9 @@ class ReaderListViewModel @Inject constructor(
     private val documents = documentDao.getDocuments()
     private val _sorting = MutableStateFlow(ReaderSorting.LAST_READ)
     private val _filter = MutableStateFlow(ReaderFilter.ALL)
+    private val _selectedDocuments = mutableStateListOf<String>()
+
+    val selectedDocuments: List<String> = _selectedDocuments
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val documentsState: StateFlow<DocumentsState> = combine(_sorting, _filter) { sorting, filter ->
@@ -74,7 +76,7 @@ class ReaderListViewModel @Inject constructor(
                 emit(
                     DocumentsState.Loaded(
                         documents
-                            .fastFilter { filterPredicate(applicationContext, filter, it) }
+                            .filter { filterPredicate(applicationContext, filter, it) }
                             .sortedWith(sortingComparator(sorting))
                     )
                 )
@@ -88,6 +90,7 @@ class ReaderListViewModel @Inject constructor(
 
     fun updateFilter(filter: ReaderFilter) {
         _filter.value = filter
+        _selectedDocuments.clear()
     }
 
     private fun filterPredicate(
@@ -219,31 +222,100 @@ class ReaderListViewModel @Inject constructor(
         }
     }
 
-    fun deleteDocument(document: LLDocument) {
+    suspend fun deleteDocument(document: LLDocument): Result<Unit> {
+        if (document.deleteDocument(applicationContext)) {
+            documentDao.deleteDocument(document.contentUri.toString())
+            return Result.success(Unit)
+        } else {
+            return Result.failure(Exception("Document may have been moved or deleted"))
+        }
+    }
+
+    suspend fun deleteDocumentEntry(document: LLDocument) {
+        documentDao.deleteDocument(document.contentUri.toString())
+    }
+
+    fun isDocumentSelected(id: String): Boolean = _selectedDocuments.contains(id)
+
+    fun addToSelectedDocs(id: String) {
+        if (!_selectedDocuments.contains(id)) {
+            _selectedDocuments.add(id)
+        }
+    }
+
+    fun removeFromSelectedBooks(id: String) {
+        _selectedDocuments.remove(id)
+    }
+
+    fun deleteSelectedDocs() {
         viewModelScope.launch(Dispatchers.IO) {
-            if (document.deleteDocument(applicationContext)) {
-                documentDao.deleteDocument(document.contentUri.toString())
-            } else {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        applicationContext,
-                        "Document could not be deleted",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
+            val docs = documents.first()
+
+            for (id in _selectedDocuments) {
+                val docToDelete = docs.find { it.id == id }
+                if (docToDelete != null) {
+                    deleteDocument(docToDelete)
                 }
+            }
+            _selectedDocuments.clear()
+        }
+    }
+
+    fun clearSelectedDocs() {
+        _selectedDocuments.clear()
+    }
+
+    fun selectAllDocuments() {
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val docsState = documentsState.value) {
+                is DocumentsState.Loaded -> {
+                    val ids = docsState.documents.map { it.id }
+                    _selectedDocuments.uniqueAddAll(ids)
+                }
+
+                DocumentsState.Loading -> {}
+            }
+        }
+    }
+
+    fun invertSelection() {
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val docsState = documentsState.value) {
+                is DocumentsState.Loaded -> {
+                    val unSelectedDocs = docsState.documents
+                        .filterNot { document -> _selectedDocuments.contains(document.id) }
+                        .map { it.id }
+
+                    _selectedDocuments.clear()
+                    _selectedDocuments.uniqueAddAll(unSelectedDocs)
+                }
+
+                DocumentsState.Loading -> {}
             }
         }
     }
 
     fun searchFor(text: String): Flow<List<LLDocument>> {
-        return documents.map { documents ->
-            if (text.isBlank()) {
-                emptyList()
-            } else {
-                documents.filter {
-                    it.name.contains(text, ignoreCase = true) ||
-                            it.author.contains(text, ignoreCase = true)
+        return flow {
+            when (val docsState = documentsState.value) {
+                is DocumentsState.Loaded -> {
+                    if (text.isEmpty()) {
+                        emit(emptyList())
+                    } else {
+                        emit(
+                            docsState.documents.filter {
+                                it.name.contains(text, ignoreCase = true) || it.author.contains(
+                                    text,
+                                    ignoreCase = true
+                                )
+                            }
+                        )
+                    }
+
+                }
+
+                DocumentsState.Loading -> {
+                    emit(emptyList())
                 }
             }
         }
