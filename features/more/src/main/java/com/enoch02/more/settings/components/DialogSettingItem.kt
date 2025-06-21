@@ -88,7 +88,7 @@ fun DialogSettingItem(
 private fun Preview() {
     DialogSettingItem(
         title = "Title",
-        values = listOf("A", "-B", "C"),
+        values = listOf("A", "B", "C"),
         selected = "B",
         tonalElevation = 10.dp
     ) { }
