@@ -20,28 +20,28 @@ class WorkerFactory(
 ) : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
-        className: String,
-        parameters: WorkerParameters
+        workerClassName: String,
+        workerParameters: WorkerParameters
     ): CoroutineWorker? {
-        return when (className) {
+        return when (workerClassName) {
             FileScanWorker::class.java.name -> {
-                FileScanWorker(appContext, parameters, documentDao)
+                FileScanWorker(appContext, workerParameters, documentDao)
             }
 
             CoverScanWorker::class.java.name -> {
-                CoverScanWorker(appContext, parameters, bookCoverRepository, documentDao)
+                CoverScanWorker(appContext, workerParameters, bookCoverRepository, documentDao)
             }
 
             BackupWorker::class.java.name -> {
-                BackupWorker(appContext, parameters, csvManager)
+                BackupWorker(appContext, workerParameters, csvManager)
             }
 
             RestoreWorker::class.java.name -> {
-                RestoreWorker(appContext, parameters, csvManager)
+                RestoreWorker(appContext, workerParameters, csvManager)
             }
 
             PeriodicFileScanWorker::class.java.name -> {
-                PeriodicFileScanWorker(appContext, parameters, documentDao)
+                PeriodicFileScanWorker(appContext, workerParameters, documentDao)
             }
 
             else -> {

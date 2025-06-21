@@ -1,5 +1,5 @@
 [versions]
-aboutlibrariesComposeM3 = "12.0.0-b02"
+aboutLibraries = "12.2.3"
 activityCompose = "1.10.1"
 appcompat = "1.7.1"
 coilComposeVersion = "2.7.0"
@@ -36,10 +36,9 @@ workRuntimeKtx = "2.10.1"
 hiltWork = "1.2.0"
 kotlin = "2.1.21"
 uiTextGoogleFonts = "1.8.2"
-agp = "8.1.4"
 junitKtx = "1.2.1"
 roomTesting = "2.7.1"
-agpVersion = "8.7.3"
+agpVersion = "8.10.1"
 zoomable = "0.15.1"
 coreKtxVersion = "1.6.1"
 coreTesting = "2.2.0"
@@ -47,7 +46,9 @@ zoomableImageCoil = "0.15.1"
 
 
 [libraries]
-aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibrariesComposeM3" }
+aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutLibraries" }
+aboutlibraries-compose-core = { module = "com.mikepenz:aboutlibraries-compose-core", version.ref = "aboutLibraries" }
+aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutLibraries" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
@@ -103,3 +104,4 @@ zoomable-image-coil = { module = "me.saket.telephoto:zoomable-image-coil", versi
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agpVersion" }
+aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutLibraries" }
