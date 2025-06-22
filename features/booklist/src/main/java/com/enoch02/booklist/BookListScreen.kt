@@ -144,7 +144,11 @@ fun BookListScreen(
         visible = isSearching,
         onDismissSearchSheet = onDismissSearching,
         onSearch = { query ->
-            viewModel.searchFor(text = query, currentType = pagerState.currentPage)
+            viewModel.searchFor(
+                text = query,
+                currentType = pagerState.currentPage,
+                statusFilter = statusFilter
+            )
         },
         covers = covers,
         onDeleteBook = { id -> viewModel.deleteBook(id) },
