@@ -134,8 +134,11 @@ class BookListViewModel @Inject constructor(
         }
     }
 
-    fun searchFor(text: String, currentType: Int): Flow<List<Book>> {
-        return filterBooks(currentType).map { documents ->
+    fun searchFor(text: String, currentType: Int, statusFilter: StatusFilter): Flow<List<Book>> {
+        val booksFilteredByType = filterBooks(currentType)
+        val booksFilteredByStatus = filterStatus(status = statusFilter, sortedBooks = booksFilteredByType)
+
+        return booksFilteredByStatus.map { documents ->
             if (text.isBlank()) {
                 emptyList()
             } else {
