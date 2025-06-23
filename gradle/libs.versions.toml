@@ -42,7 +42,7 @@ agpVersion = "8.10.1"
 zoomable = "0.15.1"
 coreKtxVersion = "1.6.1"
 coreTesting = "2.2.0"
-zoomableImageCoil = "0.15.1"
+zoomableImageCoil = "0.16.0"
 
 
 [libraries]
