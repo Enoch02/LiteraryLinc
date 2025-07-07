@@ -43,7 +43,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.io.IOException
 import java.time.Instant
 import java.util.Calendar
 import java.util.Date
@@ -137,7 +136,6 @@ class LLDocumentViewModel @Inject constructor(
         }
     }
 
-    @Throws(IOException::class)
     private fun openDocument(context: Context, uri: Uri, size: Long, mimetype: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -207,9 +205,8 @@ class LLDocumentViewModel @Inject constructor(
 
                     hasBookBeenCompleted()
                 }
-            } catch (e: Exception) {
-                // catch exceptions that occurs when user closes the screen
-                // before a document loads
+            } catch (e: RuntimeException) {
+                // catch exception that occurs when user closes the viewer before a document loads
                 contentState = ContentState.DOCUMENT_NOT_FOUND
                 Log.e(TAG, "openDocument: ${e.message}")
             }
@@ -254,13 +251,6 @@ class LLDocumentViewModel @Inject constructor(
                 }
 
                 emit(bitmap)
-                //TODO: is error catching necessary here?
-                /*try {
-
-                } catch (e: Exception) {
-                    Log.e(TAG, "getPageBitmap at index $index: ${e.message}")
-                    emit(null)
-                }*/
             }
         } else {
             emit(null)
