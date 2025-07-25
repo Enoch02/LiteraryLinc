@@ -8,6 +8,7 @@ import com.enoch02.database.dao.BookDao
 import com.enoch02.database.model.Book
 import com.enoch02.database.model.Sorting
 import com.enoch02.database.model.StatusFilter
+import com.enoch02.resources.extensions.naturalCompare
 import com.enoch02.resources.extensions.uniqueAdd
 import com.enoch02.resources.extensions.uniqueAddAll
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -52,11 +53,24 @@ class BookListViewModel @Inject constructor(
     private fun sortBooks(sorting: Sorting, filteredBooks: Flow<List<Book>>): Flow<List<Book>> {
         return when (sorting) {
             Sorting.ALPHABETICAL -> {
-                filteredBooks.map { books -> books.sortedBy { it.title } }
+                filteredBooks.map { books ->
+                    books.sortedWith(
+                        Comparator { a, b ->
+                            a.title.naturalCompare(b.title)
+                        }
+                    )
+                }
             }
 
             Sorting.ALPHABETICAL_REVERSE -> {
-                filteredBooks.map { books -> books.sortedByDescending { it.title } }
+                filteredBooks.map { books ->
+                    books.sortedWith(
+                        Comparator { a, b ->
+                            a.title.naturalCompare(b.title)
+                        }
+                    )
+                        .asReversed()
+                }
             }
 
             Sorting.DATE_STARTED -> {
@@ -136,7 +150,8 @@ class BookListViewModel @Inject constructor(
 
     fun searchFor(text: String, currentType: Int, statusFilter: StatusFilter): Flow<List<Book>> {
         val booksFilteredByType = filterBooks(currentType)
-        val booksFilteredByStatus = filterStatus(status = statusFilter, sortedBooks = booksFilteredByType)
+        val booksFilteredByStatus =
+            filterStatus(status = statusFilter, sortedBooks = booksFilteredByType)
 
         return booksFilteredByStatus.map { documents ->
             if (text.isBlank()) {
