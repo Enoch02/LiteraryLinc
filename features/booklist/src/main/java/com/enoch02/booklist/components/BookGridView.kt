@@ -91,10 +91,6 @@ internal fun BookGridView(
     }
 }
 
-/**
- * Most [Book] properties are not used. Might remove it.
- * Implement onHold for deleting and multi-selection.
- */
 @Composable
 private fun BookGridItem(
     modifier: Modifier,
@@ -104,7 +100,7 @@ private fun BookGridItem(
     Card(
         modifier = modifier
             .fillMaxSize()
-            .size(width = 149.dp, height = 225.dp),
+            .size(width = 150.dp, height = 200.dp),
         content = {
             Box(
                 contentAlignment = Alignment.BottomStart,
