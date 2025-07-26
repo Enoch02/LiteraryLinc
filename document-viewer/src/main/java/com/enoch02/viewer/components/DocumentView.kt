@@ -489,7 +489,7 @@ fun DocumentView(
                 }
             }
 
-            ContentState.DOCUMENT_NOT_FOUND -> {
+            ContentState.DOCUMENT_CANT_BE_OPENED -> {
                 AlertDialog(
                     onDismissRequest = {},
                     icon = {
@@ -500,7 +500,7 @@ fun DocumentView(
                     },
                     text = {
                         Text(
-                            stringResource(R.string.missing_doc_msg),
+                            stringResource(R.string.cant_open_doc_msg),
                             textAlign = TextAlign.Center
                         )
                     },

@@ -207,7 +207,7 @@ class LLDocumentViewModel @Inject constructor(
                 }
             } catch (e: RuntimeException) {
                 // catch exception that occurs when user closes the viewer before a document loads
-                contentState = ContentState.DOCUMENT_NOT_FOUND
+                contentState = ContentState.DOCUMENT_CANT_BE_OPENED
                 Log.e(TAG, "openDocument: ${e.message}")
             }
         }

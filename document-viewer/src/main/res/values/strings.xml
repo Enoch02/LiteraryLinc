@@ -13,7 +13,7 @@
 	<string name="text_not_found">Text not found</string>
     <string name="ok">OK</string>
     <string name="password_required">Password Required</string>
-    <string name="missing_doc_msg">This Document may have been moved or deleted from the Internal Storage</string>
+    <string name="cant_open_doc_msg">This Document may have been moved, deleted or is Invalid</string>
 	<string name="missing_doc_title">Could not open document</string>
     <string name="info">Information</string>
 	<string name="reread_book_msg">This document has been marked as complete in the book list. Do you want to mark this book as being reread?</string>
