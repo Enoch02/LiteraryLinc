@@ -39,8 +39,6 @@ android {
 }
 
 dependencies {
-    val daggerVersion: String by rootProject.extra
-
     implementation(project(":core:settings"))
     implementation(project(":core:database"))
     implementation(project(":core:coverfile"))

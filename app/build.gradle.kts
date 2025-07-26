@@ -133,11 +133,3 @@ java {
         languageVersion = JavaLanguageVersion.of(17)
     }
 }
-/*
-aboutLibraries {
-//    android.registerAndroidTasks = true
-    library.duplicationMode = com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
-    library.duplicationRule = com.mikepenz.aboutlibraries.plugin.DuplicateRule.SIMPLE
-
-    collect.filterVariants.addAll(listOf("debug", "release"))
-}*/

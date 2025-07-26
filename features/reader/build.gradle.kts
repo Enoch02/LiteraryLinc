@@ -38,7 +38,6 @@ android {
 }
 
 dependencies {
-
     api(project(":document-viewer"))
     implementation(project(":core:coverfile"))
     implementation(project(":core:database"))
