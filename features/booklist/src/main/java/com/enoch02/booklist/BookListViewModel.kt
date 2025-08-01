@@ -117,7 +117,7 @@ class BookListViewModel @Inject constructor(
             val iterator = _selectedBooks.iterator()
 
             while (iterator.hasNext()) {
-                bookDao.deleteBook(iterator.next())
+                deleteBook(iterator.next())
                 iterator.remove()
             }
         }
