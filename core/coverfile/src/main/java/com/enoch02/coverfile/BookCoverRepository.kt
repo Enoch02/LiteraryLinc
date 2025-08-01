@@ -103,35 +103,20 @@ class BookCoverRepository(private val context: Context) {
         return latestPathMap.toMap()
     }
 
-
-    fun deleteAllCovers() {
-        val files = coverFolder.listFiles()?.toList()
-
-        files?.forEach { file ->
-            file.delete()
-            Log.d(TAG, "${file.name} deleted!")
-        }
-    }
-
-    suspend fun cleanUp(idsToDelete: List<String>) {
-        latestCoverPath.first().forEach { cover ->
-            if (idsToDelete.contains(cover.key)) {
-                val file = File(coverFolder, cover.key)
-                file.delete()
-                Log.d(TAG, "cleanUp: ${cover.key} deleted")
-            }
-        }
-    }
-
-    fun deleteOneCover(coverName: String) {
+    suspend fun deleteCover(name: String): Result<Unit> {
         try {
-            if (coverName.isNotEmpty()) {
-                val file = File(coverFolder, coverName)
-                file.delete()
-                Log.d(TAG, "$coverName deleted!")
+            val fileToDelete = latestCoverPath.first()
+                .filterKeys { it.contains(name) }
+                .firstNotNullOf { it.value }
+            val file = File(fileToDelete)
+
+            return if (file.delete()) {
+                Result.success(Unit)
+            } else {
+                Result.failure(IOException("Could not delete ${file.absolutePath}"))
             }
         } catch (e: Exception) {
-            Log.e(TAG, "deleteOneCover() -> $e")
+            return Result.failure(e)
         }
     }
 

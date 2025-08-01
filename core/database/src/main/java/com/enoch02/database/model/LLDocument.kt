@@ -35,7 +35,7 @@ fun LLDocument.existsAsFile(context: Context): Boolean {
             contentUri?.let { DocumentFile.fromSingleUri(context, it) } ?: return false
 
         return documentFile.exists() && documentFile.isFile
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         return false
     }
 }
@@ -43,5 +43,5 @@ fun LLDocument.existsAsFile(context: Context): Boolean {
 fun LLDocument.deleteDocument(context: Context): Boolean {
     val documentFile = this.contentUri?.let { DocumentFile.fromSingleUri(context, it) }
 
-    return documentFile?.delete() ?: false
+    return documentFile?.delete() == true
 }

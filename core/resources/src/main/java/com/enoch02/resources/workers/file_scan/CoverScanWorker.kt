@@ -11,7 +11,10 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.enoch02.coverfile.BookCoverRepository
+import com.enoch02.database.dao.BookDao
 import com.enoch02.database.dao.DocumentDao
+import com.enoch02.database.model.Book
+import com.enoch02.database.model.LLDocument
 import com.enoch02.database.model.existsAsFile
 import com.enoch02.resources.R
 import com.enoch02.resources.createProgressNotificationChannel
@@ -29,7 +32,8 @@ class CoverScanWorker @AssistedInject constructor(
     @Assisted ctx: Context,
     @Assisted parameters: WorkerParameters,
     private val bookCoverRepository: BookCoverRepository,
-    private val documentDao: DocumentDao
+    private val documentDao: DocumentDao,
+    private val bookDao: BookDao
 ) : CoroutineWorker(ctx, parameters) {
     override suspend fun doWork(): Result {
         createProgressNotificationChannel(applicationContext)
@@ -68,22 +72,49 @@ class CoverScanWorker @AssistedInject constructor(
             }
         }
 
-        val missingFiles = documents
-            .filterNot { document -> document.existsAsFile(applicationContext) }
-
-
-        if (missingFiles.isNotEmpty()) {
-            bookCoverRepository.cleanUp(missingFiles.map { it.id })
-            // remove db entries for missing files
-            missingFiles.forEach { document ->
-                documentDao.deleteDocument(document.contentUri.toString())
-            }
-        } else {
-            Log.i(TAG, "doWork: No unused cover to cleanup")
-        }
+        removeMissingEntriesAndDocumentCovers(
+            documentDao.getDocumentsNonFlow(),
+            applicationContext
+        )
+        removeMissingBooklistEntriesCovers(
+            bookDao.getBooksNonFlow(),
+            documentDao.getDocumentsNonFlow()
+        )
         sendFinalProgressNotification(applicationContext, COVER_SCAN_NOTIFICATION_ID)
 
         return Result.success()
+    }
+
+    private suspend fun removeMissingEntriesAndDocumentCovers(
+        documents: List<LLDocument>,
+        applicationContext: Context
+    ) {
+        for (document in documents) {
+            if (!document.existsAsFile(applicationContext)) {
+                bookCoverRepository.deleteCover(document.cover)
+                    .onSuccess {
+                        documentDao.deleteDocument(document.contentUri.toString())
+                    }
+                    .onFailure { e ->
+                        Log.e(TAG, "removeMissingEntriesAndDocumentCovers: ${e.message}")
+                    }
+            }
+        }
+    }
+
+    private suspend fun removeMissingBooklistEntriesCovers(
+        books: List<Book>,
+        documents: List<LLDocument>
+    ) {
+        val coverFiles = bookCoverRepository.getCoverFolderSnapshot().keys
+        val documentCovers = documents.map { it.cover }
+        val bookCovers = books.map { it.coverImageName.toString() }
+        val missing = coverFiles
+            .filterNot { bookCovers.contains(it) || documentCovers.contains(it) }
+
+        missing.forEach {
+            bookCoverRepository.deleteCover(it)
+        }
     }
 }
 

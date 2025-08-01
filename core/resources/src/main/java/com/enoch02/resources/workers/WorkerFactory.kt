@@ -5,6 +5,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import com.enoch02.coverfile.BookCoverRepository
+import com.enoch02.database.dao.BookDao
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.export_and_import.csv.CSVManager
 import com.enoch02.resources.workers.backup_restore.BackupWorker
@@ -14,6 +15,7 @@ import com.enoch02.resources.workers.file_scan.FileScanWorker
 import com.enoch02.resources.workers.file_scan.PeriodicFileScanWorker
 
 class WorkerFactory(
+    private val bookDao: BookDao,
     private val documentDao: DocumentDao,
     private val bookCoverRepository: BookCoverRepository,
     private val csvManager: CSVManager
@@ -29,7 +31,7 @@ class WorkerFactory(
             }
 
             CoverScanWorker::class.java.name -> {
-                CoverScanWorker(appContext, workerParameters, bookCoverRepository, documentDao)
+                CoverScanWorker(appContext, workerParameters, bookCoverRepository, documentDao, bookDao)
             }
 
             BackupWorker::class.java.name -> {

@@ -3,6 +3,7 @@ package com.enoch02.resources.workers
 import android.content.Context
 import androidx.work.WorkManager
 import com.enoch02.coverfile.BookCoverRepository
+import com.enoch02.database.dao.BookDao
 import com.enoch02.database.dao.DocumentDao
 import com.enoch02.database.export_and_import.csv.CSVManager
 import com.enoch02.resources.workers.backup_restore.BackupRestoreRepository
@@ -41,9 +42,10 @@ class WorkerModule {
 
     @Provides
     fun providesWorkerFactory(
+        bookDao: BookDao,
         documentDao: DocumentDao,
         bookCoverRepository: BookCoverRepository,
         csvManager: CSVManager
     ) =
-        WorkerFactory(documentDao, bookCoverRepository, csvManager)
+        WorkerFactory(bookDao, documentDao, bookCoverRepository, csvManager)
 }
