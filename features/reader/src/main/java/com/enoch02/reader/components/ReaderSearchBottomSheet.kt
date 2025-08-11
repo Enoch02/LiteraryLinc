@@ -56,6 +56,11 @@ fun ReaderSearchBottomSheet(
         var query by remember { mutableStateOf("") }
         var searchResults: Flow<List<LLDocument>> by remember { mutableStateOf(emptyFlow()) }
         val items by searchResults.collectAsState(emptyList())
+        // workaround to get search result items to update when a button on item
+        // is toggled
+        val triggerSearch = {
+            searchResults = onSearch(query)
+        }
 
         ModalBottomSheet(
             onDismissRequest = onDismiss,
@@ -125,12 +130,30 @@ fun ReaderSearchBottomSheet(
                                     cover = covers[document.cover],
                                     onClick = { onItemClick(document) },
                                     onLongClick = { },
-                                    onAddToFavoritesClicked = { onAddToFavoritesClicked(document) },
-                                    onMarkAsReadClicked = { onMarkAsReadClicked(document) },
-                                    onAddToBookList = { onAddToBookList(document) },
-                                    onRemoveFromBookList = { onRemoveFromBookList(document.id) },
-                                    onToggleAutoTracking = { onToggleAutoTracking(document) },
-                                    onDeleteDocument = { onDeleteDocument(document) },
+                                    onAddToFavoritesClicked = {
+                                        onAddToFavoritesClicked(document)
+                                        triggerSearch()
+                                    },
+                                    onMarkAsReadClicked = {
+                                        onMarkAsReadClicked(document)
+                                        triggerSearch()
+                                    },
+                                    onAddToBookList = {
+                                        onAddToBookList(document)
+                                        triggerSearch()
+                                    },
+                                    onRemoveFromBookList = {
+                                        onRemoveFromBookList(document.id)
+                                        triggerSearch()
+                                    },
+                                    onToggleAutoTracking = {
+                                        onToggleAutoTracking(document)
+                                        triggerSearch()
+                                    },
+                                    onDeleteDocument = {
+                                        onDeleteDocument(document)
+                                        triggerSearch()
+                                    },
                                     onShare = { onShare(document) }
                                 )
                             }
