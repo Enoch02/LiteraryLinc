@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -45,7 +44,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -55,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.enoch02.database.model.LLDocument
 import com.enoch02.resources.LLString
+import com.enoch02.resources.extensions.adaptiveWidth
 import java.time.Instant
 import java.util.Calendar
 import java.util.Date
@@ -97,12 +96,13 @@ fun ReaderListItem(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                Text(
-                    text = document.author,
-                    maxLines = 1,
-                    fontSize = MaterialTheme.typography.labelSmall.fontSize,
-                    modifier = Modifier.alpha(if (document.author.isNotEmpty()) 1f else 0f)
-                )
+                if (document.author.isNotEmpty()) {
+                    Text(
+                        text = document.author,
+                        maxLines = 1,
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                    )
+                }
 
                 Text(
                     text = "${document.type}, ${document.sizeInMb}MB",
@@ -117,8 +117,7 @@ fun ReaderListItem(
                         } else {
                             0f
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth()
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -135,7 +134,7 @@ fun ReaderListItem(
         },
         supportingContent = {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.adaptiveWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 val favoriteIcon =
