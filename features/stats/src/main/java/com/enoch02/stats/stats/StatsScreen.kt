@@ -110,7 +110,7 @@ fun StatsScreen(
             }
 
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 150.dp),
+                columns = GridCells.Fixed(2),
                 modifier = Modifier
                     .padding(bottom = 4.dp)
             ) {
