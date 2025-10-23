@@ -90,6 +90,10 @@ data class Book(
                         throw Exception("Completion date can not come before start date")
                     }
                 }
+
+                (pagesRead > pageCount) -> {
+                    throw Exception("Pages read can not be greater than the page count")
+                }
             }
 
             return Book(
